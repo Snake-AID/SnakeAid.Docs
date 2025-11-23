@@ -9,7 +9,7 @@
 | Topic | Description | Primary Actors |
 |-------|-------------|----------------|
 | **Major Features** | | |
-| ***Mobile/Web Application for Patient*** | | |
+| ***Mobile Application for Patient*** | | |
 | Hướng dẫn sơ cứu khẩn cấp | FE-01: Chức năng cung cấp hướng dẫn từng bước khi bị rắn cắn (băng ép, cách xử lý, cảnh báo hành động cấm kỵ).<br>FE-02: Hiển thị hướng dẫn băng ép đúng cách có hình ảnh minh họa.<br>FE-03: Cảnh báo các hành động nguy hiểm cần tránh (đắp lá, rạch vết thương, hút độc...). | **Patient** |
 | Gọi cứu hộ khẩn cấp (SOS) | FE-04: Nút SOS gửi vị trí GPS và gọi trực tiếp đến đường dây nóng cấp cứu.<br>FE-05: Tự động chia sẻ vị trí real-time với đội cứu hộ được phân công. | **Patient** |
 | Định vị cơ sở điều trị gần nhất | FE-06: Hiển thị bản đồ các bệnh viện/trạm y tế có huyết thanh kháng nọc rắn.<br>FE-07: Tính toán khoảng cách và thời gian ước tính đến từng cơ sở.<br>FE-08: Thông tin chi tiết về loại huyết thanh có sẵn tại mỗi cơ sở (dựa trên dữ liệu admin cập nhật). | **Patient** |
@@ -20,7 +20,7 @@
 | Kiến thức phòng tránh rắn cắn | FE-21: Cung cấp bài viết, video về cách phòng tránh rắn cắn.<br>FE-22: FAQ - Câu hỏi thường gặp về xử lý rắn cắn.<br>FE-23: Thông tin về các loài rắn phổ biến ở từng khu vực. | **Patient** |
 | Theo dõi đội cứu hộ real-time | FE-24: Hiển thị vị trí đội cứu hộ đang di chuyển trên bản đồ sau khi yêu cầu cứu hộ.<br>FE-25: Nhận thông báo khi đội cứu hộ đang trên đường đến và khi hoàn thành nhiệm vụ.<br>FE-26: Hiển thị lộ trình và thời gian dự kiến đến nơi. | **Patient** |
 | Quản lý thanh toán dịch vụ | FE-27: Thanh toán phí tư vấn chuyên gia rắn trực tuyến.<br>FE-28: Thanh toán phí cứu hộ rắn trực tiếp cho đội cứu hộ qua nền tảng.<br>FE-29: Theo dõi trạng thái thanh toán và hóa đơn điện tử.<br>FE-30: Xem lịch sử giao dịch và chi tiết dịch vụ đã sử dụng. | **Patient** |
-| ***Mobile/Web Application for Snake Rescuer*** | | |
+| ***Mobile Application for Snake Rescuer*** | | |
 | Nhận cảnh báo cứu hộ rắn | FE-01: Nhận thông báo về phát hiện rắn hoặc yêu cầu cứu hộ kèm vị trí và hình ảnh.<br>FE-02: Xem chi tiết yêu cầu: loại rắn dự đoán, mức độ nguy hiểm, thông tin liên hệ. | **Snake Rescuer** |
 | Xác nhận và phản hồi nhanh | FE-03: Xác nhận loại rắn (có độc/không độc) từ hình ảnh.<br>FE-04: Cập nhật kết quả xác minh lên hệ thống.<br>FE-05: Gửi thông tin sơ bộ cho người yêu cầu về mức độ nguy hiểm. | **Snake Rescuer** |
 | Quản lý nhiệm vụ cứu hộ | FE-06: Chấp nhận hoặc từ chối yêu cầu cứu hộ.<br>FE-07: Cập nhật tiến độ (đang di chuyển, đang xử lý, đã hoàn thành).<br>FE-08: Quản lý danh sách nhiệm vụ: đang chờ, đang thực hiện, đã hoàn thành. | **Snake Rescuer** |
@@ -30,7 +30,7 @@
 | Theo dõi bản đồ và điều hướng | FE-18: Cập nhật vị trí real-time của đội cứu hộ lên hệ thống.<br>FE-19: Hỗ trợ điều hướng đến vị trí của bệnh nhân.<br>FE-20: Gửi thông báo trạng thái (đang đến, đã đến, hoàn thành) cho bệnh nhân. | **Snake Rescuer**<br>**Patient** |
 | Nhận diện rắn từ ảnh (AI) | FE-21: Sử dụng AI để nhận diện loài rắn từ ảnh do bệnh nhân gửi.<br>FE-22: Nhận cảnh báo về mức độ nguy hiểm trước khi đến hiện trường.<br>FE-23: Chuẩn bị thiết bị và biện pháp an toàn phù hợp. | **Snake Rescuer** |
 | Quản lý doanh thu cứu hộ | FE-24: Chấp nhận yêu cầu cứu hộ có trả phí từ bệnh nhân.<br>FE-25: Theo dõi doanh thu, trạng thái thanh toán và lịch sử giao dịch.<br>FE-26: Nhận thanh toán qua nền tảng sau khi hoàn thành cứu hộ.<br>FE-27: Xem đánh giá và nhận phản hồi từ khách hàng để cải thiện ưu tiên xếp hạng. | **Snake Rescuer** |
-| ***Mobile/Web Application for Snake Expert*** | | |
+| ***Mobile Application for Snake Expert*** | | |
 | Xác minh dữ liệu nhận diện | FE-01: Xác nhận loài rắn từ hình ảnh/mô tả do hệ thống hoặc người dùng gửi.<br>FE-02: Sửa đổi kết quả AI nếu nhận diện sai.<br>FE-03: Thêm ghi chú chuyên môn về đặc điểm nhận dạng. | **Snake Expert** |
 | Hỗ trợ AI nhận diện loài rắn | FE-04: Sử dụng AI để rút ngắn thời gian xác minh loài rắn.<br>FE-05: Kiểm tra và phê duyệt kết quả AI trước khi công bố.<br>FE-06: Đào tạo và cải thiện mô hình AI bằng cách xác nhận dữ liệu mới. | **Snake Expert** |
 | Cập nhật hướng dẫn sơ cứu | FE-07: Cập nhật quy trình xử lý và sơ cứu theo từng loài rắn.<br>FE-08: Biên soạn hướng dẫn chi tiết về triệu chứng và cách xử lý nọc rắn.<br>FE-09: Cung cấp thông tin về liều lượng huyết thanh kháng nọc phù hợp. | **Snake Expert** |
@@ -67,7 +67,7 @@
 | Topic | Description | Primary Actors |
 |-------|-------------|----------------|
 | **Major Features** | | |
-| ***Mobile/Web Application for Patient*** | | |
+| ***Mobile Application for Patient*** | | |
 | Emergency First Aid Guidance | FE-01: Provide step-by-step guidance when bitten by a snake (compression bandage, treatment methods, prohibited action warnings).<br>FE-02: Display proper compression bandage instructions with illustrated images.<br>FE-03: Warn against dangerous actions to avoid (applying leaves, cutting wound, sucking venom...). | **Patient** |
 | Emergency Rescue Call (SOS) | FE-04: SOS button sends GPS location and directly calls emergency hotline.<br>FE-05: Automatically share real-time location with assigned rescue team. | **Patient** |
 | Locate Nearest Treatment Facility | FE-06: Display map of hospitals/medical stations with snake antivenom.<br>FE-07: Calculate distance and estimated time to each facility.<br>FE-08: Detailed information about available antivenom types at each facility (based on admin-updated data). | **Patient** |
@@ -78,7 +78,7 @@
 | Snake Prevention Knowledge | FE-21: Provide articles, videos about snake bite prevention.<br>FE-22: FAQ - Frequently asked questions about snakebite treatment.<br>FE-23: Information about common snake species in each area. | **Patient** |
 | Track Rescue Team Real-time | FE-24: Display rescue team's moving location on map after requesting rescue.<br>FE-25: Receive notifications when rescue team is en route and when mission is completed.<br>FE-26: Display route and estimated arrival time. | **Patient** |
 | Service Payment Management | FE-27: Pay online snake expert consultation fees.<br>FE-28: Pay snake rescue fees directly to rescue teams via platform.<br>FE-29: Track payment status and electronic invoices.<br>FE-30: View transaction history and used service details. | **Patient** |
-| ***Mobile/Web Application for Snake Rescuer*** | | |
+| ***Mobile Application for Snake Rescuer*** | | |
 | Receive Snake Rescue Alerts | FE-01: Receive notifications about snake sightings or rescue requests with location and images.<br>FE-02: View request details: predicted snake type, danger level, contact information. | **Snake Rescuer** |
 | Quick Confirmation and Response | FE-03: Confirm snake type (venomous/non-venomous) from images.<br>FE-04: Update verification results to system.<br>FE-05: Send preliminary information to requester about danger level. | **Snake Rescuer** |
 | Rescue Task Management | FE-06: Accept or decline rescue requests.<br>FE-07: Update progress (moving, processing, completed).<br>FE-08: Manage task list: pending, in progress, completed. | **Snake Rescuer** |
@@ -88,7 +88,7 @@
 | Map Tracking and Navigation | FE-18: Update rescue team's real-time location to system.<br>FE-19: Support navigation to patient's location.<br>FE-20: Send status notifications (en route, arrived, completed) to patient. | **Snake Rescuer**<br>**Patient** |
 | Snake Identification from Image (AI) | FE-21: Use AI to identify snake species from patient-submitted images.<br>FE-22: Receive warnings about danger level before arriving at scene.<br>FE-23: Prepare appropriate equipment and safety measures. | **Snake Rescuer** |
 | Rescue Revenue Management | FE-24: Accept paid rescue requests from patients.<br>FE-25: Track revenue, payment status, and transaction history.<br>FE-26: Receive payment via platform after rescue completion.<br>FE-27: View ratings and receive customer feedback to improve priority ranking. | **Snake Rescuer** |
-| ***Mobile/Web Application for Snake Expert*** | | |
+| ***Mobile Application for Snake Expert*** | | |
 | Verify Identification Data | FE-01: Confirm snake species from images/descriptions submitted by system or users.<br>FE-02: Modify AI results if identification is incorrect.<br>FE-03: Add professional notes on identification characteristics. | **Snake Expert** |
 | Support AI Snake Identification | FE-04: Use AI to shorten snake species verification time.<br>FE-05: Review and approve AI results before publication.<br>FE-06: Train and improve AI model by confirming new data. | **Snake Expert** |
 | Update First Aid Guidelines | FE-07: Update treatment and first aid procedures for each snake species.<br>FE-08: Compile detailed guidelines on symptoms and snake venom treatment methods.<br>FE-09: Provide information on appropriate antivenom dosages. | **Snake Expert** |
