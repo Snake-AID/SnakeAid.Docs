@@ -52,3 +52,61 @@
 - **FE:** Feature (Tính năng chức năng)
 - Mỗi module bắt đầu lại từ FE-01 để dễ quản lý và theo dõi
 - Primary Actors bao gồm: **Patient** (Bệnh nhân), **Snake Rescuer** (Đội cứu hộ rắn), **Snake Expert** (Chuyên gia rắn), **Admin** (Quản trị viên)
+
+---
+---
+
+# MAJOR FEATURES SUMMARY TABLE - SNAKEAID PLATFORM (ENGLISH VERSION)
+
+## Project Information
+- **Project Name:** AI-Powered Platform for Snakebite First Aid and Rescue Support (SnakeAid)
+- **Purpose:** Integrated platform for snakebite first aid support, AI-powered snake species identification, rescue tracking, expert consultation, and incident monitoring
+
+---
+
+| Topic | Description | Primary Actors |
+|-------|-------------|----------------|
+| **Major Features** | | |
+| ***Mobile/Web Application for Patient*** | | |
+| Emergency First Aid Guidance | FE-01: Provide step-by-step guidance when bitten by a snake (compression bandage, treatment methods, prohibited action warnings).<br>FE-02: Display proper compression bandage instructions with illustrated images.<br>FE-03: Warn against dangerous actions to avoid (applying leaves, cutting wound, sucking venom...). | **Patient** |
+| Emergency Rescue Call (SOS) | FE-04: SOS button sends GPS location and directly calls emergency hotline.<br>FE-05: Automatically share real-time location with assigned rescue team. | **Patient** |
+| Locate Nearest Treatment Facility | FE-06: Display map of hospitals/medical stations with snake antivenom.<br>FE-07: Calculate distance and estimated time to each facility.<br>FE-08: Detailed information about available antivenom types at each facility (based on admin-updated data). | **Patient** |
+| Track Bite and Symptoms | FE-09: Allow users to input symptom descriptions (pain, swelling, numbness, nausea...).<br>FE-10: Take photos of bite to track progression over time.<br>FE-11: Store symptom history and photos to provide to doctors or experts. | **Patient** |
+| Identify Snake Species from Image (AI) | FE-12: Use AI to identify snake species from photos.<br>FE-13: Display results: snake name, toxicity (venomous/non-venomous), danger level.<br>FE-14: Suggest appropriate first aid measures based on identified snake species. | **Patient** |
+| Assess Severity Level (AI) | FE-15: Analyze bite photos and symptoms to assess danger level.<br>FE-16: Issue emergency warning and recommend calling emergency services if critical.<br>FE-17: Classify severity levels: mild, moderate, severe, critical. | **Patient** |
+| Report Snakebite Incident / Snake Sighting | FE-18: Send GPS location report and snake images to system.<br>FE-19: Request snake rescue team to capture/relocate snake.<br>FE-20: Alert community about areas with venomous snake presence. | **Patient** |
+| Snake Prevention Knowledge | FE-21: Provide articles, videos about snake bite prevention.<br>FE-22: FAQ - Frequently asked questions about snakebite treatment.<br>FE-23: Information about common snake species in each area. | **Patient** |
+| Track Rescue Team Real-time | FE-24: Display rescue team's moving location on map after requesting rescue.<br>FE-25: Receive notifications when rescue team is en route and when mission is completed.<br>FE-26: Display route and estimated arrival time. | **Patient** |
+| Service Payment Management | FE-27: Pay online snake expert consultation fees.<br>FE-28: Pay snake rescue fees directly to rescue teams via platform.<br>FE-29: Track payment status and electronic invoices.<br>FE-30: View transaction history and used service details. | **Patient** |
+| ***Mobile/Web Application for Snake Rescuer*** | | |
+| Receive Snake Rescue Alerts | FE-01: Receive notifications about snake sightings or rescue requests with location and images.<br>FE-02: View request details: predicted snake type, danger level, contact information. | **Snake Rescuer** |
+| Quick Confirmation and Response | FE-03: Confirm snake type (venomous/non-venomous) from images.<br>FE-04: Update verification results to system.<br>FE-05: Send preliminary information to requester about danger level. | **Snake Rescuer** |
+| Rescue Task Management | FE-06: Accept or decline rescue requests.<br>FE-07: Update progress (moving, processing, completed).<br>FE-08: Manage task list: pending, in progress, completed. | **Snake Rescuer** |
+| Safe Snake Capture Guidance | FE-09: Standard procedures for safely capturing and relocating snakes.<br>FE-10: List of necessary equipment and handling techniques for each species.<br>FE-11: Video tutorials for snake capture in various situations. | **Snake Rescuer** |
+| Communication with Experts | FE-12: Exchange information with snake experts for accurate identification.<br>FE-13: Request remote support when encountering difficult-to-identify snake species.<br>FE-14: Share real-time photos/videos with experts. | **Snake Rescuer**<br>**Snake Expert** |
+| Record and Report Activities | FE-15: Record detailed rescue cases (location, time, snake species, results).<br>FE-16: Take photos of captured snakes to store in database.<br>FE-17: Create statistical reports on rescue activities by month/quarter. | **Snake Rescuer** |
+| Map Tracking and Navigation | FE-18: Update rescue team's real-time location to system.<br>FE-19: Support navigation to patient's location.<br>FE-20: Send status notifications (en route, arrived, completed) to patient. | **Snake Rescuer**<br>**Patient** |
+| Snake Identification from Image (AI) | FE-21: Use AI to identify snake species from patient-submitted images.<br>FE-22: Receive warnings about danger level before arriving at scene.<br>FE-23: Prepare appropriate equipment and safety measures. | **Snake Rescuer** |
+| Rescue Revenue Management | FE-24: Accept paid rescue requests from patients.<br>FE-25: Track revenue, payment status, and transaction history.<br>FE-26: Receive payment via platform after rescue completion.<br>FE-27: View ratings and receive customer feedback to improve priority ranking. | **Snake Rescuer** |
+| ***Mobile/Web Application for Snake Expert*** | | |
+| Verify Identification Data | FE-01: Confirm snake species from images/descriptions submitted by system or users.<br>FE-02: Modify AI results if identification is incorrect.<br>FE-03: Add professional notes on identification characteristics. | **Snake Expert** |
+| Support AI Snake Identification | FE-04: Use AI to shorten snake species verification time.<br>FE-05: Review and approve AI results before publication.<br>FE-06: Train and improve AI model by confirming new data. | **Snake Expert** |
+| Update First Aid Guidelines | FE-07: Update treatment and first aid procedures for each snake species.<br>FE-08: Compile detailed guidelines on symptoms and snake venom treatment methods.<br>FE-09: Provide information on appropriate antivenom dosages. | **Snake Expert** |
+| Remote Consultation | FE-10: Provide online support for patients via chat/video call.<br>FE-11: Consult rescue teams on handling complex snake species.<br>FE-12: Assess patient condition and recommend emergency measures. | **Snake Expert**<br>**Patient**<br>**Snake Rescuer** |
+| Consultation Revenue Management | FE-13: Set online consultation fee rates.<br>FE-14: Receive payment via platform and issue electronic invoices.<br>FE-15: View revenue reports by month/quarter.<br>FE-16: Track consultation sessions and customer reviews. | **Snake Expert** |
+| ***Admin Web Application*** | | |
+| User and Permission Management | FE-01: Create accounts for patients, experts, and rescue teams.<br>FE-02: Assign access permissions by role (Patient, Rescuer, Expert, Admin).<br>FE-03: Manage account status (activate, lock, delete).<br>FE-04: View user activity history. | **Admin** |
+| Snake Species Database Management | FE-05: Add, edit, delete snake species information (scientific name, local name, characteristics, distribution).<br>FE-06: Upload snake images for each species.<br>FE-07: Manage information about snake behavior and habitat.<br>FE-08: Classify snakes by danger level and distribution area. | **Admin** |
+| Treatment Facility Management | FE-09: Add hospital/medical station information (name, address, GPS coordinates).<br>FE-10: Update list of available antivenom types at each facility.<br>FE-11: Manage operating hours and emergency contact information.<br>FE-12: Mark facilities capable of treating venomous snake bites 24/7. | **Admin** |
+| System Content Management | FE-13: Update first aid guidelines, snake information, dangerous areas.<br>FE-14: Edit articles, educational videos on snake bite prevention.<br>FE-15: Manage FAQ and user help content.<br>FE-16: Post news updates on seasonal venomous snake situations. | **Admin** |
+| Data Statistics and Reporting | FE-17: Compile snakebite cases by region, time, snake species.<br>FE-18: Report rescue operations and rescue team completion rates.<br>FE-19: Compile consultation statistics and expert reviews.<br>FE-20: Analyze trends and high-risk areas.<br>FE-21: Export reports by month/quarter/year. | **Admin** |
+| Community Alerts and Announcements | FE-22: Send alerts about areas with frequent venomous snake appearances.<br>FE-23: Push seasonal prevention guidance notifications.<br>FE-24: Issue emergency alerts when new dangerous venomous snake species detected.<br>FE-25: Manage notification recipient list by area. | **Admin** |
+| Map Activity Monitoring | FE-26: Display real-time ongoing rescue cases on map.<br>FE-27: Track rescue team locations and task status.<br>FE-28: View heat map of snakebite hotspots.<br>FE-29: Monitor average response time of rescue teams. | **Admin** |
+| Service Fee and Revenue Management | FE-30: Set fee rates for rescue services and expert consultation.<br>FE-31: Track total revenue and distribute income to rescuers/experts.<br>FE-32: Manage payments between patients – rescuers/experts – platform.<br>FE-33: Create periodic financial reports (monthly/quarterly/yearly).<br>FE-34: Manage platform commission and refund policies.<br>FE-35: Handle payment disputes and refund requests. | **Admin** |
+
+---
+
+## Notes
+- **FE:** Feature (Functional Feature)
+- Each module starts from FE-01 for easier management and tracking
+- Primary Actors include: **Patient**, **Snake Rescuer**, **Snake Expert**, **Admin**
