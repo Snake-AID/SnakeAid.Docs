@@ -9,20 +9,19 @@
 
 ## SWIMLANE DIAGRAM - LUỒNG CHÍNH
 
-### Phiên bản PlantUML
+### Phiên bản Plant(UML)
 
 ```plantuml
-@startuml Emergency-Snakebite-Flow
+@startuml
 title XỬ LÝ SỰ CỐ RẮN CẮN KHẨN CẤP - SWIMLANE DIAGRAM
 
 |Patient|
 start
-:Bị rắn cắn
-Mở app SnakeAid;
+:Bị rắn cắn;
+:Mở app SnakeAid;
 
 |Mobile App|
-:Hiển thị hướng dẫn
-sơ cứu ngay lập tức;
+:Hiển thị hướng dẫn sơ cứu ngay lập tức;
 note right
   FE-01: Băng ép từng bước
   FE-02: Hình ảnh minh họa
@@ -30,21 +29,16 @@ note right
 end note
 
 |Patient|
-:Thực hiện sơ cứu
-theo hướng dẫn;
-:Chụp ảnh rắn
-(nếu có thể);
+:Thực hiện sơ cứu theo hướng dẫn;
+:Chụp ảnh rắn (nếu có thể);
 
 |Mobile App|
 :Nhận ảnh rắn;
 
 |AI System|
-:Xử lý ảnh bằng
-CNN Model;
-:So sánh với
-database loài rắn;
-:Trả về kết quả
-nhận diện;
+:Xử lý ảnh bằng CNN Model;
+:So sánh với database loài rắn;
+:Trả về kết quả nhận diện;
 
 |Mobile App|
 :Hiển thị kết quả;
@@ -56,19 +50,16 @@ end note
 
 |Patient|
 :Chụp ảnh vết cắn;
-:Nhập triệu chứng
-(đau, sưng, tê...);
+:Nhập triệu chứng (đau, sưng, tê...);
 
 |Mobile App|
-:Nhận dữ liệu
-vết cắn + triệu chứng;
+:Nhận dữ liệu vết cắn + triệu chứng;
 
 |AI System|
 :Phân tích ảnh vết cắn;
 :Đánh giá triệu chứng;
 :Kết hợp thông tin loài rắn;
-:Tính điểm nghiêm trọng
-(0-100);
+:Tính điểm nghiêm trọng (0-100);
 :Phân loại mức độ;
 
 |Backend System|
@@ -76,20 +67,17 @@ vết cắn + triệu chứng;
 :Tạo CaseID;
 
 |Mobile App|
-if (Mức độ Nặng\nhoặc Nguy kịch?) then (yes)
-  :Hiển thị cảnh báo
-  khẩn cấp (FE-16);
+if (Mức độ nặng hoặc nguy kịch?) then (YES)
+  :Hiển thị cảnh báo khẩn cấp (FE-16);
   :Hiển thị nút SOS;
-  
+
   |Patient|
-  :Nhấn nút SOS
-  (FE-04);
-  
+  :Nhấn nút SOS (FE-04);
+
   |Mobile App|
   :Lấy vị trí GPS;
-  :Chuẩn bị dữ liệu
-  khẩn cấp;
-  
+  :Chuẩn bị dữ liệu khẩn cấp;
+
   fork
     |Emergency Service|
     :Gọi điện đến 115;
@@ -98,12 +86,9 @@ if (Mức độ Nặng\nhoặc Nguy kịch?) then (yes)
     :Xác nhận;
   fork again
     |Backend System|
-    :Kích hoạt
-    GPS tracking;
-    :Tạo session
-    theo dõi real-time;
-    :Gửi link tracking
-    cho 115;
+    :Kích hoạt GPS tracking;
+    :Tạo session theo dõi real-time;
+    :Gửi link tracking cho 115;
   fork again
     |Backend System|
     :Gửi Emergency Package;
@@ -113,73 +98,55 @@ if (Mức độ Nặng\nhoặc Nguy kịch?) then (yes)
     - Triệu chứng
     - Mức độ
     - CaseID;
-    
-    |Emergency Service|
-    :Nhận thông tin
-    đầy đủ;
   end fork
-  
+
   |Patient|
-  :Nhận thông báo:
-  "Xe cấp cứu đang đến";
+  :Nhận thông báo "Xe cấp cứu đang đến";
   :Màn hình chờ cấp cứu;
-  
-else (no)
-  :Hướng dẫn tiếp tục
-  sơ cứu;
-  
+
+else (NO)
+  :Hướng dẫn tiếp tục sơ cứu;
+
   |Patient|
-  :Chọn "Tìm bệnh viện
-  gần nhất";
-  
+  :Chọn "Tìm bệnh viện gần nhất";
+
   |Mobile App|
   :Lấy vị trí GPS;
-  
+
   |Hospital Database|
-  :Query: Tìm BV có
-  huyết thanh trong
-  bán kính 20km;
-  :Trả về danh sách
-  bệnh viện;
-  
+  :Tìm BV có huyết thanh trong bán kính 20km;
+  :Trả về danh sách bệnh viện;
+
   |Mobile App|
-  :Tính khoảng cách
-  thời gian (FE-07);
-  :Lọc theo loại
-  huyết thanh (FE-08);
-  :Đánh dấu BV
-  mở cửa 24/7;
-  :Hiển thị bản đồ
-  + danh sách;
-  
+  :Tính khoảng cách thời gian (FE-07);
+  :Lọc theo loại huyết thanh (FE-08);
+  :Đánh dấu BV mở cửa 24/7;
+  :Hiển thị bản đồ + danh sách;
+
   |Patient|
-  :Xem danh sách
-  bệnh viện;
+  :Xem danh sách bệnh viện;
   :Chọn một bệnh viện;
-  
+
   |Mobile App|
   :Hiển thị chi tiết BV;
-  
+
   |Patient|
   if (Chọn hành động?) then (Chỉ đường)
     |Mobile App|
-    :Mở Google Maps/
-    Apple Maps;
+    :Mở Google Maps / Apple Maps;
   else (Gọi điện)
     |Mobile App|
-    :Gọi số điện thoại
-    bệnh viện;
+    :Gọi số điện thoại bệnh viện;
   endif
-  
+
   |Backend System|
-  :Lưu lịch sử
-  hành động (FE-11);
-  :UPDATE case
-  selected_hospital;
+  :Lưu lịch sử hành động (FE-11);
+  :UPDATE case selected_hospital;
 endif
 
 stop
 @enduml
+
 ```
 
 ### Hướng dẫn sử dụng PlantUML
