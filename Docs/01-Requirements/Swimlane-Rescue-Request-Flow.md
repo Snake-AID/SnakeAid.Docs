@@ -78,15 +78,15 @@ end note
 
 |Patient|
 if (Chọn hành động?) then (Yêu cầu cứu hộ)
-  :Chọn [A]
-  Yêu cầu cứu hộ;
+  :Chọn yêu cầu
+  cứu hộ;
   note right
     Chuyển sang
     Giai đoạn 2.2
   end note
 else (Cảnh báo)
-  :Chọn [B]
-  Cảnh báo cộng đồng;
+  :Chọn cảnh báo
+  cộng đồng;
   
   |Backend System|
   :Gửi cảnh báo đến
