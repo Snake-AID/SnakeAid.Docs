@@ -9,6 +9,207 @@
 
 ## SWIMLANE DIAGRAM - LUỒNG CHÍNH
 
+### Phiên bản PlantUML
+
+```plantuml
+@startuml Emergency-Snakebite-Flow
+title XỬ LÝ SỰ CỐ RẮN CẮN KHẨN CẤP - SWIMLANE DIAGRAM
+
+|Patient|
+start
+:Bị rắn cắn
+Mở app SnakeAid;
+
+|Mobile App|
+:Hiển thị hướng dẫn
+sơ cứu ngay lập tức;
+note right
+  FE-01: Băng ép từng bước
+  FE-02: Hình ảnh minh họa
+  FE-03: Cảnh báo hành động cấm kỵ
+end note
+
+|Patient|
+:Thực hiện sơ cứu
+theo hướng dẫn;
+:Chụp ảnh rắn
+(nếu có thể);
+
+|Mobile App|
+:Nhận ảnh rắn;
+
+|AI System|
+:Xử lý ảnh bằng
+CNN Model;
+:So sánh với
+database loài rắn;
+:Trả về kết quả
+nhận diện;
+
+|Mobile App|
+:Hiển thị kết quả;
+note right
+  FE-12: Tên rắn
+  FE-13: Độc tính
+  FE-14: Biện pháp sơ cứu
+end note
+
+|Patient|
+:Chụp ảnh vết cắn;
+:Nhập triệu chứng
+(đau, sưng, tê...);
+
+|Mobile App|
+:Nhận dữ liệu
+vết cắn + triệu chứng;
+
+|AI System|
+:Phân tích ảnh vết cắn;
+:Đánh giá triệu chứng;
+:Kết hợp thông tin loài rắn;
+:Tính điểm nghiêm trọng
+(0-100);
+:Phân loại mức độ;
+
+|Backend System|
+:Lưu thông tin sự cố;
+:Tạo CaseID;
+
+|Mobile App|
+if (Mức độ Nặng\nhoặc Nguy kịch?) then (yes)
+  :Hiển thị cảnh báo
+  khẩn cấp (FE-16);
+  :Hiển thị nút SOS;
+  
+  |Patient|
+  :Nhấn nút SOS
+  (FE-04);
+  
+  |Mobile App|
+  :Lấy vị trí GPS;
+  :Chuẩn bị dữ liệu
+  khẩn cấp;
+  
+  fork
+    |Emergency Service|
+    :Gọi điện đến 115;
+    :Gửi SMS GPS;
+    :Tiếp nhận cuộc gọi;
+    :Xác nhận;
+  fork again
+    |Backend System|
+    :Kích hoạt
+    GPS tracking;
+    :Tạo session
+    theo dõi real-time;
+    :Gửi link tracking
+    cho 115;
+  fork again
+    |Backend System|
+    :Gửi Emergency Package;
+    :Chuyển tiếp thông tin:
+    - Loài rắn
+    - Vết cắn
+    - Triệu chứng
+    - Mức độ
+    - CaseID;
+    
+    |Emergency Service|
+    :Nhận thông tin
+    đầy đủ;
+  end fork
+  
+  |Patient|
+  :Nhận thông báo:
+  "Xe cấp cứu đang đến";
+  :Màn hình chờ cấp cứu;
+  
+else (no)
+  :Hướng dẫn tiếp tục
+  sơ cứu;
+  
+  |Patient|
+  :Chọn "Tìm bệnh viện
+  gần nhất";
+  
+  |Mobile App|
+  :Lấy vị trí GPS;
+  
+  |Hospital Database|
+  :Query: Tìm BV có
+  huyết thanh trong
+  bán kính 20km;
+  :Trả về danh sách
+  bệnh viện;
+  
+  |Mobile App|
+  :Tính khoảng cách
+  thời gian (FE-07);
+  :Lọc theo loại
+  huyết thanh (FE-08);
+  :Đánh dấu BV
+  mở cửa 24/7;
+  :Hiển thị bản đồ
+  + danh sách;
+  
+  |Patient|
+  :Xem danh sách
+  bệnh viện;
+  :Chọn một bệnh viện;
+  
+  |Mobile App|
+  :Hiển thị chi tiết BV;
+  
+  |Patient|
+  if (Chọn hành động?) then (Chỉ đường)
+    |Mobile App|
+    :Mở Google Maps/
+    Apple Maps;
+  else (Gọi điện)
+    |Mobile App|
+    :Gọi số điện thoại
+    bệnh viện;
+  endif
+  
+  |Backend System|
+  :Lưu lịch sử
+  hành động (FE-11);
+  :UPDATE case
+  selected_hospital;
+endif
+
+stop
+@enduml
+```
+
+### Hướng dẫn sử dụng PlantUML
+
+**Cách 1: Sử dụng VS Code Extension**
+1. Cài đặt extension "PlantUML" trong VS Code
+2. Cài đặt Java (PlantUML cần Java để chạy)
+3. Mở file này và nhấn `Alt+D` để xem preview
+
+**Cách 2: Sử dụng Online Editor**
+1. Truy cập: https://www.plantuml.com/plantuml/uml/
+2. Copy toàn bộ code PlantUML ở trên
+3. Paste vào editor và xem kết quả
+
+**Cách 3: Sử dụng Command Line**
+```bash
+# Cài đặt PlantUML
+npm install -g node-plantuml
+
+# Generate PNG
+plantuml Swimlane-Emergency-Flow.md
+
+# Generate SVG
+plantuml -tsvg Swimlane-Emergency-Flow.md
+```
+
+---
+
+### Phiên bản ASCII (Backup)
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
 │                           SWIMLANE DIAGRAM: XỬ LÝ SỰ CỐ RẮN CẮN KHẨN CẤP                                              │
