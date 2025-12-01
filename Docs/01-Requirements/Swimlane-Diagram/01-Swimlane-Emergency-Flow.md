@@ -3,7 +3,7 @@
 ## Thông tin sơ đồ
 - **Tên luồng:** Xử lý sự cố rắn cắn khẩn cấp
 - **Mục đích:** Mô tả chi tiết tương tác giữa các actor trong tình huống khẩn cấp
-- **Các actor tham gia:** Patient, Mobile App, AI System, Backend System, Emergency Service, Hospital Database
+- **Các actor tham gia:** Patient, Mobile App, AI System, Backend System, **Rescuer/Supporter (SnakeAid)**, Hospital Database, Emergency Service (115 - backup option)
 
 ---
 
@@ -144,13 +144,13 @@ stop
 
 ---
 
-### 1.3. GIAI ĐOẠN 3: KÍCH HOẠT SOS VÀ GỌI CẤP CỨU
+### 1.3. GIAI ĐOẠN 3: KÍCH HOẠT SOS VÀ KẾT NỐI ĐỘI CỨU HỘ SNAKEAID
 
 **PlantUML Code:**
 
 ```plantuml
 @startuml Stage-3-Emergency-SOS
-title GIAI ĐOẠN 1.3 - KÍCH HOẠT SOS VÀ GỌI CẤP CỨU
+title GIAI ĐOẠN 1.3 - KÍCH HOẠT SOS VÀ KẾT NỐI ĐỘI CỨU HỘ SNAKEAID
 
 |Patient|
 start
@@ -163,22 +163,35 @@ hiện tại;
 :Chuẩn bị thông tin
 khẩn cấp;
 
+|Backend System|
+:Tìm kiếm Rescuer/Supporter
+gần nhất;
+note right
+  Query:
+  - Trong bán kính 10km
+  - Status: Available
+  - Rating >= 4.0
+  - Sắp xếp theo khoảng cách
+end note
+:Match với Rescuer
+phù hợp nhất;
+
 fork
-  |Emergency Service|
-  :Nhận cuộc gọi
-  từ app;
-  :Nhận SMS với
-  tọa độ GPS;
+  |Rescuer/Supporter|
+  :Nhận yêu cầu SOS
+  khẩn cấp;
+  :Xem thông tin sự cố;
   note right
-    SMS bao gồm:
-    - Tọa độ GPS
-    - Link tracking
-    - Thông tin sơ bộ
+    Thông tin nhận được:
+    - Loài rắn
+    - Mức độ nghiêm trọng
+    - Ảnh vết cắn
+    - Triệu chứng
+    - Vị trí GPS Patient
   end note
-  :Tiếp nhận
-  cuộc gọi;
-  :Xác nhận đã nhận
-  thông tin;
+  :Chấp nhận yêu cầu;
+  :Bắt đầu di chuyển
+  đến vị trí;
 fork again
   |Backend System|
   :Kích hoạt
@@ -186,54 +199,33 @@ fork again
   :Tạo session
   theo dõi real-time;
   :Cập nhật vị trí
-  mỗi 10 giây;
-  
-  |Emergency Service|
-  :Nhận link
-  tracking GPS;
+  Patient + Rescuer
+  mỗi 5 giây;
 fork again
   |Backend System|
-  :Chuẩn bị
-  Emergency Package;
-  :Gửi thông tin chi tiết:;
-  note right
-    Emergency Package:
-    - CaseID
-    - Loài rắn nhận diện
-    - Ảnh vết cắn
-    - Triệu chứng
-    - Mức độ nghiêm trọng
-    - Thông tin bệnh nhân
-    - Vị trí GPS
-  end note
-  
-  |Emergency Service|
-  :Nhận Emergency
-  Package đầy đủ;
-  :Chuẩn bị xuất
-  xe cấp cứu;
+  :Tính toán ETA
+  (thời gian đến);
+  :Cập nhật trạng thái:
+  "Đã tìm thấy cứu hộ";
 end fork
 
-|Emergency Service|
-:Gửi xác nhận:
-"Xe cấp cứu đang đến";
-
 |Mobile App|
-:Hiển thị màn hình
-chờ cấp cứu;
+:Hiển thị thông tin
+Rescuer được match;
 note right
   Hiển thị:
-  - Timer đếm thời gian
-  - Vị trí GPS
-  - Hướng dẫn sơ cứu
-  - Trạng thái cấp cứu
+  - Tên + Avatar Rescuer
+  - Rating (4.9/5)
+  - Khoảng cách (2.1 km)
+  - ETA: 8 phút
+  - Nút "Gọi cho Rescuer"
 end note
 
 |Patient|
-:Xem trạng thái
-chờ cấp cứu;
-:Tiếp tục sơ cứu
-theo hướng dẫn;
+:Xem thông tin
+Rescuer đang đến;
+:Theo dõi vị trí
+real-time trên map;
 
 |Backend System|
 if (Đã cấu hình\nngười thân?) then (yes)
@@ -244,12 +236,35 @@ if (Đã cấu hình\nngười thân?) then (yes)
     Thông báo khẩn cấp:
     - Người thân bị rắn cắn
     - Vị trí hiện tại
-    - Tình trạng
+    - Đội cứu hộ đang đến
     - Link theo dõi
   end note
 else (no)
   :Bỏ qua bước này;
 endif
+
+|Rescuer/Supporter|
+:Cập nhật vị trí
+trong quá trình
+di chuyển;
+:Đến vị trí Patient;
+
+|Mobile App|
+:Thông báo:
+"Đội cứu hộ đã đến";
+
+|Patient|
+:Gặp Rescuer;
+:Nhận hỗ trợ sơ cứu
+chuyên nghiệp;
+
+note right
+  Rescuer có thể:
+  - Hỗ trợ sơ cứu nâng cao
+  - Bắt rắn nếu còn ở hiện trường
+  - Đưa Patient đến bệnh viện
+  - Liên hệ 115 nếu cần
+end note
 
 stop
 @enduml
@@ -378,7 +393,7 @@ stop
 |-----------|-----|--------------|-------------------|
 | **1.1** | Phát hiện và xử lý ban đầu | Patient, Mobile App, AI System | 30-60 giây |
 | **1.2** | Đánh giá mức độ nghiêm trọng | Patient, Mobile App, AI System, Backend | 30-45 giây |
-| **1.3** | Kích hoạt SOS và gọi cấp cứu | Patient, Mobile App, Backend, Emergency Service | 10-15 giây |
+| **1.3** | Kích hoạt SOS và kết nối đội cứu hộ SnakeAid | Patient, Mobile App, Backend, **Rescuer/Supporter** | 10-20 giây (matching) |
 | **1.4** | Tìm cơ sở điều trị gần nhất | Patient, Mobile App, Hospital Database, Backend | 20-30 giây |
 
 ---
@@ -421,31 +436,43 @@ if (Mức độ nặng hoặc nguy kịch?) then (YES)
   :Lấy vị trí GPS;
   :Chuẩn bị dữ liệu khẩn cấp;
 
+  |Backend System|
+  :Tìm Rescuer/Supporter
+  gần nhất trong bán kính 10km;
+  :Match với Rescuer
+  phù hợp nhất;
+
   fork
-    |Emergency Service|
-    :Gọi điện đến 115;
-    :Gửi SMS GPS;
-    :Tiếp nhận cuộc gọi;
-    :Xác nhận;
+    |Rescuer/Supporter|
+    :Nhận yêu cầu SOS;
+    :Xem chi tiết sự cố;
+    :Chấp nhận yêu cầu;
+    :Bắt đầu di chuyển;
   fork again
     |Backend System|
-    :Kích hoạt GPS tracking;
-    :Tạo session theo dõi real-time;
-    :Gửi link tracking cho 115;
-  fork again
-    |Backend System|
-    :Gửi Emergency Package;
-    :Chuyển tiếp thông tin:
-    - Loài rắn
-    - Vết cắn
-    - Triệu chứng
-    - Mức độ
-    - CaseID;
+    :Kích hoạt GPS tracking
+    Patient + Rescuer;
+    :Tạo session real-time;
+    :Tính toán ETA;
   end fork
 
+  |Mobile App|
+  :Hiển thị Rescuer profile;
+  :Hiển thị ETA + Map tracking;
+  note right
+    Hiển thị:
+    - Tên Rescuer + Rating
+    - Khoảng cách (2.1 km)
+    - ETA: 8 phút
+    - Map với 2 pins
+    - Nút "Gọi Rescuer"
+    - Nút "Gọi 115" (backup)
+  end note
+
   |Patient|
-  :Nhận thông báo "Xe cấp cứu đang đến";
-  :Màn hình chờ cấp cứu;
+  :Theo dõi Rescuer
+  đang đến;
+  :Màn hình chờ cứu hộ;
 
 else (NO)
   :Hướng dẫn tiếp tục sơ cứu;
@@ -587,18 +614,18 @@ Phân loại:
 
 ---
 
-### GIAI ĐOẠN 3: Kích hoạt SOS và gọi cấp cứu (10-15 giây)
+### GIAI ĐOẠN 3: Kích hoạt SOS và kết nối đội cứu hộ SnakeAid (10-20 giây)
 
 | Bước | Actor | Hành động | Feature | Thời gian |
 |------|-------|-----------|---------|-----------|
 | 3.1 | Mobile App | Hiển thị cảnh báo khẩn cấp | FE-16 | Ngay lập tức |
 | 3.2 | Patient | Nhấn nút SOS | FE-04 | < 2s |
 | 3.3 | Mobile App | Lấy GPS và chuẩn bị dữ liệu | - | < 1s |
-| 3.4 | Mobile App | Gọi điện + Gửi SMS đến 115 | FE-04 | < 3s |
-| 3.5 | Mobile App | Kích hoạt GPS tracking | FE-05 | < 2s |
-| 3.6 | Backend System | Gửi thông tin bổ sung đến 115 | FE-05 | < 3s |
-| 3.7 | Emergency Service | Xác nhận đã nhận | - | Ngay lập tức |
-| 3.8 | Mobile App | Hiển thị màn hình chờ | - | - |
+| 3.4 | Backend System | **Tìm Rescuer/Supporter gần nhất** | FE-04, FE-24 | < 3s |
+| 3.5 | Backend System | **Match với Rescuer phù hợp** | FE-04 | < 2s |
+| 3.6 | Rescuer/Supporter | Nhận và chấp nhận yêu cầu | - | < 5s |
+| 3.7 | Backend System | Kích hoạt GPS tracking (Patient + Rescuer) | FE-05, FE-24 | < 2s |
+| 3.8 | Mobile App | Hiển thị Rescuer profile + ETA | FE-24, FE-25 | Ngay lập tức |
 | 3.9 | Backend System | Gửi thông báo người thân (optional) | - | < 5s |
 
 **Đầu vào:**
@@ -606,12 +633,13 @@ Phân loại:
 - CaseID (từ Giai đoạn 2)
 - Thông tin đầy đủ về sự cố
 
-**Gói dữ liệu gửi đến 115 (Emergency Package):**
+**Gói dữ liệu gửi đến Rescuer/Supporter (Emergency Package):**
 ```json
 {
+  "sos_id": "SOS-20231123-001",
   "case_id": "CASE-20231123-001",
   "timestamp": "2023-11-23T14:30:45Z",
-  "location": {
+  "patient_location": {
     "latitude": 10.762622,
     "longitude": 106.660172,
     "address": "123 Nguyễn Văn Linh, Q7, TP.HCM"
@@ -644,24 +672,37 @@ Phân loại:
     "snake_photo": "https://snakeaid.com/img/case-001-snake.jpg",
     "bite_photo": "https://snakeaid.com/img/case-001-bite.jpg"
   },
-  "tracking_link": "https://snakeaid.com/track/CASE-20231123-001"
+  "rescuer_matched": {
+    "rescuer_id": "RSC-456",
+    "name": "Nguyễn Văn B",
+    "rating": 4.9,
+    "distance_km": 2.1,
+    "eta_minutes": 8
+  },
+  "tracking_link": "https://snakeaid.com/track/SOS-20231123-001"
 }
 ```
 
 **Đầu ra:**
-- Cuộc gọi đến 115 được kết nối
-- SMS chứa GPS đã gửi
+- Rescuer được match thành công
+- Thông tin Rescuer hiển thị trên app Patient (tên, rating, khoảng cách, ETA)
+- GPS tracking 2 chiều: Patient ↔ Rescuer
 - Link theo dõi real-time đã gửi
 - Thông báo người thân (nếu có)
+- **Option backup:** Nút "Gọi 115" vẫn sẵn sàng nếu cần
 
 **Parallel Processing:**
 Hệ thống thực hiện 3 tác vụ song song:
-1. Gọi điện + SMS
-2. Chia sẻ vị trí real-time
-3. Gửi thông tin bổ sung
+1. Tìm và match Rescuer
+2. Kích hoạt GPS tracking 2 chiều
+3. Gửi thông báo người thân
 
 **Kết thúc:**
-Chuyển sang chế độ chờ cấp cứu, tiếp tục hiển thị hướng dẫn sơ cứu.
+Chuyển sang chế độ chờ Rescuer đến, hiển thị:
+- Map với 2 pins (Patient + Rescuer đang di chuyển)
+- Timer + ETA real-time
+- Nút "Gọi cho đội cứu hộ"
+- Hướng dẫn sơ cứu tiếp tục
 
 ---
 
@@ -1003,7 +1044,7 @@ Response:
 }
 ```
 
-**4. Kích hoạt SOS:**
+**4. Kích hoạt SOS - Match với Rescuer:**
 ```
 POST /api/v1/emergency/activate-sos
 Content-Type: application/json
@@ -1013,7 +1054,8 @@ Request:
   "case_id": "CASE-20231123-001",
   "patient_id": 12345,
   "gps_lat": 10.762622,
-  "gps_long": 106.660172
+  "gps_long": 106.660172,
+  "severity_level": "critical"
 }
 
 Response:
@@ -1021,12 +1063,53 @@ Response:
   "success": true,
   "data": {
     "sos_id": "SOS-20231123-001",
-    "tracking_link": "https://snakeaid.com/track/...",
-    "emergency_contact_status": "called",
-    "sms_sent": true,
-    "gps_tracking_active": true
+    "rescuer_matched": {
+      "rescuer_id": "RSC-456",
+      "name": "Nguyễn Văn B",
+      "phone": "0912345678",
+      "avatar_url": "https://snakeaid.com/avatar/rsc-456.jpg",
+      "rating": 4.9,
+      "total_rescues": 156,
+      "distance_km": 2.1,
+      "eta_minutes": 8,
+      "current_location": {
+        "latitude": 10.752622,
+        "longitude": 106.670172
+      }
+    },
+    "tracking_link": "https://snakeaid.com/track/SOS-20231123-001",
+    "gps_tracking_active": true,
+    "emergency_contacts_notified": true
   },
-  "activation_time_ms": 8765
+  "matching_time_ms": 2876
+}
+```
+
+**5. Theo dõi Rescuer real-time:**
+```
+GET /api/v1/emergency/track-rescuer/:sos_id
+Query Parameters:
+- sos_id: SOS-20231123-001
+
+Response:
+{
+  "success": true,
+  "data": {
+    "sos_id": "SOS-20231123-001",
+    "status": "en_route",
+    "rescuer_location": {
+      "latitude": 10.757622,
+      "longitude": 106.665172,
+      "updated_at": "2023-11-23T14:33:15Z"
+    },
+    "patient_location": {
+      "latitude": 10.762622,
+      "longitude": 106.660172
+    },
+    "distance_remaining_km": 1.2,
+    "eta_minutes": 4,
+    "elapsed_time_seconds": 180
+  }
 }
 ```
 
@@ -1118,23 +1201,63 @@ Response:
 │  │                               │ │
 │  └───────────────────────────────┘ │
 │                                     │
-│  CẦN GỌI CẤP CỨU NGAY LẬP TỨC!    │
+│  CẦN HỖ TRỢ CỨU HỘ NGAY LẬP TỨC!  │
 │                                     │
 │  ┌───────────────────────────────┐ │
 │  │       🆘 NÚT SOS              │ │
 │  │                               │ │
-│  │   Nhấn để gọi 115 và chia sẻ │ │
-│  │        vị trí GPS             │ │
+│  │  Kết nối với đội cứu hộ       │ │
+│  │  SnakeAid gần bạn nhất        │ │
 │  │                               │ │
 │  └───────────────────────────────┘ │
 │                                     │
 │  📱 Hệ thống sẽ tự động:           │
-│  ✓ Gọi đến đường dây nóng 115      │
-│  ✓ Gửi vị trí GPS của bạn          │
+│  ✓ Tìm đội cứu hộ gần nhất (2-5km) │
+│  ✓ Chia sẻ vị trí GPS real-time    │
 │  ✓ Gửi thông tin rắn và triệu chứng│
 │  ✓ Thông báo người thân            │
+│  ✓ Option: Gọi 115 nếu cần         │
 │                                     │
 │  [ HOẶC TỰ TÌM BỆNH VIỆN ]         │
+│                                     │
+└─────────────────────────────────────┘
+```
+
+### Màn hình 3B: Đang tìm và chờ Rescuer
+```
+┌─────────────────────────────────────┐
+│  🚨 SOS Khẩn Cấp Đang Kích Hoạt    │
+├─────────────────────────────────────┤
+│                                     │
+│  ┌───────────────────────────────┐ │
+│  │   📡 Đang tìm đội cứu hộ      │ │
+│  │      gần bạn...               │ │
+│  │   [Animation: Radar scanning] │ │
+│  └───────────────────────────────┘ │
+│                                     │
+│  ✅ Đã tìm thấy đội cứu hộ!        │
+│                                     │
+│  ┌───────────────────────────────┐ │
+│  │  👤 Nguyễn Văn A              │ │
+│  │     Chuyên viên cứu hộ        │ │
+│  │  ⭐ 4.9/5 (156 đánh giá)      │ │
+│  │  📍 2.1 km từ vị trí của bạn  │ │
+│  │  🚗 Dự kiến đến trong 8 phút  │ │
+│  └───────────────────────────────┘ │
+│                                     │
+│  ┌───────────────────────────────┐ │
+│  │      [Bản đồ mini]            │ │
+│  │   📍 Bạn  →  🚗 Cứu hộ        │ │
+│  └───────────────────────────────┘ │
+│                                     │
+│  [ 📞 GỌI CHO ĐỘI CỨU HỘ ]        │
+│  [ 🏥 XEM BỆNH VIỆN GẦN ]          │
+│  [ ☎️ GỌI 115 (Cấp cứu y tế) ]    │
+│                                     │
+│  Trong lúc chờ:                    │
+│  • Giữ bình tĩnh                   │
+│  • Tiếp tục băng ép                │
+│  • Không ăn uống                   │
 │                                     │
 └─────────────────────────────────────┘
 ```
