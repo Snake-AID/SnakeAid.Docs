@@ -383,51 +383,54 @@ Homepage → Tap Notification Bar → Alert List → Alert Details
 ## 📱 STITCH PROMPT - ENHANCED HOMEPAGE
 
 ```
-Create a mobile app homepage for SnakeAid emergency snakebite assistance app. Use iOS style with dark mode elements.
+Create a mobile app homepage for SnakeAid emergency snakebite assistance app. Use iOS style with modern clean design.
 
 TOP SECTION:
-- White header bar with bold green text "SnakeAid" on left (#228B22), bell notification icon on right
+- White header bar with bold green text "SnakeAid" on left (#228B22), simple bell notification icon on right
 - Status bar showing time 23:46, signal, wifi, battery 90%
 
 HERO EMERGENCY AREA (center focus):
-- Giant circular SOS button 280x280px in center of screen
-- Button color: gradient red (#DC3545 to #FF0000) with pulsing glow effect
-- White emergency siren icon 🚨 (60px) at top of button
-- White bold text "SOS - Cấp cứu" (28pt)
-- White semi-bold text "rắn cắn" below (20pt)
-- Below button: gray text "Giữ 3 giây để kích hoạt" (14pt)
-- Second line: green text "→ Gửi GPS + gọi đội cứu hộ gần nhất" (#228B22, 14pt)
+- Giant circular SOS button 240x240px in center of screen
+- Button color: solid emergency red (#DC3545) with subtle shadow
+- White bold text "SOS" (32pt) at center
+- White text "Cấp cứu rắn cắn" below (18pt)
+- Below button: gray text "Giữ 3 giây để kích hoạt" (13pt)
+- Second line: green text "Gửi GPS + gọi đội cứu hộ gần nhất" (#228B22, 13pt)
 
-QUICK ACTIONS (below SOS, 20px margin):
-Two large horizontal buttons with 12px gap:
-- LEFT button: White background, green border (#228B22), camera icon 📷 (36px), green bold text "Chụp ảnh" (18pt), gray text "AI nhận dạng" (14pt), 100px height, rounded 12px
-- RIGHT button: Red background (#DC3545), phone icon 📞 white (36px), white bold text "Gọi 115" (18pt), white text "Cấp cứu ngay" (14pt), 100px height, rounded 12px
+QUICK ACTIONS (below SOS, 24px margin):
+Two equal horizontal buttons with 16px gap, same height 90px:
+- LEFT button: White background, 2px green border (#228B22), green bold text "Chụp ảnh AI" (20pt) centered, gray subtitle "Nhận dạng rắn" (14pt), rounded 16px
+- RIGHT button: Red background (#DC3545), white bold text "Gọi 115" (20pt) centered, white subtitle "Cấp cứu ngay" (14pt), rounded 16px
 
-3 QUICK ACTION CARDS (horizontal scrollable):
-Three cards 160x140px with white background, rounded 16px, soft shadow:
-- Card 1: Bandage icon 🩹 (48px top), green bold text "Hướng dẫn" (16pt), gray text "sơ cứu ngay" (14pt)
-- Card 2: Hospital icon 🏥 (48px top), green bold text "Bệnh viện" (16pt), gray text "có huyết thanh" (14pt), amber badge "2.3 km" top-right
-- Card 3: Car icon 🚗 (48px top), green bold text "Theo dõi" (16pt), gray text "cứu hộ real-time" (14pt), green dot "Đang hoạt động" bottom-left
+3 QUICK ACTION CARDS (horizontal scrollable, 20px margin):
+Three equal cards 140x120px with white background, rounded 16px, soft shadow, 16px gap:
+- Card 1: Green bold text "Hướng dẫn" (18pt) top, gray text "Sơ cứu ngay" (14pt) below, centered
+- Card 2: Green bold text "Bệnh viện" (18pt) top, gray text "Có huyết thanh" (14pt) below, amber badge "2.3 km" top-right corner, centered
+- Card 3: Green bold text "Theo dõi" (18pt) top, gray text "Cứu hộ real-time" (14pt) below, small green dot top-right, centered
 
-SECONDARY MENU (grid 2x3):
-Six cells in light gray background (#F8F9FA), rounded 12px, 12px gap:
-Row 1: "Tư vấn chuyên gia" 👨‍⚕️ with green dot | "Theo dõi triệu chứng" 📊 | "Thư viện loài rắn" 🐍 with "250+" badge
-Row 2: "Cảnh báo khu vực" ⚠️ with red "3 mới" badge | "Thanh toán & lịch sử" 💳 | "Video hướng dẁn" 🎬 with blue "12 new" badge
+SECONDARY MENU (grid 2x3, 20px margin):
+Six equal cells in light gray background (#F8F9FA), rounded 16px, 16px gap between cells:
+Row 1: "Tư vấn chuyên gia" (15pt bold) with small green dot top-right | "Theo dõi triệu chứng" (15pt bold) | "Thư viện loài rắn" (15pt bold) with "250+" badge top-right
+Row 2: "Cảnh báo khu vực" (15pt bold) with red "3" badge top-right | "Thanh toán & lịch sử" (15pt bold) | "Video hướng dẫn" (15pt bold) with blue "12" badge top-right
+All text centered, dark gray (#333)
 
-NOTIFICATION BAR:
-Light amber background (#FFF3CD), amber border (#FFC107), warning icon ⚠️ left, text "Cảnh báo: 3 vụ rắn cắn gần bạn trong 24h qua" (#856404), "Xem chi tiết →" link right
+NOTIFICATION BAR (20px margin):
+Light amber background (#FFF3CD), amber border (#FFC107), rounded 12px, 16px padding
+Text "⚠️ Cảnh báo: 3 vụ rắn cắn gần bạn trong 24h qua" (#856404, 14pt), "Xem chi tiết" link right (bold)
 
-EDUCATION SECTION:
-Header "📰 Bài viết mới nhất" (bold 18pt)
-Three article cards (100px height, white, rounded 12px):
-- Article 1: 80x80px thumbnail with rain+snake image, title "Cách phòng tránh rắn mùa mưa", subtitle "5 phút đọc • 1,234 lượt xem", green "Mới" badge
-- Article 2: 80x80px thumbnail with snake chart, title "Nhận biết 5 loài rắn độc...", subtitle "7 phút đọc • 3,456 lượt xem"
-- Article 3: 80x80px thumbnail with video play icon, title "Video hướng dẫn băng ép...", subtitle "3:45 phút • 890 lượt xem", blue "Video" badge
+EDUCATION SECTION (20px margin):
+Header "Bài viết mới nhất" (bold 20pt, dark gray #333)
+Three article cards (110px height, white, rounded 16px, 12px gap, soft shadow):
+- Article 1: 90x90px thumbnail left with rain scene, title "Cách phòng tránh rắn mùa mưa" (16pt bold) right, subtitle "5 phút đọc • 1,234 lượt xem" (12pt gray) below title, green "Mới" badge top-right
+- Article 2: 90x90px thumbnail left with snake chart, title "Nhận biết 5 loài rắn độc Việt Nam" (16pt bold) right, subtitle "7 phút đọc • 3,456 lượt xem" (12pt gray)
+- Article 3: 90x90px thumbnail left with play button overlay, title "Video hướng dẫn băng ép đúng cách" (16pt bold) right, subtitle "3:45 phút • 890 lượt xem" (12pt gray), blue "Video" badge top-right
 
-BOTTOM NAV:
-Four tabs: Home 🏠 (active, green #228B22 with green line indicator), Hospital 🗺️ (gray), Expert Chat 💬 (gray with red notification dot), Profile 👤 (gray)
+BOTTOM NAV (fixed bottom, 60px height):
+Four equal tabs with icon and text: 🏠 "Trang chủ" (active, green #228B22 bold with 3px green line top) | 🗺️ "Bệnh viện" (gray) | 💬 "Tư vấn" (gray, small red dot top-right) | 👤 "Cá nhân" (gray)
+Icons 24px above text labels
+White background, subtle top border
 
-Use forest green #228B22 as primary brand color, emergency red #DC3545, amber #FFC107 for warnings. White backgrounds, rounded corners 12-16px, soft shadows. Professional, clean, panic-friendly design with clear hierarchy.
+Use forest green #228B22 as primary brand color, emergency red #DC3545, amber #FFC107 for warnings. White backgrounds, consistent rounded corners 12-16px, soft shadows. Professional, clean, balanced design with clear hierarchy and proper spacing.
 ```
 
 ---

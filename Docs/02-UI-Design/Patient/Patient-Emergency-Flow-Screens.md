@@ -59,33 +59,33 @@
 2. **Hero Emergency Card:**
    - Large card with red accent background (light red #FFEBEE)
    - Icon: Emergency symbol (or text "⚠️")
-   - Main text: "Emergency - I'm Bitten!"
-   - Subtitle: "Get immediate first aid guidance"
+   - Main text: "Khẩn cấp - Tôi bị rắn cắn!"
+   - Subtitle: "Nhận hướng dẫn sơ cứu ngay lập tức"
    - Right arrow indicator
    - Prominent position (top of content area)
 
 3. **Quick Access Section:**
-   - Title: "Quick Actions"
+   - Title: "Truy cập nhanh"
    - 3 equal-width cards in a row:
-     - Card 1: "Find Hospital" (with location pin icon or text)
-     - Card 2: "Snake Info" (with book/info icon or text)
-     - Card 3: "Report Snake" (with camera icon or text)
+     - Card 1: "Tìm bệnh viện" (with location pin icon or text)
+     - Card 2: "Thông tin rắn" (with book/info icon or text)
+     - Card 3: "Báo cáo rắn" (with camera icon or text)
    - Cards have forest green border
 
 4. **Information Section:**
-   - Title: "Prevention & Education"
+   - Title: "Phòng ngừa & Giáo dục"
    - Horizontal scrollable cards:
-     - "First Aid Guide"
-     - "Common Snakes"
-     - "Safety Tips"
+     - "Hướng dẫn sơ cứu"
+     - "Rắn phổ biến"
+     - "Mẹo an toàn"
    - Each card has thumbnail image placeholder + title
 
 5. **Bottom Navigation Bar:**
    - 4 tabs with text labels:
-     - "Home" (active - forest green)
-     - "Rescuer"
-     - "Expert"
-     - "Profile"
+     - "Trang chủ" (active - forest green)
+     - "Cứu hộ"
+     - "Chuyên gia"
+     - "Cá nhân"
    - Active tab highlighted with forest green color
 
 #### Stitch Prompt (English):
@@ -95,13 +95,13 @@ Mobile app home screen for emergency snakebite assistance app named "SnakeAid". 
 
 Top header: Centered bold text logo "SnakeAid" in forest green. Small circular user avatar icon in top-right corner. Notification bell icon next to avatar.
 
-Main content area begins with large prominent emergency card with light red background (#FFEBEE) and red accent border. Card contains warning symbol emoji, large bold text "Emergency - I'm Bitten!", subtitle "Get immediate first aid guidance", and right arrow. This card takes up full width with significant padding.
+Main content area begins with large prominent emergency card with light red background (#FFEBEE) and red accent border. Card contains warning symbol emoji, large bold text "Khẩn cấp - Tôi bị rắn cắn!", subtitle "Nhận hướng dẫn sơ cứu ngay lập tức", and right arrow. This card takes up full width with significant padding.
 
-Below emergency card, section title "Quick Actions" in dark gray. Three equal-width cards in horizontal row with forest green borders: "Find Hospital" with location pin, "Snake Info" with info icon, "Report Snake" with camera icon. Cards have white background.
+Below emergency card, section title "Truy cập nhanh" in dark gray. Three equal-width cards in horizontal row with forest green borders: "Tìm bệnh viện" with location pin, "Thông tin rắn" with info icon, "Báo cáo rắn" with camera icon. Cards have white background.
 
-Next section titled "Prevention & Education" shows horizontally scrollable row of 3 cards. Each card has light gray rectangular placeholder for thumbnail image on top, and text label below: "First Aid Guide", "Common Snakes", "Safety Tips".
+Next section titled "Phòng ngừa & Giáo dục" shows horizontally scrollable row of 3 cards. Each card has light gray rectangular placeholder for thumbnail image on top, and text label below: "Hướng dẫn sơ cứu", "Rắn phổ biến", "Mẹo an toàn".
 
-Bottom of screen has fixed navigation bar with 4 evenly spaced text tabs: "Home" (active, forest green color), "Rescuer", "Expert", "Profile" in gray. Clean separator line above nav bar.
+Bottom of screen has fixed navigation bar with 4 evenly spaced text tabs: "Trang chủ" (active, forest green color), "Cứu hộ", "Chuyên gia", "Cá nhân" in gray. Clean separator line above nav bar.
 
 Overall style: Clean, minimal, professional medical/emergency app, iOS and Android compatible, focus on typography and card-based layouts, subtle shadows, no complex illustrations.
 ```
@@ -124,52 +124,52 @@ Overall style: Clean, minimal, professional medical/emergency app, iOS and Andro
 #### Key Components:
 1. **Header:**
    - Back button (top-left)
-   - Title: "Emergency Alert" (centered)
+   - Title: "Cảnh báo khẩn cấp" (centered)
    - Close button (top-right, X icon)
 
 2. **Alert Banner:**
    - Red background with white text
-   - Large text: "Stay Calm - We're Here to Help"
+   - Large text: "Giữ bình tĩnh - Chúng tôi sẽ giúp bạn"
    - Icon: Heartbeat or medical cross
 
 3. **Critical Warning Section:**
    - Yellow warning box with amber background
-   - Bold text: "⚠️ DO NOT:"
+   - Bold text: "⚠️ TUYỆT ĐỐI KHÔNG:"
    - Bullet list:
-     - "Cut the wound"
-     - "Suck out venom"
-     - "Apply ice or tourniquet"
-     - "Drink alcohol"
+     - "Cắt vết thương"
+     - "Hút nọc độc ra"
+     - "Đắp băng garo hoặc đá lạnh"
+     - "Uống rượu"
 
 4. **Immediate Action Card:**
    - Green background card
-   - Title: "✓ DO THIS NOW:"
-   - Step 1: "Stay calm and still"
-   - Step 2: "Remove tight clothing/jewelry"
-   - Step 3: "Keep bitten area below heart level"
+   - Title: "✓ LÀM NGAY:"
+   - Step 1: "Giữ bình tĩnh và đứng yên"
+   - Step 2: "Cởi quần áo/trang sức chật"
+   - Step 3: "Giữ vùng bị cắn thấp hơn tim"
 
 5. **Action Buttons:**
-   - Primary button (large, red): "Start First Aid Guide →"
-   - Secondary button (outlined): "Call Emergency Hotline"
-   - Tertiary text link: "I'm not bitten, I just saw a snake"
+   - Primary button (large, red): "Bắt đầu hướng dẫn sơ cứu →"
+   - Secondary button (outlined): "Gọi đường dây nóng khẩn cấp"
+   - Tertiary text link: "Tôi không bị cắn, chỉ thấy rắn"
 
 #### Stitch Prompt (English):
 
 ```
 Mobile app emergency alert screen for snakebite app. Full-screen urgent design with clear visual hierarchy.
 
-Top navigation bar: Back arrow on left, centered title "Emergency Alert", X close button on right. White background nav bar.
+Top navigation bar: Back arrow on left, centered title "Cảnh báo khẩn cấp", X close button on right. White background nav bar.
 
-Full-width red banner (#DC3545) at top of content with white text "Stay Calm - We're Here to Help" in large bold font. Small medical cross icon on left side of text.
+Full-width red banner (#DC3545) at top of content with white text "Giữ bình tĩnh - Chúng tôi sẽ giúp bạn" in large bold font. Small medical cross icon on left side of text.
 
-Below banner, prominent yellow-amber warning box (#FFF3CD with #FFC107 border) containing warning emoji and bold text "⚠️ DO NOT:" followed by 4 bullet points in dark text: "Cut the wound", "Suck out venom", "Apply ice or tourniquet", "Drink alcohol". Each point on separate line with bullet.
+Below banner, prominent yellow-amber warning box (#FFF3CD with #FFC107 border) containing warning emoji and bold text "⚠️ TUYỆT ĐỐI KHÔNG:" followed by 4 bullet points in dark text: "Cắt vết thương", "Hút nọc độc ra", "Đắp băng garo hoặc đá lạnh", "Uống rượu". Each point on separate line with bullet.
 
-Below warning box, green success-style card (#D4EDDA background with #28A745 border) titled "✓ DO THIS NOW:" with 3 numbered steps in dark text: "1. Stay calm and still", "2. Remove tight clothing/jewelry", "3. Keep bitten area below heart level".
+Below warning box, green success-style card (#D4EDDA background with #28A745 border) titled "✓ LÀM NGAY:" with 3 numbered steps in dark text: "1. Giữ bình tĩnh và đứng yên", "2. Cởi quần áo/trang sức chật", "3. Giữ vùng bị cắn thấp hơn tim".
 
 Bottom section has 3 vertically stacked buttons with spacing: 
-- Large primary red button (#DC3545) "Start First Aid Guide →"
-- Secondary outlined button "Call Emergency Hotline"
-- Small text link in gray "I'm not bitten, I just saw a snake"
+- Large primary red button (#DC3545) "Bắt đầu hướng dẫn sơ cứu →"
+- Secondary outlined button "Gọi đường dây nóng khẩn cấp"
+- Small text link in gray "Tôi không bị cắn, chỉ thấy rắn"
 
 Design: Emergency medical interface, high contrast, clear readability, urgent but not panic-inducing, mobile-friendly touch targets.
 ```
@@ -192,7 +192,7 @@ Design: Emergency medical interface, high contrast, clear readability, urgent bu
 #### Key Components:
 1. **Header:**
    - Back button
-   - Progress indicator: "Step 1 of 4" (text-based)
+   - Progress indicator: "Bước 1 / 4" (text-based)
    - Timer: "02:15" (elapsed time)
 
 2. **Step Indicator:**
@@ -202,55 +202,55 @@ Design: Emergency medical interface, high contrast, clear readability, urgent bu
 
 3. **Instruction Card:**
    - Large card with white background
-   - Step number badge (top-left): "STEP 1"
-   - Main heading: "Apply Pressure Bandage"
+   - Step number badge (top-left): "BƯỚC 1"
+   - Main heading: "Băng ép vết cắn"
    - Illustration placeholder: Rectangle area for image/diagram
    - Detailed text instructions (bullet points):
-     - "Start bandaging at bite site"
-     - "Wrap firmly but not too tight"
-     - "Cover entire affected limb"
-     - "Check circulation - toes/fingers should remain pink"
+     - "Bắt đầu băng từ vị trí vết cắn"
+     - "Băng chặt vừa phải, không quá chặt"
+     - "Băng toàn bộ chi bị cắn"
+     - "Kiểm tra tuần hoàn - ngón chân/tay vẫn hồng"
 
 4. **Visual Aid Section:**
-   - Image placeholder with caption: "Correct bandaging technique"
+   - Image placeholder with caption: "Kỹ thuật băng ép đúng cách"
    - Border in forest green
 
 5. **Navigation Buttons:**
-   - Primary button (bottom): "Next Step →" (forest green)
-   - Secondary button: "⚠️ I Need Emergency Help Now" (red, outlined)
-   - Skip option: "Skip to hospital finder" (text link)
+   - Primary button (bottom): "Bước tiếp theo →" (forest green)
+   - Secondary button: "⚠️ Tôi cần cấp cứu ngay" (red, outlined)
+   - Skip option: "Bỏ qua đến tìm bệnh viện" (text link)
 
 6. **Quick Access Bar (sticky footer above buttons):**
    - 3 small icon buttons:
-     - "📞 SOS"
-     - "🏥 Hospital"
-     - "📷 Photo Snake"
+     - "SOS"
+     - "Bệnh viện"
+     - "Chụp rắn"
 
 #### Stitch Prompt (English):
 
 ```
 Mobile app step-by-step first aid instruction screen. Clean educational interface with forest green (#228B22) theme.
 
-Top navigation: Back arrow left, centered text "Step 1 of 4", right side shows timer "02:15" in gray.
+Top navigation: Back arrow left, centered text "Bước 1 / 4", right side shows timer "02:15" in gray.
 
 Below nav, horizontal progress stepper with 4 circles connected by lines. First circle filled green (active), others outlined gray. Circles contain step numbers 1-2-3-4.
 
-Main content area: White card with subtle shadow containing step badge "STEP 1" in forest green at top-left. Large heading "Apply Pressure Bandage" in dark gray below badge.
+Main content area: White card with subtle shadow containing step badge "BƯỚC 1" in forest green at top-left. Large heading "Băng ép vết cắn" in dark gray below badge.
 
-Card contains rectangular placeholder area (16:9 ratio) with light gray background and centered text "Illustration Area" for diagram image. Below illustration, 4 bullet points with clear instructions:
-• "Start bandaging at bite site"
-• "Wrap firmly but not too tight"  
-• "Cover entire affected limb"
-• "Check circulation - toes/fingers should remain pink"
+Card contains rectangular placeholder area (16:9 ratio) with light gray background and centered text "Khu vực minh họa" for diagram image. Below illustration, 4 bullet points with clear instructions:
+• "Bắt đầu băng từ vị trí vết cắn"
+• "Băng chặt vừa phải, không quá chặt"  
+• "Băng toàn bộ chi bị cắn"
+• "Kiểm tra tuần hoàn - ngón chân/tay vẫn hồng"
 
-Below main card, smaller image placeholder with forest green border and caption "Correct bandaging technique" underneath.
+Below main card, smaller image placeholder with forest green border and caption "Kỹ thuật băng ép đúng cách" underneath.
 
-Above bottom buttons, sticky bar with 3 small equal-width outlined buttons labeled "📞 SOS", "🏥 Hospital", "📷 Photo Snake" with forest green borders.
+Above bottom buttons, sticky bar with 3 small equal-width outlined buttons labeled "SOS", "Bệnh viện", "Chụp rắn" with forest green borders.
 
 Bottom has 2 full-width buttons stacked:
-- Primary solid green button "Next Step →"
-- Secondary red outlined button "⚠️ I Need Emergency Help Now"
-Small gray text link below "Skip to hospital finder"
+- Primary solid green button "Bước tiếp theo →"
+- Secondary red outlined button "⚠️ Tôi cần cấp cứu ngay"
+Small gray text link below "Bỏ qua đến tìm bệnh viện"
 
 Style: Educational, calm, step-by-step tutorial interface, clear typography, adequate spacing, easy to read while stressed.
 ```
@@ -273,58 +273,59 @@ Style: Educational, calm, step-by-step tutorial interface, clear typography, ade
 #### Key Components:
 1. **Header:**
    - Back button
-   - Title: "Identify Snake"
+   - Title: "Nhận diện rắn"
    - Help icon (?)
 
 2. **Camera Viewfinder Area:**
    - Large rectangle taking up most of screen
    - Dark overlay with center focus frame
-   - Guide text overlay: "Frame the snake in the center"
+   - Guide text overlay: "Đặt con rắn vào giữa khung hình"
    - Corner brackets to indicate focus area
 
 3. **Safety Warning Banner (top of camera area):**
    - Yellow background strip
-   - Text: "⚠️ Keep safe distance - Do NOT approach snake"
+   - Text: "⚠️ Giữ khoảng cách an toàn - KHÔNG đến gần rắn"
 
 4. **Instructions Panel (bottom overlay):**
    - Semi-transparent dark background
-   - White text: "Tips for best results:"
+   - White text: "Mẹo để có kết quả tốt nhất:"
    - Bullet points:
-     - "Capture full body if possible"
-     - "Focus on head and pattern"
-     - "Take photo from safe distance"
-     - "Use zoom if needed"
+     - "Chụp toàn thân nếu có thể"
+     - "Tập trung vào đầu và hoa văn"
+     - "Chụp từ khoảng cách an toàn"
+     - "Sử dụng zoom nếu cần"
 
 5. **Action Buttons (bottom):**
    - Large circular camera button (center, white)
-   - Gallery icon button (left): "Upload Photo"
-   - Flash toggle (right): "Flash: Off"
+   - Gallery icon button (left): "Tải ảnh lên"
+   - Flash toggle (right): "Flash: Tắt"
 
 6. **Skip Option:**
-   - Text link: "I don't have photo of snake →"
+   - Text link: "Tôi không có ảnh rắn →"
 
 #### Stitch Prompt (English):
 
 ```
 Mobile app camera capture screen for snake identification. Camera viewfinder interface with safety warnings.
 
-Top nav bar: Back arrow left, centered title "Identify Snake", help icon (?) right. White background.
+Top nav bar: Back arrow left, centered title "Nhận diện rắn", help icon (?) right. White background.
 
-Main area shows camera viewfinder mockup: Large dark gray rectangle (#2C2C2C) representing camera view taking up 70% of vertical space. In center, white outlined frame/bracket corners indicating focus area. Inside frame, light gray text "Frame the snake in the center".
+Main area shows camera viewfinder mockup: Large dark gray rectangle (#2C2C2C) representing camera view taking up 70% of vertical space. In center, white outlined frame/bracket corners indicating focus area. Inside frame, light gray text "Đặt con rắn vào giữa khung hình".
 
-Top of camera area has yellow warning banner strip (#FFF3CD) with dark text "⚠️ Keep safe distance - Do NOT approach snake" centered.
+Top of camera area has yellow warning banner strip (#FFF3CD) with dark text "⚠️ Giữ khoảng cách an toàn - KHÔNG đến gần rắn" centered.
 
-Bottom overlay on camera area: Semi-transparent dark panel (#000000 50% opacity) with white text. Title "Tips for best results:" followed by 3 bullet points in smaller white text:
-• "Capture full body if possible"
-• "Focus on head and pattern"  
-• "Take photo from safe distance"
+Bottom overlay on camera area: Semi-transparent dark panel (#000000 50% opacity) with white text. Title "Mẹo để có kết quả tốt nhất:" followed by 4 bullet points in smaller white text:
+• "Chụp toàn thân nếu có thể"
+• "Tập trung vào đầu và hoa văn"  
+• "Chụp từ khoảng cách an toàn"
+• "Sử dụng zoom nếu cần"
 
 Below camera viewfinder, white bottom section with 3 buttons in horizontal row:
-- Left: Small outlined button "Upload Photo" with gallery icon
+- Left: Small outlined button "Tải ảnh lên" with gallery icon
 - Center: Large circular button (white fill, 80px diameter) for camera capture
-- Right: Small outlined button "Flash: Off" with flash icon
+- Right: Small outlined button "Flash: Tắt" with flash icon
 
-At very bottom, centered gray text link "I don't have photo of snake →"
+At very bottom, centered gray text link "Tôi không có ảnh rắn →"
 
 Style: Camera app interface, dark viewfinder, clear safety messaging, simple controls, iOS/Android standard camera UI patterns.
 ```
@@ -347,13 +348,13 @@ Style: Camera app interface, dark viewfinder, clear safety messaging, simple con
 #### Key Components:
 1. **Header:**
    - Back button
-   - Title: "Identification Result"
+   - Title: "Kết quả nhận diện"
    - Share button (top-right)
 
 2. **Result Status Badge:**
    - Top banner với màu theo mức độ nguy hiểm:
-     - VENOMOUS (Red): "⚠️ VENOMOUS SNAKE DETECTED"
-     - NON-VENOMOUS (Green): "✓ Non-Venomous Snake"
+     - VENOMOUS (Red): "⚠️ PHÁT HIỆN RẮN ĐỘC"
+     - NON-VENOMOUS (Green): "✓ Rắn không độc"
    - Large, prominent, full-width
 
 3. **Snake Information Card:**
@@ -362,62 +363,62 @@ Style: Camera app interface, dark viewfinder, clear safety messaging, simple con
      - English: "King Cobra"
      - Scientific: "Ophiophagus hannah"
      - Vietnamese: "Rắn hổ mang chúa"
-   - Confidence score: "AI Confidence: 94%"
+   - Confidence score: "Độ tin cậy AI: 94%"
 
 4. **Danger Level Section:**
    - Visual indicator: Red/Amber/Green bar
-   - Text: "Danger Level: HIGH"
-   - Description: "Highly venomous - Requires immediate medical attention"
+   - Text: "Mức độ nguy hiểm: CAO"
+   - Description: "Có độc rất cao - Cần chăm sóc y tế ngay lập tức"
 
 5. **Recommended Actions Card:**
-   - Title: "What to do NOW:"
+   - Title: "Cần làm NGAY:"
    - Numbered action items:
-     - "1. Call emergency services immediately"
-     - "2. Apply pressure bandage"
-     - "3. Get to nearest hospital with antivenom"
-   - CTA button: "Find Hospital with Antivenom →" (red primary button)
+     - "1. Gọi cấp cứu ngay lập tức"
+     - "2. Băng ép vết cắn"
+     - "3. Đến bệnh viện có huyết thanh gần nhất"
+   - CTA button: "Tìm bệnh viện có huyết thanh →" (red primary button)
 
 6. **Snake Details (Expandable Section):**
-   - Collapsible panel: "View Snake Details ▼"
+   - Collapsible panel: "Xem chi tiết rắn ▼"
    - When expanded shows:
-     - Habitat
-     - Common locations
-     - Typical behavior
-     - Venom effects
+     - Môi trường sống
+     - Vị trí thường gặp
+     - Hành vi thường thấy
+     - Tác dụng của nha độc
 
 7. **Bottom Actions:**
-   - Secondary button: "Report This Sighting"
-   - Text link: "Not correct? Retake photo"
+   - Secondary button: "Báo cáo lần nhìn thấy này"
+   - Text link: "Không đúng? Chụp lại"
 
 #### Stitch Prompt (English):
 
 ```
 Mobile app screen showing AI snake identification results. Emergency medical information design with clear danger indicators.
 
-Top nav: Back arrow left, title "Identification Result", share icon right. White background.
+Top nav: Back arrow left, title "Kết quả nhận diện", share icon right. White background.
 
-Full-width top banner: Red background (#DC3545) with white bold text "⚠️ VENOMOUS SNAKE DETECTED" centered. High visual prominence.
+Full-width top banner: Red background (#DC3545) with white bold text "⚠️ PHÁT HIỆN RẮN ĐỘC" centered. High visual prominence.
 
 Below banner, white card with padding showing user's uploaded snake photo (square placeholder, rounded corners). Below photo, snake name displayed in hierarchical typography:
 - Large bold text "King Cobra" (20pt)
 - Italic gray text "Ophiophagus hannah" (16pt)  
 - Regular text "Rắn hổ mang chúa" (16pt)
-- Light gray text "AI Confidence: 94%" (14pt)
+- Light gray text "Độ tin cậy AI: 94%" (14pt)
 
-Next section shows danger indicator: Horizontal bar with gradient red-to-green, marker positioned at "HIGH" level. Below bar, large text "Danger Level: HIGH" and description "Highly venomous - Requires immediate medical attention" in dark gray.
+Next section shows danger indicator: Horizontal bar with gradient red-to-green, marker positioned at "CAO" level. Below bar, large text "Mức độ nguy hiểm: CAO" and description "Có độc rất cao - Cần chăm sóc y tế ngay lập tức" in dark gray.
 
-White card titled "What to do NOW:" containing 3 numbered items in bold:
-1. Call emergency services immediately
-2. Apply pressure bandage  
-3. Get to nearest hospital with antivenom
+White card titled "Cần làm NGAY:" containing 3 numbered items in bold:
+1. Gọi cấp cứu ngay lập tức
+2. Băng ép vết cắn  
+3. Đến bệnh viện có huyết thanh gần nhất
 
-Below list, large red primary button "Find Hospital with Antivenom →" taking full card width.
+Below list, large red primary button "Tìm bệnh viện có huyết thanh →" taking full card width.
 
-Expandable section with forest green header bar "View Snake Details ▼" (collapsed state shown).
+Expandable section with forest green header bar "Xem chi tiết rắn ▼" (collapsed state shown).
 
 Bottom of screen has 2 buttons:
-- Secondary outlined button "Report This Sighting"
-- Small gray text link "Not correct? Retake photo"
+- Secondary outlined button "Báo cáo lần nhìn thấy này"
+- Small gray text link "Không đúng? Chụp lại"
 
 Style: Emergency medical results interface, clear hierarchy, danger indicators prominent, actionable next steps emphasized, professional medical app design.
 ```
@@ -441,49 +442,49 @@ Style: Emergency medical results interface, clear hierarchy, danger indicators p
 #### Key Components:
 1. **Header:**
    - Back button
-   - Title: "Report Symptoms"
-   - Progress: "Step 2 of 3"
+   - Title: "Báo cáo triệu chứng"
+   - Progress: "Bước 2 / 3"
 
 2. **Photo Section:**
-   - Title: "Photo of Bite Wound"
+   - Title: "Ảnh vết cắn"
    - Large image upload area:
      - Dashed border rectangle
      - Camera icon
-     - Text: "Tap to capture or upload photo"
+     - Text: "Nhấn để chụp hoặc tải ảnh"
    - If photo uploaded: Show thumbnail with edit/remove options
-   - Helper text: "This helps assess severity"
+   - Helper text: "Điều này giúp đánh giá mức độ nghiêm trọng"
 
 3. **Symptom Checklist:**
-   - Title: "Select symptoms you're experiencing:"
+   - Title: "Chọn triệu chứng bạn đang gặp:"
    - Multi-select checkboxes (forest green when checked):
-     - ☐ Pain at bite site
-     - ☐ Swelling
-     - ☐ Numbness/Tingling
-     - ☐ Nausea/Vomiting
-     - ☐ Difficulty breathing
-     - ☐ Blurred vision
-     - ☐ Excessive sweating
-     - ☐ Bleeding from wound
-     - ☐ Other symptoms
+     - ☐ Đau tại vị trí vết cắn
+     - ☐ Sưng tấy
+     - ☐ Tê bỏi/Chốt mặt
+     - ☐ Buồn nôn/Nôn mửa
+     - ☐ Khó thở
+     - ☐ Mờ mắt
+     - ☐ Đổ mồ hôi nhiều
+     - ☐ Chảy máu từ vết thương
+     - ☐ Triệu chứng khác
 
 4. **Severity Scale:**
-   - Title: "How would you rate the pain? (1-10)"
-   - Visual slider from 1 (Mild) to 10 (Severe)
+   - Title: "Mức độ đau của bạn? (1-10)"
+   - Visual slider from 1 (Nhẹ) to 10 (Nghiêm trọng)
    - Color gradient: Green → Yellow → Red
    - Current value displayed: "7"
 
 5. **Time Since Bite:**
-   - Title: "Time since bitten:"
-   - Dropdown or picker: "15 minutes ago"
-   - Options: "Just now", "5 min", "15 min", "30 min", "1 hour", "More than 1 hour"
+   - Title: "Thời gian kể từ khi bị cắn:"
+   - Dropdown or picker: "15 phút trước"
+   - Options: "Vừa xong", "5 phút", "15 phút", "30 phút", "1 giờ", "Trên 1 giờ"
 
 6. **Additional Notes:**
-   - Text area: "Any other information? (optional)"
-   - Placeholder: "Describe any other symptoms..."
+   - Text area: "Thông tin bổ sung? (tùy chọn)"
+   - Placeholder: "Mô tả các triệu chứng khác..."
 
 7. **Action Buttons:**
-   - Primary button: "Analyze Symptoms →" (forest green)
-   - Secondary link: "Skip this step"
+   - Primary button: "Phân tích triệu chứng →" (forest green)
+   - Secondary link: "Bỏ qua bước này"
 
 #### Stitch Prompt (English):
 
@@ -535,78 +536,78 @@ Style: Medical form interface, clear labels, adequate spacing between sections, 
 #### Key Components:
 1. **Header:**
    - Back button
-   - Title: "Severity Assessment"
-   - Time stamp: "Analyzed at 14:35"
+   - Title: "Đánh giá mức độ nghiêm trọng"
+   - Time stamp: "Phân tích lúc 14:35"
 
 2. **Severity Level Banner:**
    - Large top section với màu theo mức độ:
-     - CRITICAL (Dark Red #C0392B): "🚨 CRITICAL - SEEK IMMEDIATE HELP"
-     - SEVERE (Red #E74C3C): "⚠️ SEVERE - Go to hospital NOW"
-     - MODERATE (Amber #F39C12): "⚠️ MODERATE - Medical attention needed"
-     - MILD (Green #27AE60): "✓ MILD - Monitor symptoms"
+     - CRITICAL (Dark Red #C0392B): "🚨 NGHIÊM TRỌNG - CẦN CẤP CỨU NGAY"
+     - SEVERE (Red #E74C3C): "⚠️ NẶNG - Đến bệnh viện NGAY"
+     - MODERATE (Amber #F39C12): "⚠️ VỮA - Cần chăm sóc y tế"
+     - MILD (Green #27AE60): "✓ NHẺ - Theo dõi triệu chứng"
    - Full-width, bold text, large font
 
 3. **Assessment Score Card:**
    - Visual score: Circular progress indicator or bar (0-100)
-   - Text: "Severity Score: 85/100"
+   - Text: "Điểm mức độ: 85/100"
    - Color-coded based on severity
-   - AI confidence: "Based on reported symptoms and photo analysis"
+   - AI confidence: "Dựa trên triệu chứng và phân tích ảnh"
 
 4. **Symptoms Summary:**
-   - Title: "Identified Risk Factors:"
+   - Title: "Các yếu tố nguy cơ:"
    - Icon list (red exclamation marks for critical symptoms):
-     - ❗ Difficulty breathing detected
-     - ❗ High pain level (7/10)
-     - ❗ Swelling and numbness
-     - ⚠️ Venomous snake confirmed
-   - Time elapsed: "⏱️ 15 minutes since bite"
+     - ❗ Phát hiện khó thở
+     - ❗ Mức độ đau cao (7/10)
+     - ❗ Sưng tấy và tê bỏi
+     - ⚠️ Xác nhận rắn độc
+   - Time elapsed: "⏱️ 15 phút kể từ khi bị cắn"
 
 5. **Immediate Actions Required:**
    - Large card with numbered urgent steps:
-     - "1. 🚨 CALL EMERGENCY SERVICES NOW"
-     - "2. 🏥 Get to nearest hospital immediately"
-     - "3. 📞 Notify emergency contact"
-     - "4. 🩹 Continue first aid while waiting"
+     - "1. GỌI CẤP CỨU NGAY"
+     - "2. Đến bệnh viện gần nhất ngay lập tức"
+     - "3. Thông báo người thân khẩn cấp"
+     - "4. Tiếp tục sơ cứu trong khi chờ"
 
 6. **Emergency Call Buttons:**
-   - Large red primary button: "📞 Call Emergency Hotline" (with phone number)
-   - Secondary button: "Find Nearest Hospital →"
-   - Tertiary button: "Send SOS Alert"
+   - Large red primary button: "Gọi Đường dây nóng khẩn cấp" (with phone number)
+   - Secondary button: "Tìm bệnh viện gần nhất →"
+   - Tertiary button: "Gửi cảnh báo SOS"
 
 7. **Progress Tracking:**
-   - Text: "Your symptoms are being monitored"
-   - Link: "Update symptoms" (if condition changes)
+   - Text: "Triệu chứng của bạn đang được theo dõi"
+   - Link: "Cập nhật triệu chứng" (if condition changes)
 
 #### Stitch Prompt (English):
 
 ```
 Mobile app emergency severity assessment results screen. High-urgency medical alert interface.
 
-Top nav: Back arrow left, title "Severity Assessment", timestamp "Analyzed at 14:35" in gray on right.
+Top nav: Back arrow left, title "Đánh giá mức độ nghiêm trọng", timestamp "Phân tích lúc 14:35" in gray on right.
 
-Large full-width banner at top with dark red background (#C0392B), white bold text "🚨 CRITICAL - SEEK IMMEDIATE HELP" centered. Very prominent, high contrast.
+Large full-width banner at top with dark red background (#C0392B), white bold text "🚨 NGHIÊM TRỌNG - CẦN CẤP CỨU NGAY" centered. Very prominent, high contrast.
 
-Below banner, white card showing circular severity indicator (85% filled in red) with large text "Severity Score: 85/100" centered. Below score, small gray text "Based on reported symptoms and photo analysis".
+Below banner, white card showing circular severity indicator (85% filled in red) with large text "Điểm mức độ: 85/100" centered. Below score, small gray text "Dựa trên triệu chứng và phân tích ảnh".
 
-Next white card titled "Identified Risk Factors:" with 4 items listed vertically, each with red exclamation icon:
-❗ Difficulty breathing detected
-❗ High pain level (7/10)
-❗ Swelling and numbness  
-⚠️ Venomous snake confirmed
-Bottom of this card shows "⏱️ 15 minutes since bite" in amber color.
+Next white card titled "Các yếu tố nguy cơ:" with 4 items listed vertically, each with red exclamation icon:
+❗ Phát hiện khó thở
+❗ Mức độ đau cao (7/10)
+❗ Sưng tấy và tê bỏi  
+⚠️ Xác nhận rắn độc
+Bottom of this card shows "⏱️ 15 phút kể từ khi bị cắn" in amber color.
 
-Large white card titled "Immediate Actions Required:" containing 4 numbered items with emojis in bold text:
-1. 🚨 CALL EMERGENCY SERVICES NOW
-2. 🏥 Get to nearest hospital immediately
-3. 📞 Notify emergency contact
-4. 🩹 Continue first aid while waiting
+Large white card titled "Cần làm NGAY:" containing 4 numbered items in bold text:
+1. GỌI CẤP CỨU NGAY
+2. Đến bệnh viện gần nhất ngay lập tức
+3. Thông báo người thân khẩn cấp
+4. Tiếp tục sơ cứu trong khi chờ
 
 Bottom section has 3 vertically stacked buttons with spacing:
-- Large red primary button "📞 Call Emergency Hotline" (60px height)
-- Secondary outlined forest green button "Find Nearest Hospital →"
-- Tertiary outlined gray button "Send SOS Alert"
+- Large red primary button "Gọi Đường dây nóng khẩn cấp" (60px height)
+- Secondary outlined forest green button "Tìm bệnh viện gần nhất →"
+- Tertiary outlined gray button "Gửi cảnh báo SOS"
 
-At very bottom, small text "Your symptoms are being monitored" with link "Update symptoms" in forest green.
+At very bottom, small text "Triệu chứng của bạn đang được theo dõi" with link "Cập nhật triệu chứng" in forest green.
 
 Style: Emergency medical alert interface, high urgency, clear hierarchy, critical information prominent, actionable buttons emphasized, professional medical emergency design.
 ```
@@ -629,7 +630,7 @@ Style: Emergency medical alert interface, high urgency, clear hierarchy, critica
 
 #### Key Components:
 1. **Header:**
-   - Title: "🚨 SOS Khẩn Cấp Đang Kích Hoạt"
+   - Title: "SOS Khẩn Cấp Đang Kích Hoạt"
    - Status indicator: Red pulsing dot
    - Cancel button (top-right): "Hủy SOS"
 
@@ -639,12 +640,12 @@ Style: Emergency medical alert interface, high urgency, clear hierarchy, critica
    - Then changes to: "✅ Đã tìm thấy đội cứu hộ!"
    - Rescuer info card:
      - Avatar/Name: "Nguyễn Văn A - Chuyên viên cứu hộ"
-     - Rating: "⭐ 4.9 (156 đánh giá)"
+     - Rating: "4.9 (156 đánh giá)"
      - Distance: "2.1 km từ vị trí của bạn"
-     - ETA: "🚗 Dự kiến đến trong 8 phút"
+     - ETA: "Dự kiến đến trong 8 phút"
 
 3. **GPS Location Card:**
-   - Title: "📍 Vị Trí Của Bạn"
+   - Title: "Vị Trí Của Bạn"
    - Status: "✓ Đã chia sẻ vị trí GPS thành công"
    - Address text: "123 Nguyễn Huệ, Quận 1, TP.HCM"
    - Coordinates: "10.7769° N, 106.7009° E"
@@ -652,7 +653,7 @@ Style: Emergency medical alert interface, high urgency, clear hierarchy, critica
    - Button: "Cập Nhật Vị Trí"
 
 4. **Information Sent:**
-   - Title: "📤 Thông Tin Đã Gửi Cho Đội Cứu Hộ:"
+   - Title: "Thông Tin Đã Gửi Cho Đội Cứu Hộ:"
    - Checklist with green checkmarks:
      - ✓ Vị trí GPS của bạn (theo thời gian thực)
      - ✓ Loài rắn: Rắn hổ mang chúa (King Cobra)
@@ -661,7 +662,7 @@ Style: Emergency medical alert interface, high urgency, clear hierarchy, critica
      - ✓ Thời gian bị cắn: 15 phút trước
 
 5. **Emergency Contact Notification:**
-   - Text: "📧 Đã thông báo người thân khẩn cấp:"
+   - Text: "Đã thông báo người thân khẩn cấp:"
    - List: "• Nguyễn Văn B (Anh trai) - Đã gửi SMS"
 
 6. **Timer:**
@@ -669,9 +670,9 @@ Style: Emergency medical alert interface, high urgency, clear hierarchy, critica
    - Subtitle: "Đội cứu hộ đang trên đường đến"
 
 7. **Action Buttons:**
-   - Large button: "📞 Gọi Cho Đội Cứu Hộ" (forest green, primary)
-   - Secondary button: "🏥 Xem Bệnh Viện Gần Nhất"
-   - Tertiary button: "☎️ Gọi 115 (Cấp cứu y tế)" (outlined)
+   - Large button: "Gọi Cho Đội Cứu Hộ" (forest green, primary)
+   - Secondary button: "Xem Bệnh Viện Gần Nhất"
+   - Tertiary button: "Gọi 115 (Cấp cứu y tế)" (outlined)
    - Text link: "Hủy Yêu Cầu SOS"
 
 8. **Guidance Card (bottom):**
@@ -687,34 +688,34 @@ Style: Emergency medical alert interface, high urgency, clear hierarchy, critica
 ```
 Mobile app emergency SOS screen connecting to rescue team. Urgent rescue matching interface with GPS tracking and real-time rescuer location.
 
-Top header with red background (#DC3545): White Vietnamese text "🚨 SOS Khẩn Cấp Đang Kích Hoạt" on left, small pulsing red dot indicator, white button text "Hủy SOS" on right.
+Top header with red background (#DC3545): White Vietnamese text "SOS Khẩn Cấp Đang Kích Hoạt" on left, small pulsing red dot indicator, white button text "Hủy SOS" on right.
 
 Large central section showing rescuer matching status. Radar/pulse animation icon at top. Status text changes from "Đang tìm đội cứu hộ gần bạn..." to "✅ Đã tìm thấy đội cứu hộ!" in forest green.
 
 White card showing matched rescuer profile:
 - Small circular avatar placeholder
 - Name: "Nguyễn Văn A - Chuyên viên cứu hộ" (bold, 18pt)
-- Rating: "⭐ 4.9 (156 đánh giá)" in gray
+- Rating: "4.9 (156 đánh giá)" in gray
 - Distance badge: "2.1 km từ vị trí của bạn" with location pin icon
-- ETA: "🚗 Dự kiến đến trong 8 phút" in amber color (#FFC107)
+- ETA: "Dự kiến đến trong 8 phút" in amber color (#FFC107)
 
-White card section titled "📍 Vị Trí Của Bạn" with green checkmark text "✓ Đã chia sẻ vị trí GPS thành công". Below shows Vietnamese address "123 Nguyễn Huệ, Quận 1, TP.HCM" and coordinates "10.7769° N, 106.7009° E" in smaller gray text. Small rectangular map preview showing two location pins (user in blue, rescuer in green). Small outlined button "Cập Nhật Vị Trí" at bottom of card.
+White card section titled "Vị Trí Của Bạn" with green checkmark text "✓ Đã chia sẻ vị trí GPS thành công". Below shows Vietnamese address "123 Nguyễn Huệ, Quận 1, TP.HCM" and coordinates "10.7769° N, 106.7009° E" in smaller gray text. Small rectangular map preview showing two location pins (user in blue, rescuer in green). Small outlined button "Cập Nhật Vị Trí" at bottom of card.
 
-Next card titled "📤 Thông Tin Đã Gửi Cho Đội Cứu Hộ:" containing 5 lines with green checkmarks (Vietnamese text):
+Next card titled "Thông Tin Đã Gửi Cho Đội Cứu Hộ:" containing 5 lines with green checkmarks (Vietnamese text):
 ✓ Vị trí GPS của bạn (theo thời gian thực)
 ✓ Loài rắn: Rắn hổ mang chúa (King Cobra)
 ✓ Mức độ nguy hiểm: Nghiêm trọng
 ✓ Triệu chứng: Khó thở, sưng tấy
 ✓ Thời gian bị cắn: 15 phút trước
 
-Small section showing "📧 Đã thông báo người thân khẩn cấp:" with bullet point "• Nguyễn Văn B (Anh trai) - Đã gửi SMS".
+Small section showing "Đã thông báo người thân khẩn cấp:" with bullet point "• Nguyễn Văn B (Anh trai) - Đã gửi SMS".
 
 Large timer display showing "Thời Gian Chờ: 02:35" in bold, large font. Subtitle below "Đội cứu hộ đang trên đường đến" in gray.
 
 Four vertically stacked buttons with spacing:
-- Large primary forest green button "📞 Gọi Cho Đội Cứu Hộ" (60px height)
-- Secondary outlined button "🏥 Xem Bệnh Viện Gần Nhất"
-- Tertiary outlined gray button "☎️ Gọi 115 (Cấp cứu y tế)"
+- Large primary forest green button "Gọi Cho Đội Cứu Hộ" (60px height)
+- Secondary outlined button "Xem Bệnh Viện Gần Nhất"
+- Tertiary outlined gray button "Gọi 115 (Cấp cứu y tế)"
 - Small gray text link "Hủy Yêu Cầu SOS"
 
 Bottom card with light yellow background (#FFFACD) titled "Trong Lúc Chờ Cứu Hộ:" with 4 Vietnamese bullet points:
@@ -753,7 +754,7 @@ Style: Emergency rescue matching interface, rescuer profile prominent, real-time
 
 2. **Search Bar:**
    - Search input: "Search by name or location..."
-   - Current location button: "📍 Use my location"
+   - Current location button: "Dùng vị trí của tôi"
 
 3. **Map View:**
    - Large map area (占 50-60% screen height)
@@ -769,13 +770,13 @@ Style: Emergency rescue matching interface, rescuer profile prominent, real-time
      **Card 1 (Nearest):**
      - Hospital name: "Cho Ray Hospital"
      - Distance badge: "2.3 km" (forest green circle)
-     - Estimated time: "🚗 8 mins drive"
+     - Estimated time: "8 phút lái xe"
      - Antivenom availability:
        - "✓ King Cobra antivenom available"
        - "✓ 24/7 Emergency service"
-     - Rating: "⭐ 4.8 (1,234 reviews)"
+     - Rating: "4.8 (1,234 reviews)"
      - Primary button: "Get Directions →"
-     - Secondary button: "📞 Call Hospital"
+     - Secondary button: "Gọi bệnh viện"
      
      **Card 2:**
      - Similar structure with different distance: "5.1 km"
@@ -801,31 +802,31 @@ Style: Emergency rescue matching interface, rescuer profile prominent, real-time
 ```
 Mobile app hospital finder map screen for snakebite antivenom facilities. Map-based location finder with list view.
 
-Top nav: Back arrow left, centered title "Find Hospital", filter icon right (funnel symbol).
+Top nav: Back arrow left, centered title "Tìm bệnh viện", filter icon right (funnel symbol).
 
-Below nav, search bar with light gray background, rounded corners, placeholder text "Search by name or location..." with search icon. Small button on right "📍 Use my location" in forest green text.
+Below nav, search bar with light gray background, rounded corners, placeholder text "Tìm theo tên hoặc vị trí..." with search icon. Small button on right "Dùng vị trí của tôi" in forest green text.
 
 Large map area taking up 55% of screen height. Map placeholder shown as light gray rectangle with simple illustrated elements: blue dot for user location in center, 3-4 red cross markers around it representing hospitals numbered 1-3, faint distance circles. Small zoom buttons (+/-) in bottom-right corner of map.
 
-Below map, horizontal row of filter chips (rounded pill buttons): "Open Now" (selected, forest green background), "24/7", "Has Antivenom", "Closest" (gray outlined).
+Below map, horizontal row of filter chips (rounded pill buttons): "Đang mở cửa" (selected, forest green background), "24/7", "Có huyết thanh", "Gần nhất" (gray outlined).
 
 Scrollable list of hospital cards below filters. First card most prominent:
 
 Card 1 (white background, shadow, rounded corners):
-- Bold text "Cho Ray Hospital" (18pt)
+- Bold text "Bệnh viện Chợ Rẫn" (18pt)
 - Distance badge top-right: green circle with "2.3 km" in white
-- Gray text "🚗 8 mins drive"
-- Two lines with green checkmarks: "✓ King Cobra antivenom available" and "✓ 24/7 Emergency service"
-- Rating line: "⭐ 4.8 (1,234 reviews)" in gray
-- Two buttons horizontally aligned: Primary green "Get Directions →" and secondary outlined "📞 Call Hospital"
+- Gray text "8 phút lái xe"
+- Two lines with green checkmarks: "✓ Có huyết thanh King Cobra" and "✓ Cấp cứu 24/7"
+- Rating line: "4.8 (1,234 đánh giá)" in gray
+- Two buttons horizontally aligned: Primary green "Chỉ đường →" and secondary outlined "Gọi bệnh viện"
 
 Card 2 visible below (partial):
-- "District 10 Hospital"
+- "Bệnh viện Quận 10"
 - "5.1 km" badge
-- "✓ Multiple antivenom types"
-- "⚠️ Closes at 22:00"
+- "✓ Nhiều loại huyết thanh"
+- "⚠️ Đóng cửa lúc 22:00"
 
-At very bottom, light blue info banner (#E3F2FD) with text "💡 Tip: Call ahead to confirm antivenom availability".
+At very bottom, light blue info banner (#E3F2FD) with text "💡 Mẹo: Gọi trước để xác nhận có huyết thanh".
 
 Style: Map-based finder interface, clear geographic context, practical travel information, hospital cards with medical facility details, professional healthcare location finder design, iOS/Android map app patterns.
 ```
