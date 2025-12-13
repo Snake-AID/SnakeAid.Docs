@@ -133,6 +133,7 @@
    - Each item shows: Date, Location, Status badge, Rating
 
 6. **Quick Actions:**
+   - "Hướng Dẫn An Toàn"
    - "Lịch sử cứu hộ"
    - "Thu nhập"
    - "Cài đặt"
@@ -166,6 +167,12 @@ Section "Yêu cầu Gần Đây" with 3 scrollable history cards. Each card show
 - Location text "456 Lê Lợi, Q.1" with pin icon
 - Green rounded badge "HOÀN THÀNH" on right
 - Small yellow stars "5.0 ⭐" below badge
+
+Section titled "Truy Cập Nhanh" with 4 horizontally arranged icon buttons (equal width):
+- Button 1: Shield icon with "Hướng Dẫn An Toàn" text below (orange-red color)
+- Button 2: History/clock icon with "Lịch Sử Cứu Hộ" text below
+- Button 3: Money/wallet icon with "Thu Nhập" text below
+- Button 4: Settings/gear icon with "Cài Đặt" text below
 
 Bottom fixed navigation bar with 4 equally spaced tabs with icons and text:
 "Trang Chủ" (active, orange-red), "Nhiệm Vụ", "Bản Đồ", "Cá Nhân" (inactive tabs in gray)

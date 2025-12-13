@@ -113,13 +113,14 @@ Overall style: Clean, minimal, professional medical/emergency app, iOS and Andro
 
 ---
 
-### Screen 2: Emergency Alert Screen
+### Screen 2: Emergency Alert Screen with Rescuer Finder
 
 #### Thông tin màn hình:
-- **Tên:** Màn hình cảnh báo khẩn cấp
-- **Mục đích:** Xác nhận người dùng đang trong tình huống khẩn cấp, đưa ra hướng dẫn nhanh trước khi chuyển sang first aid
+- **Tên:** Màn hình cảnh báo khẩn cấp với tìm kiếm đội cứu hộ
+- **Mục đích:** Xác nhận tình huống khẩn cấp, hiển thị map tìm Rescuer gần nhất real-time, và đưa ra hướng dẫn an toàn
 - **Flow position:** Ngay sau khi user tap "Emergency - I'm Bitten" từ homepage
 - **Priority:** ⭐⭐⭐
+- **Design inspiration:** Grab-style modern map interface với radar scanning effect
 
 #### Key Components:
 1. **Header:**
@@ -127,51 +128,137 @@ Overall style: Clean, minimal, professional medical/emergency app, iOS and Andro
    - Title: "Cảnh báo khẩn cấp" (centered)
    - Close button (top-right, X icon)
 
-2. **Alert Banner:**
+2. **Alert Status Banner:**
    - Red background with white text
-   - Large text: "Giữ bình tĩnh - Chúng tôi sẽ giúp bạn"
-   - Icon: Heartbeat or medical cross
+   - Large text: "Đang tìm đội cứu hộ gần bạn..."
+   - Icon: Pulsing heartbeat animation
+   - Status: "GPS đã kích hoạt"
 
-3. **Critical Warning Section:**
-   - Yellow warning box with amber background
-   - Bold text: "⚠️ TUYỆT ĐỐI KHÔNG:"
-   - Bullet list:
-     - "Cắt vết thương"
-     - "Hút nọc độc ra"
-     - "Đắp băng garo hoặc đá lạnh"
-     - "Uống rượu"
+3. **Interactive Map Section (占 40% screen height):**
+   - Full-width map view (similar to Grab)
+   - User's location: Blue pulsing dot in center
+   - Radar scanning animation: Rotating green arc emanating from user location
+   - Rescuer markers: Orange pins with rescuer icons appearing as they're found
+   - Distance circles: 1km, 3km, 5km radius indicators (faint green lines)
+   - Map controls:
+     - Re-center button (bottom-right of map)
+     - Current location indicator showing address
+   - Overlay status card on map:
+     - "Đang quét: 3 đội cứu hộ gần bạn"
+     - "Khoảng cách gần nhất: 2.1 km"
 
-4. **Immediate Action Card:**
-   - Green background card
-   - Title: "✓ LÀM NGAY:"
-   - Step 1: "Giữ bình tĩnh và đứng yên"
-   - Step 2: "Cởi quần áo/trang sức chật"
-   - Step 3: "Giữ vùng bị cắn thấp hơn tim"
+4. **Bottom Sheet Panel (Slide-up drawer):**
+   
+   **Collapsed State (Shows top section):**
+   - Drag handle bar at top
+   - Quick stats: "3 đội cứu hộ | Gần nhất: 2.1km | ETA: 8 phút"
+   - Swipe up indicator: "Vuốt lên để xem hướng dẫn sơ cứu"
+   
+   **Expanded State (Full panel):**
+   
+   a) **Critical Warning Section:**
+      - Yellow warning box with amber background
+      - Bold text: "⚠️ TUYỆT ĐỐI KHÔNG:"
+      - Horizontal scrollable chips (save space):
+        - "Cắt vết thương"
+        - "Hút nọc độc"
+        - "Đắp băng garo"
+        - "Uống rượu"
+   
+   b) **Immediate Action Card:**
+      - Green background card (compact)
+      - Title: "✓ LÀM NGAY (Trong lúc chờ):"
+      - 3 numbered items with icons:
+        - "1️Giữ bình tĩnh và đứng yên"
+        - "2️Cởi đồ/trang sức chật"
+        - "3️Giữ vết cắn thấp hơn tim"
+   
+   c) **Rescuer Status (Dynamic):**
+      - **Đang quét:** "Đang tìm đội cứu hộ gần bạn..."
+        - Animated radar scanning
+        - "Đã tìm thấy 3 đội cứu hộ trong phạm vi 5km"
+      
+      - **Đã gửi yêu cầu:** "Đã gửi yêu cầu khẩn cấp đến đội cứu hộ gần nhất"
+        - Rescuer preview card (read-only):
+          - Avatar + Name + Rating
+          - "2.1 km - ETA 8 phút"
+          - Status badge: "Đang chờ phản hồi..." (amber pulsing)
+        - Text: "Đội cứu hộ có 60 giây để phản hồi"
+        - Timer: "00:45"
+      
+      - **Đã chấp nhận:** "✅ Đội cứu hộ đã chấp nhận!"
+        - Rescuer card with details
+        - Status: "Đang trên đường đến"
+        - Button: "Liên hệ đội cứu hộ"
 
-5. **Action Buttons:**
-   - Primary button (large, red): "Bắt đầu hướng dẫn sơ cứu →"
-   - Secondary button (outlined): "Gọi đường dây nóng khẩn cấp"
-   - Tertiary text link: "Tôi không bị cắn, chỉ thấy rắn"
+5. **Action Buttons (Sticky bottom):**
+   - **State 1 (Scanning):**
+     - Primary button (large, red): "Gửi Yêu Cầu SOS →"
+     - Secondary button (outlined, green): "Bắt đầu sơ cứu ngay"
+   
+   - **State 2 (Waiting for response):**
+     - Primary button (large, red, disabled): "Đang chờ phản hồi..."
+     - Secondary button (outlined, green): "Xem hướng dẫn sơ cứu"
+     - Tertiary text link: "Hủy yêu cầu"
+   
+   - **State 3 (Accepted):**
+     - Primary button (large, green): "Liên hệ đội cứu hộ"
+     - Secondary button (outlined): "Xem vị trí đội cứu hộ"
+     - Tertiary text link: "Gọi 115 trực tiếp"
 
 #### Stitch Prompt (English):
 
 ```
-Mobile app emergency alert screen for snakebite app. Full-screen urgent design with clear visual hierarchy.
+Modern mobile app emergency screen with interactive map and rescuer finder. Grab-style interface with forest green (#228B22) and red (#DC3545) emergency theme.
 
-Top navigation bar: Back arrow on left, centered title "Cảnh báo khẩn cấp", X close button on right. White background nav bar.
+Top navigation bar: Back arrow left, centered title "Cảnh báo khẩn cấp", X close button right. White background.
 
-Full-width red banner (#DC3545) at top of content with white text "Giữ bình tĩnh - Chúng tôi sẽ giúp bạn" in large bold font. Small medical cross icon on left side of text.
+Full-width red status banner (#DC3545) below nav with white text "Đang tìm đội cứu hộ gần bạn..." and small pulsing heartbeat icon. Subtext "GPS đã kích hoạt" with green checkmark.
 
-Below banner, prominent yellow-amber warning box (#FFF3CD with #FFC107 border) containing warning emoji and bold text "⚠️ TUYỆT ĐỐI KHÔNG:" followed by 4 bullet points in dark text: "Cắt vết thương", "Hút nọc độc ra", "Đắp băng garo hoặc đá lạnh", "Uống rượu". Each point on separate line with bullet.
+Large interactive map section (40% screen height): Light style map similar to Grab interface. Center shows blue pulsing dot (user location) with animated rotating green radar arc sweeping outward. Faint green concentric circles at 1km, 3km, 5km radius. Three orange pins with rescuer icons scattered on map at various distances. Small white floating card overlay on map bottom shows "Đang quét: 3 đội cứu hộ gần bạn | Khoảng cách: 2.1 km". Small circular re-center button bottom-right of map.
 
-Below warning box, green success-style card (#D4EDDA background with #28A745 border) titled "✓ LÀM NGAY:" with 3 numbered steps in dark text: "1. Giữ bình tĩnh và đứng yên", "2. Cởi quần áo/trang sức chật", "3. Giữ vùng bị cắn thấp hơn tim".
+Below map, slide-up bottom sheet panel with rounded top corners and drag handle bar at top (gray horizontal line).
 
-Bottom section has 3 vertically stacked buttons with spacing: 
-- Large primary red button (#DC3545) "Bắt đầu hướng dẫn sơ cứu →"
-- Secondary outlined button "Gọi đường dây nóng khẩn cấp"
-- Small text link in gray "Tôi không bị cắn, chỉ thấy rắn"
+**Collapsed state** shows quick stats bar: "3 đội cứu hộ | Gần nhất: 2.1km | ETA: 8 phút" with small up arrow and text "Vuốt lên để xem hướng dẫn".
 
-Design: Emergency medical interface, high contrast, clear readability, urgent but not panic-inducing, mobile-friendly touch targets.
+**Expanded state** shows full panel content:
+
+Yellow-amber warning box (#FFF3CD) with bold text "⚠️ TUYỆT ĐỐI KHÔNG:" followed by horizontal scrollable row of 4 compact chips with red X icons: "Cắt vết thương", "Hút nọc độc", "Đắp băng garo", "Uống rượu".
+
+Green success card (#D4EDDA) titled "✓ LÀM NGAY (Trong lúc chờ):" with 3 numbered compact items:
+Giữ bình tĩnh và đứng yên
+Cởi đồ/trang sức chật  
+Giữ vết cắn thấp hơn tim
+
+**Rescuer Status Section (showing "waiting for response" state):**
+Gray text "Đã gửi yêu cầu khẩn cấp đến đội cứu hộ gần nhất"
+
+White card with subtle shadow showing rescuer preview:
+- Left: Small circular avatar placeholder
+- Center: "Nguyễn Văn A" bold text, "4.9 ⭐ (156 đánh giá)" below
+- Right: "2.1 km" bold orange text, "ETA 8 phút" gray text below
+- Amber pulsing badge "Đang chờ phản hồi..." below avatar
+- Small gray text "Đội cứu hộ có 60 giây để phản hồi"
+- Timer display "00:45" in amber color
+
+Sticky bottom section with white background and top shadow:
+- Large disabled gray button "Đang chờ phản hồi..." (60px height)
+- Medium outlined green button "Xem hướng dẫn sơ cứu" (50px height)
+- Small gray text link "Hủy yêu cầu" centered
+
+Design: Modern ride-hailing app style (Grab/Uber pattern), live map interface with radar animation, clear status updates, bottom sheet UX pattern, emergency medical context, professional and calming despite urgency.
+```
+
+#### Alternative States for Stitch:
+
+**State 1 - Scanning (Before sending request):**
+```
+Map shows radar animation actively scanning. No rescuer card yet. Bottom shows animated text "Đang quét khu vực..." Primary red button "Gửi Yêu Cầu SOS →" enabled. Secondary green outlined button "Bắt đầu sơ cứu ngay".
+```
+
+**State 3 - Accepted (Rescuer confirmed):**
+```
+Rescuer card shows green checkmark badge "✅ Đã chấp nhận!". Status text "Đang trên đường đến". Map shows route line from rescuer pin to user location. Primary green button "Liên hệ đội cứu hộ" enabled. Secondary outlined "Xem vị trí đội cứu hộ". Tertiary link "Gọi 115 trực tiếp".
 ```
 
 #### Notes for Stitch:
