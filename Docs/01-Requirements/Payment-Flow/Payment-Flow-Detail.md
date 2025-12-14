@@ -28,29 +28,43 @@ Hệ thống SnakeAid có **3 luồng thanh toán chính**:
 
 ```
 ┌──────────┐                  ┌──────────┐                  ┌──────────┐
-│          │   1. Yêu cầu     │          │   2. Chấp nhận   │          │
-│ PATIENT  │─────────────────>│ PLATFORM │<─────────────────│ RESCUER  │
+│          │   1. Yêu cầu     │          │                  │          │
+│ PATIENT  │─────────────────>│ PLATFORM │                  │ RESCUER  │
 │          │                  │          │                  │          │
 └────┬─────┘                  └────┬─────┘                  └────┬─────┘
      │                             │                             │
-     │ 3. Rescuer hoàn thành       │                             │
-     │    cứu hộ                   │                             │
-     │                             │                             │
-     │ 4. Patient thanh toán       │                             │
-     │    (100% phí dịch vụ)       │                             │
+     │ 2. CỌC TRƯỚC 30%            │                             │
+     │    (150,000 VNĐ)            │                             │
      ├────────────────────────────>│                             │
+     │                             │ → Vào ESCROW                │
      │                             │                             │
-     │                             │ 5. Platform phân chia:      │
-     │                             │    - 85% → Rescuer          │
-     │                             │    - 10% → Platform         │
-     │                             │    - 5% → Quỹ bảo hiểm     │
+     │                             │ 3. Gửi yêu cầu + hiển thị   │
+     │                             │    "Patient đã cọc 150K"    │
      │                             ├────────────────────────────>│
      │                             │                             │
-     │ 6. Nhận hóa đơn             │                             │
+     │                             │ 4. Rescuer chấp nhận        │
+     │                             │<────────────────────────────┤
+     │                             │                             │
+     │ 5. Rescuer hoàn thành       │                             │
+     │    cứu hộ                   │<────────────────────────────┤
+     │                             │                             │
+     │ 6. Patient TRẢ THÊM 70%     │                             │
+     │    (350,000 VNĐ)            │                             │
+     ├────────────────────────────>│                             │
+     │                             │                             │
+     │                             │ 7. Platform tính tổng:      │
+     │                             │    150K + 350K = 500K       │
+     │                             │    Phân chia:               │
+     │                             │    - 85% (425K) → Rescuer   │
+     │                             │    - 10% (50K) → Platform   │
+     │                             │    - 5% (25K) → Bảo hiểm   │
+     │                             ├────────────────────────────>│
+     │                             │                             │
+     │ 8. Nhận hóa đơn             │                             │
      │<────────────────────────────┤                             │
      │                             │                             │
-     │                             │ 7. Rescuer nhận thông báo   │
-     │                             │    thanh toán thành công    │
+     │                             │ 9. Rescuer nhận thông báo   │
+     │                             │    "Đã nhận 425K"           │
      │                             │<────────────────────────────┤
      │                             │                             │
 ```
@@ -68,8 +82,10 @@ Hệ thống SnakeAid có **3 luồng thanh toán chính**:
 | **TỔNG** | 100% | 500,000 VNĐ | |
 
 **Ghi chú:**
-- Patient trả **100%** phí dịch vụ (500,000 VNĐ) qua cổng thanh toán
-- Thanh toán sau khi Rescuer hoàn thành cứu hộ
+- Patient trả **tổng 100%** phí dịch vụ (500,000 VNĐ) qua cổng thanh toán
+- Thanh toán **chia 2 lần:**
+  - **Lần 1 (30%):** Cọc trước 150,000 VNĐ khi yêu cầu cứu hộ
+  - **Lần 2 (70%):** Trả sau 350,000 VNĐ khi Rescuer hoàn thành
 - Phí cứu hộ có thể thay đổi tùy theo:
   - Loài rắn (rắn độc cao hơn)
   - Khu vực (xa trung tâm cao hơn)
@@ -84,21 +100,30 @@ Patient có thể thanh toán qua:
 - **Chuyển khoản ngân hàng:** Internet Banking
 - **Tiền mặt:** (Trong một số trường hợp đặc biệt, thanh toán trực tiếp cho Rescuer - Platform vẫn ghi nhận giao dịch)
 
-#### 1.4. Thời điểm thanh toán
+#### 1.4. Thời điểm thanh toán (CƠ CHẾ CỌC 30%)
 
 ```
-Timeline:
-┌────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│ T0: Yêu    │────>│ T1: Rescuer  │────>│ T2: Hoàn     │────>│ T3: Thanh    │
-│ cầu cứu hộ │     │ chấp nhận    │     │ thành cứu hộ │     │ toán ngay    │
-└────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
-                                                                      │
-                                                                      ▼
-                                                         ┌──────────────────────┐
-                                                         │ T4: Rescuer nhận     │
-                                                         │ tiền trong 5-10 phút │
-                                                         └──────────────────────┘
+Timeline với Tiền Cọc:
+┌────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ T0: Yêu    │────>│ T1: CỌC 30%  │────>│ T2: Rescuer  │────>│ T3: Hoàn     │────>│ T4: TRẢ 70%  │
+│ cầu cứu hộ │     │ (150,000 VNĐ)│     │ chấp nhận    │     │ thành cứu hộ │     │ (350,000 VNĐ)│
+└────────────┘     └──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+                           │                                                                │
+                           ▼                                                                ▼
+                   Tiền vào ESCROW                                                Rescuer nhận tiền
+                   (giữ tạm thời)                                                 (trong 5-10 phút)
+                   Chưa ai nhận được                                              Tổng: 500K (100%)
 ```
+
+**Lưu ý quan trọng:**
+- ✅ Patient phải **CỌC TRƯỚC 30%** (150,000 VNĐ) để Rescuer chấp nhận
+- ✅ Tiền cọc được giữ trong **ESCROW** (tài khoản tạm giữ) - chưa ai nhận
+- ✅ Patient trả thêm **70%** (350,000 VNĐ) sau khi hoàn thành
+- ✅ Rescuer nhận **tổng 85%** (425,000 VNĐ) trong 5-10 phút sau khi Patient xác nhận
+- ⚠️ Nếu Patient **hủy sau khi Rescuer chấp nhận** → Mất tiền cọc (150K)
+- ⚠️ Nếu Patient **hủy trước khi Rescuer chấp nhận** → Hoàn tiền cọc 100%
+- ⚠️ Nếu Patient **không thanh toán 70% trong 24h** → Hệ thống nhắc nhở
+- ⚠️ Nếu Patient **không thanh toán 70% trong 72h** → Khóa tài khoản
 
 #### ⚠️ RỦI RO & GIẢI PHÁP TIỀN CỌC
 
