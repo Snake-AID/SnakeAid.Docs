@@ -30,15 +30,7 @@ Mỗi luồng tiền phục vụ cho một **tình huống cụ thể** của ng
 **Tình huống:**
 > "Tôi phát hiện rắn trong nhà/sân vườn, cần người đến bắt giúp"
 
-**Kịch bản thực tế:**
-```
-Chị Lan (Q.7, TP.HCM)
-├─ 21h tối phát hiện rắn lục đuôi đỏ trên cây
-├─ Mở app SnakeAid → Chụp ảnh → AI nhận diện
-├─ Đặt cọc 150K (30%) → Rescuer gần nhất nhận
-├─ 30 phút sau: Rescuer đến, bắt rắn xong
-└─ Trả thêm 350K (70%) → Đánh giá 5 sao
-```
+**Kịch bản:** Phát hiện rắn → Đặt cọc 30% → Rescuer đến bắt → Trả 70% còn lại
 
 **Đặc điểm:**
 - ✅ Có rắn **hiện hữu** tại chỗ
@@ -53,16 +45,7 @@ Chị Lan (Q.7, TP.HCM)
 **Tình huống:**
 > "Tôi không chắc đây là rắn gì, có độc không? Cần tư vấn trước khi quyết định"
 
-**Kịch bản thực tế:**
-```
-Anh Minh (Đồng Nai)
-├─ Thấy rắn lạ trong vườn, chưa dám tiếp cận
-├─ Đặt lịch tư vấn với Expert (300K, 30 phút)
-├─ Thanh toán trước → Expert chấp nhận
-├─ Video call: Chuyên gia nhận diện → Rắn lục không độc
-├─ Được hướng dẫn cách tự đuổi rắn an toàn
-└─ Tiết kiệm 500K tiền gọi Rescuer
-```
+**Kịch bản:** Thấy rắn lạ → Đặt lịch tư vấn → Trả trước 100% → Video call với Expert → Nhận diện & tư vấn
 
 **Đặc điểm:**
 - ✅ Muốn **tư vấn từ xa**, không cần người đến
@@ -77,18 +60,7 @@ Anh Minh (Đồng Nai)
 **Tình huống:**
 > "Tôi (Rescuer) đang ở hiện trường, gặp rắn lạ không dám bắt, cần Expert tư vấn ngay"
 
-**Kịch bản thực tế:**
-```
-Rescuer Tuấn (đang ở Bình Dương)
-├─ Nhận đơn bắt rắn 500K → Đến nơi
-├─ Thấy rắn 3m, không chắc là rắn gì
-├─ Bấm "Gọi Expert hỗ trợ" trong app
-├─ Expert online kết nối ngay (1 phút)
-├─ Video call: Expert nhận diện → Trăn đất (không độc)
-├─ Expert hướng dẫn cách bắt an toàn
-├─ Tuấn bắt thành công trong 15 phút
-└─ Phân chia: Tuấn 375K (75%), Expert 50K (10%)
-```
+**Kịch bản:** Rescuer nhận đơn → Đến nơi gặp rắn khó → Gọi Expert hỗ trợ → Video call hướng dẫn → Bắt thành công → Chia phí
 
 **Đặc điểm:**
 - ✅ Rescuer **đang làm việc**, gặp khó khăn
@@ -112,23 +84,7 @@ Rescuer Tuấn (đang ở Bình Dương)
 **Tình huống:**
 > "Tôi BỊ RẮN CẮN rồi! Cần chuyên gia tư vấn SƠ CỨU ngay lập tức!"
 
-**Kịch bản thực tế:**
-```
-Anh Hùng (Củ Chi)
-├─ Bị rắn cắn vào chân lúc đi trong vườn
-├─ Bấm SOS trong app → Gọi cấp cứu 115
-├─ Màn hình hiện: "Gọi Expert tư vấn ngay? 500K"
-├─ Anh Hùng chọn "Có" → Thanh toán 500K
-├─ 1 phút sau: Expert kết nối video call
-├─ Expert xem vết cắn → Hướng dẫn:
-│   • Băng bó vết thương
-│   • Giữ chân thấp hơn tim
-│   • Không rạch da, không hút nọc
-│   • Chờ xe cấp cứu (đang đến)
-├─ Expert đánh giá: Vết cắn có triệu chứng nặng
-├─ Khuyên: ĐI BỆNH VIỆN NGAY, cần huyết thanh
-└─ Xe cấp cứu đến → Anh Hùng được đưa đi BV kịp thời
-```
+**Kịch bản:** Bị rắn cắn → Bấm SOS → Chọn gọi Expert (optional) → Trả 500K → Expert kết nối trong 1-2 phút → Tư vấn sơ cứu & đánh giá
 
 **Đặc điểm:**
 - ✅ Tình huống **KHẨN CẤP** - bị rắn cắn
