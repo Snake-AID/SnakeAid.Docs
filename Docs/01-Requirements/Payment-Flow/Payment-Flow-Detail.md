@@ -10,11 +10,12 @@
 
 ## 📌 TỔNG QUAN LUỒNG TIỀN
 
-Hệ thống SnakeAid có **3 luồng thanh toán chính**:
+Hệ thống SnakeAid có **4 luồng thanh toán chính**:
 
 1. **Patient → Platform → Rescuer** (Dịch vụ cứu hộ rắn)
 2. **Patient → Platform → Expert** (Tư vấn chuyên gia trực tiếp)
 3. **Platform → Expert** hoặc **Rescuer → Expert** (Hỗ trợ khẩn cấp cho Rescuer)
+4. **Patient → Platform → Expert** (Tư vấn khẩn cấp qua SOS - Optional)
 
 ---
 
@@ -644,150 +645,6 @@ Giá trị thực tế:
 - Tổng lời: 375K + 350K = 725K (tốt hơn 425K)
 ```
 
----
-
-**⚠️ PHƯƠNG ÁN PHỤ (Không áp dụng): Platform trả phí**
-
-*Phương án này không được chọn do chi phí cao và khả năng lạm dụng. Giữ lại để tham khảo.*
-
-```
-┌──────────┐                  ┌──────────┐                  ┌──────────┐
-│          │   1. Yêu cầu hỗ  │          │   2. Kết nối    │          │
-│ RESCUER  │────trợ khẩn cấp─>│ PLATFORM │────ngay lập tức─>│  EXPERT  │
-│          │                  │          │                  │          │
-└────┬─────┘                  └────┬─────┘                  └────┬─────┘
-     │                             │                             │
-     │ 3. Tư vấn qua               │                             │
-     │    chat/video call          │                             │
-     │<───────────────────────────────────────────────────────>│
-     │                             │                             │
-     │                             │ 4. Sau khi tư vấn xong      │
-     │                             │    Platform trả phí Expert  │
-     │                             ├────────────────────────────>│
-     │                             │    (50,000 - 100,000 VNĐ)  │
-     │                             │                             │
-     │                             │ 5. Rescuer KHÔNG mất tiền   │
-     │                             │    Patient KHÔNG mất tiền   │
-     │                             │                             │
-```
-
-**Phí hỗ trợ khẩn cấp:**
-- 50,000 VNĐ cho tư vấn < 10 phút
-- 100,000 VNĐ cho tư vấn 10-20 phút
-- Platform chịu chi phí để đảm bảo Rescuer làm việc an toàn
-
-#### 📝 LÝ DO KHÔNG CHỌN PHƯƠNG ÁN 1:
-
-**Tại sao Platform phải trả tiền cho Expert?**
-
-Phương án này được thiết kế để **ưu tiên an toàn** và **khuyến khích Rescuer** yêu cầu hỗ trợ khi gặp tình huống nguy hiểm:
-
-1. **Bối cảnh:** 
-   - Rescuer đang ở hiện trường, chuẩn bị bắt rắn
-   - Phát hiện đây là loài rắn lạ hoặc rất nguy hiểm (ví dụ: rắn hổ mang chúa)
-   - Nếu xử lý sai → Rescuer có thể bị cắn → nguy hiểm tính mạng
-
-2. **Vấn đề nếu Rescuer phải trả phí:**
-   - Rescuer sẽ **ngại** gọi Expert vì phải mất tiền
-   - Dẫn đến Rescuer **xử lý liều lĩnh** → tăng nguy cơ tai nạn
-   - Platform phải chi trả bảo hiểm nhiều hơn nếu Rescuer bị thương
-
-3. **Giải pháp của Platform:**
-   - Platform **TÀI TRỢ** hoàn toàn chi phí Expert cho Rescuer
-   - Rescuer **KHÔNG MẤT TIỀN** khi gọi Expert
-   - Patient **KHÔNG PHẢI TRẢ THÊM** phí tư vấn Expert
-
-**Luồng tiền thực tế:**
-
-```
-Ví dụ cụ thể:
-- Patient trả phí cứu hộ: 500,000 VNĐ
-- Rescuer yêu cầu Expert hỗ trợ 10 phút
-
-TRƯỚC KHI CÓ EXPERT HỖ TRỢ:
-┌─────────────────────────────────────────┐
-│ 500,000 VNĐ từ Patient                  │
-├─────────────────────────────────────────┤
-│ ├─ 425,000 VNĐ (85%) → Rescuer         │
-│ ├─  50,000 VNĐ (10%) → Platform        │
-│ └─  25,000 VNĐ (5%)  → Quỹ bảo hiểm   │
-└─────────────────────────────────────────┘
-
-SAU KHI CÓ EXPERT HỖ TRỢ:
-┌─────────────────────────────────────────┐
-│ 500,000 VNĐ từ Patient (không đổi)      │
-├─────────────────────────────────────────┤
-│ ├─ 425,000 VNĐ (85%) → Rescuer         │
-│ │   (Rescuer vẫn nhận đủ 85%)          │
-│ ├─  50,000 VNĐ (10%) → Platform        │
-│ └─  25,000 VNĐ (5%)  → Quỹ bảo hiểm   │
-└─────────────────────────────────────────┘
-
-PLATFORM TRẢ THÊM CHO EXPERT:
-┌─────────────────────────────────────────┐
-│ Platform chi thêm từ quỹ riêng:         │
-│ └─  50,000 VNĐ → Expert                │
-│     (từ ngân sách Platform)             │
-└─────────────────────────────────────────┘
-```
-
-**Phân tích chi phí Platform:**
-
-| Khoản thu/chi | Số tiền | Ghi chú |
-|---------------|---------|---------|
-| Thu từ Patient | +50,000 VNĐ | 10% phí dịch vụ |
-| Chi cho Expert | -50,000 VNĐ | Tài trợ tư vấn khẩn cấp |
-| **Lãi/lỗ ròng** | **0 VNĐ (hòa vốn)** | Platform không lời nhưng không lỗ nhiều |
-
-**Lợi ích của phương án này:**
-
-✅ **Cho Rescuer:**
-- Không phải lo chi phí khi cần hỗ trợ
-- Tăng tính an toàn trong công việc
-- Làm việc tự tin hơn vì có Expert backup
-
-✅ **Cho Expert:**
-- Nhận thêm thu nhập từ hỗ trợ khẩn cấp
-- Tham gia tích cực vào hệ thống
-- Tăng uy tín chuyên môn
-
-✅ **Cho Platform:**
-- Giảm tai nạn lao động cho Rescuer
-- Giảm chi phí bảo hiểm (1 tai nạn có thể tốn 10-50 triệu)
-- Tăng chất lượng dịch vụ → khách hàng hài lòng
-- Xây dựng hình ảnh "Platform quan tâm đến an toàn người lao động"
-
-✅ **Cho Patient:**
-- Không phải trả thêm tiền
-- An tâm vì biết Rescuer có Expert hỗ trợ
-- Dịch vụ chuyên nghiệp hơn
-
-**Tính toán tổng thể:**
-
-Nếu 1 tháng có:
-- 856 ca cứu hộ
-- 50 ca cần hỗ trợ Expert (5.8%)
-- Chi phí Expert: 50 ca × 50,000 = 2,500,000 VNĐ
-
-So sánh:
-- Chi phí tài trợ Expert: 2,500,000 VNĐ
-- Chi phí nếu có 1 tai nạn Rescuer: 10,000,000 - 50,000,000 VNĐ (bảo hiểm, y tế, bồi thường)
-
-→ **Đầu tư 2.5 triệu để tránh rủi ro 10-50 triệu là HỢP LÝ**
-
-**Khi nào Platform lỗ?**
-
-Platform chỉ lỗ khi:
-- Phí tư vấn Expert > 50,000 VNĐ (vượt quá 10% doanh thu từ ca đó)
-- Ví dụ: Expert tư vấn 25 phút → phí 100,000 VNĐ
-- Trong trường hợp này, Platform lỗ 50,000 VNĐ
-
-**Giải pháp:**
-- Platform giới hạn thời gian tư vấn miễn phí: tối đa 15 phút
-- Nếu vượt quá → chuyển sang Phương án 2 (Rescuer chia phí)
-
----
-
 #### 📝 GIẢI THÍCH CHI TIẾT PHƯƠNG ÁN 2 (CHÍNH THỨC):
 
 **Tại sao Rescuer phải chia phần của mình cho Expert?**
@@ -1031,6 +888,160 @@ KẾT LUẬN: Gọi Expert là quyết định ĐÚNG!
 - Patient trả: **300,000 VNĐ**
 - Expert nhận: **270,000 VNĐ** (90%)
 - Platform nhận: **30,000 VNĐ** (10%)
+
+**Tình huống 5: Tư vấn khẩn cấp qua SOS (Optional)**
+- Patient trả: **500,000 VNĐ**
+- Expert nhận: **450,000 VNĐ** (90%)
+- Platform nhận: **50,000 VNĐ** (10%)
+
+---
+
+### 4. LUỒNG TIỀN: EXPERT CONSULTATION VIA SOS (TƯ VẤN KHẨN CẤP)
+
+**Kịch bản:** Patient bị rắn cắn và đang trong tình huống SOS → Patient muốn được tư vấn từ Expert ngay lập tức qua tính năng gọi khẩn cấp → Expert tư vấn sơ cứu và đưa ra phương án phù hợp
+
+#### 4.1. Đặc điểm của dịch vụ này
+
+- ✅ **Optional service:** Patient có thể lựa chọn hoặc không khi đang trong SOS
+- ✅ **Tư vấn tận tình:** Expert sẽ hướng dẫn chi tiết cách sơ cứu ban đầu
+- ✅ **Đưa ra phương án:** Expert đánh giá tình trạng và đề xuất giải pháp phù hợp
+- ✅ **Yên tâm cho khách hàng:** Được chuyên gia trực tiếp hướng dẫn trong tình huống nguy hiểm
+- ⚡ **Khẩn cấp:** Phản hồi trong vòng 1-2 phút
+- 💰 **Phí cao hơn:** Do tính khẩn cấp và ưu tiên cao nhất
+
+#### 4.2. Quy trình thanh toán
+
+```
+┌──────────┐                  ┌──────────┐                  ┌──────────┐
+│          │   1. SOS: Bị rắn │          │                  │          │
+│ PATIENT  │───cắn, cần tư vấn>│ PLATFORM │                  │  EXPERT  │
+│          │   gấp từ Expert   │          │                  │          │
+└────┬─────┘                  └────┬─────┘                  └────┬─────┘
+     │                             │                             │
+     │ 2. Chọn "Gọi Expert qua SOS"│                             │
+     │    (Optional)               │                             │
+     ├────────────────────────────>│                             │
+     │                             │                             │
+     │ 3. THANH TOÁN 100% NGAY     │                             │
+     │    (500,000 VNĐ)            │                             │
+     ├────────────────────────────>│                             │
+     │                             │ → Vào ESCROW               │
+     │                             │                             │
+     │                             │ 4. Platform tìm Expert      │
+     │                             │    sẵn sàng (trong 1-2 phút)│
+     │                             ├────────────────────────────>│
+     │                             │                             │
+     │                             │ 5. Expert chấp nhận SOS     │
+     │                             │<────────────────────────────┤
+     │                             │                             │
+     │ 6. Kết nối tư vấn ngay      │                             │
+     │    qua video call           │                             │
+     │<───────────────────────────────────────────────────────>│
+     │                             │                             │
+     │ 7. Expert tư vấn:           │                             │
+     │    - Cách sơ cứu ban đầu   │                             │
+     │    - Đánh giá mức độ nguy hiểm                           │
+     │    - Đề xuất phương án (đi BV/tự xử lý)                 │
+     │<───────────────────────────────────────────────────────>│
+     │                             │                             │
+     │                             │ 8. Sau khi hoàn thành       │
+     │                             │    Platform phân chia:      │
+     │                             │    - 90% → Expert          │
+     │                             │    - 10% → Platform        │
+     │                             ├────────────────────────────>│
+     │                             │                             │
+     │ 9. Nhận hóa đơn & đánh giá │                             │
+     │<────────────────────────────┤                             │
+     │                             │                             │
+     │                             │ 10. Expert nhận thông báo   │
+     │                             │     "Đã nhận 450K"         │
+     │                             │<────────────────────────────┤
+```
+
+#### 4.3. Phân chia doanh thu chi tiết
+
+**Ví dụ cụ thể:**
+- Phí tư vấn khẩn cấp qua SOS: **500,000 VNĐ**
+
+| Bên nhận | Tỷ lệ | Số tiền | Mục đích |
+|----------|-------|---------|----------|
+| **Expert** | 90% | 450,000 VNĐ | Tư vấn khẩn cấp 24/7, ưu tiên cao nhất |
+| **Platform (Admin)** | 10% | 50,000 VNĐ | Phí vận hành hệ thống, matching, kết nối video call |
+| **TỔNG** | 100% | 500,000 VNĐ | |
+
+**Ghi chú:**
+- Patient trả **100% TRƯỚC** khi được kết nối với Expert
+- Tiền được giữ trong **ESCROW** cho đến khi hoàn thành tư vấn
+- Phí cao hơn tư vấn thường (300K → 500K) do:
+  - ⚡ Tính khẩn cấp (SOS, bị rắn cắn)
+  - 🚨 Ưu tiên cao nhất trong hệ thống
+  - ⏰ Expert phải sẵn sàng 24/7
+  - 🎯 Phản hồi trong 1-2 phút
+
+#### 4.4. Timeline thanh toán
+
+```
+Timeline:
+├─ T0: Patient bấm SOS "Bị rắn cắn"
+├─ T+30s: Patient chọn "Gọi Expert ngay" (Optional)
+├─ T+45s: Patient thanh toán 100% (500,000 VNĐ) → Vào ESCROW
+├─ T+1m: Platform tìm Expert sẵn sàng
+├─ T+2m: Expert chấp nhận → Kết nối video call ngay
+├─ T+5m: Expert tư vấn sơ cứu, đánh giá tình trạng
+├─ T+10m: Expert đưa ra phương án (đi BV/tự xử lý/gọi cấp cứu)
+├─ T+12m: Kết thúc tư vấn
+├─ T+15m: Platform chuyển tiền:
+│         • 450,000 VNĐ → Expert
+│         • 50,000 VNĐ → Platform
+└─ T+20m: Patient đánh giá dịch vụ
+```
+
+#### 4.5. Chính sách hoàn tiền
+
+**Trường hợp hoàn tiền 100%:**
+- ❌ Không có Expert nào sẵn sàng trong 2 phút
+- ❌ Expert chấp nhận nhưng không kết nối được video call trong 3 phút
+- ❌ Lỗi hệ thống, không thể tư vấn được
+
+**Trường hợp hoàn tiền 50%:**
+- ⚠️ Patient không hài lòng với chất lượng tư vấn (khiếu nại trong 1 giờ)
+- ⚠️ Expert tư vấn không đầy đủ hoặc quá ngắn (< 3 phút)
+
+**Trường hợp KHÔNG hoàn tiền:**
+- ✅ Patient đã nhận được tư vấn đầy đủ từ Expert
+- ✅ Patient hủy sau khi Expert đã bắt đầu tư vấn
+- ✅ Patient tự ngắt cuộc gọi giữa chừng
+
+**Lưu ý quan trọng:**
+- ✅ Patient phải **THANH TOÁN 100% TRƯỚC** khi được kết nối
+- ✅ Tiền được giữ trong **ESCROW** - Expert chưa nhận ngay
+- ✅ Expert nhận tiền **SAU KHI** hoàn thành tư vấn (5-10 phút)
+- ⚠️ Nếu Expert **không phản hồi trong 2 phút** → Hoàn tiền 100%
+- ⚠️ Nếu Patient **hủy sau khi Expert chấp nhận** → Mất 100%
+- ⚠️ Nếu Patient **hủy trước khi Expert chấp nhận** → Hoàn tiền 100%
+
+#### 4.6. Khác biệt so với Expert Consultation thường
+
+| Tiêu chí | Expert Consultation thường | Expert via SOS (Khẩn cấp) |
+|----------|---------------------------|---------------------------|
+| **Giá** | 300,000 VNĐ | 500,000 VNĐ (+67%) |
+| **Phản hồi** | 5-15 phút | 1-2 phút |
+| **Ưu tiên** | Thường | Cao nhất |
+| **Đặt lịch** | Có thể đặt trước | Gọi ngay lập tức |
+| **Tình huống** | Tư vấn thông thường | Khẩn cấp (bị rắn cắn) |
+| **Thời gian** | 15-30 phút | 5-10 phút (nhanh, tập trung) |
+| **Nội dung** | Tư vấn chi tiết, giải đáp nhiều câu hỏi | Sơ cứu, đánh giá, đưa phương án |
+
+#### 4.7. Tính năng liên quan
+
+| Mã tính năng | Mô tả | Vai trò |
+|--------------|-------|---------|
+| **FE-05** (Patient) | Gửi yêu cầu SOS và tự động gọi cấp cứu (911) | Patient |
+| **FE-27** (Patient) | Thanh toán phí tư vấn chuyên gia rắn trực tuyến | Patient |
+| **FE-29** (Patient) | Theo dõi trạng thái thanh toán và hóa đơn điện tử | Patient |
+| **FE-17** (Expert) | Nhận thông báo SOS khẩn cấp | Expert |
+| **FE-18** (Expert) | Tư vấn qua video call cho Patient trong SOS | Expert |
+| **FE-14** (Expert) | Nhận thanh toán qua nền tảng và xuất hóa đơn điện tử | Expert |
 
 ---
 

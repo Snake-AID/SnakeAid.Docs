@@ -302,7 +302,54 @@ Chi tiết tính giá:
 - Được **hoàn 50%** nếu Expert không tham gia trong 5 phút
 - **Không hoàn tiền** nếu Patient hủy sau khi Expert đã vào
 
-### 4.2. Tư vấn hỗ trợ khẩn cấp cho Rescuer
+### 4.2. Tư vấn khẩn cấp qua SOS (Optional)
+
+#### 🚨 TƯ VẤN KHẨN CẤP KHI BỊ RẮN CẮN
+
+**Đặc điểm dịch vụ:**
+- ✅ **Optional service:** Patient tự chọn khi đang trong tình huống SOS
+- ⚡ **Phản hồi nhanh:** Expert sẵn sàng trong 1-2 phút
+- 🚨 **Ưu tiên cao nhất:** Xử lý trước tất cả yêu cầu khác
+- 💰 **Giá cao hơn:** Do tính khẩn cấp và ưu tiên 24/7
+
+#### 🆘 BẢNG GIÁ TƯ VẤN SOS
+
+| Gói Dịch Vụ | Thời Gian | Giá Patient Trả | Expert Nhận (90%) | Platform (10%) | Nội Dung |
+|-------------|-----------|-----------------|-------------------|----------------|----------|
+| **SOS Khẩn Cấp** | 5-10 phút | **500,000 đ** | **450,000 đ** | **50,000 đ** | Tư vấn sơ cứu ngay lập tức |
+
+**Dịch vụ bao gồm:**
+- ✅ Kết nối video call khẩn cấp trong 1-2 phút
+- ✅ Hướng dẫn sơ cứu ban đầu (cách băng bó, rửa vết thương)
+- ✅ Đánh giá mức độ nguy hiểm dựa trên triệu chứng
+- ✅ Đưa ra phương án phù hợp (đi bệnh viện/tự xử lý/gọi cấp cứu)
+- ✅ Giúp Patient yên tâm trong tình huống nguy hiểm
+- ✅ Không giới hạn thời gian đến khi xử lý xong tình huống
+
+**So sánh với tư vấn thường:**
+
+| Tiêu chí | Tư vấn Thường | Tư vấn SOS Khẩn Cấp |
+|----------|---------------|---------------------|
+| **Giá** | 300,000 đ | **500,000 đ** (+67%) |
+| **Phản hồi** | 5-15 phút | **1-2 phút** |
+| **Ưu tiên** | Bình thường | **Cao nhất** |
+| **Đặt lịch** | Có thể đặt trước | **Gọi ngay** |
+| **Tình huống** | Tư vấn, giải đáp | **Khẩn cấp (bị rắn cắn)** |
+| **Thời gian** | 15-30 phút | 5-10 phút (tập trung) |
+
+**Chính sách hoàn tiền:**
+- ✅ Hoàn 100% nếu không có Expert nào sẵn sàng trong 2 phút
+- ✅ Hoàn 100% nếu Expert không kết nối được trong 3 phút
+- ⚠️ Hoàn 50% nếu Patient không hài lòng (khiếu nại trong 1 giờ)
+- ❌ Không hoàn nếu Patient đã nhận tư vấn đầy đủ
+
+**Lưu ý quan trọng:**
+- Patient phải **THANH TOÁN 100% TRƯỚC** khi được kết nối
+- Tiền được giữ trong **ESCROW** đến khi hoàn thành
+- Expert nhận tiền **SAU KHI** hoàn thành tư vấn (5-10 phút)
+- Dịch vụ **OPTIONAL** - Patient tự quyết định có sử dụng hay không
+
+### 4.3. Tư vấn hỗ trợ khẩn cấp cho Rescuer
 
 #### 🚨 TƯ VẤN TRONG QUÁ TRÌNH CỨU HỘ
 
@@ -334,6 +381,8 @@ Chi tiết tính giá:
 | **> 30 phút** | **Rescuer tự trả** | Vượt giới hạn | Chuyển sang PA2 |
 
 ### 4.3. Gói tư vấn dài hạn
+
+### 4.4. Gói tư vấn dài hạn
 
 #### 📦 GÓI HỢP ĐỒNG DOANH NGHIỆP
 
@@ -397,7 +446,16 @@ Patient trả 300,000 đ
          └─→ 10% (30,000 đ)  → Platform
 ```
 
-**C. Dịch Vụ Khẩn Cấp (Rescuer Gọi Expert):**
+**C. Dịch Vụ Tư Vấn Khẩn Cấp Qua SOS (Patient Gọi Expert):**
+
+```
+Patient trả 500,000 đ
+         │
+         ├─→ 90% (450,000 đ) → Expert
+         └─→ 10% (50,000 đ)  → Platform
+```
+
+**D. Dịch Vụ Khẩn Cấp (Rescuer Gọi Expert):**
 
 **✅ PHƯƠNG ÁN CHÍNH THỨC: Rescuer chia sẻ**
 ```
