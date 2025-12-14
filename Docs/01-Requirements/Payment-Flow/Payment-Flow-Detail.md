@@ -586,9 +586,91 @@ Timeline:
 
 **Kịch bản:** Rescuer đang ở hiện trường, gặp loài rắn khó nhận diện → Yêu cầu Expert hỗ trợ từ xa → Expert tư vấn ngay
 
-#### 3.1. Quy trình thanh toán (2 phương án)
+#### 3.1. Quy trình thanh toán (CHỌN PHƯƠNG ÁN 2)
 
-**PHƯƠNG ÁN 1: Platform trả phí (không tính vào khách hàng)**
+**✅ PHƯƠNG ÁN CHÍNH: Rescuer chia sẻ phí cứu hộ cho Expert**
+
+```
+┌──────────┐                  ┌──────────┐                  ┌──────────┐
+│          │   1. Yêu cầu hỗ  │          │   2. Kết nối    │          │
+│ RESCUER  │────trợ khẩn cấp─>│ PLATFORM │────ngay lập tức─>│  EXPERT  │
+│          │                  │          │                  │          │
+└────┬─────┘                  └────┬─────┘                  └────┬─────┘
+     │                             │                             │
+     │ 3. Tư vấn qua               │                             │
+     │    chat/video call          │                             │
+     │<───────────────────────────────────────────────────────>│
+     │                             │                             │
+     │                             │ 4. Sau khi tư vấn xong      │
+     │                             │    Platform trả phí Expert  │
+     │                             ├────────────────────────────>│
+     │                             │    (50,000 - 100,000 VNĐ)  │
+     │                             │                             │
+     │                             │ 5. Rescuer KHÔNG mất tiền   │
+     │                             │    Patient KHÔNG mất tiền   │
+     │                             │                             │
+```
+
+```
+┌──────────┐                  ┌──────────┐                  ┌──────────┐
+│          │   1. Yêu cầu hỗ  │          │   2. Kết nối    │          │
+│ RESCUER  │────trợ khẩn cấp─>│ PLATFORM │────ngay lập tức─>│  EXPERT  │
+│          │                  │          │                  │          │
+└────┬─────┘                  └────┬─────┘                  └────┬─────┘
+     │                             │                             │
+     │ 3. Tư vấn qua               │                             │
+     │    chat/video call          │                             │
+     │<───────────────────────────────────────────────────────>│
+     │                             │                             │
+     │ 4. Sau khi hoàn thành       │                             │
+     │    cứu hộ, phân chia:       │                             │
+     │    - 75% → Rescuer          │                             │
+     │    - 10% → Expert           │                             │
+     │    - 10% → Platform         │                             │
+     │    - 5% → Quỹ bảo hiểm     │                             │
+     │                             │                             │
+```
+
+**Ví dụ cụ thể:**
+- Phí cứu hộ từ Patient: **500,000 VNĐ**
+
+| Bên nhận | Tỷ lệ | Số tiền | So với bình thường | Ghi chú |
+|----------|-------|---------|-------------------|----------|
+| **Rescuer** | 75% | 375,000 VNĐ | -50,000 VNĐ (-10%) | Giảm từ 85% → 75% để chia cho Expert |
+| **Expert** | 10% | 50,000 VNĐ | +50,000 VNĐ | Phí hỗ trợ khẩn cấp từ phần của Rescuer |
+| **Platform** | 10% | 50,000 VNĐ | Không đổi | Vẫn giữ nguyên 10% |
+| **Quỹ bảo hiểm** | 5% | 25,000 VNĐ | Không đổi | Vẫn giữ nguyên 5% |
+| **TỔNG** | 100% | 500,000 VNĐ | | Patient không trả thêm tiền |
+
+**Lý do chọn Phương án 2:**
+
+✅ **Tính bền vững:** Platform không lỗ tiền, mô hình kinh doanh ổn định  
+✅ **Trách nhiệm:** Rescuer cân nhắc kỹ trước khi gọi Expert (tránh lạm dụng)  
+✅ **Công bằng:** Người được hỗ trợ chia sẻ chi phí  
+✅ **Động lực:** Expert nhận phí xứng đáng, Rescuer vẫn có lợi nhiều hơn  
+✅ **Không ảnh hưởng Patient:** Giá cố định 500K không thay đổi  
+
+**Phân tích lợi ích cho Rescuer:**
+
+```
+Rescuer "mất" 50K nhưng nhận được:
+├─ ✅ An toàn tính mạng (tránh rắn cắn)
+├─ ✅ Tiết kiệm 1.5 giờ (xử lý nhanh hơn)
+├─ ✅ Tăng rating (xử lý đúng, khách hài lòng)
+├─ ✅ Học hỏi kinh nghiệm từ Expert
+└─ ✅ Có thể nhận thêm ca → kiếm lại 300K+
+
+Giá trị thực tế:
+- Đầu tư 50K cho an toàn & hiệu quả
+- Tiết kiệm 1.5h → nhận ca mới → +350K
+- Tổng lời: 375K + 350K = 725K (tốt hơn 425K)
+```
+
+---
+
+**⚠️ PHƯƠNG ÁN PHỤ (Không áp dụng): Platform trả phí**
+
+*Phương án này không được chọn do chi phí cao và khả năng lạm dụng. Giữ lại để tham khảo.*
 
 ```
 ┌──────────┐                  ┌──────────┐                  ┌──────────┐
@@ -616,7 +698,7 @@ Timeline:
 - 100,000 VNĐ cho tư vấn 10-20 phút
 - Platform chịu chi phí để đảm bảo Rescuer làm việc an toàn
 
-#### 📝 GIẢI THÍCH CHI TIẾT PHƯƠNG ÁN 1:
+#### 📝 LÝ DO KHÔNG CHỌN PHƯƠNG ÁN 1:
 
 **Tại sao Platform phải trả tiền cho Expert?**
 
@@ -728,40 +810,7 @@ Platform chỉ lỗ khi:
 
 ---
 
-**PHƯƠNG ÁN 2: Rescuer chia sẻ phí cứu hộ cho Expert**
-
-```
-┌──────────┐                  ┌──────────┐                  ┌──────────┐
-│          │   1. Yêu cầu hỗ  │          │   2. Kết nối    │          │
-│ RESCUER  │────trợ khẩn cấp─>│ PLATFORM │────ngay lập tức─>│  EXPERT  │
-│          │                  │          │                  │          │
-└────┬─────┘                  └────┬─────┘                  └────┬─────┘
-     │                             │                             │
-     │ 3. Tư vấn qua               │                             │
-     │    chat/video call          │                             │
-     │<───────────────────────────────────────────────────────>│
-     │                             │                             │
-     │ 4. Sau khi hoàn thành       │                             │
-     │    cứu hộ, phân chia:       │                             │
-     │    - 75% → Rescuer          │                             │
-     │    - 10% → Expert           │                             │
-     │    - 10% → Platform         │                             │
-     │    - 5% → Quỹ bảo hiểm     │                             │
-     │                             │                             │
-```
-
-**Ví dụ cụ thể:**
-- Phí cứu hộ từ Patient: **500,000 VNĐ**
-
-| Bên nhận | Tỷ lệ | Số tiền | Mục đích |
-|----------|-------|---------|----------|
-| **Rescuer** | 75% | 375,000 VNĐ | Thu nhập chính từ cứu hộ (giảm từ 85% → 75%) |
-| **Expert** | 10% | 50,000 VNĐ | Phí hỗ trợ khẩn cấp cho Rescuer |
-| **Platform** | 10% | 50,000 VNĐ | Phí vận hành hệ thống |
-| **Quỹ bảo hiểm** | 5% | 25,000 VNĐ | Bảo hiểm cho Rescuer |
-| **TỔNG** | 100% | 500,000 VNĐ | |
-
-#### 📝 GIẢI THÍCH CHI TIẾT PHƯƠNG ÁN 2:
+#### 📝 GIẢI THÍCH CHI TIẾT PHƯƠNG ÁN 2 (CHÍNH THỨC):
 
 **Tại sao Rescuer phải chia phần của mình cho Expert?**
 

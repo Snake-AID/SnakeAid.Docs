@@ -275,21 +275,32 @@ Chi tiết tính giá:
 
 #### 🚨 TƯ VẤN TRONG QUÁ TRÌNH CỨU HỘ
 
-**PHƯƠNG ÁN 1: Platform Chi Trả (Miễn Phí với Rescuer & Patient)**
+**✅ PHƯƠNG ÁN CHÍNH THỨC: Rescuer Chia Sẻ Phí (Phương án 2)**
+
+| Thời Gian | Rescuer Trả Expert | Rescuer Giữ Lại | Tổng Phí Patient | Ghi Chú |
+|-----------|-------------------|-----------------|------------------|----------|
+| **15 phút** | **50,000 đ** (10%) | **375,000 đ** (75%) | **500,000 đ** | Tư vấn nhanh |
+| **30 phút** | **100,000 đ** (20%) | **325,000 đ** (65%) | **500,000 đ** | Tình huống phức tạp |
+| **60 phút** | **200,000 đ** (40%) | **225,000 đ** (45%) | **500,000 đ** | Rất phức tạp |
+
+**Lý do chọn Phương án 2:**
+- ✅ Platform không lỗ tiền, mô hình bền vững
+- ✅ Rescuer cân nhắc kỹ trước khi gọi Expert (tránh lạm dụng)
+- ✅ Expert nhận phí xứng đáng từ người được hỗ trợ
+- ✅ Patient không phải trả thêm tiền
+- ✅ Rescuer vẫn có lợi: mất 50K nhưng tiết kiệm 1.5h → nhận thêm ca khác
+
+---
+
+**⚠️ PHƯƠNG ÁN PHỤ (Không Áp Dụng): Platform Chi Trả**
+
+*Phương án này không được chọn do chi phí cao và khả năng lạm dụng.*
 
 | Thời Gian | Platform Trả Expert | Điều Kiện | Giới Hạn |
 |-----------|---------------------|-----------|----------|
 | **0-15 phút** | **50,000 đ** | Miễn phí cho Rescuer | Tối đa 2 lần/tuần |
 | **15-30 phút** | **100,000 đ** | Trường hợp đặc biệt | Cần duyệt |
 | **> 30 phút** | **Rescuer tự trả** | Vượt giới hạn | Chuyển sang PA2 |
-
-**PHƯƠNG ÁN 2: Rescuer Chia Sẻ Phí (Tự Nguyện)**
-
-| Thời Gian | Rescuer Trả Expert | Rescuer Giữ Lại | Tổng Phí Patient |
-|-----------|-------------------|-----------------|------------------|
-| **15 phút** | **50,000 đ** | **375,000 đ** (75%) | **500,000 đ** |
-| **30 phút** | **100,000 đ** | **325,000 đ** (65%) | **500,000 đ** |
-| **60 phút** | **200,000 đ** | **225,000 đ** (45%) | **500,000 đ** |
 
 ### 4.3. Gói tư vấn dài hạn
 
@@ -357,13 +368,7 @@ Patient trả 300,000 đ
 
 **C. Dịch Vụ Khẩn Cấp (Rescuer Gọi Expert):**
 
-**Phương Án 1:** Platform trả
-```
-Platform chi 50,000 đ → Expert (100%)
-Rescuer nhận: 425,000 đ (85% của 500K)
-```
-
-**Phương Án 2:** Rescuer chia sẻ
+**✅ PHƯƠNG ÁN CHÍNH THỨC: Rescuer chia sẻ**
 ```
 Patient trả 500,000 đ
          │
@@ -371,6 +376,13 @@ Patient trả 500,000 đ
          ├─→ 10% (50,000 đ)  → Expert
          ├─→ 10% (50,000 đ)  → Platform
          └─→ 5% (25,000 đ)   → Quỹ Bảo Hiểm
+```
+
+**⚠️ Phương án phụ (không áp dụng): Platform trả**
+```
+Platform chi 50,000 đ → Expert (100%)
+Rescuer nhận: 425,000 đ (85% của 500K)
+*Không bền vững do chi phí cao và khả năng lạm dụng*
 ```
 
 ### 5.3. Quỹ bảo hiểm
