@@ -445,36 +445,45 @@ Timeline:
 
 **Kịch bản:** Patient muốn tư vấn về rắn cắn hoặc phòng ngừa → Đặt lịch với Expert → Tư vấn qua chat/video call → Thanh toán
 
-#### 2.1. Quy trình thanh toán
+#### 2.1. Quy trình thanh toán (THANH TOÁN TRƯỚC)
 
 ```
 ┌──────────┐                  ┌──────────┐                  ┌──────────┐
-│          │   1. Đặt lịch    │          │   2. Xác nhận    │          │
-│ PATIENT  │─────────────────>│ PLATFORM │<─────────────────│  EXPERT  │
+│          │   1. Đặt lịch    │          │                  │          │
+│ PATIENT  │─────────────────>│ PLATFORM │                  │  EXPERT  │
 │          │                  │          │                  │          │
 └────┬─────┘                  └────┬─────┘                  └────┬─────┘
      │                             │                             │
-     │ 3. Thanh toán TRƯỚC         │                             │
-     │    (escrow - giữ tiền)      │                             │
+     │ 2. THANH TOÁN 100%          │                             │
+     │    (300,000 VNĐ)            │                             │
      ├────────────────────────────>│                             │
+     │                             │ → Vào ESCROW                │
      │                             │                             │
-     │                        Tiền được giữ                      │
-     │                        trong tài khoản                    │
-     │                        tạm thời (escrow)                  │
-     │                             │                             │
-     │ 4. Bắt đầu tư vấn           │                             │
-     │<───────────────────────────────────────────────────────>│
-     │                             │                             │
-     │ 5. Expert hoàn thành        │                             │
-     │    tư vấn                   │<────────────────────────────┤
-     │                             │                             │
-     │                             │ 6. Platform chuyển tiền:    │
-     │                             │    - 90% → Expert           │
-     │                             │    - 10% → Platform         │
+     │                             │ 3. Gửi yêu cầu + hiển thị   │
+     │                             │    "Patient đã thanh toán"  │
      │                             ├────────────────────────────>│
      │                             │                             │
-     │ 7. Nhận hóa đơn điện tử     │                             │
+     │                             │ 4. Expert chấp nhận         │
+     │                             │<────────────────────────────┤
+     │                             │                             │
+     │ 5. Tư vấn qua video call    │                             │
+     │<────────────────────────────────────────────────────────>│
+     │                             │                             │
+     │ 6. Patient xác nhận         │                             │
+     │    hoàn thành               │                             │
+     ├────────────────────────────>│                             │
+     │                             │                             │
+     │                             │ 7. Platform tính toán:      │
+     │                             │    - 90% (270K) → Expert    │
+     │                             │    - 10% (30K) → Platform   │
+     │                             ├────────────────────────────>│
+     │                             │                             │
+     │ 8. Nhận hóa đơn             │                             │
      │<────────────────────────────┤                             │
+     │                             │                             │
+     │                             │ 9. Expert nhận thông báo    │
+     │                             │    "Đã nhận 270K"           │
+     │                             │<────────────────────────────┤
      │                             │                             │
 ```
 
@@ -491,7 +500,9 @@ Timeline:
 
 **Ghi chú:**
 - Patient trả **100%** phí tư vấn (300,000 VNĐ) qua cổng thanh toán
-- Thanh toán **TRƯỚC** khi tư vấn (escrow - giữ tiền tạm thời)
+- Thanh toán **TRƯỚC** khi Expert chấp nhận lịch hẹn
+- Tiền được giữ trong **ESCROW** (tài khoản tạm giữ) trong suốt buổi tư vấn
+- Expert chỉ thấy yêu cầu **sau khi** Patient đã thanh toán thành công
 - Sau khi Expert hoàn thành → Tiền được chuyển từ escrow sang tài khoản Expert
 - Phí tư vấn do Expert tự thiết lập (FE-13)
 - Phí có thể thay đổi tùy theo:
@@ -532,19 +543,30 @@ Timeline:
 - Nếu Patient hủy trong vòng 2h trước giờ hẹn → Mất 20% phí (phí hủy)
 - Nếu có tranh chấp → Admin can thiệp xem lại lịch sử chat/video để quyết định
 
-#### 2.4. Thời điểm thanh toán
+#### 2.4. Thời điểm thanh toán (THANH TOÁN TRƯỚC)
 
 ```
 Timeline:
-┌────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│ T0: Đặt    │────>│ T1: Thanh    │────>│ T2: Bắt đầu  │────>│ T3: Hoàn     │
-│ lịch tư vấn│     │ toán TRƯỚC   │     │ tư vấn       │     │ thành tư vấn │
-└────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
-                           │                                         │
-                           ▼                                         ▼
-                    Tiền vào ESCROW                        Tiền chuyển cho Expert
-                    (giữ tạm thời)                         (trong 5-10 phút)
+┌────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ T0: Đặt    │────>│ T1: THANH    │────>│ T2: Expert   │────>│ T3: Tư vấn   │────>│ T4: Expert   │
+│ lịch tư vấn│     │ TOÁN 100%    │     │ chấp nhận    │     │ qua video    │     │ nhận tiền    │
+└────────────┘     └──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+                           │                                                                │
+                           ▼                                                                ▼
+                   Tiền vào ESCROW                                                  Giải ngân sau
+                   (giữ tạm thời)                                                   khi hoàn thành
+                   Chưa ai nhận được                                                (trong 5-10 phút)
 ```
+
+**Lưu ý quan trọng:**
+- ✅ Patient phải **THANH TOÁN 100% TRƯỚC** khi đặt lịch
+- ✅ Tiền được giữ trong **ESCROW** (tài khoản tạm giữ) - Expert chưa nhận
+- ✅ Expert chỉ thấy yêu cầu **SAU KHI** Patient đã thanh toán
+- ✅ Expert nhận tiền **SAU KHI** hoàn thành tư vấn (5-10 phút)
+- ⚠️ Nếu Expert **không tham gia trong 5 phút** → Hoàn tiền 100%
+- ⚠️ Nếu Patient **hủy sau khi Expert chấp nhận** → Mất 100% (Expert đã dành thời gian)
+- ⚠️ Nếu Patient **hủy trước khi Expert chấp nhận** → Hoàn tiền 100%
+- ⚠️ Nếu Patient **không hài lòng** → Khiếu nại trong 24h, xem xét hoàn 50%
 
 #### 2.5. Tính năng liên quan
 
