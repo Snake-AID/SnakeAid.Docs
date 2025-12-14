@@ -273,6 +273,116 @@ Timeline:
 - 100,000 VNĐ cho tư vấn 10-20 phút
 - Platform chịu chi phí để đảm bảo Rescuer làm việc an toàn
 
+#### 📝 GIẢI THÍCH CHI TIẾT PHƯƠNG ÁN 1:
+
+**Tại sao Platform phải trả tiền cho Expert?**
+
+Phương án này được thiết kế để **ưu tiên an toàn** và **khuyến khích Rescuer** yêu cầu hỗ trợ khi gặp tình huống nguy hiểm:
+
+1. **Bối cảnh:** 
+   - Rescuer đang ở hiện trường, chuẩn bị bắt rắn
+   - Phát hiện đây là loài rắn lạ hoặc rất nguy hiểm (ví dụ: rắn hổ mang chúa)
+   - Nếu xử lý sai → Rescuer có thể bị cắn → nguy hiểm tính mạng
+
+2. **Vấn đề nếu Rescuer phải trả phí:**
+   - Rescuer sẽ **ngại** gọi Expert vì phải mất tiền
+   - Dẫn đến Rescuer **xử lý liều lĩnh** → tăng nguy cơ tai nạn
+   - Platform phải chi trả bảo hiểm nhiều hơn nếu Rescuer bị thương
+
+3. **Giải pháp của Platform:**
+   - Platform **TÀI TRỢ** hoàn toàn chi phí Expert cho Rescuer
+   - Rescuer **KHÔNG MẤT TIỀN** khi gọi Expert
+   - Patient **KHÔNG PHẢI TRẢ THÊM** phí tư vấn Expert
+
+**Luồng tiền thực tế:**
+
+```
+Ví dụ cụ thể:
+- Patient trả phí cứu hộ: 500,000 VNĐ
+- Rescuer yêu cầu Expert hỗ trợ 10 phút
+
+TRƯỚC KHI CÓ EXPERT HỖ TRỢ:
+┌─────────────────────────────────────────┐
+│ 500,000 VNĐ từ Patient                  │
+├─────────────────────────────────────────┤
+│ ├─ 425,000 VNĐ (85%) → Rescuer         │
+│ ├─  50,000 VNĐ (10%) → Platform        │
+│ └─  25,000 VNĐ (5%)  → Quỹ bảo hiểm   │
+└─────────────────────────────────────────┘
+
+SAU KHI CÓ EXPERT HỖ TRỢ:
+┌─────────────────────────────────────────┐
+│ 500,000 VNĐ từ Patient (không đổi)      │
+├─────────────────────────────────────────┤
+│ ├─ 425,000 VNĐ (85%) → Rescuer         │
+│ │   (Rescuer vẫn nhận đủ 85%)          │
+│ ├─  50,000 VNĐ (10%) → Platform        │
+│ └─  25,000 VNĐ (5%)  → Quỹ bảo hiểm   │
+└─────────────────────────────────────────┘
+
+PLATFORM TRẢ THÊM CHO EXPERT:
+┌─────────────────────────────────────────┐
+│ Platform chi thêm từ quỹ riêng:         │
+│ └─  50,000 VNĐ → Expert                │
+│     (từ ngân sách Platform)             │
+└─────────────────────────────────────────┘
+```
+
+**Phân tích chi phí Platform:**
+
+| Khoản thu/chi | Số tiền | Ghi chú |
+|---------------|---------|---------|
+| Thu từ Patient | +50,000 VNĐ | 10% phí dịch vụ |
+| Chi cho Expert | -50,000 VNĐ | Tài trợ tư vấn khẩn cấp |
+| **Lãi/lỗ ròng** | **0 VNĐ (hòa vốn)** | Platform không lời nhưng không lỗ nhiều |
+
+**Lợi ích của phương án này:**
+
+✅ **Cho Rescuer:**
+- Không phải lo chi phí khi cần hỗ trợ
+- Tăng tính an toàn trong công việc
+- Làm việc tự tin hơn vì có Expert backup
+
+✅ **Cho Expert:**
+- Nhận thêm thu nhập từ hỗ trợ khẩn cấp
+- Tham gia tích cực vào hệ thống
+- Tăng uy tín chuyên môn
+
+✅ **Cho Platform:**
+- Giảm tai nạn lao động cho Rescuer
+- Giảm chi phí bảo hiểm (1 tai nạn có thể tốn 10-50 triệu)
+- Tăng chất lượng dịch vụ → khách hàng hài lòng
+- Xây dựng hình ảnh "Platform quan tâm đến an toàn người lao động"
+
+✅ **Cho Patient:**
+- Không phải trả thêm tiền
+- An tâm vì biết Rescuer có Expert hỗ trợ
+- Dịch vụ chuyên nghiệp hơn
+
+**Tính toán tổng thể:**
+
+Nếu 1 tháng có:
+- 856 ca cứu hộ
+- 50 ca cần hỗ trợ Expert (5.8%)
+- Chi phí Expert: 50 ca × 50,000 = 2,500,000 VNĐ
+
+So sánh:
+- Chi phí tài trợ Expert: 2,500,000 VNĐ
+- Chi phí nếu có 1 tai nạn Rescuer: 10,000,000 - 50,000,000 VNĐ (bảo hiểm, y tế, bồi thường)
+
+→ **Đầu tư 2.5 triệu để tránh rủi ro 10-50 triệu là HỢP LÝ**
+
+**Khi nào Platform lỗ?**
+
+Platform chỉ lỗ khi:
+- Phí tư vấn Expert > 50,000 VNĐ (vượt quá 10% doanh thu từ ca đó)
+- Ví dụ: Expert tư vấn 25 phút → phí 100,000 VNĐ
+- Trong trường hợp này, Platform lỗ 50,000 VNĐ
+
+**Giải pháp:**
+- Platform giới hạn thời gian tư vấn miễn phí: tối đa 15 phút
+- Nếu vượt quá → chuyển sang Phương án 2 (Rescuer chia phí)
+
 ---
 
 **PHƯƠNG ÁN 2: Rescuer chia sẻ phí cứu hộ cho Expert**
@@ -308,10 +418,199 @@ Timeline:
 | **Quỹ bảo hiểm** | 5% | 25,000 VNĐ | Bảo hiểm cho Rescuer |
 | **TỔNG** | 100% | 500,000 VNĐ | |
 
-**Lưu ý:**
-- Phương án 1 được khuyến khích để Rescuer không lo lắng về chi phí khi cần hỗ trợ
-- Phương án 2 áp dụng khi có thỏa thuận trước giữa Rescuer và Expert
-- Admin có thể cấu hình chọn phương án nào áp dụng cho hệ thống
+#### 📝 GIẢI THÍCH CHI TIẾT PHƯƠNG ÁN 2:
+
+**Tại sao Rescuer phải chia phần của mình cho Expert?**
+
+Phương án này theo nguyên tắc **"người được hỗ trợ chia sẻ chi phí"** - giống như khi bạn thuê thợ sửa nhà và thợ gọi thêm chuyên gia tư vấn, bạn phải trả thêm tiền:
+
+1. **Bối cảnh:**
+   - Rescuer đang gặp khó khăn với rắn phức tạp
+   - Expert dành thời gian và chuyên môn để hỗ trợ
+   - Expert xứng đáng nhận phí vì đã giúp Rescuer hoàn thành công việc
+
+2. **Tại sao không phải Patient trả thêm?**
+   - Patient đã thỏa thuận giá cố định (500K) từ đầu
+   - Không công bằng nếu tăng giá đột ngột
+   - Rescuer là người **chủ động yêu cầu** hỗ trợ → nên chịu phần chi phí
+
+3. **Tại sao không phải Platform trả (như PA1)?**
+   - Nếu Platform luôn trả → chi phí cao khi có nhiều ca phức tạp
+   - Rescuer có thể "lạm dụng" - gọi Expert ngay cả khi không thực sự cần
+   - Phương án 2 tạo **trách nhiệm** cho Rescuer: chỉ gọi Expert khi thực sự cần thiết
+
+**Luồng tiền thực tế:**
+
+```
+Ví dụ cụ thể:
+- Patient trả phí cứu hộ: 500,000 VNĐ
+- Rescuer yêu cầu Expert hỗ trợ 15 phút
+
+KHÔNG CÓ EXPERT (Ca bình thường):
+┌─────────────────────────────────────────┐
+│ 500,000 VNĐ từ Patient                  │
+├─────────────────────────────────────────┤
+│ ├─ 425,000 VNĐ (85%) → Rescuer         │
+│ ├─  50,000 VNĐ (10%) → Platform        │
+│ └─  25,000 VNĐ (5%)  → Quỹ bảo hiểm   │
+└─────────────────────────────────────────┘
+
+CÓ EXPERT HỖ TRỢ (Phương án 2):
+┌─────────────────────────────────────────┐
+│ 500,000 VNĐ từ Patient (không đổi)      │
+├─────────────────────────────────────────┤
+│ ├─ 375,000 VNĐ (75%) → Rescuer         │
+│ │   (Rescuer mất 50K so với bình thường)│
+│ ├─  50,000 VNĐ (10%) → Expert          │
+│ │   (Expert được trả từ phần của Rescuer)│
+│ ├─  50,000 VNĐ (10%) → Platform        │
+│ │   (Platform vẫn giữ nguyên 10%)      │
+│ └─  25,000 VNĐ (5%)  → Quỹ bảo hiểm   │
+└─────────────────────────────────────────┘
+
+RESCUER "CHIA" PHÍ CHO EXPERT:
+┌─────────────────────────────────────────┐
+│ Thu nhập Rescuer thay đổi:              │
+│                                          │
+│ Không có Expert: 425,000 VNĐ (85%)     │
+│ Có Expert:       375,000 VNĐ (75%)     │
+│                  ─────────              │
+│ Chênh lệch:      -50,000 VNĐ (10%)    │
+│                  ↓                      │
+│         Số tiền này đi cho Expert       │
+└─────────────────────────────────────────┘
+```
+
+**Phân tích lợi - hại cho Rescuer:**
+
+| Khía cạnh | Không gọi Expert | Gọi Expert (PA2) | So sánh |
+|-----------|------------------|------------------|---------|
+| **Thu nhập** | 425,000 VNĐ | 375,000 VNĐ | **Mất 50K** (-11.8%) |
+| **An toàn** | Tự xử lý → Nguy hiểm | Có chuyên gia hỗ trợ | **An toàn hơn** ✓ |
+| **Thời gian** | Có thể mất nhiều giờ | Nhanh chóng, chính xác | **Tiết kiệm thời gian** ✓ |
+| **Uy tín** | Nếu sai → Rating giảm | Xử lý đúng → Rating cao | **Bảo vệ uy tín** ✓ |
+| **Rủi ro** | Bị rắn cắn → Mất việc vài tuần | Giảm rủi ro tai nạn | **Giảm rủi ro** ✓ |
+
+**Tính toán hiệu quả cho Rescuer:**
+
+```
+TRƯỜNG HỢP 1: Không gọi Expert, tự xử lý:
+├─ Thu nhập: +425,000 VNĐ
+├─ Thời gian: 2 giờ (vì không chắc chắn)
+├─ Rủi ro: 5% bị rắn cắn
+└─ Kết quả: Thu nhập cao NHƯNG nguy hiểm
+
+TRƯỜNG HỢP 2: Gọi Expert, mất 50K:
+├─ Thu nhập: +375,000 VNĐ (mất 50K)
+├─ Thời gian: 30 phút (Expert chỉ rõ cách xử lý)
+├─ Rủi ro: 0.5% bị rắn cắn (giảm 10 lần)
+└─ Kết quả: Thu nhập giảm NHƯNG an toàn + nhanh
+
+PHÂN TÍCH SÂU HƠN:
+- Mất 50K nhưng tiết kiệm 1.5 giờ
+- 1.5 giờ đó có thể nhận thêm ca khác → kiếm được 200-300K
+- Tránh rủi ro bị cắn → Không mất công việc
+- Giá trị thực của 50K này là: Bảo hiểm + Tư vấn chuyên môn
+```
+
+**So sánh với Phương án 1:**
+
+| Tiêu chí | Phương án 1 (Platform trả) | Phương án 2 (Rescuer chia) |
+|----------|---------------------------|----------------------------|
+| **Thu nhập Rescuer** | 425,000 VNĐ (85%) | 375,000 VNĐ (75%) |
+| **Chi phí Platform** | Lỗ 50,000 VNĐ | Hòa vốn |
+| **Trách nhiệm Rescuer** | Ít (gọi Expert thoải mái) | Cao (cân nhắc trước khi gọi) |
+| **Khả năng lạm dụng** | Cao | Thấp |
+| **Động lực Rescuer** | Gọi Expert ngay cả ca dễ | Chỉ gọi khi thực sự cần |
+| **Tính bền vững** | Khó (Platform lỗ nhiều) | Tốt (tự cân bằng) |
+
+**Khi nào nên dùng Phương án 2?**
+
+✅ **Nên dùng khi:**
+- Rescuer đã có kinh nghiệm (biết khi nào cần gọi Expert)
+- Tình huống phức tạp THỰC SỰ (không phải ca đơn giản)
+- Rescuer có thỏa thuận hợp tác với Expert từ trước
+- Platform muốn tiết kiệm chi phí vận hành
+- Cần tránh lạm dụng hệ thống hỗ trợ
+
+❌ **Không nên dùng khi:**
+- Rescuer mới vào nghề (ít kinh nghiệm)
+- Tình huống khẩn cấp, nguy hiểm cao
+- Platform muốn khuyến khích an toàn tối đa
+- Cần xây dựng văn hóa "hỗ trợ lẫn nhau"
+
+**Lợi ích của Phương án 2:**
+
+✅ **Cho Platform:**
+- Không mất tiền → Giữ được 10% doanh thu
+- Chi phí vận hành dự đoán được
+- Không lo lắng Rescuer lạm dụng
+- Mô hình kinh doanh bền vững hơn
+
+✅ **Cho Expert:**
+- Vẫn nhận được 50,000 VNĐ (giống PA1)
+- Thu nhập ổn định từ hỗ trợ khẩn cấp
+- Được tôn trọng giá trị chuyên môn
+
+✅ **Cho Rescuer:**
+- Mất 50K nhưng đổi lại:
+  - An toàn tính mạng (vô giá)
+  - Tiết kiệm thời gian (1.5 giờ)
+  - Có thể nhận thêm ca khác (kiếm lại tiền)
+  - Học hỏi từ Expert (tăng trình độ)
+  - Bảo vệ rating (quan trọng cho thu nhập lâu dài)
+
+✅ **Cho Patient:**
+- Không ảnh hưởng gì (vẫn trả 500K)
+- Yên tâm vì biết Rescuer có Expert backup
+- Dịch vụ chất lượng, chuyên nghiệp
+
+**Kịch bản thực tế:**
+
+```
+TÌNH HUỐNG: Rescuer Nguyễn Văn A gặp rắn hổ mang chúa
+
+[Bước 1] Rescuer nhận ca: phí 500K
+         "À, rắn hổ mang chúa... loài này nguy hiểm lắm!"
+         
+[Bước 2] Cân nhắc:
+         - Tự xử lý: Nhận 425K nhưng nguy hiểm, có thể mất 2 giờ
+         - Gọi Expert: Mất 50K nhưng an toàn, xong nhanh trong 30 phút
+         
+[Bước 3] Quyết định: Gọi Expert
+         "50K để đảm bảo an toàn và xử lý đúng cách là xứng đáng!"
+         
+[Bước 4] Expert tư vấn:
+         "Anh chú ý điểm này... dùng gậy dài 2m... tránh phần đầu..."
+         
+[Bước 5] Rescuer bắt thành công trong 25 phút
+         
+[Bước 6] Nhận 375K (đã trừ 50K cho Expert)
+         
+[Bước 7] Tính toán lại:
+         - Tiết kiệm 1.5 giờ → Nhận thêm 1 ca nữa → kiếm thêm 350K
+         - Tổng thu nhập: 375K + 350K = 725K (trong 1.5 giờ)
+         - Nếu không gọi Expert: 425K (trong 2 giờ) + rủi ro cao
+         
+KẾT LUẬN: Gọi Expert là quyết định ĐÚNG!
+```
+
+**Lưu ý quan trọng:**
+
+⚠️ **Rescuer cần hiểu:**
+- Mất 50K là **chi phí đầu tư** cho an toàn và hiệu quả
+- Giống như mua bảo hiểm: trả tiền để được bảo vệ
+- Tiết kiệm thời gian → có thể nhận thêm ca → kiếm lại tiền
+
+⚠️ **Platform cần công bố rõ:**
+- Chính sách phân chia phải minh bạch
+- Rescuer biết trước là sẽ mất 10% nếu gọi Expert
+- Không có bất ngờ về tài chính
+
+⚠️ **Cơ chế linh hoạt:**
+- Rescuer mới (< 3 tháng): Dùng PA1 (Platform trả) để khuyến khích
+- Rescuer có kinh nghiệm: Dùng PA2 (Rescuer chia)
+- Admin có thể cấu hình theo từng trường hợp
 
 #### 3.2. Tính năng liên quan
 
