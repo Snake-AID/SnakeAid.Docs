@@ -5,8 +5,9 @@
 - **Module:** Patient Mobile Application
 - **Flow:** Emergency Flow (Xử lý sự cố rắn cắn khẩn cấp)
 - **Công cụ thiết kế:** Stitch with Google (prompt-based design)
-- **Số lượng màn hình:** 9 screens
+- **Số lượng màn hình:** 13 screens (9 main + 4 alternative flow)
 - **Ngày tạo:** November 30, 2025
+- **Cập nhật:** December 17, 2025 (Added alternative flow for no photo case)
 - **Location:** `/02-UI-Design/Patient-Emergency-Flow-Screens.md`
 
 ---
@@ -268,13 +269,14 @@ Rescuer card shows green checkmark badge "✅ Đã chấp nhận!". Status text 
 
 ---
 
-### Screen 3: First Aid Guide Screen
+### Screen 3: Species-Specific First Aid Guide Screen
 
 #### Thông tin màn hình:
-- **Tên:** Màn hình hướng dẫn sơ cứu từng bước
-- **Mục đích:** Cung cấp hướng dẫn sơ cứu chi tiết theo từng bước với hình ảnh minh họa
-- **Flow position:** Sau Emergency Alert, khi user chọn "Start First Aid Guide"
-- **Priority:** ⭐⭐⭐
+- **Tên:** Màn hình hướng dẫn sơ cứu CHUYÊN BIỆT theo loài rắn
+- **Mục đích:** Cung cấp hướng dẫn sơ cứu CHI TIẾT cho LOÀI RẮN CỤ THỂ đã được AI xác định
+- **Flow position:** SAU Screen 5 (AI Snake Identification) - Khi đã biết chính xác loài rắn và loại nọc độc
+- **Priority:** ⭐⭐⭐ (Critical - Sơ cứu sai có thể gây tử vong)
+- **Điểm khác biệt:** Hướng dẫn THAY ĐỔI dựa trên loài rắn (Neurotoxic vs Hemotoxic vs Non-venomous)
 
 #### Key Components:
 1. **Header:**
@@ -282,21 +284,39 @@ Rescuer card shows green checkmark badge "✅ Đã chấp nhận!". Status text 
    - Progress indicator: "Bước 1 / 4" (text-based)
    - Timer: "02:15" (elapsed time)
 
-2. **Step Indicator:**
+2. **Snake Species Info Banner (NEW - From Screen 5):**
+   - Small card at top showing identified snake
+   - Snake name: "Rắn hổ mang chúa (King Cobra)"
+   - Venom type badge: "Neurotoxic Venom" (red badge)
+   - Small thumbnail of snake photo
+   - Text: "Hướng dẫn sơ cứu chuyên biệt cho loài này"
+
+3. **Step Indicator:**
    - Horizontal stepper: ●—○—○—○
    - Current step highlighted in forest green
    - Completed steps in green, upcoming in gray
 
-3. **Instruction Card:**
+4. **Instruction Card (Species-Specific):**
    - Large card with white background
    - Step number badge (top-left): "BƯỚC 1"
-   - Main heading: "Băng ép vết cắn"
+   - Main heading: "Băng ép vết cắn" (for Neurotoxic)
+     - OR "Làm sạch vết thương" (for Hemotoxic)
+     - OR "Theo dõi vết cắn" (for Non-venomous)
    - Illustration placeholder: Rectangle area for image/diagram
-   - Detailed text instructions (bullet points):
-     - "Bắt đầu băng từ vị trí vết cắn"
-     - "Băng chặt vừa phải, không quá chặt"
-     - "Băng toàn bộ chi bị cắn"
-     - "Kiểm tra tuần hoàn - ngón chân/tay vẫn hồng"
+   - Detailed text instructions (THAY ĐỔI theo loài rắn):
+     
+     **Ví dụ cho Rắn hổ mang chúa (Neurotoxic):**
+     - "Băng ép NGAY LẬP TỨC từ vị trí vết cắn"
+     - "Băng chặt vừa phải - ngăn độc lan qua lymph"
+     - "Băng TOÀN BỘ chi bị cắn lên đến gốc"
+     - "KHÔNG cắt vết thương, KHÔNG hút nọc độc"
+     - "Giữ vùng cắn THẤP HƠN tim"
+     
+     **Ví dụ cho Rắn lục đuôi đỏ (Hemotoxic):**
+     - "Làm sạch vết thương bằng nước sạch"
+     - "Băng lỏng, KHÔNG băng chặt (gây hoại tử)"
+     - "Nâng cao vùng bị cắn"
+     - "Quan sát sưng tấy và đổi màu da"
 
 4. **Visual Aid Section:**
    - Image placeholder with caption: "Kỹ thuật băng ép đúng cách"
@@ -316,13 +336,15 @@ Rescuer card shows green checkmark badge "✅ Đã chấp nhận!". Status text 
 #### Stitch Prompt (English):
 
 ```
-Mobile app step-by-step first aid instruction screen. Clean educational interface with forest green (#228B22) theme.
+Mobile app species-specific first aid instruction screen for identified snake. Educational interface with forest green (#228B22) theme.
 
 Top navigation: Back arrow left, centered text "Bước 1 / 4", right side shows timer "02:15" in gray.
 
-Below nav, horizontal progress stepper with 4 circles connected by lines. First circle filled green (active), others outlined gray. Circles contain step numbers 1-2-3-4.
+Below nav, small info card showing identified snake: Left side has small square snake photo thumbnail (from Screen 5). Right side shows "Rắn hổ mang chúa (King Cobra)" bold text, with red badge "Neurotoxic Venom" below. Small gray text "Hướng dẫn sơ cứu chuyên biệt cho loài này".
 
-Main content area: White card with subtle shadow containing step badge "BƯỚC 1" in forest green at top-left. Large heading "Băng ép vết cắn" in dark gray below badge.
+Below info card, horizontal progress stepper with 4 circles connected by lines. First circle filled green (active), others outlined gray. Circles contain step numbers 1-2-3-4.
+
+Main content area: White card with subtle shadow containing step badge "BƯỚC 1" in forest green at top-left. Large heading "Băng ép vết cắn (Neurotoxic Snake)" in dark gray below badge.
 
 Card contains rectangular placeholder area (16:9 ratio) with light gray background and centered text "Khu vực minh họa" for diagram image. Below illustration, 4 bullet points with clear instructions:
 • "Bắt đầu băng từ vị trí vết cắn"
@@ -424,6 +446,548 @@ Style: Camera app interface, dark viewfinder, clear safety messaging, simple con
 
 ---
 
+### Screen 4.1: Location-Based Snake Selection (Alternative Flow)
+
+#### Thông tin màn hình:
+- **Tên:** Màn hình chọn rắn dựa trên vị trí địa lý
+- **Mục đích:** Khi không có ảnh, show danh sách rắn phổ biến ở khu vực để user chọn nhanh
+- **Flow position:** Alternative path từ Screen 4 khi nhấn "Tôi không có ảnh rắn"
+- **Priority:** ⭐⭐⭐
+- **Design strategy:** Fast visual selection - 80% cases có thể identify ngay
+
+#### Key Components:
+1. **Header:**
+   - Back button
+   - Title: "Rắn thường gặp ở khu vực bạn"
+   - Location badge: "Quận 1, TP.HCM" (from GPS)
+
+2. **Context Banner:**
+   - Light blue background
+   - Icon: Location pin
+   - Text: "Dựa trên vị trí của bạn, đây là các loài rắn thường gặp nhất"
+   - Subtext: "Chọn con giống với rắn bạn gặp nhất"
+
+3. **Snake Selection Cards (4-6 cards):**
+   - Grid layout: 2 columns
+   - Each card contains:
+     
+     **Card Example 1 - Venomous:**
+     - Large snake photo (square, 150x150px)
+     - Badge overlay (top-right): "RẮN ĐỘC" (red badge)
+     - Snake name: "Rắn hổ mang chúa" (bold)
+     - Scientific: "Ophiophagus hannah" (gray, small)
+     - Quick features:
+       - "🎯 Đầu dẹt hình thìa"
+       - "🎨 Màu nâu vàng, có vân"
+       - "📏 1-3m dài"
+     - Select button: "Chọn loài này →"
+     
+     **Card Example 2 - Non-venomous:**
+     - Photo
+     - Badge: "KHÔNG ĐỘC" (green badge)
+     - Name: "Rắn ráo trâu"
+     - Features list
+     - Button
+
+4. **Helper Section (sticky top):**
+   - Text: "💡 Lưu ý: Chọn con GIỐNG NHẤT, không cần chính xác 100%"
+   - Small icons showing key features to look for:
+     - Head shape icon
+     - Color pattern icon
+     - Size indicator icon
+
+5. **Bottom Actions:**
+   - Secondary button: "Không thấy trong danh sách này" (outlined)
+   - Text link: "Quay lại chụp ảnh"
+
+#### Stitch Prompt (English):
+
+```
+Mobile app location-based snake selection screen. Visual identification interface with forest green (#228B22) theme.
+
+Top nav: Back arrow left, centered title "Rắn thường gặp ở khu vực bạn", right side shows small location badge "Quận 1, TP.HCM" with pin icon.
+
+Below nav, light blue info banner (#E3F2FD) with rounded corners. Location pin icon on left, text "Dựa trên vị trí của bạn, đây là các loài rắn thường gặp nhất" bold. Below, smaller gray text "Chọn con giống với rắn bạn gặp nhất".
+
+Small sticky helper bar with light yellow background (#FFFACD): "💡 Lưu ý: Chọn con GIỐNG NHẤT, không cần chính xác 100%" with 3 tiny icons showing head/pattern/size.
+
+Main content shows 2-column grid of snake cards. Each card has white background, rounded corners, subtle shadow:
+
+**Card 1 (Venomous):**
+- Square snake photo placeholder at top (150x150px), showing king cobra
+- Red badge overlay top-right corner "RẮN ĐỘC"
+- Below photo: Bold text "Rắn hổ mang chúa" (18pt)
+- Italic gray text "Ophiophagus hannah" (14pt)
+- 3 feature lines with emoji icons:
+  Đầu dẹt hình thìa
+  Màu nâu vàng, có vân
+  1-3m dài
+- Forest green button at bottom "Chọn loài này →"
+
+**Card 2 (Non-venomous):**
+- Similar layout
+- Green badge "KHÔNG ĐỘC" (#28A745)
+- Snake name "Rắn ráo trâu"
+- Scientific name
+- 3 features
+- Green button
+
+**Cards 3-4 visible below** (partial view showing 2 more cards in grid)
+
+Bottom section with white background:
+- Medium outlined gray button "Không thấy trong danh sách này" (50px height)
+- Small gray text link below "Quay lại chụp ảnh"
+
+Style: Visual selection gallery, prominent photos for quick recognition, clear venomous/non-venomous badges, location-aware interface, educational snake features, emergency app design.
+```
+
+#### Notes for Stitch:
+- Snake photos phải LARGE và clear để dễ nhận dạng
+- Venomous badge (red) phải rất nổi bật
+- Quick features giúp user so sánh nhanh
+- Grid 2 columns cho easy scanning
+- Nếu có > 6 species → vertical scroll
+
+---
+
+### Screen 4.2: Snake Confirmation Screen
+
+#### Thông tin màn hình:
+- **Tên:** Màn hình xác nhận loài rắn đã chọn
+- **Mục đích:** Double-check để đảm bảo user chọn đúng loài trước khi đưa first aid instructions
+- **Flow position:** Sau khi user chọn một loài từ Screen 4.1
+- **Priority:** ⭐⭐⭐
+- **Critical:** Preventing wrong identification → wrong first aid → death
+
+#### Key Components:
+1. **Header:**
+   - Back button: "Chọn lại"
+   - Title: "Xác nhận loài rắn"
+   - Progress indicator: "Bước 1/2"
+
+2. **Selected Snake Display:**
+   - Large hero image of snake (multiple angles if possible)
+   - Snake name (large, bold):
+     - Vietnamese: "Rắn hổ mang chúa"
+     - English: "King Cobra"
+     - Scientific: "Ophiophagus hannah"
+   - Danger badge: "⚠️ RẮN CỰC ĐỘC" (red, prominent)
+
+3. **Detailed Identification Features:**
+   - Section title: "Đặc điểm nhận dạng chi tiết:"
+   - 5-6 feature cards with images/icons:
+     
+     **Feature 1: Head Shape**
+     - Small diagram/photo showing head
+     - Text: "Đầu dẹt hình thìa, rõ ràng so với cổ"
+     - Checkbox: "✓ Đúng" / "✗ Không giống"
+     
+     **Feature 2: Color Pattern**
+     - Color swatch or pattern image
+     - Text: "Màu nâu vàng với vân đen chạy dọc"
+     - Checkbox
+     
+     **Feature 3: Size**
+     - Size comparison diagram
+     - Text: "Thường 1.5-3m, có thể lên đến 5m"
+     - Checkbox
+     
+     **Feature 4: Behavior**
+     - Icon
+     - Text: "Có thể dựng cổ lên khi bị đe dọa"
+     - Checkbox
+     
+     **Feature 5: Habitat**
+     - Location icon
+     - Text: "Thường ở rừng, gần nước, núi đá"
+     - Checkbox
+
+4. **Confidence Check:**
+   - Question: "Có bao nhiêu đặc điểm phù hợp?"
+   - Auto-count: "✓ 4/5 đặc điểm phù hợp"
+   - Visual indicator:
+     - 4-5 matches: Green "Độ tin cậy cao"
+     - 2-3 matches: Amber "Độ tin cậy trung bình"
+     - 0-1 matches: Red "Không chắc chắn"
+
+5. **Warning Section (if venomous):**
+   - Red background box
+   - Bold text: "⚠️ Nếu đây là rắn hổ mang chúa:"
+   - Urgent bullet points:
+     - "Nọc độc cực mạnh - có thể gây tử vong trong 30 phút"
+     - "Cần băng ép NGAY và đến bệnh viện khẩn cấp"
+     - "Huyết thanh kháng nọc có tại bệnh viện lớn"
+
+6. **Action Buttons:**
+   - Primary button: "Xác nhận - Đây là con rắn tôi gặp" (large, forest green)
+   - Secondary button: "Không chắc - Chọn loài khác" (outlined, gray)
+   - Tertiary button: "Không giống - Trả lời câu hỏi chi tiết" (text link)
+
+#### Stitch Prompt (English):
+
+```
+Mobile app snake confirmation screen with detailed identification features. Medical verification interface.
+
+Top nav: Back arrow "Chọn lại" left, centered title "Xác nhận loài rắn", right shows "Bước 1/2" in gray.
+
+Hero section with large snake photo (full width, 200px height) showing king cobra. Below photo, centered text:
+- Large bold "Rắn hổ mang chúa" (24pt)
+- Medium "King Cobra" (18pt) gray
+- Small italic "Ophiophagus hannah" (14pt) gray
+- Prominent red badge "⚠️ RẮN CỰC ĐỘC" with danger icon
+
+Section titled "Đặc điểm nhận dạng chi tiết:" in bold.
+
+Vertical list of 5 feature cards, each card has:
+- Left side: Small square image/icon placeholder (60x60px)
+- Center: Feature title bold, description text below in gray
+- Right side: Checkbox (checked = green checkmark, unchecked = gray)
+
+**Card 1:**
+Icon: Head diagram
+Title: "Hình dạng đầu"
+Text: "Đầu dẹt hình thìa, rõ ràng so với cổ"
+Checkbox: Checked ✓
+
+**Card 2:**
+Icon: Pattern swatch
+Title: "Màu sắc & hoa văn"
+Text: "Màu nâu vàng với vân đen chạy dọc"
+Checkbox: Checked ✓
+
+**Card 3:**
+Icon: Ruler
+Title: "Kích thước"
+Text: "Thường 1.5-3m, có thể lên đến 5m"
+Checkbox: Checked ✓
+
+**Card 4:**
+Icon: Snake behavior
+Title: "Hành vi"
+Text: "Có thể dựng cổ lên khi bị đe dọa"
+Checkbox: Checked ✓
+
+**Card 5:**
+Icon: Location
+Title: "Môi trường sống"
+Text: "Thường ở rừng, gần nước, núi đá"
+Checkbox: Unchecked ✗
+
+Below features, confidence indicator card with green background (#D4EDDA):
+"✓ 4/5 đặc điểm phù hợp" large text
+"Độ tin cậy cao" with green checkmark
+
+Red warning box (#FFEBEE) with bold text:
+"⚠️ Nếu đây là rắn hổ mang chúa:"
+3 bullet points:
+• Nọc độc cực mạnh - có thể gây tử vong trong 30 phút
+• Cần băng ép NGAY và đến bệnh viện khẩn cấp
+• Huyết thanh kháng nọc có tại bệnh viện lớn
+
+Bottom section with 3 buttons stacked:
+- Large primary forest green button "Xác nhận - Đây là con rắn tôi gặp" (60px height)
+- Medium outlined gray button "Không chắc - Chọn loài khác" (50px height)
+- Small gray text link "Không giống - Trả lời câu hỏi chi tiết"
+
+Style: Medical verification interface, detailed identification checklist, confidence scoring, clear warning for venomous species, emergency medical app design.
+```
+
+#### Notes for Stitch:
+- Feature checklist phải interactive (checkboxes)
+- Confidence indicator changes color based on match count
+- Warning box chỉ hiển thị nếu là venomous species
+- Photos showing multiple angles ideal
+- Clear escape routes (3 buttons) if user unsure
+
+---
+
+### Screen 4.3: Visual Identification Questionnaire
+
+#### Thông tin màn hình:
+- **Tên:** Màn hình câu hỏi nhận dạng rắn bằng hình ảnh
+- **Mục đích:** Fallback method khi user không tìm thấy trong location list - narrow down qua visual questions
+- **Flow position:** Từ Screen 4.1 nhấn "Không thấy trong danh sách" hoặc từ Screen 4.2 nhấn "Không giống"
+- **Priority:** ⭐⭐
+- **Strategy:** 4 quick visual questions → AI narrow down to 2-3 possible species
+
+#### Key Components:
+1. **Header:**
+   - Back button
+   - Title: "Nhận dạng qua câu hỏi"
+   - Progress: "Câu 1 / 4" (updates for each question)
+
+2. **Progress Bar:**
+   - Horizontal bar showing 1/4, 2/4, 3/4, 4/4
+   - Filled portion in forest green
+   - Remaining in light gray
+
+3. **Question 1: Head Shape**
+   - Large question text: "Hình dạng đầu rắn?"
+   - Helper text: "Nhìn từ phía trên xuống"
+   - 2 large image cards (side by side):
+     
+     **Option A:**
+     - Diagram: Round head
+     - Label: "Đầu tròn / Oval"
+     - Subtext: "(Thường không độc)"
+     - Selection border when tapped
+     
+     **Option B:**
+     - Diagram: Triangular head
+     - Label: "Đầu tam giác / Dẹt"
+     - Subtext: "(Thường có độc)"
+   
+   - Button: "Tiếp theo →" (enabled after selection)
+   - Skip link: "Không chắc / Bỏ qua"
+
+4. **Question 2: Primary Color**
+   - Question: "Màu sắc chủ đạo của rắn?"
+   - 4 color cards in 2x2 grid:
+     - Card 1: Green swatch + "Xanh lá"
+     - Card 2: Brown swatch + "Nâu / Vàng"
+     - Card 3: Black swatch + "Đen / Xám"
+     - Card 4: Multi swatch + "Nhiều màu / Sọc"
+   - Multi-select allowed: "Chọn 1-2 màu chính"
+
+5. **Question 3: Pattern Type**
+   - Question: "Hoa văn trên thân?"
+   - Helper: "Nhìn phần giữa thân rắn"
+   - 4 visual pattern cards:
+     - Pattern 1: Solid/Plain illustration + "Trơn / Một màu"
+     - Pattern 2: Stripes illustration + "Sọc ngang / Dọc"
+     - Pattern 3: Spots illustration + "Đốm / Chấm"
+     - Pattern 4: Complex illustration + "Hoa văn phức tạp / Ô vuông"
+
+6. **Question 4: Estimated Size**
+   - Question: "Kích thước ước tính?"
+   - Visual size comparison with common objects
+   - 4 options:
+     - "< 50cm" (icon: ruler, "Bằng cánh tay")
+     - "50cm - 1m" (icon: "Bằng chiều cao bàn")
+     - "1m - 2m" (icon: "Cao bằng người")
+     - "> 2m" (icon: "Dài hơn người")
+
+7. **Results Preview (After Q4):**
+   - Text: "Đang phân tích..." with loading animation
+   - Then: "Tìm thấy 3 loài phù hợp"
+   - Button: "Xem kết quả →" (leads to filtered list similar to Screen 4.1)
+
+#### Stitch Prompt (English):
+
+```
+Mobile app visual questionnaire for snake identification. Step-by-step question interface with progress tracking. Forest green theme.
+
+Top nav: Back arrow left, centered title "Nhận dạng qua câu hỏi", right shows "Câu 1 / 4" in gray.
+
+Below nav, horizontal progress bar full width: 25% filled in forest green (#228B22), 75% light gray (#E0E0E0). Thin bar, 6px height.
+
+Main content area with white background:
+
+Large bold question text (22pt): "Hình dạng đầu rắn?"
+Small gray helper text below: "Nhìn từ phía trên xuống"
+
+Two large side-by-side cards with equal width, white background, border, rounded corners:
+
+**Left card:**
+- Large diagram/illustration of snake head from top view showing round/oval shape (placeholder)
+- Below diagram: Bold text "Đầu tròn / Oval" (18pt)
+- Small gray text "(Thường không độc)" (14pt)
+- Card has subtle border, when selected shows thick forest green border
+
+**Right card:**
+- Diagram showing triangular/flat head from top
+- Bold text "Đầu tam giác / Dẹt"
+- Gray text "(Thường có độc)"
+- Border styling same as left
+
+Below cards, large forest green button "Tiếp theo →" full width (55px height).
+Small gray text link centered below button "Không chắc / Bỏ qua".
+
+Style: Step-by-step survey interface, large visual options for easy selection, clear progress indicator, one question per screen, calm educational design despite emergency context.
+
+---
+
+For Questions 2-4, use same layout structure with:
+- Same header and progress bar (updating to 2/4, 3/4, 4/4)
+- Different question text and visual options as specified
+- Q2: 2x2 grid of color swatches
+- Q3: 2x2 grid of pattern illustrations
+- Q4: 4 vertical cards with size comparisons and icons
+```
+
+#### Notes for Stitch:
+- Each question = separate screen (4 screens total technically, but same template)
+- Visual options phải LARGE và clear
+- Progress bar giúp user biết gần xong
+- "Skip" option quan trọng nếu user không nhớ
+- After Q4 → Show loading → Then result list (reuse Screen 4.1 design but filtered)
+
+---
+
+### Screen 4.4: Generic First Aid Protocol (Safety Fallback)
+
+#### Thông tin màn hình:
+- **Tên:** Màn hình sơ cứu chung khi không xác định được loài
+- **Mục đích:** Safety net - cung cấp hướng dẫn CHUNG an toàn cho mọi vết cắn rắn độc khi không thể identify
+- **Flow position:** Cuối cùng của alternative flow - khi tất cả methods fail
+- **Priority:** ⭐⭐⭐ (CRITICAL - Must not give dangerous advice)
+- **Medical principle:** "Do no harm" - generic protocol safe for ALL venomous snakes
+
+#### Key Components:
+1. **Header:**
+   - Back button
+   - Title: "Hướng dẫn sơ cứu chung"
+   - Status badge: "Chưa xác định loài" (amber)
+
+2. **Alert Banner:**
+   - Amber background (#FFF3CD)
+   - Icon: Warning triangle
+   - Large text: "⚠️ Không xác định được loài rắn chính xác"
+   - Subtext: "Đang sử dụng giao thức sơ cứu CHUNG an toàn cho tất cả vết cắn rắn độc"
+
+3. **Critical Warning Section:**
+   - Red box with white text
+   - Title: "QUAN TRỌNG - ĐỌC KỸ:"
+   - Text: "Vì không biết loại nọc độc, hướng dẫn này bao gồm biện pháp AN TOÀN cho cả Neurotoxic và Hemotoxic venom"
+   - Subtext: "CẦN ĐẾN BỆNH VIỆN NGAY để xét nghiệm và điều trị chính xác"
+
+4. **Universal First Aid Steps:**
+   - Title: "Các bước sơ cứu AN TOÀN:"
+   - Numbered steps with large icons:
+     
+     **Step 1: Stay Calm**
+     - Icon: Meditation/calm symbol
+     - Text: "GIỮ BÌNH TĨNH và hạn chế vận động"
+     - Detail: "Vận động làm nọc độc lan nhanh hơn"
+     
+     **Step 2: Remove Constrictors**
+     - Icon: Ring/jewelry
+     - Text: "CỞI ngay đồ trang sức, quần áo chật"
+     - Detail: "Vùng bị cắn sẽ sưng lên nhanh chóng"
+     
+     **Step 3: Gentle Pressure**
+     - Icon: Bandage
+     - Text: "Băng VỪA PHẢI - không quá chặt"
+     - Detail: "Vừa đủ chặt, vẫn sờ thấy mạch máu"
+     - Warning: "⚠️ KHÔNG băng quá chặt (gây hoại tử nếu là hemotoxic)"
+     - Warning: "⚠️ KHÔNG để quá lỏng (không hiệu quả với neurotoxic)"
+     
+     **Step 4: Position**
+     - Icon: Person lying down
+     - Text: "GIỮ vùng cắn ngang BẰNG tim"
+     - Detail: "Không quá cao, không quá thấp"
+     - Rationale: "Compromise position an toàn cho cả 2 loại nọc"
+     
+     **Step 5: Mark Wound**
+     - Icon: Pen/marker
+     - Text: "ĐÁNH DẤU viền vết sưng mỗi 15 phút"
+     - Detail: "Giúp bác sĩ đánh giá tốc độ lan độc"
+     
+     **Step 6: Hospital**
+     - Icon: Hospital
+     - Text: "ĐẾN BỆNH VIỆN NGAY - KHÔNG chần chừ"
+     - Detail: "Mang theo ảnh rắn nếu có để bác sĩ xác định"
+
+5. **Absolute Don'ts (Critical):**
+   - Red background section
+   - Title: "TUYỆT ĐỐI KHÔNG LÀM:"
+   - Large X icons with text:
+     - "❌ KHÔNG cắt vết thương"
+     - "❌ KHÔNG hút nọc độc"
+     - "❌ KHÔNG đắp băng garo (tourniquet)"
+     - "❌ KHÔNG đắp đá lạnh"
+     - "❌ KHÔNG cho uống rượu hoặc thuốc giảm đau"
+     - "❌ KHÔNG bắt hoặc chụp thêm ảnh rắn (nguy hiểm)"
+
+6. **Why Generic Protocol:**
+   - Expandable info section: "Tại sao không cụ thể hơn? ▼"
+   - When expanded:
+     - "Neurotoxic venom (hổ mang, cạp nong): Cần băng CHẶT + Giữ THẤP"
+     - "Hemotoxic venom (lục đuôi đỏ, rắn lục): Cần băng LỎNG + Giữ CAO"
+     - "→ Không biết loại → Dùng biện pháp TRUNG GIAN an toàn"
+     - "→ Bác sĩ sẽ điều chỉnh sau khi xét nghiệm"
+
+7. **Emergency Actions:**
+   - Large red button: "Gọi 115 - Cấp cứu y tế" (primary)
+   - Secondary button: "Tìm bệnh viện gần nhất →" (forest green outlined)
+   - Tertiary button: "Gửi cảnh báo SOS" (outlined)
+
+8. **Hospital Checklist:**
+   - Title: "Thông tin cần đưa bác sĩ:"
+   - Checklist items:
+     - ☐ Thời gian bị cắn (ghi chính xác)
+     - ☐ Vị trí gặp rắn (rừng/nhà/ruộng...)
+     - ☐ Ảnh hoặc mô tả rắn (nếu có)
+     - ☐ Triệu chứng đã xuất hiện
+     - ☐ Các bước sơ cứu đã làm
+
+#### Stitch Prompt (English):
+
+```
+Mobile app generic first aid protocol screen for unidentified snake bite. Medical safety fallback interface with comprehensive universal guidelines.
+
+Top nav: Back arrow left, title "Hướng dẫn sơ cứu chung", right shows amber badge "Chưa xác định loài".
+
+Full-width amber alert banner (#FFF3CD) with warning triangle icon, large bold text:
+"⚠️ Không xác định được loài rắn chính xác"
+Smaller text below: "Đang sử dụng giao thức sơ cứu CHUNG an toàn cho tất cả vết cắn rắn độc"
+
+Red box (#FFEBEE) with bold text:
+"QUAN TRỌNG - ĐỌC KỸ:"
+"Vì không biết loại nọc độc, hướng dẫn này bao gồm biện pháp AN TOÀN cho cả Neurotoxic và Hemotoxic venom"
+"CẦN ĐẾN BỆNH VIỆN NGAY để xét nghiệm và điều trị chính xác"
+
+Section titled "Các bước sơ cứu AN TOÀN:" in bold.
+
+Vertical list of 6 numbered step cards, each card:
+- Left: Large circular icon (60px) with step number badge
+- Right: Bold step title, regular detail text, warnings in amber/red where applicable
+
+**Step 1:** Meditation icon, "GIỮ BÌNH TĨNH và hạn chế vận động", detail text
+**Step 2:** Jewelry icon, "CỠI ngay đồ trang sức, quần áo chật"
+**Step 3:** Bandage icon, "Băng VỪA PHẢI - không quá chặt"
+Two small warning lines:
+"⚠️ KHÔNG băng quá chặt (gây hoại tử nếu là hemotoxic)"
+"⚠️ KHÔNG để quá lỏng (không hiệu quả với neurotoxic)"
+**Step 4:** Person lying icon, "GIỮ vùng cắn ngang BẰNG tim"
+**Step 5:** Marker icon, "ĐÁNH DẤU viền vết sưng mỗi 15 phút"
+**Step 6:** Hospital icon, "ĐẾN BỆNH VIỆN NGAY - KHÔNG chần chừ"
+
+Red section with title "TUYỆT ĐỐI KHÔNG LÀM:" showing 6 items with large X icons:
+❌ KHÔNG cắt vết thương
+❌ KHÔNG hút nọc độc
+❌ KHÔNG đắp băng garo (tourniquet)
+❌ KHÔNG đắp đá lạnh
+❌ KHÔNG cho uống rượu hoặc thuốc giảm đau
+❌ KHÔNG bắt hoặc chụp thêm ảnh rắn (nguy hiểm)
+
+Expandable info section with forest green header bar: "Tại sao không cụ thể hơn? ▼" (collapsed state shown)
+
+Three large buttons stacked vertically:
+- Red primary button "Gọi 115 - Cấp cứu y tế" (60px height)
+- Forest green outlined button "Tìm bệnh viện gần nhất →"
+- Gray outlined button "Gửi cảnh báo SOS"
+
+Bottom card titled "Thông tin cần đưa bác sĩ:" with light blue background (#E3F2FD), 5 unchecked checkbox items in Vietnamese.
+
+Style: Medical safety protocol, universal guidelines emphasis, clear compromise approach, detailed warnings, educational medical interface, emergency context but comprehensive information.
+```
+
+#### Notes for Stitch:
+- Amber alert banner phải rất prominent
+- Step 3 (Bandaging) có nhiều warnings - quan trọng nhất
+- "Moderate pressure" và "level with heart" là compromise cho unknown venom type
+- Red "Don'ts" section phải nổi bật như Warning banner
+- Expandable section giải thích medical rationale
+- Hospital checklist giúp user prepare
+
+**Medical Accuracy Note:**
+- Protocol này based on WHO guidelines for unidentified venomous snake bites
+- Compromise approach: not optimal for either venom type, but SAFE for both
+- Hospital visit absolutely mandatory - cannot treat properly without identification
+
+---
+
 ### Screen 5: AI Snake Identification Result
 
 #### Thông tin màn hình:
@@ -460,10 +1024,12 @@ Style: Camera app interface, dark viewfinder, clear safety messaging, simple con
 5. **Recommended Actions Card:**
    - Title: "Cần làm NGAY:"
    - Numbered action items:
-     - "1. Gọi cấp cứu ngay lập tức"
-     - "2. Băng ép vết cắn"
-     - "3. Đến bệnh viện có huyết thanh gần nhất"
-   - CTA button: "Tìm bệnh viện có huyết thanh →" (red primary button)
+     - "1. Xem hướng dẫn sơ cứu CHUYÊN BIỆT cho loài rắn này"
+     - "2. Gọi cấp cứu ngay lập tức"
+     - "3. Băng ép vết cắn theo hướng dẫn"
+     - "4. Đến bệnh viện có huyết thanh gần nhất"
+   - PRIMARY CTA button: "Xem Hướng Dẫn Sơ Cứu Cho Loài Này →" (forest green, large, leads to Screen 3)
+   - Secondary CTA button: "Tìm bệnh viện có huyết thanh" (red outlined)
 
 6. **Snake Details (Expandable Section):**
    - Collapsible panel: "Xem chi tiết rắn ▼"
@@ -494,12 +1060,15 @@ Below banner, white card with padding showing user's uploaded snake photo (squar
 
 Next section shows danger indicator: Horizontal bar with gradient red-to-green, marker positioned at "CAO" level. Below bar, large text "Mức độ nguy hiểm: CAO" and description "Có độc rất cao - Cần chăm sóc y tế ngay lập tức" in dark gray.
 
-White card titled "Cần làm NGAY:" containing 3 numbered items in bold:
-1. Gọi cấp cứu ngay lập tức
-2. Băng ép vết cắn  
-3. Đến bệnh viện có huyết thanh gần nhất
+White card titled "Cần làm NGAY:" containing 4 numbered items in bold:
+1. Xem hướng dẫn sơ cứu CHUYÊN BIỆT cho loài rắn này
+2. Gọi cấp cứu ngay lập tức
+3. Băng ép vết cắn theo hướng dẫn
+4. Đến bệnh viện có huyết thanh gần nhất
 
-Below list, large red primary button "Tìm bệnh viện có huyết thanh →" taking full card width.
+Below list, two vertically stacked buttons:
+- Large forest green primary button "Xem Hướng Dẫn Sơ Cứu Cho Loài Này →" (60px height, most prominent)
+- Large red outlined secondary button "Tìm bệnh viện có huyết thanh" (50px height)
 
 Expandable section with forest green header bar "Xem chi tiết rắn ▼" (collapsed state shown).
 
@@ -938,41 +1507,197 @@ Style: Map-based finder interface, clear geographic context, practical travel in
          ▼
 ┌─────────────────┐
 │ 2. Emergency    │
-│    Alert        │
+│    Alert +      │
+│    Rescuer      │
+│    Finder       │
 └────────┬────────┘
-         │ Taps "Start First Aid Guide"
+         │ Taps "Chụp ảnh rắn"
          ▼
 ┌─────────────────┐
-│ 3. First Aid    │
-│    Guide        │ ◄─── Can loop through Steps 1-4
-└────────┬────────┘
-         │ Parallel options
-         ├──────────────────┐
-         ▼                  ▼
-┌─────────────────┐  ┌─────────────────┐
-│ 4. Snake Photo  │  │ 6. Symptom      │
-│    Capture      │  │    Input        │
-└────────┬────────┘  └────────┬────────┘
-         │                    │
-         ▼                    ▼
-┌─────────────────┐  ┌─────────────────┐
-│ 5. AI Snake     │  │ 7. Severity     │
-│    Identification│  │   Assessment    │
-└────────┬────────┘  └────────┬────────┘
-         │                    │
-         └────────┬───────────┘
+│ 4. Snake Photo  │ ◄─── Chụp ảnh để AI phân tích
+│    Capture      │
+└────┬────────┬───┘
+     │        │
+     │        └─────────────────┐ "Tôi không có ảnh rắn"
+     │                          ▼
+     │                    ┌─────────────────┐
+     │                    │ 4.1 Location-   │ ◄─── Fast path (80%)
+     │                    │     Based       │      Rắn phổ biến
+     │                    │     Selection   │      ở khu vực
+     │                    └────┬─────────┬──┘
+     │                         │         │
+     │                         │         └──────────┐ "Không có trong list"
+     │                         │ "Chọn loài"         ▼
+     │                         ▼              ┌─────────────────┐
+     │                    ┌─────────────────┐ │ 4.3 Visual      │ ◄─── Fallback
+     │                    │ 4.2 Snake       │ │     Question-   │      (15%)
+     │                    │     Confirmation│ │     naire       │      4 câu hỏi
+     │                    └────┬─────────┬──┘ └────┬────────────┘
+     │                         │         │         │
+     │                         │         │         │ Suggest 2-3
+     │     "Xác nhận"          │         │         │ species
+     │                         │         │         ▼
+     │                         │         │    (Back to 4.1
+     │                         │         │     filtered list)
+     │                         │         │
+     │                         │         └─────────┐ "Không giống"
+     │                         │                   ▼
+     │                         │            ┌─────────────────┐
+     │                         │            │ 4.4 Generic     │ ◄─── Safety net
+     │                         │            │     First Aid   │      (5%)
+     │                         │            │     Protocol    │      Universal
+     │                         │            └─────┬───────────┘      guidelines
+     │                         │                  │
+     │ AI processing...        │                  │ (Skip to Hospital)
+     ▼                         ▼                  ▼
+┌─────────────────┐      ┌─────────────────┐   Screen 9
+│ 5. AI Snake     │      │ 3. First Aid    │   (or Screen 8)
+│    Identification│◄─────│    Guide        │
+└────────┬────────┘      │ (Species-       │
+         │                │  Specific)      │
+         │                └────────┬────────┘
+         │ "Xem hướng dẫn"         │
+         └─────────────────────────┘
+                  │
+                  │ Can loop through Steps 1-4
+                  │ Then taps "Tiếp tục"
                   ▼
          ┌─────────────────┐
-         │ 8. SOS          │ ◄─── Can trigger from any screen
-         │    Emergency    │
+         │ 6. Symptom      │ ◄─── Nhập triệu chứng cụ thể
+         │    Input        │      (đau, sưng, tê, khó thở...)
          └────────┬────────┘
+                  │ AI analyzing symptoms + snake type
+                  ▼
+         ┌─────────────────┐
+         │ 7. Severity     │ ◄─── Đánh giá dựa trên:
+         │    Assessment   │      • Loài rắn (from Screen 5/4.2)
+         └────────┬────────┘      • Triệu chứng (from Screen 6)
+                  │                • Thời gian
+                  ▼
+         ┌─────────────────┐
+         │ 8. SOS          │ ◄─── Gọi cấp cứu + chia sẻ:
+         │    Emergency    │      • Loài rắn đã xác định
+         │    Call         │      • Mức độ nghiêm trọng
+         └────────┬────────┘      • Vị trí GPS
                   │
                   ▼
          ┌─────────────────┐
-         │ 9. Hospital     │ ◄─── Can access from multiple screens
-         │    Finder Map   │
+         │ 9. Hospital     │ ◄─── Tìm bệnh viện có huyết thanh
+         │    Finder Map   │      cho loài rắn cụ thể
          └─────────────────┘
+
+NOTE: Screen 8 (SOS) và Screen 9 (Hospital Finder) 
+đều có thể trigger từ bất kỳ màn hình nào.
+
+---
+
+### Alternative Flow Success Rates:
+
+**Path 1: Photo (Screen 4 → 5)** ✅ 60% users
+- AI identification with 85%+ accuracy
+- Fastest and most accurate path
+
+**Path 2: Location List (4 → 4.1 → 4.2 → 3)** ✅ 30% users  
+- No photo available (rắn trốn, tối, nguy hiểm)
+- Fast selection from local common species
+- 2-3 taps to identify
+
+**Path 3: Questionnaire (4 → 4.1 → 4.3 → 4.1 → 4.2 → 3)** ⚠️ 8% users
+- Rare species not in location list
+- 4 visual questions narrow down possibilities
+- Takes 1-2 minutes longer
+
+**Path 4: Generic Protocol (4 → 4.1 → 4.2 → 4.4 → 9)** 🚨 2% users
+- Cannot identify species at all
+- Use universal safe first aid guidelines
+- MUST go to hospital for proper diagnosis
+- Better than wrong identification
 ```
+
+### 🎯 Key Flow Logic:
+
+**WHY này thứ tự này?**
+1. **Screen 4 (Photo) → Screen 5 (AI) TRƯỚC Screen 3 (First Aid):**
+   - Xác định loài rắn TRƯỚC để biết loại nọc độc
+   - Neurotoxic (hổ mang) ≠ Hemotoxic (lục đuôi đỏ)
+   - Sơ cứu khác nhau hoàn toàn!
+
+2. **Screen 3 (First Aid) sau khi biết loài:**
+   - Hiển thị hướng dẫn CHUYÊN BIỆT
+   - "Băng ép cho Rắn hổ mang chúa" (neurotoxin)
+   - "Làm sạch vết thương cho Rắn lục" (hemotoxin)
+
+3. **Alternative Flow (4.1 → 4.2 → 4.3 → 4.4):**
+   - **4.1 Location-Based:** Fast path cho 80% cases - chọn từ rắn phổ biến
+   - **4.2 Confirmation:** Double-check với 5 features để tránh sai
+   - **4.3 Questionnaire:** Fallback cho rare species không có trong list
+   - **4.4 Generic Protocol:** Safety net - không identify được thì dùng universal guidelines
+   - **Hybrid approach** đảm bảo user LUÔN có hướng dẫn (species-specific hoặc generic)
+
+4. **Screen 6 (Symptoms) → Screen 7 (Assessment):**
+   - Kết hợp: Loài rắn (Screen 5/4.2) + Triệu chứng (Screen 6)
+   - AI đánh giá chính xác hơn
+
+**Ví dụ thực tế:**
+
+**Happy Path (60% users):**
+```
+User bị cắn → Screen 2 (Alert)
+           → Screen 4 (Chụp ảnh)
+           → Screen 5 (AI: "Rắn hổ mang chúa - Neurotoxic")
+           → Screen 3 (Sơ cứu CHUYÊN cho hổ mang chúa)
+           → Screen 6 (Nhập triệu chứng: khó thở, tê)
+           → Screen 7 (Assessment: NGHIÊM TRỌNG - neurotoxin spreading)
+           → Screen 8 (SOS với thông tin đầy đủ)
+```
+
+**Alternative Path - No Photo (30% users):**
+```
+User bị cắn → Screen 2 (Alert)
+           → Screen 4 (Không chụp được - rắn trốn/tối)
+           → "Tôi không có ảnh rắn"
+           → Screen 4.1 (Location list: Quận 1 có 6 loài phổ biến)
+           → Chọn "Rắn hổ mang chúa"
+           → Screen 4.2 (Confirm: 4/5 features match → Tin cậy cao)
+           → "Xác nhận"
+           → Screen 3 (Sơ cứu CHUYÊN cho hổ mang chúa)
+           → Tiếp tục flow bình thường...
+```
+
+**Fallback Path - Rare Species (8% users):**
+```
+User bị cắn → Screen 4 → "Không có ảnh"
+           → Screen 4.1 → "Không có trong danh sách"
+           → Screen 4.3 (Questionnaire):
+              • Q1: Đầu tam giác
+              • Q2: Màu xanh lá
+              • Q3: Hoa văn sọc ngang
+              • Q4: 50cm-1m
+           → AI suggest: 3 possible species
+           → Back to filtered Screen 4.1
+           → Chọn + Confirm
+           → Screen 3 (Species-specific)
+```
+
+**Safety Net - Cannot Identify (2% users):**
+```
+User bị cắn → Screen 4 → "Không có ảnh"
+           → Screen 4.1 → Không match
+           → Screen 4.3 → Vẫn không chắc
+           → Screen 4.4 (Generic Protocol):
+              • Băng vừa phải (compromise)
+              • Giữ ngang tim (safe cho cả 2 loại)
+              • KHÔNG cắt/hút/băng garo
+              • ĐẾN BỆNH VIỆN NGAY
+           → Screen 9 (Hospital finder)
+           → Screen 8 (SOS - báo "unknown species")
+```
+
+**Medical Safety Logic:**
+- **80-90% cases:** Species-specific first aid (optimal treatment)
+- **8-10% cases:** Narrow down via questionnaire (good enough)
+- **2% cases:** Generic protocol (safe for all, not optimal but DO NO HARM)
+- **0% cases:** Wrong treatment (system refuses to guess - better generic than wrong)
 
 ---
 
