@@ -5,9 +5,9 @@
 - **Module:** Patient Mobile Application
 - **Flow:** Emergency Flow (Xử lý sự cố rắn cắn khẩn cấp)
 - **Công cụ thiết kế:** Stitch with Google (prompt-based design)
-- **Số lượng màn hình:** 13 screens (9 main + 4 alternative flow)
+- **Số lượng màn hình:** 15 screens (9 main + 4 alternative flow + 2 payment screens)
 - **Ngày tạo:** November 30, 2025
-- **Cập nhật:** December 17, 2025 (Added alternative flow for no photo case)
+- **Cập nhật:** December 17, 2025 (Added alternative flow + payment screens)
 - **Location:** `/02-UI-Design/Patient-Emergency-Flow-Screens.md`
 
 ---
@@ -828,10 +828,11 @@ For Questions 2-4, use same layout structure with:
 
 #### Thông tin màn hình:
 - **Tên:** Màn hình sơ cứu chung khi không xác định được loài
-- **Mục đích:** Safety net - cung cấp hướng dẫn CHUNG an toàn cho mọi vết cắn rắn độc khi không thể identify
-- **Flow position:** Cuối cùng của alternative flow - khi tất cả methods fail
+- **Mục đích:** Safety net - cung cấp hướng dẫn CHUNG an toàn cho mọi vết cắn rắn độc, SAU ĐÓ tiếp tục thu thập triệu chứng
+- **Flow position:** Alternative flow khi không identify được → VẪN TIẾP TỤC đến Screen 6 (Symptom Input)
 - **Priority:** ⭐⭐⭐ (CRITICAL - Must not give dangerous advice)
 - **Medical principle:** "Do no harm" - generic protocol safe for ALL venomous snakes
+- **Important:** Dù không biết loài, TRIỆU CHỨNG vẫn quan trọng cho đội cứu hộ!
 
 #### Key Components:
 1. **Header:**
@@ -907,10 +908,12 @@ For Questions 2-4, use same layout structure with:
      - "→ Không biết loại → Dùng biện pháp TRUNG GIAN an toàn"
      - "→ Bác sĩ sẽ điều chỉnh sau khi xét nghiệm"
 
-7. **Emergency Actions:**
-   - Large red button: "Gọi 115 - Cấp cứu y tế" (primary)
-   - Secondary button: "Tìm bệnh viện gần nhất →" (forest green outlined)
-   - Tertiary button: "Gửi cảnh báo SOS" (outlined)
+7. **Continue Flow Actions:**
+   - Large primary button: "Tiếp tục báo cáo triệu chứng →" (forest green, 60px)
+     - Text below: "Đội cứu hộ cần biết triệu chứng của bạn để chuẩn bị"
+   - Secondary text: "Hoặc nếu khẩn cấp:"
+   - Small red outlined button: "Gọi 115 ngay" (50px)
+   - Small outlined button: "Gửi SOS" (50px)
 
 8. **Hospital Checklist:**
    - Title: "Thông tin cần đưa bác sĩ:"
@@ -963,10 +966,15 @@ Red section with title "TUYỆT ĐỐI KHÔNG LÀM:" showing 6 items with large 
 
 Expandable info section with forest green header bar: "Tại sao không cụ thể hơn? ▼" (collapsed state shown)
 
-Three large buttons stacked vertically:
-- Red primary button "Gọi 115 - Cấp cứu y tế" (60px height)
-- Forest green outlined button "Tìm bệnh viện gần nhất →"
-- Gray outlined button "Gửi cảnh báo SOS"
+Large primary action section:
+- Large forest green button "Tiếp tục báo cáo triệu chứng →" (60px height, solid fill)
+- Small gray text below button: "Đội cứu hộ cần biết triệu chứng của bạn để chuẩn bị"
+
+Below, small gray text "Hoặc nếu khẩn cấp:" centered
+
+Two smaller buttons side-by-side:
+- Red outlined button "Gọi 115 ngay" (50px height, left)
+- Gray outlined button "Gửi SOS" (50px height, right)
 
 Bottom card titled "Thông tin cần đưa bác sĩ:" with light blue background (#E3F2FD), 5 unchecked checkbox items in Vietnamese.
 
@@ -1276,121 +1284,363 @@ Style: Emergency medical alert interface, high urgency, clear hierarchy, critica
 
 ---
 
-### Screen 8: SOS Emergency Call Screen
+### Screen 8: SOS Emergency Call - Live Tracking Screen
 
 #### Thông tin màn hình:
-- **Tên:** Màn hình gọi cấp cứu khẩn cấp - Kết nối với đội cứu hộ SnakeAid
-- **Mục đích:** Kết nối với đội Rescuer/Supporter gần nhất, chia sẻ vị trí GPS, và hiển thị trạng thái chờ cứu hộ
-- **Flow position:** Khi user nhấn nút SOS từ bất kỳ màn hình nào
+- **Tên:** Màn hình SOS khẩn cấp với tracking real-time
+- **Mục đích:** Kết nối đội cứu hộ, chia sẻ GPS, tracking rescuer location trên map tối giản
+- **Flow position:** Sau Screen 7 (Assessment) hoặc từ bất kỳ màn hình nào nhấn SOS
 - **Priority:** ⭐⭐⭐
+- **Design inspiration:** Tối giản như Screen 6 của Rescue Request Flow - map-centric với floating card
 
 #### Key Components:
-1. **Header:**
-   - Title: "SOS Khẩn Cấp Đang Kích Hoạt"
-   - Status indicator: Red pulsing dot
-   - Cancel button (top-right): "Hủy SOS"
+1. **Header (overlay trên map):**
+   - Back button (white với shadow)
+   - Status: "SOS ACTIVE" (red badge pulsing)
+   - Timer: "05:30" elapsed time
+   - Minimize button
 
-2. **Rescuer Matching Status:**
-   - Large icon: Searching animation (radar/pulse effect)
-   - Status text: "Đang tìm đội cứu hộ gần bạn..."
-   - Then changes to: "✅ Đã tìm thấy đội cứu hộ!"
-   - Rescuer info card:
-     - Avatar/Name: "Nguyễn Văn A - Chuyên viên cứu hộ"
-     - Rating: "4.9 (156 đánh giá)"
-     - Distance: "2.1 km từ vị trí của bạn"
-     - ETA: "Dự kiến đến trong 8 phút"
+2. **Full-Screen Map:**
+   - User location marker (blue pin pulsing)
+   - Rescuer location marker (green pin với avatar) - nếu đã match
+   - Route line nếu rescuer đang đến (dashed orange line)
+   - Optional: 1km, 3km, 5km radius circles (faded)
 
-3. **GPS Location Card:**
-   - Title: "Vị Trí Của Bạn"
-   - Status: "✓ Đã chia sẻ vị trí GPS thành công"
-   - Address text: "123 Nguyễn Huệ, Quận 1, TP.HCM"
-   - Coordinates: "10.7769° N, 106.7009° E"
-   - Small map preview showing user location + rescuer location
-   - Button: "Cập Nhật Vị Trí"
+3. **Floating Status Card (bottom sheet - draggable):**
+   - **State 1: Searching for Rescuer**
+     - Animated search indicator
+     - Text: "Đang tìm đội cứu hộ..." + "2 đội gần bạn"
+     
+   - **State 2: Rescuer Matched & On The Way**
+     - Small rescuer avatar + name
+     - Status badge: "Đang trên đường" (amber)
+     - ETA large: "8 phút" (prominent)
+     - Distance: "2.1 km"
+     - Last updated: "30 giây trước"
 
-4. **Information Sent:**
-   - Title: "Thông Tin Đã Gửi Cho Đội Cứu Hộ:"
-   - Checklist with green checkmarks:
-     - ✓ Vị trí GPS của bạn (theo thời gian thực)
-     - ✓ Loài rắn: Rắn hổ mang chúa (King Cobra)
-     - ✓ Mức độ nguy hiểm: Nghiêm trọng
-     - ✓ Triệu chứng: Khó thở, sưng tấy
-     - ✓ Thời gian bị cắn: 15 phút trước
+4. **Critical Info Panel (collapsed/expandable trong card):**
+   - Tap to expand, shows:
+     - Snake: "Rắn hổ mang chúa"
+     - Severity: "NGHIÊM TRỌNG"
+     - Symptoms: "Khó thở, đau 9/10"
+     - Location shared: ✓
 
-5. **Emergency Contact Notification:**
-   - Text: "Đã thông báo người thân khẩn cấp:"
-   - List: "• Nguyễn Văn B (Anh trai) - Đã gửi SMS"
+5. **Quick Action Bar (inside floating card):**
+   - 3 prominent buttons horizontal row:
+     - "Gọi cứu hộ" (green outlined) - nếu đã match
+     - "Gọi 115" (red outlined)
+     - "Bệnh viện" (gray outlined)
 
-6. **Timer:**
-   - Large display: "Thời Gian Chờ: 02:35"
-   - Subtitle: "Đội cứu hộ đang trên đường đến"
-
-7. **Action Buttons:**
-   - Large button: "Gọi Cho Đội Cứu Hộ" (forest green, primary)
-   - Secondary button: "Xem Bệnh Viện Gần Nhất"
-   - Tertiary button: "Gọi 115 (Cấp cứu y tế)" (outlined)
-   - Text link: "Hủy Yêu Cầu SOS"
-
-8. **Guidance Card (bottom):**
-   - Title: "Trong Lúc Chờ Cứu Hộ:"
-   - Bullet points:
-     - "Giữ bình tĩnh và để điện thoại ở gần"
-     - "Tiếp tục sơ cứu (băng ép)"
-     - "Không ăn uống gì"
-     - "Giữ vùng bị cắn thấp hơn tim"
+6. **Emergency Guidance (collapsible):**
+   - Small "Trong lúc chờ ▼" expandable section
+   - When expanded: 3-4 bullet points sơ cứu
 
 #### Stitch Prompt (English):
 
 ```
-Mobile app emergency SOS screen connecting to rescue team. Urgent rescue matching interface with GPS tracking and real-time rescuer location.
+Mobile app full-screen emergency SOS tracking interface for snakebite rescue. Map-first minimalist design with red (#DC3545) emergency accents and forest green (#228B22) actions.
 
-Top header with red background (#DC3545): White Vietnamese text "SOS Khẩn Cấp Đang Kích Hoạt" on left, small pulsing red dot indicator, white button text "Hủy SOS" on right.
+Full screen displays map view (light gray background with minimal street pattern). 
 
-Large central section showing rescuer matching status. Radar/pulse animation icon at top. Status text changes from "Đang tìm đội cứu hộ gần bạn..." to "✅ Đã tìm thấy đội cứu hộ!" in forest green.
+Map markers:
+- Blue pulsing location pin "Bạn" (user) at center-bottom
+- Green location pin with small circular avatar overlay "Đội cứu hộ" at top-left (if matched)
+- Dashed orange route line connecting pins (if rescuer on way)
+- Faint green circles showing 1km, 3km radius around user
 
-White card showing matched rescuer profile:
-- Small circular avatar placeholder
-- Name: "Nguyễn Văn A - Chuyên viên cứu hộ" (bold, 18pt)
-- Rating: "4.9 (156 đánh giá)" in gray
-- Distance badge: "2.1 km từ vị trí của bạn" with location pin icon
-- ETA: "Dự kiến đến trong 8 phút" in amber color (#FFC107)
+Top overlay bar (translucent white with shadow):
+- Left: White circular back button
+- Center: Red pulsing badge "SOS ĐANG HOẠT ĐỘNG"
+- Right side: Timer "05:30" in white/dark
+- Far right: Minimize button
 
-White card section titled "Vị Trí Của Bạn" with green checkmark text "✓ Đã chia sẻ vị trí GPS thành công". Below shows Vietnamese address "123 Nguyễn Huệ, Quận 1, TP.HCM" and coordinates "10.7769° N, 106.7009° E" in smaller gray text. Small rectangular map preview showing two location pins (user in blue, rescuer in green). Small outlined button "Cập Nhật Vị Trí" at bottom of card.
+Bottom floating white card with rounded top corners (20px radius), shadow, draggable handle at top.
 
-Next card titled "Thông Tin Đã Gửi Cho Đội Cứu Hộ:" containing 5 lines with green checkmarks (Vietnamese text):
-✓ Vị trí GPS của bạn (theo thời gian thực)
-✓ Loài rắn: Rắn hổ mang chúa (King Cobra)
-✓ Mức độ nguy hiểm: Nghiêm trọng
-✓ Triệu chứng: Khó thở, sưng tấy
-✓ Thời gian bị cắn: 15 phút trước
+**Card Content (Rescuer Matched State):**
 
-Small section showing "Đã thông báo người thân khẩn cấp:" with bullet point "• Nguyễn Văn B (Anh trai) - Đã gửi SMS".
+Top section:
+- Left: Small circular rescuer avatar (40px)
+- Right of avatar: Bold "Nguyễn Văn A" with amber badge "Đang trên đường"
 
-Large timer display showing "Thời Gian Chờ: 02:35" in bold, large font. Subtitle below "Đội cứu hộ đang trên đường đến" in gray.
+Center section (most prominent):
+- Small gray text "Sẽ đến trong"
+- LARGE bold forest green text "8 phút" (36pt)
+- Below: Medium gray "Cách 2.1 km"
+- Bottom: Tiny gray italic "Cập nhật 30 giây trước" with refresh icon
 
-Four vertically stacked buttons with spacing:
-- Large primary forest green button "Gọi Cho Đội Cứu Hộ" (60px height)
-- Secondary outlined button "Xem Bệnh Viện Gần Nhất"
-- Tertiary outlined gray button "Gọi 115 (Cấp cứu y tế)"
-- Small gray text link "Hủy Yêu Cầu SOS"
+Expandable section with gray header bar "Thông tin chi tiết ▼" (collapsed shown).
 
-Bottom card with light yellow background (#FFFACD) titled "Trong Lúc Chờ Cứu Hộ:" with 4 Vietnamese bullet points:
-• Giữ bình tĩnh và để điện thoại ở gần
-• Tiếp tục sơ cứu (băng ép)
-• Không ăn uống gì
-• Giữ vùng bị cắn thấp hơn tim
+Quick action section - 3 equal-width outlined buttons horizontal:
+- Green outlined button with phone icon "Gọi cứu hộ"
+- Red outlined button with phone icon "Gọi 115"
+- Gray outlined button with hospital icon "Bệnh viện"
 
-Style: Emergency rescue matching interface, rescuer profile prominent, real-time ETA tracking, GPS location sharing clear, calm but urgent design, Vietnamese text throughout, professional emergency rescue app design.
+Collapsible section at bottom "Trong lúc chờ ▼" (collapsed state).
+
+**Alternative State - Searching:**
+If rescuer not matched yet, center of card shows:
+- Animated radar/search spinner in amber
+- "Đang tìm đội cứu hộ..." bold
+- "2 đội gần bạn - đang chờ phản hồi" gray
+- Same 3 action buttons at bottom
+
+Design: Map-based emergency interface, minimal UI, floating overlay controls, real-time visualization, critical info accessible but not cluttered, professional emergency app aesthetic.
+```
+
+#### Alternative Prompts for Different States:
+
+**State 1 - Searching (no rescuer yet):**
+```
+Bottom card shows animated search indicator (rotating radar in amber), text "Đang tìm đội cứu hộ gần bạn..." bold. Below: "2 đội cứu hộ trong bán kính 5km" gray. Below that: "Đã chia sẻ: Vị trí GPS + Loài rắn + Triệu chứng" with green checkmarks. Same 3 action buttons at bottom. On map: only user pin visible with scanning radius circles.
+```
+
+**State 2 - Rescuer Accepted:**
+```
+(Current main prompt)
+```
+
+**State 3 - Rescuer Arrived:**
+```
+Rescuer pin overlaps user pin on map. Card shows green success badge "Đã đến!" instead of ETA. Text "Đội cứu hộ đang xử lý" bold. Status: "Đang bắt rắn - Vui lòng giữ khoảng cách an toàn". Action buttons change: "Gọi cứu hộ" stays, "Gọi 115" stays, third button becomes "Hoàn tất" (green solid).
 ```
 
 #### Notes for Stitch:
-- Red header phải persistent để user biết SOS đang active
-- Rescuer profile card phải nổi bật với avatar, rating, distance, ETA
-- Map preview phải show 2 pins: user (blue) và rescuer (green) đang di chuyển
-- Timer và ETA phải prominent và real-time update
-- "Gọi 115" là option phụ (outlined button) - ưu tiên gọi Rescuer trước
-- "While waiting" guidance critical để user không panic
-- Toàn bộ text phải tiếng Việt
+- Map phải chiếm 70-80% màn hình (tối đa visual space)
+- Bottom card phải có draggable handle rõ ràng
+- ETA text phải LARGEST element trong card (36pt+)
+- SOS badge ở top phải pulsing animation để nhấn mạnh emergency
+- 3 action buttons phải equal width, touch-friendly (50px+ height)
+- Expandable sections giữ info hidden mặc định để tránh clutter
+- Nếu Stitch không render map → "Use simple light gray background with minimal grid, focus on pins and route"
+- Color coding: Red = Emergency/115, Green = Rescuer actions, Gray = Secondary
+
+---
+
+### Screen 10: Emergency Service Payment & Rating Screen
+
+#### Thông tin màn hình:
+- **Tên:** Màn hình thanh toán dịch vụ cấp cứu và đánh giá
+- **Mục đích:** Thanh toán 100% phí dịch vụ SAU khi hoàn tất và đánh giá đội cứu hộ
+- **Flow position:** Sau khi rescuer hoàn tất xử lý (từ Screen 8 state "Completed")
+- **Priority:** ⭐⭐⭐
+- **Payment model:** 100% payment AFTER service (không deposit) - Emergency medical model
+
+#### Key Components:
+1. **Header:**
+   - Back button
+   - Title: "Hoàn tất dịch vụ cấp cứu"
+   - Status badge: "Đã xử lý xong" (green)
+
+2. **Success Banner:**
+   - Light green background (#D4EDDA)
+   - Checkmark icon
+   - Text: "✅ Đội cứu hộ đã hoàn tất xử lý rắn"
+   - Subtext: "Cảm ơn bạn đã sử dụng SnakeAid trong tình huống khẩn cấp"
+
+3. **Rescuer Summary Card:**
+   - Small avatar + name
+   - Service time: "Đã xử lý trong 25 phút"
+   - Service type: "Dịch vụ SOS khẩn cấp"
+
+4. **Service Fee Breakdown:**
+   - Title: "Chi tiết thanh toán"
+   - White card with pricing:
+     - "Phí cứu hộ khẩn cấp SOS": 500,000 VNĐ
+     - "Phí nền tảng (10%)": 50,000 VNĐ
+     - "Quỹ bảo hiểm (5%)": 25,000 VNĐ
+     - Divider line
+     - "Tổng cộng": 575,000 VNĐ (bold, large)
+   - Info note: "💡 Phí khẩn cấp SOS được thanh toán SAU để bạn tập trung vào sơ cứu"
+
+5. **Payment Method Selection:**
+   - Title: "Chọn phương thức thanh toán"
+   - 4 payment cards horizontal (Momo selected, VNPay, ZaloPay, Card)
+   - Can use saved payment method
+   - "Sử dụng phương thức đã lưu" checkbox if available
+
+6. **Rating Section:**
+   - Title: "Đánh giá đội cứu hộ"
+   - Rescuer name: "Nguyễn Văn A"
+   - 5 stars (tappable, large)
+   - Placeholder: "Chất lượng phục vụ của bạn như thế nào?"
+   - Quick tags (optional):
+     - "Nhanh chóng" "Chuyên nghiệp" "Thân thiện" "Hiệu quả"
+
+7. **Additional Comments:**
+   - Text area (optional): "Nhận xét thêm? (tùy chọn)"
+   - Placeholder: "Chia sẻ trải nghiệm của bạn..."
+   - Character limit: "0 / 200"
+
+8. **Action Buttons:**
+   - Large primary button (forest green): "Thanh toán 575,000 VNĐ & Gửi đánh giá"
+   - Secondary text link: "Báo cáo vấn đề / Khiếu nại"
+
+9. **Payment Security Badge:**
+   - Small footer: "🔒 Thanh toán an toàn & bảo mật"
+
+#### Stitch Prompt (English):
+
+```
+Mobile app payment and rating screen for completed emergency snake rescue service in "SnakeAid". Transaction interface with forest green (#228B22) theme.
+
+Top nav: Back arrow left, centered title "Hoàn tất dịch vụ cấp cứu", right shows green badge "Đã xử lý xong".
+
+Full-width success banner with light green background (#D4EDDA): Large green checkmark icon, bold text "✅ Đội cứu hộ đã hoàn tất xử lý rắn". Below, smaller gray text "Cảm ơn bạn đã sử dụng SnakeAid trong tình huống khẩn cấp".
+
+White card with rescuer summary:
+- Left: Small circular avatar (40px)
+- Right of avatar: Bold "Nguyễn Văn A"
+- Below: "Đã xử lý trong 25 phút" gray text
+- Badge: "Dịch vụ SOS khẩn cấp" amber badge
+
+Section titled "Chi tiết thanh toán" in bold. White card with fee breakdown:
+- Line 1: "Phí cứu hộ khẩn cấp SOS" left, "500,000 VNĐ" right (dark gray)
+- Line 2: "Phí nền tảng (10%)" left, "50,000 VNĐ" right (medium gray)
+- Line 3: "Quỹ bảo hiểm (5%)" left, "25,000 VNĐ" right (medium gray)
+- Thin divider line
+- Line 4: "Tổng cộng" bold left, "575,000 VNĐ" bold large right (forest green, 24pt)
+
+Light blue info box (#E7F3FF) with lightbulb icon: "💡 Phí khẩn cấp SOS được thanh toán SAU để bạn tập trung vào sơ cứu".
+
+Section "Chọn phương thức thanh toán". Four equal-width payment cards horizontal:
+- Momo (selected with forest green border and checkmark)
+- VNPay
+- ZaloPay  
+- Card icon
+Each card has logo placeholder and label.
+
+Section "Đánh giá đội cứu hộ". Shows "Nguyễn Văn A" in bold. Large 5-star rating display (empty stars, tappable, yellow when selected, 40px each). Below stars, gray placeholder text "Chất lượng phục vụ của bạn như thế nào?".
+
+Horizontal row of 4 small rounded tag buttons (light gray background, forest green border when selected):
+"Nhanh chóng" "Chuyên nghiệp" "Thân thiện" "Hiệu quả"
+
+Text area input with light gray border, rounded corners. Label "Nhận xét thêm? (tùy chọn)". Placeholder inside "Chia sẻ trải nghiệm của bạn...". Bottom-right shows character counter "0 / 200" in small gray text.
+
+Large solid forest green button at bottom "Thanh toán 575,000 VNĐ & Gửi đánh giá" (60px height, full width).
+
+Below button, centered gray text link "Báo cáo vấn đề / Khiếu nại".
+
+Very bottom footer: Small gray text with lock icon "🔒 Thanh toán an toàn & bảo mật" centered.
+
+Style: Payment and rating combined interface, post-service transaction, clear fee breakdown, rating integrated with payment, emergency service completion design.
+```
+
+#### Notes for Stitch:
+- Success banner phải tạo cảm giác tích cực
+- Fee breakdown phải rất clear với total amount prominent
+- Star rating phải large và easy to tap (min 40px each)
+- Info note giải thích tại sao thanh toán SAU
+- Primary button combines payment + rating action
+- Security badge builds trust
+
+---
+
+### Screen 11: Payment Success & Thank You Screen
+
+#### Thông tin màn hình:
+- **Tên:** Màn hình thanh toán thành công và cảm ơn
+- **Mục đích:** Xác nhận payment success, show receipt, và next steps
+- **Flow position:** Sau Screen 10 khi payment processed successfully
+- **Priority:** ⭐⭐
+- **Final step:** Kết thúc emergency flow
+
+#### Key Components:
+1. **Header:**
+   - Close button (X) - exits to homepage
+   - Title: "Thanh toán thành công"
+
+2. **Success Animation/Icon:**
+   - Large green checkmark (animated if possible)
+   - Or success icon with celebration particles
+
+3. **Success Message:**
+   - Large text: "Cảm ơn bạn! 🙏"
+   - Subtitle: "Thanh toán đã được xử lý thành công"
+   - Transaction ID: "#TXN-20231217-00123"
+   - Timestamp: "17/12/2025 - 14:35"
+
+4. **Payment Summary Card:**
+   - Amount paid: "575,000 VNĐ" (large, bold)
+   - Payment method: "Momo" with icon
+   - Status: "Đã thanh toán" (green badge)
+   - Receipt: "Hóa đơn đã gửi qua email"
+
+5. **Rating Confirmed:**
+   - Small card: "Đánh giá của bạn: ⭐⭐⭐⭐⭐"
+   - Text: "Cảm ơn phản hồi của bạn!"
+
+6. **Next Steps / Recommendations:**
+   - Title: "Khuyến nghị tiếp theo:"
+   - Card 1: "🏥 Theo dõi sức khỏe"
+     - Text: "Theo dõi các triệu chứng trong 24-48 giờ tới"
+     - Button: "Xem hướng dẫn →"
+   - Card 2: "📱 Lưu thông tin"
+     - Text: "Đã lưu thông tin vết cắn vào hồ sơ của bạn"
+     - Button: "Xem hồ sơ"
+
+7. **Action Buttons:**
+   - Primary button: "Xem lịch sử dịch vụ"
+   - Secondary button: "Tải hóa đơn" (PDF)
+   - Text link: "Liên hệ hỗ trợ"
+
+8. **Return to Home:**
+   - Large button: "Về trang chủ" (forest green outlined)
+
+#### Stitch Prompt (English):
+
+```
+Mobile app payment success confirmation screen for snake rescue app "SnakeAid". Success state interface with celebration design.
+
+Top nav: X close button on right, centered title "Thanh toán thành công".
+
+Center top shows large animated green checkmark icon (80px) in green circle (#28A745) with light green background glow.
+
+Large bold text below checkmark "Cảm ơn bạn! 🙏" (28pt). Below that, medium gray text "Thanh toán đã được xử lý thành công".
+
+Two lines of small gray text:
+- "Mã giao dịch: #TXN-20231217-00123"
+- "Thời gian: 17/12/2025 - 14:35"
+
+White card with subtle shadow labeled "Tóm tắt thanh toán":
+- Large bold forest green amount "575,000 VNĐ" (32pt)
+- Below: Row showing "Momo" text with Momo logo icon (24px)
+- Small green badge "Đã thanh toán" with checkmark
+- Gray text "Hóa đơn đã gửi qua email" with email icon
+
+Small card below with light yellow background (#FFFACD):
+"Đánh giá của bạn: ⭐⭐⭐⭐⭐" followed by "Cảm ơn phản hồi của bạn!" in gray.
+
+Section titled "Khuyến nghị tiếp theo:" in bold.
+
+Two white cards stacked vertically:
+
+CARD 1: 
+- Left: Hospital emoji icon 🏥
+- Center: Bold "Theo dõi sức khỏe", below: gray text "Theo dõi các triệu chứng trong 24-48 giờ tới"
+- Right: Small forest green text link "Xem hướng dẫn →"
+
+CARD 2:
+- Left: Phone emoji icon 📱  
+- Center: Bold "Lưu thông tin", below: gray text "Đã lưu thông tin vết cắn vào hồ sơ của bạn"
+- Right: Small forest green text link "Xem hồ sơ"
+
+Below cards, two buttons stacked:
+- Forest green outlined button "Xem lịch sử dịch vụ" (50px height)
+- Gray outlined button "Tải hóa đơn" with download icon (50px height)
+Small centered gray text link "Liên hệ hỗ trợ"
+
+Large primary solid forest green button at bottom "Về trang chủ" (60px height, full width).
+
+Style: Success confirmation design, celebration aesthetic, clear transaction details, helpful next steps, positive completion experience.
+```
+
+#### Notes for Stitch:
+- Success animation/checkmark phải tạo feeling tích cực
+- Transaction ID và timestamp important cho tracking
+- Receipt confirmation gives reassurance
+- Next steps provide value-added guidance
+- "Return home" button clear exit point
+- Overall tone: Celebratory but professional
 
 ---
 
@@ -1548,16 +1798,18 @@ Style: Map-based finder interface, clear geographic context, practical travel in
      │                         │            │     Protocol    │      Universal
      │                         │            └─────┬───────────┘      guidelines
      │                         │                  │
-     │ AI processing...        │                  │ (Skip to Hospital)
-     ▼                         ▼                  ▼
-┌─────────────────┐      ┌─────────────────┐   Screen 9
-│ 5. AI Snake     │      │ 3. First Aid    │   (or Screen 8)
-│    Identification│◄─────│    Guide        │
-└────────┬────────┘      │ (Species-       │
-         │                │  Specific)      │
-         │                └────────┬────────┘
-         │ "Xem hướng dẫn"         │
-         └─────────────────────────┘
+     │ AI processing...        │                  │ "Tiếp tục báo cáo triệu chứng"
+     ▼                         ▼                  │
+┌─────────────────┐      ┌─────────────────┐    │
+│ 5. AI Snake     │      │ 3. First Aid    │    │
+│    Identification│◄─────│    Guide        │    │
+└────────┬────────┘      │ (Species-       │    │
+         │                │  Specific)      │    │
+         │                └────────┬────────┘    │
+         │ "Xem hướng dẫn"         │             │
+         └─────────────────────────┴─────────────┘
+                  │
+                  │ All paths merge here
                   │
                   │ Can loop through Steps 1-4
                   │ Then taps "Tiếp tục"
@@ -1607,11 +1859,13 @@ NOTE: Screen 8 (SOS) và Screen 9 (Hospital Finder)
 - 4 visual questions narrow down possibilities
 - Takes 1-2 minutes longer
 
-**Path 4: Generic Protocol (4 → 4.1 → 4.2 → 4.4 → 9)** 🚨 2% users
+**Path 4: Generic Protocol (4 → 4.1 → 4.2 → 4.4 → 6 → 7 → 8)** 🚨 2% users
 - Cannot identify species at all
 - Use universal safe first aid guidelines
-- MUST go to hospital for proper diagnosis
-- Better than wrong identification
+- **VẪN TIẾP TỤC thu thập triệu chứng** (Screen 6)
+- Assessment dựa trên symptoms only (Screen 7)
+- SOS với full symptom info cho đội cứu hộ (Screen 8)
+- Better generic + full symptoms than wrong species
 ```
 
 ### 🎯 Key Flow Logic:
@@ -1689,8 +1943,21 @@ User bị cắn → Screen 4 → "Không có ảnh"
               • Giữ ngang tim (safe cho cả 2 loại)
               • KHÔNG cắt/hút/băng garo
               • ĐẾN BỆNH VIỆN NGAY
-           → Screen 9 (Hospital finder)
-           → Screen 8 (SOS - báo "unknown species")
+           → "Tiếp tục báo cáo triệu chứng"
+           → Screen 6 (Symptom Input - VẪN CẦN!)
+              • Đau mức độ?
+              • Sưng bao nhiêu?
+              • Khó thở không?
+              • Tê bì?
+           → Screen 7 (Assessment):
+              • Species: UNKNOWN
+              • Symptoms: Severe pain + difficulty breathing
+              • → Severity: CRITICAL
+           → Screen 8 (SOS với full info):
+              • "Unknown species"
+              • "Severe symptoms: pain 8/10, breathing difficulty"
+              • "Generic first aid applied"
+              • Đội cứu hộ biết cần chuẩ���ị gì!
 ```
 
 **Medical Safety Logic:**

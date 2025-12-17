@@ -213,10 +213,10 @@ Design: Card-based medical app interface, clear visual hierarchy, color-coded da
 
 #### Thông tin màn hình:
 - **Tên:** Màn hình xác nhận yêu cầu cứu hộ và thanh toán đặt cọc
-- **Mục đích:** Hiển thị phí dịch vụ, thanh toán đặt cọc 30% và xác nhận yêu cầu
+- **Mục đích:** Hiển thị phí dịch vụ, thanh toán đặt cọc 150,000 VNĐ (fixed) và xác nhận yêu cầu
 - **Flow position:** Sau khi chọn "Request Rescue Team"
 - **Priority:** ⭐⭐⭐
-- **Related:** Payment Flow 1 - Deposit mechanism (30% upfront, 70% after completion)
+- **Related:** Payment Flow 1 - Deposit mechanism (150K fixed deposit, deducted from total)
 
 #### Key Components:
 1. **Header:**
@@ -239,12 +239,17 @@ Design: Card-based medical app interface, clear visual hierarchy, color-coded da
    - Small note: "Final fee may vary based on distance and complexity"
 
 4. **Deposit Payment Section:**
-   - Title: "Deposit Payment (30%)"
+   - Title: "Service Commitment Fee (Hold)"
    - Info box (light blue):
-     - "You pay 30% deposit now to confirm booking"
-     - "Remaining 70% due after service completion"
-   - Deposit amount (bold, large): "172,500 VNĐ" (30% of 575K)
-   - Balance due later: "402,500 VNĐ" (70%)
+     - "Fixed deposit: 150,000 VNĐ to confirm booking"
+     - "⚠️ This deposit will be DEDUCTED from total fee"
+   - Breakdown (all amounts dynamic/configurable):
+     - "Cam kết yêu cầu": "25,000 VNĐ"
+     - "Điều phối người hỗ trợ": "30,000 VNĐ"
+     - "Di chuyển tối thiểu": "95,000 VNĐ" (or ₫/km × distance)
+     - Divider line
+     - "Tổng cọc": "150,000 VNĐ" (bold, large, forest green)
+   - Note below: "👉 Sẽ được trừ vào tổng chi phí" (amber text)
 
 5. **Payment Method Selection:**
    - Title: "Select Payment Method"
@@ -268,8 +273,8 @@ Design: Card-based medical app interface, clear visual hierarchy, color-coded da
      - "Deposit is refundable if no rescuer available"
 
 8. **Action Buttons:**
-   - Large primary button (forest green): "Pay Deposit (172,500 VNĐ) & Confirm"
-   - Secondary text link: "Cancel and go back"
+   - Large primary button (forest green): "Thanh toán cọc 150,000 VNĐ & Xác nhận"
+   - Secondary text link: "Hủy và quay lại"
 
 #### Stitch Prompt (English):
 
@@ -288,13 +293,17 @@ Below service card, section titled "Chi Phí Dịch Vụ" in dark gray bold. Whi
 - Line 4: "Tổng Cộng" bold dark gray left, "575,000 VNĐ" bold large dark gray right
 Below card, small gray italic text "Chi phí cuối cùng có thể thay đổi tùy khoảng cách và độ phức tạp".
 
-Next section titled "Thanh Toán Đặt Cọc (30%)" in dark gray bold. Light blue info box (#E7F3FF background) with 2 lines:
-• Thanh toán 30% đặt cọc ngay để xác nhận
-• Thanh toán 70% còn lại sau khi hoàn tất
+Next section titled "Phí Cam Kết Dịch Vụ (Tạm Giữ)" in dark gray bold. Light blue info box (#E7F3FF background) with 2 lines:
+• Đặt cọc cố định: 150,000 VNĐ để xác nhận
+• ⚠️ Cọc này sẽ được TRỪ vào tổng chi phí
 
-White card showing:
-- "Đặt cọc (30%)" left, "172,500 VNĐ" bold large forest green right
-- "Còn lại sau" left, "402,500 VNĐ" gray right
+White card with deposit breakdown:
+- Line 1: "Cam kết yêu cầu" left, "25,000 VNĐ" right (dark gray)
+- Line 2: "Điều phối người hỗ trợ" left, "30,000 VNĐ" right (dark gray)
+- Line 3: "Di chuyển tối thiểu" left, "95,000 VNĐ" right (dark gray)
+- Thin gray divider line
+- Line 4: "Tổng Cọc" bold left, "150,000 VNĐ" bold large forest green right (24pt)
+Below card, amber text "👉 Sẽ được trừ vào tổng chi phí" (#FFC107).
 
 Next section titled "Chọn Phương Thức Thanh Toán". Four horizontally arranged payment option cards (equal width, white background, forest green border when selected):
 - Card 1: "Momo" with Momo logo placeholder (selected with forest green border)
@@ -305,7 +314,7 @@ Next section titled "Chọn Phương Thức Thanh Toán". Four horizontally arra
 Next section titled "Điều Gì Sẽ Xảy Ra Tiếp Theo" with 3 numbered steps. Each step has circular number badge (1, 2, 3) in forest green:
 1. Thanh toán đặt cọc & tìm đội cứu hộ (2-5 phút)
 2. Đội cứu hộ đến và xử lý rắn
-3. Thanh toán 70% còn lại sau khi hoàn tất
+3. Thanh toán số tiền còn lại (Tổng phí - Cọc 150K)
 
 Yellow info box (#FFF3CD background, #FFC107 left border) titled "Lưu ý Quan Trọng" with 4 bullet points:
 • Giữ an toàn, giữ khoảng cách với rắn
@@ -313,7 +322,7 @@ Yellow info box (#FFF3CD background, #FFC107 left border) titled "Lưu ý Quan T
 • Bạn có thể theo dõi vị trí đội cứu hộ trên bản đồ
 • Đặt cọc được hoàn lại nếu không tìm thấy đội cứu hộ
 
-Bottom section: Large solid forest green button "Thanh Toán Đặt Cọc (172,500 VNĐ) & Xác Nhận" spanning full width. Below button, centered gray text link "Hủy và quay lại".
+Bottom section: Large solid forest green button "Thanh Toán Cọc 150,000 VNĐ & Xác Nhận" spanning full width. Below button, centered gray text link "Hủy và quay lại".
 
 Design: Transaction confirmation style with integrated payment, clear deposit amount, reassuring information, mobile payment optimization.
 ```
@@ -630,10 +639,10 @@ Design: In-progress status interface, reassuring messaging, clear safety instruc
 
 #### Thông tin màn hình:
 - **Tên:** Màn hình thanh toán số dư và đánh giá
-- **Mục đích:** Thanh toán 70% còn lại và đánh giá rescuer sau khi hoàn thành
+- **Mục đích:** Thanh toán số tiền còn lại (Tổng - Cọc 150K) và đánh giá rescuer sau khi hoàn thành
 - **Flow position:** Giai đoạn 2.4 - Sau khi rescue hoàn tất
 - **Priority:** ⭐⭐⭐
-- **Related:** Payment Flow 1 - Balance payment (70% after completion)
+- **Related:** Payment Flow 1 - Balance payment (Total fee - 150K deposit)
 
 #### Key Components:
 1. **Header:**
@@ -655,15 +664,16 @@ Design: In-progress status interface, reassuring messaging, clear safety instruc
    - Photos (if uploaded by rescuer): thumbnails of captured snake
 
 4. **Balance Payment Section:**
-   - Title: "Balance Payment (70%)"
+   - Title: "Số Dư Còn Lại"
    - Info box (light blue):
-     - "You paid 172,500 VNĐ deposit earlier"
-     - "Complete payment for remaining balance"
+     - "Bạn đã thanh toán 150,000 VNĐ đặt cọc trước đó"
+     - "Hoàn tất thanh toán số dư còn lại"
    - Breakdown:
-     - Total service fee: "575,000 VNĐ"
-     - Deposit paid: "-172,500 VNĐ" (green, with checkmark)
+     - Total service fee: "575,000 VNĐ" (or actual calculated fee)
+     - Deposit paid: "-150,000 VNĐ" (green, with checkmark)
      - Divider line
-     - Balance due: "402,500 VNĐ" (bold, large, forest green)
+     - Balance due: "425,000 VNĐ" (bold, large, forest green)
+   - Note: Final balance = Total fee - 150K deposit
 
 5. **Payment Method Selection:**
    - Title: "Select Payment Method"
@@ -681,8 +691,8 @@ Design: In-progress status interface, reassuring messaging, clear safety instruc
    - Character count: "0/200"
 
 7. **Action Buttons:**
-   - Large primary button: "Pay Balance (402,500 VNĐ) & Submit Rating"
-   - Secondary text link: "Dispute / Report Issue"
+   - Large primary button: "Thanh Toán Số Dư (425,000 VNĐ) & Gửi Đánh Giá"
+   - Secondary text link: "Khiếu nại / Báo cáo sự cố"
 
 #### Stitch Prompt (English):
 
@@ -700,15 +710,15 @@ Main white card showing service summary. Top shows small circular avatar (50px) 
 
 Horizontal row of 2 small thumbnail images (square, rounded corners) labeled "Ảnh từ ca cứu hộ".
 
-Next section titled "Thanh Toán Số Dư (70%)" in dark gray bold. Light blue info box (#E7F3FF) with 2 lines:
-• Bạn đã thanh toán 172,500 VNĐ đặt cọc trước đó
+Next section titled "Thanh Toán Số Dư Còn Lại" in dark gray bold. Light blue info box (#E7F3FF) with 2 lines:
+• Bạn đã thanh toán 150,000 VNĐ đặt cọc trước đó
 • Hoàn tất thanh toán số dư còn lại
 
 White card with payment breakdown:
 - "Tổng chi phí dịch vụ" left aligned, "575,000 VNĐ" right aligned (dark gray)
-- "Đặt cọc đã thanh toán" left aligned, "-172,500 VNĐ" right aligned (green with checkmark icon)
+- "Đặt cọc đã thanh toán" left aligned, "-150,000 VNĐ" right aligned (green with checkmark icon)
 - Thin gray divider line
-- "Số Dư Còn Lại" bold left, "402,500 VNĐ" bold large right (forest green color, 24pt)
+- "Số Dư Còn Lại" bold left, "425,000 VNĐ" bold large right (forest green color, 24pt)
 
 Next section titled "Chọn Phương Thức Thanh Toán". Small gray text "Dùng lại phương thức cũ hoặc chọn mới". Four horizontally arranged payment option cards (equal width, white background, forest green border when selected):
 - Card 1: "Momo" with Momo logo placeholder and small purple badge "Đã dùng cho đặt cọc" (selected with forest green border)
@@ -720,7 +730,7 @@ Below payment, section titled "Đánh Giá Trải Nghiệm". Row of 5 large star
 
 Below stars, multiline text input field with placeholder "Viết nhận xét (tùy chọn)" and character counter "0/200" in bottom-right.
 
-Bottom section: Large solid forest green button "Thanh Toán Số Dư (402,500 VNĐ) & Gửi Đánh Giá" spanning full width. Below button, centered gray text link "Khiếu nại / Báo cáo sự cố".
+Bottom section: Large solid forest green button "Thanh Toán Số Dư (425,000 VNĐ) & Gửi Đánh Giá" spanning full width. Below button, centered gray text link "Khiếu nại / Báo cáo sự cố".
 
 Design: Balance payment completion flow, clear deposit reference, remaining amount prominent, integrated rating system, mobile payment optimization.
 ```

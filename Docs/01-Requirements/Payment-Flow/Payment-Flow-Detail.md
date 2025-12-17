@@ -34,8 +34,8 @@ Hệ thống SnakeAid có **4 luồng thanh toán chính**:
 │          │                  │          │                  │          │
 └────┬─────┘                  └────┬─────┘                  └────┬─────┘
      │                             │                             │
-     │ 2. CỌC TRƯỚC 30%            │                             │
-     │    (150,000 VNĐ)            │                             │
+     │ 2. CỌC TRƯỚC (FIXED)       │                             │
+     │    150,000 VNĐ              │                             │
      ├────────────────────────────>│                             │
      │                             │ → Vào ESCROW                │
      │                             │                             │
@@ -49,44 +49,57 @@ Hệ thống SnakeAid có **4 luồng thanh toán chính**:
      │ 5. Rescuer hoàn thành       │                             │
      │    cứu hộ                   │<────────────────────────────┤
      │                             │                             │
-     │ 6. Patient TRẢ THÊM 70%     │                             │
-     │    (350,000 VNĐ)            │                             │
+     │ 6. Patient TRẢ SỐ DƯ        │                             │
+     │    (Tổng - 150K)            │                             │
+     │    Ví dụ: 425,000 VNĐ        │                             │
      ├────────────────────────────>│                             │
      │                             │                             │
      │                             │ 7. Platform tính tổng:      │
-     │                             │    150K + 350K = 500K       │
+     │                             │    150K + 425K = 575K       │
      │                             │    Phân chia:               │
-     │                             │    - 85% (425K) → Rescuer   │
-     │                             │    - 10% (50K) → Platform   │
-     │                             │    - 5% (25K) → Bảo hiểm   │
+     │                             │    - 85% (489K) → Rescuer   │
+     │                             │    - 10% (57.5K) → Platform │
+     │                             │    - 5% (28.5K) → Bảo hiểm  │
      │                             ├────────────────────────────>│
      │                             │                             │
      │ 8. Nhận hóa đơn             │                             │
      │<────────────────────────────┤                             │
      │                             │                             │
      │                             │ 9. Rescuer nhận thông báo   │
-     │                             │    "Đã nhận 425K"           │
+     │                             │    "Đã nhận 489K"           │
      │                             │<────────────────────────────┤
      │                             │                             │
 ```
 
-#### 1.2. Phân chia doanh thu chi tiết
+#### 1.2. Phân chia doanh thu chi tiết - RESCUE REQUEST
 
 **Ví dụ cụ thể:**
-- Phí cứu hộ rắn: **500,000 VNĐ**
+- Phí cứu hộ rắn: **500,000 VNĐ** (base fee)
+- Phí nền tảng (10%): **50,000 VNĐ**
+- Quỹ bảo hiểm (5%): **25,000 VNĐ**
+- **Tổng cộng: 575,000 VNĐ**
+
+**Cơ chế thanh toán:**
+- **Cọc trước (FIXED):** 150,000 VNĐ 
+  - Breakdown động (có thể thay đổi từng số nhưng tổng luôn = 150K):
+    - Cam kết yêu cầu: 25,000 VNĐ
+    - Điều phối người hỗ trợ: 30,000 VNĐ
+    - Di chuyển tối thiểu: 95,000 VNĐ (hoặc ₫/km × quãng đường)
+- **Số dư sau:** 425,000 VNĐ (= 575K - 150K)
+- **👉 Cọc sẽ được TRỪ vào tổng chi phí**
 
 | Bên nhận | Tỷ lệ | Số tiền | Mục đích |
 |----------|-------|---------|----------|
-| **Rescuer** | 85% | 425,000 VNĐ | Thu nhập từ dịch vụ cứu hộ |
-| **Platform (Admin)** | 10% | 50,000 VNĐ | Phí vận hành hệ thống, bảo trì server, marketing |
-| **Quỹ bảo hiểm** | 5% | 25,000 VNĐ | Bảo hiểm tai nạn cho Rescuer khi thực hiện nhiệm vụ |
-| **TỔNG** | 100% | 500,000 VNĐ | |
+| **Rescuer** | 85% | 489,000 VNĐ | Thu nhập từ dịch vụ cứu hộ |
+| **Platform (Admin)** | 10% | 57,500 VNĐ | Phí vận hành hệ thống, bảo trì server, marketing |
+| **Quỹ bảo hiểm** | 5% | 28,500 VNĐ | Bảo hiểm tai nạn cho Rescuer khi thực hiện nhiệm vụ |
+| **TỔNG** | 100% | 575,000 VNĐ | |
 
 **Ghi chú:**
-- Patient trả **tổng 100%** phí dịch vụ (500,000 VNĐ) qua cổng thanh toán
+- Patient trả **tổng 100%** phí dịch vụ (575,000 VNĐ) qua cổng thanh toán
 - Thanh toán **chia 2 lần:**
-  - **Lần 1 (30%):** Cọc trước 150,000 VNĐ khi yêu cầu cứu hộ
-  - **Lần 2 (70%):** Trả sau 350,000 VNĐ khi Rescuer hoàn thành
+  - **Lần 1 (Cọc FIXED):** 150,000 VNĐ khi yêu cầu cứu hộ (cố định, không phụ thuộc %)
+  - **Lần 2 (Số dư):** 425,000 VNĐ khi Rescuer hoàn thành (Tổng - Cọc)
 - Phí cứu hộ có thể thay đổi tùy theo:
   - Loài rắn (rắn độc cao hơn)
   - Khu vực (xa trung tâm cao hơn)
@@ -101,36 +114,36 @@ Patient có thể thanh toán qua:
 - **Chuyển khoản ngân hàng:** Internet Banking
 - **Tiền mặt:** (Trong một số trường hợp đặc biệt, thanh toán trực tiếp cho Rescuer - Platform vẫn ghi nhận giao dịch)
 
-#### 1.4. Thời điểm thanh toán (CƠ CHẾ CỌC 30%)
+#### 1.4. Thời điểm thanh toán - RESCUE REQUEST (CƠ CHẾ CỌC FIXED 150K)
 
 ```
-Timeline với Tiền Cọc:
+Timeline với Tiền Cọc Fixed:
 ┌────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│ T0: Yêu    │────>│ T1: CỌC 30%  │────>│ T2: Rescuer  │────>│ T3: Hoàn     │────>│ T4: TRẢ 70%  │
-│ cầu cứu hộ │     │ (150,000 VNĐ)│     │ chấp nhận    │     │ thành cứu hộ │     │ (350,000 VNĐ)│
+│ T0: Yêu    │────>│ T1: CỌC FIXED│────>│ T2: Rescuer  │────>│ T3: Hoàn     │────>│ T4: TRẢ SỐ DƯ│
+│ cầu cứu hộ │     │ 150,000 VNĐ  │     │ chấp nhận    │     │ thành cứu hộ │     │ (Tổng - 150K)│
 └────────────┘     └──────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
                            │                                                                │
                            ▼                                                                ▼
                    Tiền vào ESCROW                                                Rescuer nhận tiền
                    (giữ tạm thời)                                                 (trong 5-10 phút)
-                   Chưa ai nhận được                                              Tổng: 500K (100%)
+                   Chưa ai nhận được                                              Tổng: 575K (100%)
 ```
 
 **Lưu ý quan trọng:**
-- ✅ Patient phải **CỌC TRƯỚC 30%** (150,000 VNĐ) để Rescuer chấp nhận
+- ✅ Patient phải **CỌC TRƯỚC 150,000 VNĐ** (fixed amount) để Rescuer chấp nhận
 - ✅ Tiền cọc được giữ trong **ESCROW** (tài khoản tạm giữ) - chưa ai nhận
-- ✅ Patient trả thêm **70%** (350,000 VNĐ) sau khi hoàn thành
-- ✅ Rescuer nhận **tổng 85%** (425,000 VNĐ) trong 5-10 phút sau khi Patient xác nhận
+- ✅ Patient trả thêm **Số dư còn lại** (Tổng phí - 150K) sau khi hoàn thành
+- ✅ Rescuer nhận **tổng 85%** (489,000 VNĐ) trong 5-10 phút sau khi Patient xác nhận
 - ⚠️ Nếu Patient **hủy sau khi Rescuer chấp nhận** → Mất tiền cọc (150K)
 - ⚠️ Nếu Patient **hủy trước khi Rescuer chấp nhận** → Hoàn tiền cọc 100%
-- ⚠️ Nếu Patient **không thanh toán 70% trong 24h** → Hệ thống nhắc nhở
-- ⚠️ Nếu Patient **không thanh toán 70% trong 72h** → Khóa tài khoản
+- ⚠️ Nếu Patient **không thanh toán số dư trong 24h** → Hệ thống nhắc nhở
+- ⚠️ Nếu Patient **không thanh toán số dư trong 72h** → Khóa tài khoản
 
-#### ⚠️ RỦI RO & GIẢI PHÁP TIỀN CỌC
+#### ⚠️ RỦI RO & GIẢI PHÁP TIỀN CỌC (CHỈ ÁP DỤNG CHO RESCUE REQUEST)
 
 **Vấn đề phát hiện:**
 
-Nếu thanh toán **SAU** khi hoàn thành, hệ thống gặp các rủi ro sau:
+Nếu thanh toán **SAU** khi hoàn thành (cho dịch vụ gọi bắt rắn), hệ thống gặp các rủi ro sau:
 
 1. **Patient cung cấp địa chỉ ảo:**
    - Rescuer đến nơi → Không có người, không có rắn
@@ -151,29 +164,110 @@ Nếu thanh toán **SAU** khi hoàn thành, hệ thống gặp các rủi ro sau
    - Tạo tài khoản mới → Gọi cứu hộ → Không trả tiền → Xóa app
    - Tạo tài khoản mới → Lặp lại
 
-**GIẢI PHÁP: Cơ chế TIỀN CỌC (Deposit/Escrow)**
+**GIẢI PHÁP: Cơ chế TIỀN CỌC FIXED 150K (cho Rescue Request)**
 
-Để bảo vệ cả Patient và Rescuer, hệ thống áp dụng cơ chế tiền cọc như sau:
+Để bảo vệ cả Patient và Rescuer, hệ thống áp dụng cơ chế tiền cọc cố định 150K.
+
+**⚠️ LƯU Ý:** Emergency SOS (bị rắn cắn) KHÔNG áp dụng cọc vì ưu tiên y tế khẩn cấp.
 
 ---
 
-### 🔒 CƠ CHẾ TIỀN CỌC CHI TIẾT
+#### 1.5. Emergency SOS Payment Flow (Thanh toán SAU 100%)
 
-#### Phương án được đề xuất: **CỌC 30% TRƯỚC + 70% SAU**
+**Kịch bản:** Patient BỊ RẮN CẮN → Gọi SOS khẩn cấp → Hướng dẫn sơ cứu AI → Rescuer đến xử lý → Thanh toán SAU 100%
 
-**Quy trình thanh toán có tiền cọc:**
+**Quy trình thanh toán Emergency:**
+
+```
+┌──────────┐                  ┌──────────┐                  ┌──────────┐
+│          │   1. SOS Alert   │          │                  │          │
+│ PATIENT  │─────────────────>│ PLATFORM │                  │ RESCUER  │
+│ (bị cắn) │                  │          │                  │          │
+└────┬─────┘                  └────┬─────┘                  └────┬─────┘
+     │                             │                             │
+     │ ❌ KHÔNG CỌC TRƯỚC          │                             │
+     │ (Ưu tiên sơ cứu trước)      │                             │
+     │                             │                             │
+     │                             │ 2. Gửi yêu cầu khẩn cấp     │
+     │                             ├────────────────────────────>│
+     │                             │                             │
+     │                             │ 3. Rescuer chấp nhận        │
+     │                             │<────────────────────────────┤
+     │                             │                             │
+     │ 4. Rescuer đến & xử lý      │                             │
+     │    (Patient đang sơ cứu)    │<────────────────────────────┤
+     │                             │                             │
+     │ 5. Hoàn thành cứu hộ        │                             │
+     │                             │<────────────────────────────┤
+     │                             │                             │
+     │ 6. THANH TOÁN SAU 100%      │                             │
+     │    575,000 VNĐ              │                             │
+     ├────────────────────────────>│                             │
+     │                             │                             │
+     │                             │ 7. Phân chia:               │
+     │                             │    - 85% (489K) → Rescuer   │
+     │                             │    - 10% (57.5K) → Platform │
+     │                             │    - 5% (28.5K) → Bảo hiểm │
+     │                             ├────────────────────────────>│
+     │                             │                             │
+     │ 8. Nhận hóa đơn             │                             │
+     │<────────────────────────────┤                             │
+     │                             │                             │
+```
+
+**Phân chia doanh thu Emergency SOS:**
+
+| Bên nhận | Tỷ lệ | Số tiền | Mục đích |
+|----------|-------|---------|----------|
+| **Rescuer** | 85% | 489,000 VNĐ | Thu nhập từ dịch vụ khẩn cấp |
+| **Platform (Admin)** | 10% | 57,500 VNĐ | Phí vận hành hệ thống |
+| **Quỹ bảo hiểm** | 5% | 28,500 VNĐ | Bảo hiểm tai nạn |
+| **TỔNG** | 100% | 575,000 VNĐ | |
+
+**Đặc điểm Emergency SOS:**
+- ✅ **KHÔNG cọc trước** - ưu tiên cứu người trước
+- ✅ **Thanh toán SAU 100%** - sau khi rescuer hoàn tất
+- ✅ Patient nhận hướng dẫn sơ cứu AI ngay lập tức
+- ✅ Rescuer vẫn được đảm bảo payment vì:
+  - Có verification: Ảnh vết cắn, GPS location, timestamp
+  - Tied với rating system (không trả = rating 0 + khóa tài khoản)
+  - Emergency case = user ít có ý định gian lận hơn
+- ⚠️ Nếu Patient không thanh toán trong 48h → Khóa tài khoản vĩnh viễn
+
+**So sánh 2 payment models:**
+
+| Tiêu chí | Rescue Request | Emergency SOS |
+|----------|----------------|---------------|
+| **Tình huống** | Gọi bắt rắn | Bị rắn cắn |
+| **Cọc trước** | ✅ 150,000 VNĐ (fixed) | ❌ Không cọc |
+| **Thanh toán** | Cọc + Số dư | 100% sau |
+| **Lý do** | Chống ghost user | Y tế khẩn cấp |
+| **Tổng phí** | 575,000 VNĐ | 575,000 VNĐ |
+| **Rescuer nhận** | 489,000 VNĐ (85%) | 489,000 VNĐ (85%) |
+
+---
+
+### 🔒 CƠ CHẾ TIỀN CỌC CHI TIẾT (RESCUE REQUEST)
+
+#### Phương án được chọn: **CỌC FIXED 150,000 VNĐ + SỐ DƯ SAU**
+
+**Quy trình thanh toán có tiền cọc (Rescue Request):**
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│              QUY TRÌNH THANH TOÁN CÓ TIỀN CỌC                       │
+│         QUY TRÌNH THANH TOÁN CÓ TIỀN CỌC (RESCUE REQUEST)          │
 └─────────────────────────────────────────────────────────────────────┘
 
-[T0] Patient yêu cầu cứu hộ rắn
-     - Ước tính phí: 500,000 VNĐ
+[T0] Patient yêu cầu cứu hộ rắn (không bị cắn)
+     - Ước tính phí: 575,000 VNĐ
      ↓
-[T1] Hệ thống yêu cầu CỌC TRƯỚC 30%
-     - Patient phải thanh toán: 150,000 VNĐ (30%)
+[T1] Hệ thống yêu cầu CỌC TRƯỚC FIXED 150K
+     - Patient phải thanh toán: 150,000 VNĐ
      - Tiền vào tài khoản ESCROW (giữ tạm thời)
+     - Breakdown động nhưng tổng luôn = 150K:
+       • Cam kết yêu cầu: 25,000 VNĐ
+       • Điều phối người hỗ trợ: 30,000 VNĐ
+       • Di chuyển tối thiểu: 95,000 VNĐ
      ↓
 [T2] SAU KHI THANH TOÁN CỌC → Gửi yêu cầu cho Rescuer
      - Rescuer thấy: "Patient đã cọc 150K" ✓
@@ -187,28 +281,28 @@ Nếu thanh toán **SAU** khi hoàn thành, hệ thống gặp các rủi ro sau
      - Chụp ảnh rắn đã bắt
      - Đánh dấu "Hoàn thành"
      ↓
-[T5] Patient thanh toán phần còn lại 70%
-     - Thanh toán: 350,000 VNĐ (70%)
+[T5] Patient thanh toán SỐ DƯ còn lại
+     - Thanh toán: 425,000 VNĐ (= 575K - 150K)
      ↓
 [T6] Hệ thống giải ngân:
-     ├─ 425,000 VNĐ (85%) → Rescuer
-     ├─  50,000 VNĐ (10%) → Platform
-     └─  25,000 VNĐ (5%)  → Quỹ bảo hiểm
+     ├─ 489,000 VNĐ (85%) → Rescuer
+     ├─  57,500 VNĐ (10%) → Platform
+     └─  28,500 VNĐ (5%)  → Quỹ bảo hiểm
 ```
 
 **Bảng so sánh các phương án tiền cọc:**
 
 | Phương án | Cọc trước | Trả sau | Ưu điểm | Nhược điểm | Khuyến nghị |
 |-----------|-----------|---------|---------|------------|-------------|
-| **PA0: Không cọc** | 0% | 100% | Patient thuận tiện | Rủi ro cao cho Rescuer | ❌ Không nên |
-| **PA1: Cọc 20%** | 20% (100K) | 80% (400K) | Patient dễ chấp nhận | Vẫn còn rủi ro | ⚠️ Chấp nhận được |
-| **PA2: Cọc 30%** | 30% (150K) | 70% (350K) | Cân bằng tốt | Hợp lý cho cả 2 bên | ✅ **KHUYẾN NGHỊ** |
-| **PA3: Cọc 50%** | 50% (250K) | 50% (250K) | Bảo vệ Rescuer tốt | Patient có thể do dự | ⚠️ Xem xét |
-| **PA4: Cọc 100%** | 100% (500K) | 0% | Không lo rủi ro | Patient phản đối | ❌ Khó chấp nhận |
+| **PA0: Không cọc** | 0 VNĐ | 575K | Patient thuận tiện | Rủi ro cao cho Rescuer | ❌ Không nên |
+| **PA1: Cọc 100K** | 100K | 475K | Patient dễ chấp nhận | Vẫn còn rủi ro | ⚠️ Chấp nhận được |
+| **PA2: Cọc 150K** | 150K | 425K | Cân bằng tốt | Hợp lý cho cả 2 bên | ✅ **KHUYẾN NGHỊ** |
+| **PA3: Cọc 200K** | 200K | 375K | Bảo vệ Rescuer tốt | Patient có thể do dự | ⚠️ Xem xét |
+| **PA4: Cọc 100%** | 575K | 0 VNĐ | Không lo rủi ro | Patient phản đối | ❌ Khó chấp nhận |
 
-**Phân tích chi tiết PA2 (CỌC 30% - ĐƯỢC CHỌN):**
+**Phân tích chi tiết PA2 (CỌC 150K FIXED - ĐƯỢC CHỌN):**
 
-✅ **Lý do chọn cọc 30%:**
+✅ **Lý do chọn cọc fixed 150K:**
 
 1. **Đủ để răn đe Patient giả mạo:**
    - 150K không phải số nhỏ → Patient suy nghĩ kỹ trước khi đặt
@@ -220,20 +314,20 @@ Nếu thanh toán **SAU** khi hoàn thành, hệ thống gặp các rủi ro sau
    - Đủ bù chi phí di chuyển + thời gian (khoảng 30-60 phút)
 
 3. **Tâm lý Patient:**
-   - 30% = 150K → chấp nhận được (như đặt cọc dịch vụ khác)
-   - Không quá nặng → không tạo rào cản
-   - Tương tự Grab, Uber, GoViet: cọc 20-30%
+   - 150K = số tiền cố định, dễ nhớ, dễ quyết định
+   - Không phụ thuộc % → không cần tính toán phức tạp
+   - Tương tự dịch vụ khác: Grab (cọc fixed), booking khách sạn
 
-4. **Tham khảo thị trường:**
-   - Grab/Uber: Ủy quyền thẻ (authorization hold) 100% nhưng chỉ trừ sau
-   - Dịch vụ sửa chữa: Cọc 30-50%
-   - Booking khách sạn: Cọc 20-30%
+4. **Flexibility trong breakdown:**
+   - Có thể điều chỉnh từng khoản phí (cam kết, điều phối, di chuyển)
+   - Nhưng tổng luôn = 150K → transparent với user
+   - Admin có thể optimize fee structure không ảnh hưởng UX
 
 **Các trường hợp sử dụng tiền cọc:**
 
-| Tình huống | Xử lý tiền cọc (150K) | Phần còn lại (350K) | Tổng Patient trả |
-|------------|----------------------|---------------------|------------------|
-| **Hoàn thành bình thường** | Giữ lại (tính vào tổng) | Trả thêm 350K | 500K (100%) |
+| Tình huống | Xử lý tiền cọc (150K) | Số dư (425K) | Tổng Patient trả |
+|------------|----------------------|--------------|------------------|
+| **Hoàn thành bình thường** | Giữ lại (tính vào tổng) | Trả thêm 425K | 575K (100%) |
 | **Patient hủy SAU khi Rescuer chấp nhận** | Rescuer nhận 100% (150K) | Không trả | 150K (mất cọc) |
 | **Patient hủy TRƯỚC khi Rescuer chấp nhận** | Hoàn 100% (150K) | Không trả | 0K (hoàn cọc) |
 | **Rescuer không đến** | Hoàn 100% (150K) | Không trả | 0K (hoàn cọc) |

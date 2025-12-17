@@ -63,7 +63,7 @@ SnakeAid platform có **4 roles chính**, mỗi role có application riêng:
 ├── UI-Design-Overview.md                          (THIS FILE)
 │
 ├── 🧑 PATIENT SCREENS/
-│   ├── Patient-Emergency-Flow-Screens.md          ✅ COMPLETE (13 screens - 9 main + 4 alternative)
+│   ├── Patient-Emergency-Flow-Screens.md          ✅ COMPLETE (15 screens - 9 main + 4 alternative + 2 payment)
 │   ├── Patient-Rescue-Request-Flow-Screens.md     ✅ COMPLETE (11 screens)
 │   ├── Patient-Expert-Consultation-Flow-Screens.md ✅ COMPLETE (8 screens)
 │   ├── Patient-Homepage-Enhanced.md               ✅ COMPLETE (1 screen)
@@ -96,21 +96,21 @@ SnakeAid platform có **4 roles chính**, mỗi role có application riêng:
 
 ## 📊 PROGRESS TRACKING
 
-**Overall Platform Progress:** 124/124 screens completed (100%) ✅ 🎉
+**Overall Platform Progress:** 126/126 screens completed (100%) ✅ 🎉
 
-🎊 **PLATFORM COMPLETE!** All 4 roles fully designed with 124 total screens! 🎊
+🎊 **PLATFORM COMPLETE!** All 4 roles fully designed with 126 total screens! 🎊
 
 ### 🧑 PATIENT Screens (Mobile)
 
 | Document | Status | Screens | Priority | Notes |
 |----------|--------|---------|----------|-------|
-| **Patient-Emergency-Flow-Screens.md** | ✅ Complete | 13 screens | ⭐⭐⭐ | Emergency snakebite handling + alternative flow (no photo) |
+| **Patient-Emergency-Flow-Screens.md** | ✅ Complete | 15 screens | ⭐⭐⭐ | Emergency snakebite + alternative flow + payment after |
 | **Patient-Rescue-Request-Flow-Screens.md** | ✅ Complete | 11 screens | ⭐⭐⭐ | Snake rescue request flow |
 | **Patient-Homepage-Enhanced.md** | ✅ Complete | 1 screen | ⭐⭐⭐ | Main dashboard |
 | **Patient-Expert-Consultation-Flow-Screens.md** | ✅ Complete | 8 screens | ⭐⭐ | Book & consult with experts |
 | **Patient-Profile-Settings-Screens.md** | ✅ Complete | 7 screens | ⭐⭐⭐ | Profile, settings, history |
 
-**Total Patient Screens:** 40/40 screens completed (100%) ✅
+**Total Patient Screens:** 42/42 screens completed (100%) ✅
 
 ---
 
