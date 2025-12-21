@@ -11,13 +11,22 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.deploy_url }}
+    env:
+      DEPLOY_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Deploy to GitHub Pages
+        id: deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: Docs
           force_orphan: true
+
+      - name: Show deployed link
+        run: echo "Docs available at $DEPLOY_URL"
