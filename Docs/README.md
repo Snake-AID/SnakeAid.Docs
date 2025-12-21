@@ -14,6 +14,14 @@ Then open the served URL (defaults to `http://localhost:3000`) in your browser.
 
 If you prefer a reusable install, run `npm install -g docsify-cli` once, then use `docsify serve Docs`.
 
+## What’s enabled
+
+- Theme: `docsify-themeable` (simple theme)
+- Navigation: sidebar, pagination
+- Search: built-in docsify search
+- Code UX: copy-code buttons
+- Diagrams: PlantUML (via Kroki) and Mermaid
+
 ## PlantUML diagrams
 
 PlantUML code blocks render automatically. Use triple backticks with the `plantuml` language hint:
@@ -22,6 +30,15 @@ PlantUML code blocks render automatically. Use triple backticks with the `plantu
 @startuml
 Alice -> Bob: Hello
 @enduml
+```
+
+## Mermaid diagrams
+
+Use `mermaid` code fences:
+
+```mermaid
+sequenceDiagram
+  Alice->>Bob: Hello Bob
 ```
 
 ## Key sections
