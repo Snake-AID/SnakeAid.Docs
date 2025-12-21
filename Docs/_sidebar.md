@@ -19,6 +19,8 @@
 
 - Architecture Design
   - [Context Diagram](02-Architecture-Design/Context-Diagram.md)
+  - SnakeERD
+    - [SnakeCatching](02-Architecture-Design/ERD/SnakeERD_SnakeCatching.md)
 
 - UI Design
   - [UI Design Overview](02-UI-Design/UI-Design-Overview.md)
