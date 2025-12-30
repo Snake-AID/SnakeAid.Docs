@@ -1,0 +1,165 @@
+// SnakeAid ERD (converted from MermaidJS) — minimal, generic columns + FK structure
+// Note: Because Mermaid nodes had no attributes, each table uses an `id` PK.
+// Some entities like MEDIA are modeled with nullable FKs (rather than true polymorphic).
+
+Table USER {
+  id uuid [pk]
+}
+
+Table PAYMENT_CARD {
+  id uuid [pk]
+  user_id uuid [not null, ref: > USER.id]
+}
+
+Table SNAKEAID_WALLET {
+  id uuid [pk]
+  user_id uuid [not null, ref: > USER.id]
+}
+
+Table PATIENT {
+  id uuid [pk]
+  user_id uuid [not null, unique, ref: > USER.id] // 1-1 account mapping
+}
+
+Table RESCUER {
+  id uuid [pk]
+  user_id uuid [not null, unique, ref: > USER.id] // 1-1 account mapping
+}
+
+Table EXPERT {
+  id uuid [pk]
+  user_id uuid [not null, unique, ref: > USER.id] // 1-1 account mapping
+}
+
+Table RATING {
+  id uuid [pk]
+  patient_id uuid [not null, ref: > PATIENT.id] // creator
+
+  rescuer_id uuid [ref: > RESCUER.id] // rated target (either rescuer...)
+  expert_id uuid [ref: > EXPERT.id]   // ...or expert
+}
+
+Table PAYMENT_METHOD {
+  id uuid [pk]
+}
+
+Table PAYMENT_TRANSACTION {
+  id uuid [pk]
+  payment_id uuid [not null, unique, ref: > PAYMENT.id] // 1-1 with PAYMENT
+}
+
+Table PAYMENT {
+  id uuid [pk]
+
+  patient_id uuid [ref: > PATIENT.id] // khoi_tao
+  rescuer_id uuid [ref: > RESCUER.id] // nhan_cuu_ho
+  expert_id uuid [ref: > EXPERT.id]   // nhan_tu_van
+
+  rescue_mission_id uuid [ref: > RESCUE_MISSION.id] // thanh_toan (mission has many payments)
+}
+
+Table DISPUTE {
+  id uuid [pk]
+  rescue_mission_id uuid [not null, ref: > RESCUE_MISSION.id] // tranh_chap_or_hoan_phi
+  payment_id uuid [ref: > PAYMENT.id] // yeu_cau_hoan (payment has many disputes)
+}
+
+Table RESCUE_TEAM {
+  id uuid [pk]
+}
+
+Table RESCUE_MISSION {
+  id uuid [pk]
+
+  snake_report_id uuid [not null, ref: > SNAKE_REPORT.id] // kich_hoat
+  rescuer_id uuid [not null, ref: > RESCUER.id]           // thuc_hien
+
+  rescue_team_id uuid [ref: > RESCUE_TEAM.id]             // phan_cong_bo_sung
+  payment_method_id uuid [ref: > PAYMENT_METHOD.id]       // lua_chon_phuong_thuc
+}
+
+Table RESCUE_STATUS {
+  id uuid [pk]
+  rescue_mission_id uuid [not null, ref: > RESCUE_MISSION.id] // tien_trinh_gps
+}
+
+Table SNAKE_SPECIES {
+  id uuid [pk]
+}
+
+Table CONSULTATION {
+  id uuid [pk]
+  patient_id uuid [not null, ref: > PATIENT.id] // yeu_cau
+  expert_id uuid [not null, ref: > EXPERT.id]   // tu_van
+  payment_id uuid [ref: > PAYMENT.id]           // phi_tu_van (PAYMENT has many CONSULTATION)
+}
+
+Table CONSULTATION_NOTE {
+  id uuid [pk]
+  consultation_id uuid [not null, ref: > CONSULTATION.id] // chuyen_gia_ghi_chu
+}
+
+Table SNAKE_REPORT {
+  id uuid [pk]
+  patient_id uuid [not null, ref: > PATIENT.id] // bao_cao
+
+  snake_species_id uuid [ref: > SNAKE_SPECIES.id] // xac_nhan_or_du_doan (optional)
+  consultation_id uuid [ref: > CONSULTATION.id]   // tu_van (a consultation can reference many reports)
+}
+
+Table SNAKE_AI_RECOGNITION {
+  id uuid [pk]
+}
+
+// Mermaid shows many-to-many between SNAKE_AI_RECOGNITION and SNAKE_REPORT
+Table SNAKE_AI_RECOGNITION_SNAKE_REPORT {
+  id uuid [pk]
+  snake_ai_recognition_id uuid [not null, ref: > SNAKE_AI_RECOGNITION.id]
+  snake_report_id uuid [not null, ref: > SNAKE_REPORT.id]
+
+  indexes {
+    (snake_ai_recognition_id, snake_report_id) [unique]
+  }
+}
+
+Table MEDIA {
+  id uuid [pk]
+
+  // Evidence for multiple contexts (nullable FKs)
+  snake_report_id uuid [ref: > SNAKE_REPORT.id]       // bang_chung_su_co
+  consultation_id uuid [ref: > CONSULTATION.id]       // ho_tro_chan_doan
+  rescue_mission_id uuid [ref: > RESCUE_MISSION.id]   // bang_chung_cuu_ho
+}
+
+Table RESCUE_TOOLS {
+  id uuid [pk]
+}
+
+Table SAFETY_GUIDELINE {
+  id uuid [pk]
+}
+
+Table SNAKE_QUANTITY {
+  id uuid [pk]
+  rescue_mission_id uuid [not null, ref: > RESCUE_MISSION.id] // xac_dinh_so_luong_ran
+}
+
+Table RESCUE_CONDITION {
+  id uuid [pk]
+  rescue_mission_id uuid [not null, ref: > RESCUE_MISSION.id] // gan_luat_hop_le
+}
+
+Table SNAKE_PRICE_RULE {
+  id uuid [pk]
+  rescue_condition_id uuid [not null, ref: > RESCUE_CONDITION.id] // dieu_kien
+  snake_species_id uuid [not null, ref: > SNAKE_SPECIES.id]       // dieu_kien
+}
+
+Table REVENUE_SHARE_CONFIG {
+  id uuid [pk]
+}
+
+Table SNAKE_PRICE_OUTPUT {
+  id uuid [pk]
+  rescue_condition_id uuid [not null, ref: > RESCUE_CONDITION.id]     // ket_qua_gia
+}

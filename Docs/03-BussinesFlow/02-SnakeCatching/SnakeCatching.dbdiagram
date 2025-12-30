@@ -1,0 +1,735 @@
+{
+  "version": "1.0.0",
+  "darkMode": false,
+  "gridEnabling": false,
+  "detailLevel": "All",
+  "tablePositions": [
+    {
+      "name": "USER",
+      "schemaName": "public",
+      "x": 656,
+      "y": 752
+    },
+    {
+      "name": "PAYMENT_CARD",
+      "schemaName": "public",
+      "x": 168,
+      "y": 544
+    },
+    {
+      "name": "SNAKEAID_WALLET",
+      "schemaName": "public",
+      "x": 1128,
+      "y": 368
+    },
+    {
+      "name": "PATIENT",
+      "schemaName": "public",
+      "x": 976,
+      "y": 976
+    },
+    {
+      "name": "RESCUER",
+      "schemaName": "public",
+      "x": 240,
+      "y": 944
+    },
+    {
+      "name": "EXPERT",
+      "schemaName": "public",
+      "x": 544,
+      "y": 1152
+    },
+    {
+      "name": "RATING",
+      "schemaName": "public",
+      "x": 736,
+      "y": 1264
+    },
+    {
+      "name": "PAYMENT_METHOD",
+      "schemaName": "public",
+      "x": 680,
+      "y": 64
+    },
+    {
+      "name": "PAYMENT_TRANSACTION",
+      "schemaName": "public",
+      "x": 984,
+      "y": 568
+    },
+    {
+      "name": "PAYMENT",
+      "schemaName": "public",
+      "x": 472,
+      "y": 864
+    },
+    {
+      "name": "DISPUTE",
+      "schemaName": "public",
+      "x": 176,
+      "y": 1168
+    },
+    {
+      "name": "RESCUE_TEAM",
+      "schemaName": "public",
+      "x": 48,
+      "y": 376
+    },
+    {
+      "name": "RESCUE_MISSION",
+      "schemaName": "public",
+      "x": 416,
+      "y": 560
+    },
+    {
+      "name": "RESCUE_STATUS",
+      "schemaName": "public",
+      "x": 1104,
+      "y": 800
+    },
+    {
+      "name": "SNAKE_SPECIES",
+      "schemaName": "public",
+      "x": 232,
+      "y": 752
+    },
+    {
+      "name": "CONSULTATION",
+      "schemaName": "public",
+      "x": 704,
+      "y": 512
+    },
+    {
+      "name": "CONSULTATION_NOTE",
+      "schemaName": "public",
+      "x": 160,
+      "y": 112
+    },
+    {
+      "name": "SNAKE_REPORT",
+      "schemaName": "public",
+      "x": 824,
+      "y": 744
+    },
+    {
+      "name": "SNAKE_AI_RECOGNITION",
+      "schemaName": "public",
+      "x": 48,
+      "y": 1504
+    },
+    {
+      "name": "SNAKE_AI_RECOGNITION_SNAKE_REPORT",
+      "schemaName": "public",
+      "x": 376,
+      "y": 1432
+    },
+    {
+      "name": "MEDIA",
+      "schemaName": "public",
+      "x": 304,
+      "y": 312
+    },
+    {
+      "name": "RESCUE_TOOLS",
+      "schemaName": "public",
+      "x": 1352,
+      "y": 48
+    },
+    {
+      "name": "SAFETY_GUIDELINE",
+      "schemaName": "public",
+      "x": 1528,
+      "y": 48
+    },
+    {
+      "name": "SNAKE_QUANTITY",
+      "schemaName": "public",
+      "x": 408,
+      "y": 48
+    },
+    {
+      "name": "RESCUE_CONDITION",
+      "schemaName": "public",
+      "x": 712,
+      "y": 1032
+    },
+    {
+      "name": "SNAKE_PRICE_RULE",
+      "schemaName": "public",
+      "x": 560,
+      "y": 280
+    },
+    {
+      "name": "REVENUE_SHARE_CONFIG",
+      "schemaName": "public",
+      "x": 1728,
+      "y": 48
+    },
+    {
+      "name": "SNAKE_PRICE_OUTPUT",
+      "schemaName": "public",
+      "x": 848,
+      "y": 336
+    }
+  ],
+  "tableGroupCollapseStates": [],
+  "stickyNoteLayouts": [],
+  "referencePaths": [
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "USER",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "PAYMENT_CARD",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "USER",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "SNAKEAID_WALLET",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "USER",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "PATIENT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "USER",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "RESCUER",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "USER",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "EXPERT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "PATIENT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "patient_id"
+      ],
+      "secondTableName": "RATING",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "RESCUER",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescuer_id"
+      ],
+      "secondTableName": "RATING",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "EXPERT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "RATING",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "PAYMENT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "payment_id"
+      ],
+      "secondTableName": "PAYMENT_TRANSACTION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "PATIENT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "patient_id"
+      ],
+      "secondTableName": "PAYMENT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "RESCUER",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescuer_id"
+      ],
+      "secondTableName": "PAYMENT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "EXPERT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "PAYMENT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "RESCUE_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescue_mission_id"
+      ],
+      "secondTableName": "PAYMENT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "RESCUE_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescue_mission_id"
+      ],
+      "secondTableName": "DISPUTE",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "PAYMENT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "payment_id"
+      ],
+      "secondTableName": "DISPUTE",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "SNAKE_REPORT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "snake_report_id"
+      ],
+      "secondTableName": "RESCUE_MISSION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "RESCUER",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescuer_id"
+      ],
+      "secondTableName": "RESCUE_MISSION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "RESCUE_TEAM",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescue_team_id"
+      ],
+      "secondTableName": "RESCUE_MISSION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "PAYMENT_METHOD",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "payment_method_id"
+      ],
+      "secondTableName": "RESCUE_MISSION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "RESCUE_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescue_mission_id"
+      ],
+      "secondTableName": "RESCUE_STATUS",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "PATIENT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "patient_id"
+      ],
+      "secondTableName": "CONSULTATION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "EXPERT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "CONSULTATION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "PAYMENT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "payment_id"
+      ],
+      "secondTableName": "CONSULTATION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "CONSULTATION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "consultation_id"
+      ],
+      "secondTableName": "CONSULTATION_NOTE",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "PATIENT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "patient_id"
+      ],
+      "secondTableName": "SNAKE_REPORT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "snake_species_id"
+      ],
+      "secondTableName": "SNAKE_REPORT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "CONSULTATION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "consultation_id"
+      ],
+      "secondTableName": "SNAKE_REPORT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "SNAKE_AI_RECOGNITION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "snake_ai_recognition_id"
+      ],
+      "secondTableName": "SNAKE_AI_RECOGNITION_SNAKE_REPORT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "SNAKE_REPORT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "snake_report_id"
+      ],
+      "secondTableName": "SNAKE_AI_RECOGNITION_SNAKE_REPORT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "SNAKE_REPORT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "snake_report_id"
+      ],
+      "secondTableName": "MEDIA",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "CONSULTATION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "consultation_id"
+      ],
+      "secondTableName": "MEDIA",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "RESCUE_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescue_mission_id"
+      ],
+      "secondTableName": "MEDIA",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "RESCUE_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescue_mission_id"
+      ],
+      "secondTableName": "SNAKE_QUANTITY",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "RESCUE_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescue_mission_id"
+      ],
+      "secondTableName": "RESCUE_CONDITION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "RESCUE_CONDITION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescue_condition_id"
+      ],
+      "secondTableName": "SNAKE_PRICE_RULE",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "snake_species_id"
+      ],
+      "secondTableName": "SNAKE_PRICE_RULE",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "RESCUE_CONDITION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescue_condition_id"
+      ],
+      "secondTableName": "SNAKE_PRICE_OUTPUT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    }
+  ]
+}
