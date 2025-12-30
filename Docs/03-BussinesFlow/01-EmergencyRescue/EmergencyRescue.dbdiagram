@@ -1,0 +1,1047 @@
+{
+  "version": "1.0.0",
+  "darkMode": false,
+  "gridEnabling": false,
+  "detailLevel": "All",
+  "tablePositions": [
+    {
+      "name": "User",
+      "schemaName": "public",
+      "x": 1096,
+      "y": 1352
+    },
+    {
+      "name": "Role",
+      "schemaName": "public",
+      "x": 1264,
+      "y": 48
+    },
+    {
+      "name": "UserRole",
+      "schemaName": "public",
+      "x": 888,
+      "y": 504
+    },
+    {
+      "name": "Patient",
+      "schemaName": "public",
+      "x": 1600,
+      "y": 1520
+    },
+    {
+      "name": "SnakeRescuer",
+      "schemaName": "public",
+      "x": 1192,
+      "y": 1144
+    },
+    {
+      "name": "SnakeExpert",
+      "schemaName": "public",
+      "x": 1368,
+      "y": 768
+    },
+    {
+      "name": "RescuerSkill",
+      "schemaName": "public",
+      "x": 1528,
+      "y": 600
+    },
+    {
+      "name": "RescuerSkillMap",
+      "schemaName": "public",
+      "x": 896,
+      "y": 792
+    },
+    {
+      "name": "Wallet",
+      "schemaName": "public",
+      "x": 1136,
+      "y": 912
+    },
+    {
+      "name": "PaymentType",
+      "schemaName": "public",
+      "x": 1400,
+      "y": 1792
+    },
+    {
+      "name": "UserLocationHistory",
+      "schemaName": "public",
+      "x": 1056,
+      "y": 2048
+    },
+    {
+      "name": "SnakeSpecies",
+      "schemaName": "public",
+      "x": 664,
+      "y": 912
+    },
+    {
+      "name": "SnakeImage",
+      "schemaName": "public",
+      "x": 48,
+      "y": 1080
+    },
+    {
+      "name": "SnakebiteIncident",
+      "schemaName": "public",
+      "x": 1408,
+      "y": 984
+    },
+    {
+      "name": "SOSRequest",
+      "schemaName": "public",
+      "x": 672,
+      "y": 640
+    },
+    {
+      "name": "PatientSnakebiteHistory",
+      "schemaName": "public",
+      "x": 1568,
+      "y": 1936
+    },
+    {
+      "name": "SnakeQuestion",
+      "schemaName": "public",
+      "x": 1536,
+      "y": 336
+    },
+    {
+      "name": "Symptom",
+      "schemaName": "public",
+      "x": 1608,
+      "y": 768
+    },
+    {
+      "name": "SymptomReport",
+      "schemaName": "public",
+      "x": 888,
+      "y": 1064
+    },
+    {
+      "name": "IncidentMediaType",
+      "schemaName": "public",
+      "x": 1120,
+      "y": 1600
+    },
+    {
+      "name": "IncidentMedia",
+      "schemaName": "public",
+      "x": 1624,
+      "y": 1200
+    },
+    {
+      "name": "BiteVerification",
+      "schemaName": "public",
+      "x": 1776,
+      "y": 568
+    },
+    {
+      "name": "RescueRequest",
+      "schemaName": "public",
+      "x": 376,
+      "y": 992
+    },
+    {
+      "name": "RescueTracking",
+      "schemaName": "public",
+      "x": 1088,
+      "y": 632
+    },
+    {
+      "name": "RescueReport",
+      "schemaName": "public",
+      "x": 376,
+      "y": 373.07009859335926
+    },
+    {
+      "name": "RescuerSnakeHandlingHistory",
+      "schemaName": "public",
+      "x": 528,
+      "y": 1440
+    },
+    {
+      "name": "PreparationStep",
+      "schemaName": "public",
+      "x": 1336,
+      "y": 520
+    },
+    {
+      "name": "SnakePreparation",
+      "schemaName": "public",
+      "x": 648,
+      "y": 1144
+    },
+    {
+      "name": "IncidentPreparation",
+      "schemaName": "public",
+      "x": 1072,
+      "y": 280
+    },
+    {
+      "name": "ExpertConsultation",
+      "schemaName": "public",
+      "x": 1912,
+      "y": 824
+    },
+    {
+      "name": "ConsultationHistory",
+      "schemaName": "public",
+      "x": 1888,
+      "y": 1128
+    },
+    {
+      "name": "Antivenom",
+      "schemaName": "public",
+      "x": 136,
+      "y": 824
+    },
+    {
+      "name": "TreatmentFacility",
+      "schemaName": "public",
+      "x": 808,
+      "y": 1352
+    },
+    {
+      "name": "FacilityAntivenom",
+      "schemaName": "public",
+      "x": 424,
+      "y": 728
+    },
+    {
+      "name": "Feedback",
+      "schemaName": "public",
+      "x": 1720,
+      "y": 1704
+    },
+    {
+      "name": "Payment",
+      "schemaName": "public",
+      "x": 1344,
+      "y": 1320
+    },
+    {
+      "name": "Invoice",
+      "schemaName": "public",
+      "x": 1696,
+      "y": 976
+    },
+    {
+      "name": "PlatformFee",
+      "schemaName": "public",
+      "x": 896,
+      "y": 1760
+    },
+    {
+      "name": "Content",
+      "schemaName": "public",
+      "x": 1848,
+      "y": 1488
+    },
+    {
+      "name": "CommunityAlert",
+      "schemaName": "public",
+      "x": 1136,
+      "y": 1816
+    }
+  ],
+  "tableGroupCollapseStates": [],
+  "stickyNoteLayouts": [],
+  "referencePaths": [
+    {
+      "firstFieldNames": [
+        "user_id"
+      ],
+      "firstTableName": "UserRole",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "User",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "role_id"
+      ],
+      "firstTableName": "UserRole",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "role_id"
+      ],
+      "secondTableName": "Role",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "patient_id"
+      ],
+      "firstTableName": "Patient",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "User",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "rescuer_id"
+      ],
+      "firstTableName": "SnakeRescuer",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "User",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "expert_id"
+      ],
+      "firstTableName": "SnakeExpert",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "User",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "rescuer_id"
+      ],
+      "firstTableName": "RescuerSkillMap",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "rescuer_id"
+      ],
+      "secondTableName": "SnakeRescuer",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "skill_id"
+      ],
+      "firstTableName": "RescuerSkillMap",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "skill_id"
+      ],
+      "secondTableName": "RescuerSkill",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "wallet_id"
+      ],
+      "firstTableName": "Wallet",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "User",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "user_id"
+      ],
+      "firstTableName": "UserLocationHistory",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "User",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "snake_species_id"
+      ],
+      "firstTableName": "SnakeImage",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "snake_species_id"
+      ],
+      "secondTableName": "SnakeSpecies",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "patient_id"
+      ],
+      "firstTableName": "SnakebiteIncident",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "patient_id"
+      ],
+      "secondTableName": "Patient",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "snake_species_id"
+      ],
+      "firstTableName": "SnakebiteIncident",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "snake_species_id"
+      ],
+      "secondTableName": "SnakeSpecies",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "incident_id"
+      ],
+      "firstTableName": "SOSRequest",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "incident_id"
+      ],
+      "secondTableName": "SnakebiteIncident",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "patient_id"
+      ],
+      "firstTableName": "PatientSnakebiteHistory",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "patient_id"
+      ],
+      "secondTableName": "Patient",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "incident_id"
+      ],
+      "firstTableName": "PatientSnakebiteHistory",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "incident_id"
+      ],
+      "secondTableName": "SnakebiteIncident",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "incident_id"
+      ],
+      "firstTableName": "SnakeQuestion",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "incident_id"
+      ],
+      "secondTableName": "SnakebiteIncident",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "created_by_expert_id"
+      ],
+      "firstTableName": "SnakeQuestion",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "SnakeExpert",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "incident_id"
+      ],
+      "firstTableName": "SymptomReport",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "incident_id"
+      ],
+      "secondTableName": "SnakebiteIncident",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "symptom_id"
+      ],
+      "firstTableName": "SymptomReport",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "symptom_id"
+      ],
+      "secondTableName": "Symptom",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "incident_id"
+      ],
+      "firstTableName": "IncidentMedia",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "incident_id"
+      ],
+      "secondTableName": "SnakebiteIncident",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "media_type_id"
+      ],
+      "firstTableName": "IncidentMedia",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "media_type_id"
+      ],
+      "secondTableName": "IncidentMediaType",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "media_id"
+      ],
+      "firstTableName": "BiteVerification",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "media_id"
+      ],
+      "secondTableName": "IncidentMedia",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "expert_id"
+      ],
+      "firstTableName": "BiteVerification",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "SnakeExpert",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "sos_id"
+      ],
+      "firstTableName": "RescueRequest",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "sos_id"
+      ],
+      "secondTableName": "SOSRequest",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "rescuer_id"
+      ],
+      "firstTableName": "RescueRequest",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "rescuer_id"
+      ],
+      "secondTableName": "SnakeRescuer",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "rescue_request_id"
+      ],
+      "firstTableName": "RescueTracking",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "rescue_request_id"
+      ],
+      "secondTableName": "RescueRequest",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "rescue_request_id"
+      ],
+      "firstTableName": "RescueReport",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "rescue_request_id"
+      ],
+      "secondTableName": "RescueRequest",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "rescuer_id"
+      ],
+      "firstTableName": "RescuerSnakeHandlingHistory",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "rescuer_id"
+      ],
+      "secondTableName": "SnakeRescuer",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "rescue_request_id"
+      ],
+      "firstTableName": "RescuerSnakeHandlingHistory",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "rescue_request_id"
+      ],
+      "secondTableName": "RescueRequest",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "snake_species_id"
+      ],
+      "firstTableName": "SnakePreparation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "snake_species_id"
+      ],
+      "secondTableName": "SnakeSpecies",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "step_id"
+      ],
+      "firstTableName": "SnakePreparation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "step_id"
+      ],
+      "secondTableName": "PreparationStep",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "incident_id"
+      ],
+      "firstTableName": "IncidentPreparation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "incident_id"
+      ],
+      "secondTableName": "SnakebiteIncident",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "step_id"
+      ],
+      "firstTableName": "IncidentPreparation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "step_id"
+      ],
+      "secondTableName": "PreparationStep",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "rescuer_id"
+      ],
+      "firstTableName": "IncidentPreparation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "rescuer_id"
+      ],
+      "secondTableName": "SnakeRescuer",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "incident_id"
+      ],
+      "firstTableName": "ExpertConsultation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "incident_id"
+      ],
+      "secondTableName": "SnakebiteIncident",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "expert_id"
+      ],
+      "firstTableName": "ExpertConsultation",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "SnakeExpert",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "consultation_id"
+      ],
+      "firstTableName": "ConsultationHistory",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "consultation_id"
+      ],
+      "secondTableName": "ExpertConsultation",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "patient_id"
+      ],
+      "firstTableName": "ConsultationHistory",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "patient_id"
+      ],
+      "secondTableName": "Patient",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "expert_id"
+      ],
+      "firstTableName": "ConsultationHistory",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "SnakeExpert",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "rescuer_id"
+      ],
+      "firstTableName": "ConsultationHistory",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "rescuer_id"
+      ],
+      "secondTableName": "SnakeRescuer",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "snake_species_id"
+      ],
+      "firstTableName": "Antivenom",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "snake_species_id"
+      ],
+      "secondTableName": "SnakeSpecies",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "facility_id"
+      ],
+      "firstTableName": "FacilityAntivenom",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "facility_id"
+      ],
+      "secondTableName": "TreatmentFacility",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "antivenom_id"
+      ],
+      "firstTableName": "FacilityAntivenom",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "antivenom_id"
+      ],
+      "secondTableName": "Antivenom",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "incident_id"
+      ],
+      "firstTableName": "Feedback",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "incident_id"
+      ],
+      "secondTableName": "SnakebiteIncident",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "patient_id"
+      ],
+      "firstTableName": "Feedback",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "patient_id"
+      ],
+      "secondTableName": "Patient",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "incident_id"
+      ],
+      "firstTableName": "Payment",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "incident_id"
+      ],
+      "secondTableName": "SnakebiteIncident",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "patient_id"
+      ],
+      "firstTableName": "Payment",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "patient_id"
+      ],
+      "secondTableName": "Patient",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "payment_type_id"
+      ],
+      "firstTableName": "Payment",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "payment_type_id"
+      ],
+      "secondTableName": "PaymentType",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "wallet_id"
+      ],
+      "firstTableName": "Payment",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "wallet_id"
+      ],
+      "secondTableName": "Wallet",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "payment_id"
+      ],
+      "firstTableName": "Invoice",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "payment_id"
+      ],
+      "secondTableName": "Payment",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "payment_id"
+      ],
+      "firstTableName": "PlatformFee",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "payment_id"
+      ],
+      "secondTableName": "Payment",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "created_by"
+      ],
+      "firstTableName": "Content",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "User",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "created_by"
+      ],
+      "firstTableName": "CommunityAlert",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "User",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    }
+  ]
+}

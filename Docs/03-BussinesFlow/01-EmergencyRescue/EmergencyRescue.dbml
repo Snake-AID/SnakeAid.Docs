@@ -1,0 +1,409 @@
+/* =======================
+   USER & ROLE (ACCOUNT)
+   ======================= */
+
+Table User {
+  user_id varchar(36) [primary key]
+}
+
+Table Role {
+  role_id int [primary key]
+}
+
+Table UserRole {
+  user_id varchar(36)
+  role_id int
+
+  indexes {
+    (user_id, role_id) [pk]
+  }
+}
+
+ref: UserRole.user_id > User.user_id
+ref: UserRole.role_id > Role.role_id
+
+
+/* =======================
+   DOMAIN ROLES
+   ======================= */
+
+Table Patient {
+  patient_id varchar(36) [primary key]
+}
+
+ref: Patient.patient_id > User.user_id
+
+
+Table SnakeRescuer {
+  rescuer_id varchar(36) [primary key]
+}
+
+Table SnakeExpert {
+  expert_id varchar(36) [primary key]
+}
+
+ref: SnakeRescuer.rescuer_id > User.user_id
+ref: SnakeExpert.expert_id > User.user_id
+
+
+/*************************
+   RESCUER SKILL
+*************************/
+
+Table RescuerSkill {
+  skill_id int [primary key]
+}
+
+Table RescuerSkillMap {
+  rescuer_id varchar(36)
+  skill_id int
+
+  indexes {
+    (rescuer_id, skill_id) [pk]
+  }
+}
+
+ref: RescuerSkillMap.rescuer_id > SnakeRescuer.rescuer_id
+ref: RescuerSkillMap.skill_id > RescuerSkill.skill_id
+
+
+/* =======================
+   WALLET & PAYMENT CORE
+   ======================= */
+
+Table Wallet {
+  wallet_id varchar(36) [primary key]
+}
+
+ref: Wallet.wallet_id > User.user_id
+
+
+Table PaymentType {
+  payment_type_id int [primary key]
+}
+
+
+/* =======================
+   USER LOCATION
+   ======================= */
+
+Table UserLocationHistory {
+  location_id varchar(36) [primary key]
+  user_id varchar(36)
+}
+
+ref: UserLocationHistory.user_id > User.user_id
+
+
+/* =======================
+   SNAKE CORE
+   ======================= */
+
+Table SnakeSpecies {
+  snake_species_id int [primary key]
+}
+
+Table SnakeImage {
+  snake_image_id varchar(36) [primary key]
+  snake_species_id int
+}
+
+ref: SnakeImage.snake_species_id > SnakeSpecies.snake_species_id
+
+
+/* =======================
+   INCIDENT & SOS
+   ======================= */
+
+Table SnakebiteIncident {
+  incident_id varchar(36) [primary key]
+  patient_id varchar(36)
+  snake_species_id int [null]
+}
+
+ref: SnakebiteIncident.patient_id > Patient.patient_id
+ref: SnakebiteIncident.snake_species_id > SnakeSpecies.snake_species_id
+
+
+Table SOSRequest {
+  sos_id varchar(36) [primary key]
+  incident_id varchar(36)
+}
+
+ref: SOSRequest.incident_id > SnakebiteIncident.incident_id
+
+
+/* =======================
+   PATIENT HISTORY
+   ======================= */
+
+Table PatientSnakebiteHistory {
+  history_id varchar(36) [primary key]
+  patient_id varchar(36)
+  incident_id varchar(36)
+}
+
+ref: PatientSnakebiteHistory.patient_id > Patient.patient_id
+ref: PatientSnakebiteHistory.incident_id > SnakebiteIncident.incident_id
+
+
+/* =======================
+   AI UNKNOWN – QUESTION
+   ======================= */
+
+Table SnakeQuestion {
+  question_id varchar(36) [primary key]
+  incident_id varchar(36)
+  created_by_expert_id varchar(36) [null]
+}
+
+ref: SnakeQuestion.incident_id > SnakebiteIncident.incident_id
+ref: SnakeQuestion.created_by_expert_id > SnakeExpert.expert_id
+
+
+/* =======================
+   SYMPTOM
+   ======================= */
+
+Table Symptom {
+  symptom_id int [primary key]
+}
+
+Table SymptomReport {
+  symptom_report_id varchar(36) [primary key]
+  incident_id varchar(36)
+  symptom_id int
+}
+
+ref: SymptomReport.incident_id > SnakebiteIncident.incident_id
+ref: SymptomReport.symptom_id > Symptom.symptom_id
+
+
+/* =======================
+   INCIDENT MEDIA
+   ======================= */
+
+Table IncidentMediaType {
+  media_type_id int [primary key]
+}
+
+Table IncidentMedia {
+  media_id varchar(36) [primary key]
+  incident_id varchar(36)
+  media_type_id int
+}
+
+ref: IncidentMedia.incident_id > SnakebiteIncident.incident_id
+ref: IncidentMedia.media_type_id > IncidentMediaType.media_type_id
+
+
+Table BiteVerification {
+  verification_id varchar(36) [primary key]
+  media_id varchar(36)
+  expert_id varchar(36)
+}
+
+ref: BiteVerification.media_id > IncidentMedia.media_id
+ref: BiteVerification.expert_id > SnakeExpert.expert_id
+
+
+/* =======================
+   RESCUE
+   ======================= */
+
+Table RescueRequest {
+  rescue_request_id varchar(36) [primary key]
+  sos_id varchar(36)
+  rescuer_id varchar(36)
+}
+
+ref: RescueRequest.sos_id > SOSRequest.sos_id
+ref: RescueRequest.rescuer_id > SnakeRescuer.rescuer_id
+
+
+Table RescueTracking {
+  tracking_id varchar(36) [primary key]
+  rescue_request_id varchar(36)
+}
+
+ref: RescueTracking.rescue_request_id > RescueRequest.rescue_request_id
+
+
+Table RescueReport {
+  report_id varchar(36) [primary key]
+  rescue_request_id varchar(36)
+}
+
+ref: RescueReport.rescue_request_id > RescueRequest.rescue_request_id
+
+
+/* =======================
+   RESCUER HISTORY
+   ======================= */
+
+Table RescuerSnakeHandlingHistory {
+  handling_history_id varchar(36) [primary key]
+  rescuer_id varchar(36)
+  rescue_request_id varchar(36)
+}
+
+ref: RescuerSnakeHandlingHistory.rescuer_id > SnakeRescuer.rescuer_id
+ref: RescuerSnakeHandlingHistory.rescue_request_id > RescueRequest.rescue_request_id
+
+
+/* =======================
+   PREPARATION / FIRST AID
+   ======================= */
+
+Table PreparationStep {
+  step_id int [primary key]
+}
+
+Table SnakePreparation {
+  snake_species_id int
+  step_id int
+
+  indexes {
+    (snake_species_id, step_id) [pk]
+  }
+}
+
+ref: SnakePreparation.snake_species_id > SnakeSpecies.snake_species_id
+ref: SnakePreparation.step_id > PreparationStep.step_id
+
+
+Table IncidentPreparation {
+  incident_preparation_id varchar(36) [primary key]
+  incident_id varchar(36)
+  step_id int
+  rescuer_id varchar(36)
+}
+
+ref: IncidentPreparation.incident_id > SnakebiteIncident.incident_id
+ref: IncidentPreparation.step_id > PreparationStep.step_id
+ref: IncidentPreparation.rescuer_id > SnakeRescuer.rescuer_id
+
+
+/* =======================
+   EXPERT CONSULTATION
+   ======================= */
+
+Table ExpertConsultation {
+  consultation_id varchar(36) [primary key]
+  incident_id varchar(36)
+  expert_id varchar(36)
+}
+
+ref: ExpertConsultation.incident_id > SnakebiteIncident.incident_id
+ref: ExpertConsultation.expert_id > SnakeExpert.expert_id
+
+
+Table ConsultationHistory {
+  consultation_history_id varchar(36) [primary key]
+  consultation_id varchar(36)
+  patient_id varchar(36)
+  expert_id varchar(36)
+  rescuer_id varchar(36) [null]
+}
+
+ref: ConsultationHistory.consultation_id > ExpertConsultation.consultation_id
+ref: ConsultationHistory.patient_id > Patient.patient_id
+ref: ConsultationHistory.expert_id > SnakeExpert.expert_id
+ref: ConsultationHistory.rescuer_id > SnakeRescuer.rescuer_id
+
+
+/* =======================
+   MEDICAL
+   ======================= */
+
+Table Antivenom {
+  antivenom_id int [primary key]
+  snake_species_id int
+}
+
+ref: Antivenom.snake_species_id > SnakeSpecies.snake_species_id
+
+
+Table TreatmentFacility {
+  facility_id varchar(36) [primary key]
+}
+
+Table FacilityAntivenom {
+  facility_id varchar(36)
+  antivenom_id int
+
+  indexes {
+    (facility_id, antivenom_id) [pk]
+  }
+}
+
+ref: FacilityAntivenom.facility_id > TreatmentFacility.facility_id
+ref: FacilityAntivenom.antivenom_id > Antivenom.antivenom_id
+
+
+/* =======================
+   FEEDBACK
+   ======================= */
+
+Table Feedback {
+  feedback_id varchar(36) [primary key]
+  incident_id varchar(36)
+  patient_id varchar(36)
+}
+
+ref: Feedback.incident_id > SnakebiteIncident.incident_id
+ref: Feedback.patient_id > Patient.patient_id
+
+
+/* =======================
+   PAYMENT
+   ======================= */
+
+Table Payment {
+  payment_id varchar(36) [primary key]
+  incident_id varchar(36)
+  patient_id varchar(36)
+  payment_type_id int
+  wallet_id varchar(36)
+}
+
+ref: Payment.incident_id > SnakebiteIncident.incident_id
+ref: Payment.patient_id > Patient.patient_id
+ref: Payment.payment_type_id > PaymentType.payment_type_id
+ref: Payment.wallet_id > Wallet.wallet_id
+
+
+Table Invoice {
+  invoice_id varchar(36) [primary key]
+  payment_id varchar(36)
+}
+
+ref: Invoice.payment_id > Payment.payment_id
+
+
+Table PlatformFee {
+  fee_id int [primary key]
+  payment_id varchar(36)
+}
+
+ref: PlatformFee.payment_id > Payment.payment_id
+
+
+/* =======================
+   CONTENT & ALERT
+   ======================= */
+
+Table Content {
+  content_id varchar(36) [primary key]
+  created_by varchar(36)
+}
+
+ref: Content.created_by > User.user_id
+
+
+Table CommunityAlert {
+  alert_id varchar(36) [primary key]
+  created_by varchar(36)
+}
+
+ref: CommunityAlert.created_by > User.user_id
