@@ -299,6 +299,7 @@ Table symptom_report {
 Table preparation_steps {
   id uuid [pk]
   steps jsonb
+  content jsonb
 }
 
 Table snake_report {
@@ -348,10 +349,12 @@ Table rescuer_snake_handling_history {
 
 Table rescue_tools {
   id uuid [pk]
+  content jsonb
 }
 
 Table safety_guideline {
   id uuid [pk]
+  content jsonb
 }
 
 Table snake_quantity {
@@ -377,6 +380,7 @@ Table snake_price_output {
 
 Table revenue_share_config {
   id uuid [pk]
+  content jsonb
 }
 
 Table consultation {
@@ -385,14 +389,6 @@ Table consultation {
   rescuer_id uuid [ref: > rescuer_profile.user_id]
   expert_id uuid [not null, ref: > expert_profile.user_id]
   incident_id uuid [ref: > snakebite_incident.id]
-}
-
-Table consultation_history {
-  id uuid [pk]
-  consultation_id uuid [not null, ref: > consultation.id]
-  patient_id uuid [not null, ref: > patient_profile.user_id]
-  expert_id uuid [not null, ref: > expert_profile.user_id]
-  rescuer_id uuid [ref: > rescuer_profile.user_id]
 }
 
 Table consultation_note {
@@ -481,12 +477,6 @@ Table invoice {
 Table platform_fee {
   id uuid [pk]
   payment_id uuid [not null, ref: > payment.id]
-}
-
-Table dispute {
-  id uuid [pk]
-  rescue_mission_id uuid [not null, ref: > rescue_mission.id]
-  payment_id uuid [ref: > payment.id]
 }
 
 Table content {
