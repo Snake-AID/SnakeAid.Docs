@@ -1,9 +1,11 @@
 - [Home](/README.md)
 
 - Introduction
+
   - [Introduction](00-Introduction/Introduction.md)
 
 - Requirements
+
   - [Main Flow](01-Requirements/Main-Flow/Main-Flow.md)
   - [Major Features Summary](01-Requirements/Major-Features/Major-Features-Summary.md)
   - Payment Flow
@@ -18,37 +20,21 @@
     - [Admin Management Flow](01-Requirements/Swimlane-Diagram/04-Swimlane-Admin-Management-Flow.md)
 
 - Architecture Design
+
   - [Context Diagram](02-Architecture-Design/Context-Diagram.md)
   - SnakeERD
     - [SnakeCatching](02-Architecture-Design/ERD/SnakeERD_SnakeCatching.md)
 
 - Bussines Flow
-  - Emergency Rescue
-    - [EmergencyRescue](03-BussinesFlow/01-EmergencyRescue/EmergencyRescue.md)
-    - [EmergencyRescue.dbml](03-BussinesFlow/01-EmergencyRescue/EmergencyRescue.dbml)
-    - [EmergencyRescue.dbdiagram](03-BussinesFlow/01-EmergencyRescue/EmergencyRescue.dbdiagram)
-  - Snake Catching
-    - [SnakeCatching](03-BussinesFlow/02-SnakeCatching/SnakeCatching.md)
-    - [SnakeCatching.dbml](03-BussinesFlow/02-SnakeCatching/SnakeCatching.dbml)
-    - [SnakeCatching.dbdiagram](03-BussinesFlow/02-SnakeCatching/SnakeCatching.dbdiagram)
-  - Expert Consultation
-    - [ExpertConsultation](03-BussinesFlow/03-ExpertConsultation/ExpertConsultation.md)
-    - [ExpertConsultation.dbml](03-BussinesFlow/03-ExpertConsultation/ExpertConsultation.dbml)
-    - [ExpertConsultation.dbdiagram](03-BussinesFlow/03-ExpertConsultation/ExpertConsultation.dbdiagram)
-  - Snake Library
-    - [SnakeLibrary](03-BussinesFlow/04-SnakeLibrary/SnakeLibrary.md)
-    - [SnakeLibrary.dbml](03-BussinesFlow/04-SnakeLibrary/SnakeLibrary.dbml)
-    - [SnakeLibrary.dbdiagram](03-BussinesFlow/04-SnakeLibrary/SnakeLibrary.dbdiagram)
-  - Statitics
-    - [Statitics](03-BussinesFlow/05-Statitics/Statitics.md)
-    - [Statitics.dbml](03-BussinesFlow/05-Statitics/Statitics.dbml)
-    - [Statitics.dbdiagram](03-BussinesFlow/05-Statitics/Statitics.dbdiagram)
-  - Chatting
-    - [Chatting](03-BussinesFlow/06-Chatting/Chatting.md)
-  - Video Call
-    - [VideoCall](03-BussinesFlow/07-VideoCall/VideoCall.md)
-  - Map
-    - [Map](03-BussinesFlow/08-Map/Map.md)
+
+  - [EmergencyRescue](03-BussinesFlow/01-EmergencyRescue/EmergencyRescue.md)
+  - [SnakeCatching](03-BussinesFlow/02-SnakeCatching/SnakeCatching.md)
+  - [ExpertConsultation](03-BussinesFlow/03-ExpertConsultation/ExpertConsultation.md)
+  - [SnakeLibrary](03-BussinesFlow/04-SnakeLibrary/SnakeLibrary.md)
+  - [Statitics](03-BussinesFlow/05-Statitics/Statitics.md)
+  - [Chatting](03-BussinesFlow/06-Chatting/Chatting.md)
+  - [VideoCall](03-BussinesFlow/07-VideoCall/VideoCall.md)
+  - [Map](03-BussinesFlow/08-Map/Map.md)
 
 - UI Design
   - [UI Design Overview](04-UI-Design/UI-Design-Overview.md)
