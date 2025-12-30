@@ -37,7 +37,7 @@
 ### 4.2. Chọn loại tư vấn
 1. Patient chọn:
    - **Tư vấn ngay** (chỉ khi Expert online).
-   - **Đặt lịch tư vấn** (chọn ngày/giờ).
+   - **Đặt lịch tư vấn** (chọn ngày/giờ và thời lượng tư vấn).
 2. Nếu Expert offline và Patient chọn tư vấn ngay -> hệ thống gợi ý chuyển sang đặt lịch hoặc chọn Expert khác.
 
 ### 4.3. Upload tài liệu & thanh toán trước
@@ -71,12 +71,9 @@
 ## 5. Thanh toán & giá dịch vụ (tóm tắt)
 
 ### 5.1. Gói tư vấn từ xa
-| Gói | Thời gian | Giá Patient trả | Expert nhận (90%) | Platform (10%) |
-|---|---|---|---|---|
-| Cơ bản | 15 phút | 150,000 đ | 135,000 đ | 15,000 đ |
-| Tiêu chuẩn | 30 phút | 300,000 đ | 270,000 đ | 30,000 đ |
-| Chuyên sâu | 60 phút | 500,000 đ | 450,000 đ | 50,000 đ |
-| VIP | 120 phút | 900,000 đ | 810,000 đ | 90,000 đ |
+- thanh toán theo thời lượng tư vấn nhân cho giá tiền mỗi phút của chuyên gia đó
+
+ví dụ tư vấn viên A có giá tư vấn là 5000vnd/phút thì tư vấn 10 phút sẽ là 50 000 vnd  
 
 ### 5.2. Quy tắc thanh toán
 - Thanh toán 100% trước khi Expert nhận yêu cầu.
