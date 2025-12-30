@@ -1,0 +1,243 @@
+// SnakeAid - Live Location Tracking + Dispatch (Monolith)
+// Target DB: PostgreSQL + PostGIS
+
+Enum user_role {
+  PATIENT
+  RESCUER
+  EXPERT
+  ADMIN
+}
+
+Enum incident_status {
+  CREATED
+  DISPATCHING
+  RESCUER_ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+Enum session_status {
+  PENDING
+  OFFERING
+  ACCEPTED
+  EN_ROUTE
+  ARRIVED
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+Enum offer_status {
+  PENDING
+  ACKED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CANCELLED
+}
+
+Enum notify_type {
+  NEW_OFFER
+  OFFER_EXPIRES_SOON
+  OFFER_CANCELLED
+  RESCUER_ASSIGNED
+  RESCUER_ARRIVING
+  SESSION_CANCELLED
+  SESSION_COMPLETED
+}
+
+Enum notify_channel {
+  SIGNALR
+  FCM
+}
+
+Enum location_role {
+  PATIENT
+  RESCUER
+}
+
+Enum location_source {
+  GPS
+  NETWORK
+  MANUAL
+}
+
+Table users {
+  id uuid [pk]
+  full_name varchar
+  phone varchar [unique, note: "Optional if using phone auth"]
+  email varchar [unique]
+  role user_role
+  is_active boolean [default: true]
+  created_at timestamptz
+  updated_at timestamptz
+
+  Indexes {
+    (role)
+    (created_at)
+  }
+}
+
+Table rescuer_profile {
+  user_id uuid [pk, ref: > users.id]
+  is_available boolean [default: false, note: "User toggles Open/Close; realtime presence still handled in Redis"]
+  last_open_at timestamptz
+  rating_avg numeric
+  rating_count int
+}
+
+Table patient_profile {
+  user_id uuid [pk, ref: > users.id]
+  emergency_contact varchar
+}
+
+Table device_tokens {
+  id bigserial [pk]
+  user_id uuid [ref: > users.id]
+  platform varchar [note: "android | ios | web"]
+  fcm_token varchar [unique]
+  is_active boolean [default: true]
+  last_seen_at timestamptz
+  created_at timestamptz
+
+  Indexes {
+    (user_id, is_active)
+    (last_seen_at)
+  }
+}
+
+Table incidents {
+  id uuid [pk]
+  patient_id uuid [ref: > users.id]
+  created_at timestamptz
+  status incident_status
+
+  // Location at time of SOS / report
+  location geography [note: "PostGIS: geography(Point,4326)"]
+  geohash varchar [note: "Optional: for coarse partitioning/analytics"]
+  address_text varchar
+
+  // Optional metadata for triage
+  severity int [note: "0-5 or your own scale"]
+  notes text
+
+  Indexes {
+    (patient_id, created_at)
+    (status, created_at)
+  }
+}
+
+Table rescue_sessions {
+  id uuid [pk]
+  incident_id uuid [ref: > incidents.id]
+  patient_id uuid [ref: > users.id]
+  assigned_rescuer_id uuid [ref: > users.id, null]
+  status session_status
+
+  created_at timestamptz
+  accepted_at timestamptz
+  started_at timestamptz
+  completed_at timestamptz
+  cancelled_at timestamptz
+  cancel_reason varchar
+
+  // Optional snapshot fields (not required if you always derive from events)
+  eta_seconds int
+  route_polyline text [note: "Optional; store if you compute ETA/route server-side"]
+
+  Indexes {
+    (incident_id)
+    (assigned_rescuer_id, status)
+    (status, created_at)
+  }
+}
+
+Table rescue_offers {
+  id uuid [pk]
+  session_id uuid [ref: > rescue_sessions.id]
+  rescuer_id uuid [ref: > users.id]
+
+  attempt_no int [default: 1, note: "Redispatch increments attempt_no"]
+  status offer_status
+
+  // Dispatch timings
+  sent_at timestamptz
+  expires_at timestamptz
+  acked_at timestamptz
+  responded_at timestamptz
+
+  // Useful for debugging delivery
+  primary_channel notify_channel [note: "SIGNALR by default; FCM used as fallback"]
+  last_error text
+
+  Indexes {
+    (session_id, attempt_no)
+    (rescuer_id, status)
+    (status, expires_at)
+  }
+}
+
+Table session_participants {
+  id bigserial [pk]
+  session_id uuid [ref: > rescue_sessions.id]
+  user_id uuid [ref: > users.id]
+  role location_role
+  joined_at timestamptz
+  left_at timestamptz
+
+  Indexes {
+    (session_id, role)
+    (user_id, joined_at)
+  }
+}
+
+Table location_events {
+  id bigserial [pk]
+  session_id uuid [ref: > rescue_sessions.id]
+  user_id uuid [ref: > users.id]
+  role location_role
+
+  ts timestamptz
+  geom geography [note: "PostGIS: geography(Point,4326)"]
+  geohash varchar [note: "Optional; precompute if needed"]
+  seq int [note: "Monotonic per user/session; helps de-dup/order"]
+  source location_source
+
+  speed_mps real
+  heading_deg real
+  accuracy_m real
+
+  Indexes {
+    (session_id, ts)
+    (user_id, ts)
+  }
+}
+
+Table notification_log {
+  id bigserial [pk]
+  user_id uuid [ref: > users.id]
+  session_id uuid [ref: > rescue_sessions.id, null]
+  offer_id uuid [ref: > rescue_offers.id, null]
+
+  type notify_type
+  channel notify_channel
+
+  title varchar
+  body text
+  payload_json jsonb
+
+  provider_message_id varchar
+  status varchar [note: "QUEUED | SENT | FAILED"]
+  error text
+
+  created_at timestamptz
+  sent_at timestamptz
+
+  Indexes {
+    (user_id, created_at)
+    (session_id, created_at)
+    (type, created_at)
+  }
+}
