@@ -23,14 +23,12 @@ Table user_roles {
 }
 
 Table patient_profile {
-  id uuid [pk]
-  user_id uuid [not null, unique, ref: > users.id]
+  user_id uuid [pk, not null, unique, ref: > users.id]
   created_at timestamp
 }
 
 Table rescuer_profile {
-  id uuid [pk]
-  user_id uuid [not null, unique, ref: > users.id]
+  user_id uuid [pk, not null, unique, ref: > users.id]
   experience_years int
   certification_level varchar
   is_verified boolean
@@ -38,8 +36,7 @@ Table rescuer_profile {
 }
 
 Table expert_profile {
-  id uuid [pk]
-  user_id uuid [not null, unique, ref: > users.id]
+  user_id uuid [pk, not null, unique, ref: > users.id]
   specialization varchar
   license_number varchar
   verified_at timestamp
@@ -56,17 +53,12 @@ Table wallet {
   user_id uuid [not null, unique, ref: > users.id]
 }
 
-Table user_location_history {
-  id uuid [pk]
-  user_id uuid [not null, ref: > users.id]
-}
-
 Table skill {
   id uuid [pk]
 }
 
 Table rescuer_skill {
-  rescuer_id uuid [not null, ref: > rescuer_profile.id]
+  rescuer_id uuid [not null, ref: > rescuer_profile.user_id]
   skill_id uuid [not null, ref: > skill.id]
 
   Indexes {
@@ -75,7 +67,7 @@ Table rescuer_skill {
 }
 
 Table expert_skill {
-  expert_id uuid [not null, ref: > expert_profile.id]
+  expert_id uuid [not null, ref: > expert_profile.user_id]
   skill_id uuid [not null, ref: > skill.id]
 
   Indexes {
@@ -85,12 +77,12 @@ Table expert_skill {
 
 Table expert_experience {
   id uuid [pk]
-  expert_id uuid [not null, ref: > expert_profile.id]
+  expert_id uuid [not null, ref: > expert_profile.user_id]
 }
 
 Table expert_pricing_rule {
   id uuid [pk]
-  expert_id uuid [not null, ref: > expert_profile.id]
+  expert_id uuid [not null, ref: > expert_profile.user_id]
 }
 
 Table snake_species {
@@ -273,7 +265,7 @@ Table snake_library_audit_log {
 
 Table snakebite_incident {
   id uuid [pk]
-  patient_id uuid [not null, ref: > patient_profile.id]
+  patient_id uuid [not null, ref: > patient_profile.user_id]
   snake_species_id uuid [ref: > snake_species.id]
 }
 
@@ -284,14 +276,14 @@ Table sos_request {
 
 Table patient_snakebite_history {
   id uuid [pk]
-  patient_id uuid [not null, ref: > patient_profile.id]
+  patient_id uuid [not null, ref: > patient_profile.user_id]
   incident_id uuid [not null, ref: > snakebite_incident.id]
 }
 
 Table snake_question {
   id uuid [pk]
   incident_id uuid [not null, ref: > snakebite_incident.id]
-  created_by_expert_id uuid [ref: > expert_profile.id]
+  created_by_expert_id uuid [ref: > expert_profile.user_id]
 }
 
 Table symptom {
@@ -321,12 +313,12 @@ Table incident_preparation {
   id uuid [pk]
   incident_id uuid [not null, ref: > snakebite_incident.id]
   step_id int [not null, ref: > preparation_step.id]
-  rescuer_id uuid [not null, ref: > rescuer_profile.id]
+  rescuer_id uuid [not null, ref: > rescuer_profile.user_id]
 }
 
 Table snake_report {
   id uuid [pk]
-  patient_id uuid [not null, ref: > patient_profile.id]
+  patient_id uuid [not null, ref: > patient_profile.user_id]
   snake_species_id uuid [ref: > snake_species.id]
   consultation_id uuid [ref: > consultation.id]
 }
@@ -345,16 +337,11 @@ Table snake_ai_recognition_snake_report {
   }
 }
 
-Table rescue_team {
-  id uuid [pk]
-}
-
 Table rescue_mission {
   id uuid [pk]
   snake_report_id uuid [ref: > snake_report.id]
   sos_request_id uuid [ref: > sos_request.id]
-  rescuer_id uuid [not null, ref: > rescuer_profile.id]
-  rescue_team_id uuid [ref: > rescue_team.id]
+  rescuer_id uuid [not null, ref: > rescuer_profile.user_id]
   payment_method_id uuid [ref: > payment_method.id]
 }
 
@@ -370,7 +357,7 @@ Table rescue_report {
 
 Table rescuer_snake_handling_history {
   id uuid [pk]
-  rescuer_id uuid [not null, ref: > rescuer_profile.id]
+  rescuer_id uuid [not null, ref: > rescuer_profile.user_id]
   rescue_mission_id uuid [not null, ref: > rescue_mission.id]
 }
 
@@ -409,18 +396,18 @@ Table revenue_share_config {
 
 Table consultation {
   id uuid [pk]
-  patient_id uuid [ref: > patient_profile.id]
-  rescuer_id uuid [ref: > rescuer_profile.id]
-  expert_id uuid [not null, ref: > expert_profile.id]
+  patient_id uuid [ref: > patient_profile.user_id]
+  rescuer_id uuid [ref: > rescuer_profile.user_id]
+  expert_id uuid [not null, ref: > expert_profile.user_id]
   incident_id uuid [ref: > snakebite_incident.id]
 }
 
 Table consultation_history {
   id uuid [pk]
   consultation_id uuid [not null, ref: > consultation.id]
-  patient_id uuid [not null, ref: > patient_profile.id]
-  expert_id uuid [not null, ref: > expert_profile.id]
-  rescuer_id uuid [ref: > rescuer_profile.id]
+  patient_id uuid [not null, ref: > patient_profile.user_id]
+  expert_id uuid [not null, ref: > expert_profile.user_id]
+  rescuer_id uuid [ref: > rescuer_profile.user_id]
 }
 
 Table consultation_note {
@@ -430,22 +417,22 @@ Table consultation_note {
 
 Table expert_schedule {
   id uuid [pk]
-  expert_id uuid [not null, ref: > expert_profile.id]
+  expert_id uuid [not null, ref: > expert_profile.user_id]
   consultation_id uuid [unique, ref: > consultation.id]
 }
 
 Table rating {
   id uuid [pk]
-  patient_id uuid [not null, ref: > patient_profile.id]
-  rescuer_id uuid [ref: > rescuer_profile.id]
-  expert_id uuid [ref: > expert_profile.id]
+  patient_id uuid [not null, ref: > patient_profile.user_id]
+  rescuer_id uuid [ref: > rescuer_profile.user_id]
+  expert_id uuid [ref: > expert_profile.user_id]
 }
 
 Table feedback {
   id uuid [pk]
   incident_id uuid [ref: > snakebite_incident.id]
   consultation_id uuid [ref: > consultation.id]
-  patient_id uuid [ref: > patient_profile.id]
+  patient_id uuid [ref: > patient_profile.user_id]
 }
 
 Table media_type {
@@ -464,7 +451,7 @@ Table media {
 Table bite_verification {
   id uuid [pk]
   media_id uuid [not null, ref: > media.id]
-  expert_id uuid [not null, ref: > expert_profile.id]
+  expert_id uuid [not null, ref: > expert_profile.user_id]
 }
 
 Table treatment_facility {
@@ -488,9 +475,9 @@ Table payment {
   id uuid [pk]
   payment_method_id uuid [not null, ref: > payment_method.id]
   wallet_id uuid [ref: > wallet.id]
-  patient_id uuid [ref: > patient_profile.id]
-  rescuer_id uuid [ref: > rescuer_profile.id]
-  expert_id uuid [ref: > expert_profile.id]
+  patient_id uuid [ref: > patient_profile.user_id]
+  rescuer_id uuid [ref: > rescuer_profile.user_id]
+  expert_id uuid [ref: > expert_profile.user_id]
   consultation_id uuid [ref: > consultation.id]
   rescue_mission_id uuid [ref: > rescue_mission.id]
   incident_id uuid [ref: > snakebite_incident.id]
@@ -602,7 +589,7 @@ Table stat_daily_user_activity {
 
 Table stat_daily_rescuer_activity {
   stat_date date
-  rescuer_id uuid [ref: > rescuer_profile.id]
+  rescuer_id uuid [ref: > rescuer_profile.user_id]
   requests_accepted int
   requests_completed int
   requests_timeout int
@@ -616,7 +603,7 @@ Table stat_daily_rescuer_activity {
 
 Table stat_daily_expert_activity {
   stat_date date
-  expert_id uuid [ref: > expert_profile.id]
+  expert_id uuid [ref: > expert_profile.user_id]
   video_calls int
   total_call_minutes int
   consultations_completed int
@@ -639,14 +626,14 @@ Table stat_daily_subscription {
   }
 }
 
-Ref: patient_profile.id < reputation_event.profile_id
-Ref: rescuer_profile.id < reputation_event.profile_id
-Ref: expert_profile.id < reputation_event.profile_id
+Ref: patient_profile.user_id < reputation_event.profile_id
+Ref: rescuer_profile.user_id < reputation_event.profile_id
+Ref: expert_profile.user_id < reputation_event.profile_id
 
-Ref: patient_profile.id < reputation_transaction.profile_id
-Ref: rescuer_profile.id < reputation_transaction.profile_id
-Ref: expert_profile.id < reputation_transaction.profile_id
+Ref: patient_profile.user_id < reputation_transaction.profile_id
+Ref: rescuer_profile.user_id < reputation_transaction.profile_id
+Ref: expert_profile.user_id < reputation_transaction.profile_id
 
-Ref: patient_profile.id < reputation_snapshot.profile_id
-Ref: rescuer_profile.id < reputation_snapshot.profile_id
-Ref: expert_profile.id < reputation_snapshot.profile_id
+Ref: patient_profile.user_id < reputation_snapshot.profile_id
+Ref: rescuer_profile.user_id < reputation_snapshot.profile_id
+Ref: expert_profile.user_id < reputation_snapshot.profile_id
