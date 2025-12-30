@@ -1,0 +1,387 @@
+{
+  "version": "1.0.0",
+  "darkMode": false,
+  "gridEnabling": false,
+  "detailLevel": "All",
+  "tablePositions": [
+    {
+      "name": "User",
+      "schemaName": "public",
+      "x": 528,
+      "y": 592
+    },
+    {
+      "name": "Patient",
+      "schemaName": "public",
+      "x": 296,
+      "y": 528
+    },
+    {
+      "name": "Rescuer",
+      "schemaName": "public",
+      "x": 856,
+      "y": 536
+    },
+    {
+      "name": "Expert",
+      "schemaName": "public",
+      "x": 424,
+      "y": 368
+    },
+    {
+      "name": "Skill",
+      "schemaName": "public",
+      "x": 56,
+      "y": 888
+    },
+    {
+      "name": "ExpertSkill",
+      "schemaName": "public",
+      "x": 48,
+      "y": 560
+    },
+    {
+      "name": "ExpertExperience",
+      "schemaName": "public",
+      "x": 480,
+      "y": 48
+    },
+    {
+      "name": "ExpertPricingRule",
+      "schemaName": "public",
+      "x": 128,
+      "y": 88
+    },
+    {
+      "name": "ExpertSchedule",
+      "schemaName": "public",
+      "x": 480,
+      "y": 832
+    },
+    {
+      "name": "Consultation",
+      "schemaName": "public",
+      "x": 632,
+      "y": 400
+    },
+    {
+      "name": "ExpertReview",
+      "schemaName": "public",
+      "x": 672,
+      "y": 648
+    },
+    {
+      "name": "ConsultationDocument",
+      "schemaName": "public",
+      "x": 120,
+      "y": 344
+    },
+    {
+      "name": "Feedback",
+      "schemaName": "public",
+      "x": 688,
+      "y": 120
+    },
+    {
+      "name": "PaymentMethod",
+      "schemaName": "public",
+      "x": 312,
+      "y": 216
+    },
+    {
+      "name": "Payment",
+      "schemaName": "public",
+      "x": 192,
+      "y": 752
+    }
+  ],
+  "tableGroupCollapseStates": [],
+  "stickyNoteLayouts": [],
+  "referencePaths": [
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "User",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "Patient",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "User",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "Rescuer",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "User",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "Expert",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Expert",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "ExpertSkill",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Skill",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "skill_id"
+      ],
+      "secondTableName": "ExpertSkill",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Expert",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "ExpertExperience",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Expert",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "ExpertPricingRule",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Expert",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "ExpertSchedule",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Consultation",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "consultation_id"
+      ],
+      "secondTableName": "ExpertSchedule",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Patient",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "patient_id"
+      ],
+      "secondTableName": "Consultation",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Rescuer",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescuer_id"
+      ],
+      "secondTableName": "Consultation",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Expert",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "Consultation",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Expert",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "expert_id"
+      ],
+      "secondTableName": "ExpertReview",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Patient",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "patient_id"
+      ],
+      "secondTableName": "ExpertReview",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Rescuer",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "rescuer_id"
+      ],
+      "secondTableName": "ExpertReview",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Consultation",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "consultation_id"
+      ],
+      "secondTableName": "ConsultationDocument",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Consultation",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "consultation_id"
+      ],
+      "secondTableName": "Feedback",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "PaymentMethod",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "payment_method_id"
+      ],
+      "secondTableName": "Payment",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "Consultation",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "consultation_id"
+      ],
+      "secondTableName": "Payment",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    }
+  ]
+}

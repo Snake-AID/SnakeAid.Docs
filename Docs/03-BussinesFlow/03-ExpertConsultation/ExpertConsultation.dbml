@@ -1,0 +1,88 @@
+Table User {
+  id uuid [pk]
+}
+
+Table Patient {
+  id uuid [pk]
+  user_id uuid [not null, unique, ref: > User.id] // 1-1 system account
+}
+
+Table Rescuer {
+  id uuid [pk]
+  user_id uuid [not null, unique, ref: > User.id] // 1-1 system account
+}
+
+Table Expert {
+  id uuid [pk]
+  user_id uuid [not null, unique, ref: > User.id] // 1-1 system account
+}
+
+Table Skill {
+  id uuid [pk]
+}
+
+Table ExpertSkill {
+  id uuid [pk]
+  expert_id uuid [not null, ref: > Expert.id]
+  skill_id uuid [not null, ref: > Skill.id]
+
+  indexes {
+    (expert_id, skill_id) [unique]
+  }
+}
+
+Table ExpertExperience {
+  id uuid [pk]
+  expert_id uuid [not null, ref: > Expert.id]
+}
+
+Table ExpertPricingRule {
+  id uuid [pk]
+  expert_id uuid [not null, ref: > Expert.id]
+}
+
+Table ExpertSchedule {
+  id uuid [pk]
+  expert_id uuid [not null, ref: > Expert.id]
+  consultation_id uuid [unique, ref: > Consultation.id]
+}
+
+Table Consultation {
+  id uuid [pk]
+
+  // Patient/Rescuer "books", Expert "conducts"
+  patient_id uuid [ref: > Patient.id]
+  rescuer_id uuid [ref: > Rescuer.id]
+  expert_id uuid [not null, ref: > Expert.id]
+}
+
+Table ExpertReview {
+  id uuid [pk]
+
+  // In the diagram: Patient/Rescuer -> ExpertReview, and Expert -> ExpertReview
+  expert_id uuid [not null, ref: > Expert.id]
+
+  patient_id uuid [ref: > Patient.id]
+  rescuer_id uuid [ref: > Rescuer.id]
+}
+
+Table ConsultationDocument {
+  id uuid [pk]
+  consultation_id uuid [not null, ref: > Consultation.id] // includes
+}
+
+Table Feedback {
+  id uuid [pk]
+  consultation_id uuid [not null, ref: > Consultation.id] // receives
+}
+
+Table PaymentMethod {
+  id uuid [pk]
+}
+
+Table Payment {
+  id uuid [pk]
+
+  payment_method_id uuid [not null, ref: > PaymentMethod.id]
+  consultation_id uuid [not null, ref: > Consultation.id] // Consultation generates Payment
+}
