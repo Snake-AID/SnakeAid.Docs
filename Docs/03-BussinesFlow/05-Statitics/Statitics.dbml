@@ -1,0 +1,162 @@
+Table users {
+  id uuid [pk]
+  email varchar
+  phone varchar
+  role varchar // PATIENT | RESCUER | EXPERT
+  status varchar // ACTIVE | SUSPENDED | BANNED
+  created_at timestamp
+}
+
+Table patient_profile {
+  id uuid [pk]
+  user_id uuid [unique, not null]
+  created_at timestamp
+}
+
+Table rescuer_profile {
+  id uuid [pk]
+  user_id uuid [unique, not null]
+  experience_years int
+  certification_level varchar
+  is_verified boolean
+  created_at timestamp
+}
+
+Table expert_profile {
+  id uuid [pk]
+  user_id uuid [unique, not null]
+  specialization varchar
+  license_number varchar
+  verified_at timestamp
+  created_at timestamp
+}
+
+Table reputation_event {
+  id uuid [pk]
+  event_type varchar
+  user_id uuid
+  profile_id uuid
+  role varchar
+  related_object_type varchar
+  related_object_id uuid
+  source varchar // SYSTEM | USER | ADMIN
+  raw_payload jsonb
+  occurred_at timestamp
+  created_at timestamp
+}
+
+Table reputation_transaction {
+  id uuid [pk]
+  user_id uuid
+  profile_id uuid
+  event_type varchar
+  reputation_type varchar // BEHAVIOR | TRUST | SKILL
+  delta int
+  reason text
+  created_at timestamp
+}
+
+Table reputation_snapshot {
+  profile_id uuid [pk]
+  behavior_score int
+  trust_score int
+  skill_score int
+  total_score int
+  level varchar // NEW | NORMAL | TRUSTED | ELITE
+  last_transaction_id uuid
+  updated_at timestamp
+}
+
+Table system_event {
+  id uuid [pk]
+  event_type varchar
+  actor_id uuid
+  actor_role varchar
+  ref_type varchar
+  ref_id uuid
+  metadata json
+  created_at timestamp
+}
+
+Table stat_daily_system_overview {
+  stat_date date [pk]
+  total_users int
+  sos_requests int
+  snake_requests int
+  completed_requests int
+  failed_requests int
+  revenue decimal
+  created_at timestamp
+}
+
+Table stat_daily_user_activity {
+  stat_date date
+  user_id uuid
+  sos_created int
+  snake_requests int
+  video_calls int
+  reports_created int
+  subscriptions_purchased int
+  created_at timestamp
+
+  Indexes {
+    (stat_date, user_id) [pk]
+  }
+}
+
+Table stat_daily_rescuer_activity {
+  stat_date date
+  rescuer_id uuid
+  requests_accepted int
+  requests_completed int
+  requests_timeout int
+  avg_response_seconds int
+  created_at timestamp
+
+  Indexes {
+    (stat_date, rescuer_id) [pk]
+  }
+}
+
+Table stat_daily_expert_activity {
+  stat_date date
+  expert_id uuid
+  video_calls int
+  total_call_minutes int
+  consultations_completed int
+  created_at timestamp
+
+  Indexes {
+    (stat_date, expert_id) [pk]
+  }
+}
+
+Table stat_daily_subscription {
+  stat_date date
+  package_code varchar
+  total_purchased int
+  total_revenue decimal
+  created_at timestamp
+
+  Indexes {
+    (stat_date, package_code) [pk]
+  }
+}
+
+
+Ref: users.id < patient_profile.user_id
+Ref: users.id < rescuer_profile.user_id
+Ref: users.id < expert_profile.user_id
+
+Ref: users.id < reputation_event.user_id
+Ref: users.id < reputation_transaction.user_id
+
+Ref: rescuer_profile.id < reputation_event.profile_id
+Ref: patient_profile.id < reputation_event.profile_id
+Ref: expert_profile.id < reputation_event.profile_id
+
+Ref: rescuer_profile.id < reputation_transaction.profile_id
+Ref: patient_profile.id < reputation_transaction.profile_id
+Ref: expert_profile.id < reputation_transaction.profile_id
+
+Ref: reputation_transaction.id < reputation_snapshot.last_transaction_id

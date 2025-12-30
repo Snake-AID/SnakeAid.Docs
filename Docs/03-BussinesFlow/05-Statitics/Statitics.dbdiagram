@@ -1,0 +1,270 @@
+{
+  "version": "1.0.0",
+  "darkMode": false,
+  "gridEnabling": false,
+  "detailLevel": "All",
+  "tablePositions": [
+    {
+      "name": "users",
+      "schemaName": "public",
+      "x": 624,
+      "y": 456
+    },
+    {
+      "name": "patient_profile",
+      "schemaName": "public",
+      "x": 344,
+      "y": 512
+    },
+    {
+      "name": "rescuer_profile",
+      "schemaName": "public",
+      "x": 888,
+      "y": 632
+    },
+    {
+      "name": "expert_profile",
+      "schemaName": "public",
+      "x": 416,
+      "y": 192
+    },
+    {
+      "name": "reputation_event",
+      "schemaName": "public",
+      "x": 800,
+      "y": 48
+    },
+    {
+      "name": "reputation_transaction",
+      "schemaName": "public",
+      "x": 448,
+      "y": 728
+    },
+    {
+      "name": "reputation_snapshot",
+      "schemaName": "public",
+      "x": 48,
+      "y": 712
+    },
+    {
+      "name": "system_event",
+      "schemaName": "public",
+      "x": 1640,
+      "y": 48
+    },
+    {
+      "name": "stat_daily_system_overview",
+      "schemaName": "public",
+      "x": 312,
+      "y": 1024
+    },
+    {
+      "name": "stat_daily_user_activity",
+      "schemaName": "public",
+      "x": 576,
+      "y": 1024
+    },
+    {
+      "name": "stat_daily_rescuer_activity",
+      "schemaName": "public",
+      "x": 48,
+      "y": 1024
+    },
+    {
+      "name": "stat_daily_expert_activity",
+      "schemaName": "public",
+      "x": 1376,
+      "y": 48
+    },
+    {
+      "name": "stat_daily_subscription",
+      "schemaName": "public",
+      "x": 1128,
+      "y": 48
+    }
+  ],
+  "tableGroupCollapseStates": [],
+  "stickyNoteLayouts": [],
+  "referencePaths": [
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "users",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "patient_profile",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "users",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "rescuer_profile",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "users",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "expert_profile",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "users",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "reputation_event",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "users",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "reputation_transaction",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "rescuer_profile",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "profile_id"
+      ],
+      "secondTableName": "reputation_event",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "patient_profile",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "profile_id"
+      ],
+      "secondTableName": "reputation_event",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "expert_profile",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "profile_id"
+      ],
+      "secondTableName": "reputation_event",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "rescuer_profile",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "profile_id"
+      ],
+      "secondTableName": "reputation_transaction",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "patient_profile",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "profile_id"
+      ],
+      "secondTableName": "reputation_transaction",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "expert_profile",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "profile_id"
+      ],
+      "secondTableName": "reputation_transaction",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "reputation_transaction",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "last_transaction_id"
+      ],
+      "secondTableName": "reputation_snapshot",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    }
+  ]
+}
