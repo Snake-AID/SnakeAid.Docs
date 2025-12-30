@@ -1,0 +1,213 @@
+{
+  "version": "1.0.0",
+  "darkMode": false,
+  "gridEnabling": false,
+  "detailLevel": "All",
+  "tablePositions": [
+    {
+      "name": "snake_species",
+      "schemaName": "public",
+      "x": 696,
+      "y": 696
+    },
+    {
+      "name": "snake_species_name",
+      "schemaName": "public",
+      "x": 48,
+      "y": 672
+    },
+    {
+      "name": "snake_media",
+      "schemaName": "public",
+      "x": 1056,
+      "y": 240
+    },
+    {
+      "name": "snake_identification_profile",
+      "schemaName": "public",
+      "x": 1064,
+      "y": 1272
+    },
+    {
+      "name": "snake_first_aid_guideline",
+      "schemaName": "public",
+      "x": 640,
+      "y": 1232
+    },
+    {
+      "name": "snake_distribution",
+      "schemaName": "public",
+      "x": 384,
+      "y": 472
+    },
+    {
+      "name": "antivenom",
+      "schemaName": "public",
+      "x": 80,
+      "y": 1352
+    },
+    {
+      "name": "snake_species_antivenom",
+      "schemaName": "public",
+      "x": 272,
+      "y": 1056
+    },
+    {
+      "name": "ai_model",
+      "schemaName": "public",
+      "x": 152,
+      "y": 48
+    },
+    {
+      "name": "ai_model_class_map",
+      "schemaName": "public",
+      "x": 640,
+      "y": 200
+    },
+    {
+      "name": "snake_library_audit_log",
+      "schemaName": "public",
+      "x": 1328,
+      "y": 48
+    }
+  ],
+  "tableGroupCollapseStates": [],
+  "stickyNoteLayouts": [],
+  "referencePaths": [
+    {
+      "firstFieldNames": [
+        "snake_species_id"
+      ],
+      "firstTableName": "snake_species_name",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "snake_species",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "snake_species_id"
+      ],
+      "firstTableName": "snake_media",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "snake_species",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "snake_species_id"
+      ],
+      "firstTableName": "snake_identification_profile",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "snake_species",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "snake_species_id"
+      ],
+      "firstTableName": "snake_first_aid_guideline",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "snake_species",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "snake_species_id"
+      ],
+      "firstTableName": "snake_distribution",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "snake_species",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "snake_species_id"
+      ],
+      "firstTableName": "snake_species_antivenom",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "snake_species",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "antivenom_id"
+      ],
+      "firstTableName": "snake_species_antivenom",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "antivenom",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "ai_model_id"
+      ],
+      "firstTableName": "ai_model_class_map",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "ai_model",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "snake_species_id"
+      ],
+      "firstTableName": "ai_model_class_map",
+      "firstSchemaName": "public",
+      "firstRelation": "*",
+      "secondFieldNames": [
+        "id"
+      ],
+      "secondTableName": "snake_species",
+      "secondSchemaName": "public",
+      "secondRelation": "1",
+      "checkPoints": []
+    }
+  ]
+}
