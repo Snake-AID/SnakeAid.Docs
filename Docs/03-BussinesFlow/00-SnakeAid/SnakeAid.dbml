@@ -24,7 +24,6 @@ Table user_roles {
 
 Table patient_profile {
   user_id uuid [pk, not null, unique, ref: > users.id]
-  created_at timestamp
 }
 
 Table rescuer_profile {
@@ -32,7 +31,6 @@ Table rescuer_profile {
   experience_years int
   certification_level varchar
   is_verified boolean
-  created_at timestamp
 }
 
 Table expert_profile {
@@ -40,7 +38,6 @@ Table expert_profile {
   specialization varchar
   license_number varchar
   verified_at timestamp
-  created_at timestamp
 }
 
 Table payment_card {
@@ -612,3 +609,110 @@ Ref: expert_profile.user_id < reputation_transaction.profile_id
 Ref: patient_profile.user_id < reputation_snapshot.profile_id
 Ref: rescuer_profile.user_id < reputation_snapshot.profile_id
 Ref: expert_profile.user_id < reputation_snapshot.profile_id
+
+TableGroup core_identity {
+  users
+  roles
+  user_roles
+  patient_profile
+  rescuer_profile
+  expert_profile
+}
+
+TableGroup payments_wallets {
+  payment_card
+  wallet
+  payment_method
+  payment
+  payment_transaction
+  invoice
+  platform_fee
+}
+
+TableGroup skills_expertise {
+  skill
+  rescuer_skill
+  expert_skill
+  expert_experience
+  expert_pricing_rule
+  expert_schedule
+}
+
+TableGroup snake_library {
+  snake_species
+  snake_species_name
+  snake_media
+  snake_identification_profile
+  snake_first_aid_guideline
+  snake_distribution
+  antivenom
+  snake_species_antivenom
+  snake_library_audit_log
+}
+
+TableGroup ai_models {
+  ai_model
+  ai_model_class_map
+  snake_ai_recognition
+  snake_ai_recognition_snake_report
+}
+
+TableGroup incidents_emergency {
+  snakebite_incident
+  sos_request
+  patient_snakebite_history
+  snake_question
+  symptom
+  symptom_report
+  preparation_steps
+  media_type
+  media
+  bite_verification
+}
+
+TableGroup rescue_operations {
+  snake_report
+  rescue_mission
+  rescue_tracking
+  rescue_report
+  rescuer_snake_handling_history
+  rescue_tools
+  safety_guideline
+  snake_quantity
+  rescue_condition
+  snake_price_rule
+  snake_price_output
+  revenue_share_config
+}
+
+TableGroup expert_consultation {
+  consultation
+  consultation_note
+  rating
+  feedback
+}
+
+TableGroup medical_facilities {
+  treatment_facility
+  facility_antivenom
+}
+
+TableGroup content_alerts {
+  content
+  community_alert
+}
+
+TableGroup reputation_system {
+  reputation_event
+  reputation_transaction
+  reputation_snapshot
+}
+
+TableGroup analytics_system {
+  system_event
+  stat_daily_system_overview
+  stat_daily_user_activity
+  stat_daily_rescuer_activity
+  stat_daily_expert_activity
+  stat_daily_subscription
+}
