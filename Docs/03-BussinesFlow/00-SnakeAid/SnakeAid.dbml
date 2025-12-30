@@ -296,24 +296,9 @@ Table symptom_report {
   symptom_id int [not null, ref: > symptom.id]
 }
 
-Table preparation_step {
-  id int [pk]
-}
-
-Table snake_preparation {
-  snake_species_id uuid [not null, ref: > snake_species.id]
-  step_id int [not null, ref: > preparation_step.id]
-
-  Indexes {
-    (snake_species_id, step_id) [pk]
-  }
-}
-
-Table incident_preparation {
+Table preparation_steps {
   id uuid [pk]
-  incident_id uuid [not null, ref: > snakebite_incident.id]
-  step_id int [not null, ref: > preparation_step.id]
-  rescuer_id uuid [not null, ref: > rescuer_profile.user_id]
+  steps jsonb
 }
 
 Table snake_report {
