@@ -1,0 +1,217 @@
+// =======================================================
+// SnakeAid - In-app Video Call (Flutter WebRTC + ASP.NET SignalR + coturn)
+// Scope: DB tables phục vụ nghiệp vụ video call (1-1 hiện tại, SFU-ready tương lai)
+// Lưu ý: Presence + ICE candidates realtime thường nằm ở Redis/Memory (không bắt buộc DB)
+// =======================================================
+
+Table users {
+  id uuid [pk]
+  email varchar
+  phone varchar
+  role varchar
+  status varchar
+  created_at timestamp
+}
+
+
+Enum video_call_mode {
+  P2P        // WebRTC peer-to-peer (default)
+  SFU        // Future: media via SFU (LiveKit/mediasoup/Janus)
+}
+
+Enum video_call_status {
+  CREATED
+  RINGING
+  ACCEPTED
+  CONNECTING
+  CONNECTED
+  ENDED
+  REJECTED
+  MISSED
+  FAILED
+  CANCELED
+}
+
+Enum video_call_participant_role {
+  CALLER
+  CALLEE
+}
+
+Enum video_call_participant_state {
+  INVITED
+  RINGING
+  JOINED
+  LEFT
+}
+
+Enum video_call_end_reason {
+  NORMAL
+  REJECTED
+  MISSED_TIMEOUT
+  CALLER_CANCELED
+  NETWORK_ERROR
+  ICE_FAILED
+  MEDIA_ERROR
+  APP_CRASH
+}
+
+Enum signaling_message_type {
+  INVITE
+  ACCEPT
+  REJECT
+  CANCEL
+  END
+  SDP_OFFER
+  SDP_ANSWER
+  ICE_CANDIDATE
+  HEARTBEAT
+}
+
+Table video_call_session {
+  id uuid [pk] // callId / roomId
+  mode video_call_mode [not null, default: 'P2P']
+  status video_call_status [not null, default: 'CREATED']
+
+  // business ownership
+  caller_user_id uuid [not null, ref: > users.id]
+  callee_user_id uuid [not null, ref: > users.id]
+
+  // timestamps
+  created_at timestamp [not null]
+  ringing_at timestamp
+  accepted_at timestamp
+  connected_at timestamp
+  ended_at timestamp
+
+  // duration computed app-side or by query
+  duration_seconds int
+
+  // end info
+  end_reason video_call_end_reason
+  ended_by_user_id bigint [ref: > users.id]
+
+  // optional: SFU integration
+  sfu_room_id varchar
+  sfu_provider varchar // e.g., "livekit", "mediasoup"
+  sfu_token_issued_at timestamp
+
+  // optional: quality/diagnostic summary
+  selected_path varchar // "p2p" | "turn_relay" | "sfu"
+  network_type_at_connect varchar // "wifi" | "4g" | "5g" | ...
+  note varchar
+
+  Indexes {
+    (caller_user_id)
+    (callee_user_id)
+    (status)
+    (created_at)
+    (ended_at)
+  }
+}
+
+Table video_call_participant {
+  id bigint [pk, increment]
+  call_id uuid [not null, ref: > video_call_session.id]
+  user_id bigint [not null, ref: > users.id]
+
+  role video_call_participant_role [not null]
+  state video_call_participant_state [not null, default: 'INVITED']
+
+  invited_at timestamp
+  joined_at timestamp
+  left_at timestamp
+
+  // client device info (useful for debugging multi-device)
+  device_id bigint [ref: > user_device.id]
+  client_platform varchar // "android" | "ios" | "web"
+  app_version varchar
+
+  Indexes {
+    (call_id, user_id) [unique]
+    (user_id)
+    (call_id)
+  }
+}
+
+Table video_call_event {
+  id bigint [pk, increment]
+  call_id uuid [not null, ref: > video_call_session.id]
+  user_id bigint [ref: > users.id] // null nếu event hệ thống (jobs)
+  event_type varchar [not null]   // "CALL_CREATED", "RINGING", "ACCEPTED", "CONNECTED", "ENDED", ...
+  event_at timestamp [not null]
+  payload_json json               // lưu metadata nhẹ (không lưu media)
+
+  Indexes {
+    (call_id, event_at)
+    (user_id, event_at)
+  }
+}
+
+Table video_call_signaling_message {
+  // Optional (debug/audit). Prod có thể tắt ghi để giảm DB load.
+  id bigint [pk, increment]
+  call_id uuid [not null, ref: > video_call_session.id]
+  from_user_id bigint [ref: > users.id]
+  to_user_id bigint [ref: > users.id]
+  message_type signaling_message_type [not null]
+  sent_at timestamp [not null]
+
+  // Tuyệt đối không lưu media; chỉ lưu signaling payload (SDP/ICE) nếu cần debug.
+  // Nếu bạn lo nặng DB, chỉ lưu metadata và bỏ content.
+  content_text text
+
+  Indexes {
+    (call_id, sent_at)
+    (from_user_id, sent_at)
+    (to_user_id, sent_at)
+  }
+}
+
+Table user_device {
+  // Dùng để push incoming call (FCM). Một user có thể nhiều thiết bị.
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+
+  platform varchar [not null] // "android" | "ios"
+  device_identifier varchar   // optional: deviceId nội bộ/app
+  fcm_token varchar [not null]
+
+  is_active boolean [not null, default: true]
+  last_seen_at timestamp
+
+  created_at timestamp [not null]
+  updated_at timestamp
+
+  Indexes {
+    (user_id)
+    (fcm_token) [unique]
+    (platform)
+  }
+}
+
+Table user_presence_snapshot {
+  // Optional (nếu bạn muốn persist last-known; realtime nên nằm Redis).
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+  is_online boolean [not null, default: false]
+  last_seen_at timestamp
+  last_ip varchar
+  last_region varchar
+
+  Indexes {
+    (user_id) [unique]
+    (is_online)
+    (last_seen_at)
+  }
+}
+
+/*
+Gợi ý triển khai thực tế:
+- Redis keys (không nằm DB):
+  - presence:{userId} -> {connectionId(s), lastSeen}
+  - call:{callId}:state -> {status, participants...}
+  - call:{callId}:iceCandidates -> ephemeral/trickle (TTL)
+- Hangfire jobs:
+  - timeout RINGING -> MISSED
+  - cleanup stale CONNECTING -> FAILED
+*/
