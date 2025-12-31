@@ -494,7 +494,9 @@ Table community_alert {
   created_by uuid [not null, ref: > users.id]
 }
 
-Table reputation_event {
+// Schema statitics
+// Gộp từ Statitics.dbml với schema 'statitics'
+Table statitics.reputation_event {
   id uuid [pk]
   event_type varchar
   user_id uuid [ref: > users.id]
@@ -508,7 +510,7 @@ Table reputation_event {
   created_at timestamp
 }
 
-Table reputation_transaction {
+Table statitics.reputation_transaction {
   id uuid [pk]
   user_id uuid [ref: > users.id]
   profile_id uuid
@@ -519,18 +521,18 @@ Table reputation_transaction {
   created_at timestamp
 }
 
-Table reputation_snapshot {
+Table statitics.reputation_snapshot {
   profile_id uuid [pk]
   behavior_score int
   trust_score int
   skill_score int
   total_score int
   level varchar
-  last_transaction_id uuid [ref: > reputation_transaction.id]
+  last_transaction_id uuid [ref: > statitics.reputation_transaction.id]
   updated_at timestamp
 }
 
-Table system_event {
+Table statitics.system_event {
   id uuid [pk]
   event_type varchar
   actor_id uuid [ref: > users.id]
@@ -541,7 +543,7 @@ Table system_event {
   created_at timestamp
 }
 
-Table stat_daily_system_overview {
+Table statitics.stat_daily_system_overview {
   stat_date date [pk]
   total_users int
   sos_requests int
@@ -552,7 +554,7 @@ Table stat_daily_system_overview {
   created_at timestamp
 }
 
-Table stat_daily_user_activity {
+Table statitics.stat_daily_user_activity {
   stat_date date
   user_id uuid [ref: > users.id]
   sos_created int
@@ -567,7 +569,7 @@ Table stat_daily_user_activity {
   }
 }
 
-Table stat_daily_rescuer_activity {
+Table statitics.stat_daily_rescuer_activity {
   stat_date date
   rescuer_id uuid [ref: > rescuer_profile.user_id]
   requests_accepted int
@@ -581,7 +583,7 @@ Table stat_daily_rescuer_activity {
   }
 }
 
-Table stat_daily_expert_activity {
+Table statitics.stat_daily_expert_activity {
   stat_date date
   expert_id uuid [ref: > expert_profile.user_id]
   video_calls int
@@ -594,7 +596,7 @@ Table stat_daily_expert_activity {
   }
 }
 
-Table stat_daily_subscription {
+Table statitics.stat_daily_subscription {
   stat_date date
   package_code varchar
   total_purchased int
@@ -606,17 +608,17 @@ Table stat_daily_subscription {
   }
 }
 
-Ref: patient_profile.user_id < reputation_event.profile_id
-Ref: rescuer_profile.user_id < reputation_event.profile_id
-Ref: expert_profile.user_id < reputation_event.profile_id
+Ref: patient_profile.user_id < statitics.reputation_event.profile_id
+Ref: rescuer_profile.user_id < statitics.reputation_event.profile_id
+Ref: expert_profile.user_id < statitics.reputation_event.profile_id
 
-Ref: patient_profile.user_id < reputation_transaction.profile_id
-Ref: rescuer_profile.user_id < reputation_transaction.profile_id
-Ref: expert_profile.user_id < reputation_transaction.profile_id
+Ref: patient_profile.user_id < statitics.reputation_transaction.profile_id
+Ref: rescuer_profile.user_id < statitics.reputation_transaction.profile_id
+Ref: expert_profile.user_id < statitics.reputation_transaction.profile_id
 
-Ref: patient_profile.user_id < reputation_snapshot.profile_id
-Ref: rescuer_profile.user_id < reputation_snapshot.profile_id
-Ref: expert_profile.user_id < reputation_snapshot.profile_id
+Ref: patient_profile.user_id < statitics.reputation_snapshot.profile_id
+Ref: rescuer_profile.user_id < statitics.reputation_snapshot.profile_id
+Ref: expert_profile.user_id < statitics.reputation_snapshot.profile_id
 
 TableGroup core_identity {
   users
@@ -711,18 +713,18 @@ TableGroup content_alerts {
 }
 
 TableGroup reputation_system {
-  reputation_event
-  reputation_transaction
-  reputation_snapshot
+  statitics.reputation_event
+  statitics.reputation_transaction
+  statitics.reputation_snapshot
 }
 
 TableGroup analytics_system {
-  system_event
-  stat_daily_system_overview
-  stat_daily_user_activity
-  stat_daily_rescuer_activity
-  stat_daily_expert_activity
-  stat_daily_subscription
+  statitics.system_event
+  statitics.stat_daily_system_overview
+  statitics.stat_daily_user_activity
+  statitics.stat_daily_rescuer_activity
+  statitics.stat_daily_expert_activity
+  statitics.stat_daily_subscription
 }
 
 // Gộp từ Map.dbml với schema 'map'
