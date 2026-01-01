@@ -620,170 +620,6 @@ Ref: patient_profile.user_id < statitics.reputation_snapshot.profile_id
 Ref: rescuer_profile.user_id < statitics.reputation_snapshot.profile_id
 Ref: expert_profile.user_id < statitics.reputation_snapshot.profile_id
 
-TableGroup core_identity {
-  users
-  roles
-  user_roles
-  patient_profile
-  rescuer_profile
-  expert_profile
-}
-
-TableGroup payments_wallets {
-  payment_card
-  wallet
-  payment_method
-  payment
-  payment_transaction
-  invoice
-  platform_fee
-}
-
-TableGroup skills_expertise {
-  skill
-  rescuer_skill
-  expert_skill
-  expert_experience
-  expert_pricing_rule
-  expert_schedule
-}
-
-TableGroup snake_library {
-  snake_species
-  snake_species_name
-  snake_media
-  snake_identification_profile
-  snake_first_aid_guideline
-  snake_distribution
-  antivenom
-  snake_species_antivenom
-  snake_library_audit_log
-}
-
-TableGroup ai_models {
-  ai_model
-  ai_model_class_map
-  snake_ai_recognition
-  snake_ai_recognition_snake_report
-}
-
-TableGroup incidents_emergency {
-  snakebite_incident
-  sos_request
-  patient_snakebite_history
-  snake_question
-  symptom
-  symptom_report
-  preparation_steps
-  media_type
-  media
-  bite_verification
-}
-
-TableGroup rescue_operations {
-  snake_report
-  rescue_mission
-  rescue_tracking
-  rescue_report
-  rescuer_snake_handling_history
-  rescue_tools
-  safety_guideline
-  snake_quantity
-  rescue_condition
-  snake_price_rule
-  snake_price_output
-  revenue_share_config
-}
-
-TableGroup expert_consultation {
-  consultation
-  consultation_note
-  rating
-  feedback
-}
-
-TableGroup medical_facilities {
-  treatment_facility
-  facility_antivenom
-}
-
-TableGroup content_alerts {
-  content
-  community_alert
-}
-
-TableGroup reputation_system {
-  statitics.reputation_event
-  statitics.reputation_transaction
-  statitics.reputation_snapshot
-}
-
-TableGroup analytics_system {
-  statitics.system_event
-  statitics.stat_daily_system_overview
-  statitics.stat_daily_user_activity
-  statitics.stat_daily_rescuer_activity
-  statitics.stat_daily_expert_activity
-  statitics.stat_daily_subscription
-}
-
-// Gộp từ Map.dbml với schema 'map'
-Enum map.incident_status {
-  CREATED
-  DISPATCHING
-  RESCUER_ASSIGNED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  EXPIRED
-}
-
-Enum map.session_status {
-  PENDING
-  OFFERING
-  ACCEPTED
-  EN_ROUTE
-  ARRIVED
-  COMPLETED
-  CANCELLED
-  EXPIRED
-}
-
-Enum map.offer_status {
-  PENDING
-  ACKED
-  ACCEPTED
-  REJECTED
-  EXPIRED
-  CANCELLED
-}
-
-Enum map.notify_type {
-  NEW_OFFER
-  OFFER_EXPIRES_SOON
-  OFFER_CANCELLED
-  RESCUER_ASSIGNED
-  RESCUER_ARRIVING
-  SESSION_CANCELLED
-  SESSION_COMPLETED
-}
-
-Enum map.notify_channel {
-  SIGNALR
-  FCM
-}
-
-Enum map.location_role {
-  PATIENT
-  RESCUER
-}
-
-Enum map.location_source {
-  GPS
-  NETWORK
-  MANUAL
-}
-
 Table map.device_tokens {
   id bigserial [pk]
   user_id uuid [ref: > users.id]
@@ -933,12 +769,60 @@ Table map.notification_log {
   }
 }
 
-TableGroup map_module {
-  map.device_tokens
-  map.incidents
-  map.rescue_sessions
-  map.rescue_offers
-  map.session_participants
-  map.location_events
-  map.notification_log
+
+// Gộp từ Map.dbml với schema 'map'
+Enum map.incident_status {
+  CREATED
+  DISPATCHING
+  RESCUER_ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+Enum map.session_status {
+  PENDING
+  OFFERING
+  ACCEPTED
+  EN_ROUTE
+  ARRIVED
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+Enum map.offer_status {
+  PENDING
+  ACKED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CANCELLED
+}
+
+Enum map.notify_type {
+  NEW_OFFER
+  OFFER_EXPIRES_SOON
+  OFFER_CANCELLED
+  RESCUER_ASSIGNED
+  RESCUER_ARRIVING
+  SESSION_CANCELLED
+  SESSION_COMPLETED
+}
+
+Enum map.notify_channel {
+  SIGNALR
+  FCM
+}
+
+Enum map.location_role {
+  PATIENT
+  RESCUER
+}
+
+Enum map.location_source {
+  GPS
+  NETWORK
+  MANUAL
 }
