@@ -1,0 +1,113 @@
+/* SnakeAid - In-app Chat (1-1 + Image) - Required Schema (MVP+1) */
+
+Table users {
+  id uuid [pk]
+  full_name varchar
+  email varchar
+  phone varchar
+  role varchar
+  status varchar
+  is_active boolean [default: true]
+  created_at timestamptz
+  updated_at timestamptz
+}
+
+Table conversations {
+  id uuid [pk]
+  user_low_id uuid [not null, ref: > users.id]   // min(userA, userB)
+  user_high_id uuid [not null, ref: > users.id]  // max(userA, userB)
+  created_at timestamptz [not null]
+
+  Indexes {
+    (user_low_id, user_high_id) [unique]
+    (created_at)
+  }
+}
+
+Table conversation_members {
+  conversation_id uuid [not null, ref: > conversations.id]
+  user_id uuid [not null, ref: > users.id]
+  joined_at timestamptz [not null]
+
+  Indexes {
+    (conversation_id, user_id) [pk]
+    (user_id, conversation_id)
+  }
+}
+
+Table conversation_summary {
+  conversation_id uuid [pk, not null, ref: > conversations.id]
+  last_message_id uuid [ref: > messages.id]
+  last_message_at timestamptz
+  last_sender_id uuid [ref: > users.id]
+  last_preview varchar
+  updated_at timestamptz [not null]
+
+  Indexes {
+    (last_message_at)
+  }
+}
+
+Table conversation_user_state {
+  conversation_id uuid [not null, ref: > conversations.id]
+  user_id uuid [not null, ref: > users.id]
+  last_read_message_id uuid [ref: > messages.id]
+  last_read_at timestamptz
+  unread_count int [not null, default: 0]
+  last_opened_at timestamptz
+  updated_at timestamptz [not null]
+
+  Indexes {
+    (conversation_id, user_id) [pk]
+    (user_id, conversation_id)
+  }
+}
+
+Table messages {
+  id uuid [pk]
+  conversation_id uuid [not null, ref: > conversations.id]
+  sender_id uuid [not null, ref: > users.id]
+  text text
+  created_at timestamptz [not null]
+  edited_at timestamptz
+  deleted_at timestamptz
+
+  Indexes {
+    (conversation_id, created_at)
+    (sender_id, created_at)
+  }
+}
+
+Table message_attachments {
+  id uuid [pk]
+  message_id uuid [not null, ref: > messages.id]
+  kind varchar [not null, note: "MVP: image"]
+  object_key varchar [not null, note: "S3/MinIO key (preferred)"]
+  url varchar [note: "Optional public/CDN URL if you store it"]
+  mime_type varchar
+  size_bytes bigint
+  width int
+  height int
+  created_at timestamptz [not null]
+
+  Indexes {
+    (message_id)
+    (object_key)
+  }
+}
+
+/* Optional but practical for offline push */
+Table device_tokens {
+  id uuid [pk]
+  user_id uuid [not null, ref: > users.id]
+  platform varchar [not null, note: "android|ios"]
+  fcm_token varchar [not null]
+  created_at timestamptz [not null]
+  last_seen_at timestamptz
+  revoked_at timestamptz
+
+  Indexes {
+    (user_id)
+    (fcm_token) [unique]
+  }
+}

@@ -1,0 +1,1138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg"
+    style="background: #ffffff; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); color-scheme: light dark;"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1568px" height="735px"
+    viewBox="0 0 1568 735">
+    <defs />
+    <rect fill="#ffffff" style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+        width="100%" height="100%" x="0" y="0" />
+    <g>
+        <g data-cell-id="0">
+            <g data-cell-id="1">
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-46">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 661 21 L 177 21" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 655 27 L 655 15 M 649 27 L 649 15" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 183 15 L 183 27 M 189 15 L 189 27" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-49">
+                        <g>
+                            <g>
+                                <switch>
+                                    <foreignObject style="overflow: visible; text-align: left;"
+                                        pointer-events="none" width="100%" height="100%"
+                                        requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                        <div xmlns="http://www.w3.org/1999/xhtml"
+                                            style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 22px; margin-left: 427px;">
+                                            <div
+                                                style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; background-color: #ffffff; ">
+                                                <div
+                                                    style="display: inline-block; font-size: 11px; font-family: Helvetica; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); white-space: nowrap; ">
+                                                    <div
+                                                        style="color: light-dark(rgb(52, 59, 89), rgb(179, 185, 210)); background-color: light-dark(rgb(230, 231, 237), rgb(37, 38, 43)); font-family: Consolas, &quot;Courier New&quot;, monospace; font-weight: normal; font-size: 14px; line-height: 19px; white-space: pre;">
+                                                        <div>
+                                                            <span
+                                                                style="color: light-dark(rgb(56, 95, 13), rgb(146, 180, 109));">
+                                                                system_account</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </foreignObject>
+                                    <image x="373" y="13" width="108" height="21.75"
+                                        xlink:href="data:image/png;base64,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" />
+                                </switch>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-1">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 661 84 L 661 0 L 821 0 L 821 84" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 661 84 L 821 84" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="741" y="47">PATIENT</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-44">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 57 290 L 57 84" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 51 284 L 63 284 M 51 278 L 63 278" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 63 90 L 51 90 M 63 96 L 51 96" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-47">
+                        <g>
+                            <g>
+                                <switch>
+                                    <foreignObject style="overflow: visible; text-align: left;"
+                                        pointer-events="none" width="100%" height="100%"
+                                        requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                        <div xmlns="http://www.w3.org/1999/xhtml"
+                                            style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 165px; margin-left: 54px;">
+                                            <div
+                                                style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; background-color: #ffffff; ">
+                                                <div
+                                                    style="display: inline-block; font-size: 11px; font-family: Helvetica; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); white-space: nowrap; ">
+                                                    <div
+                                                        style="color: light-dark(rgb(52, 59, 89), rgb(179, 185, 210)); font-family: Consolas, &quot;Courier New&quot;, monospace; font-weight: normal; font-size: 14px; line-height: 19px; white-space: pre;">
+                                                        <div>
+                                                            <span
+                                                                style="color: light-dark(rgb(56, 95, 13), rgb(146, 180, 109));">
+                                                                system_account</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </foreignObject>
+                                    <image x="0" y="156" width="108" height="21.75"
+                                        xlink:href="data:image/png;base64,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" />
+                                </switch>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-2">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 17 374 L 17 290 L 177 290 L 177 374" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 17 374 L 177 374" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="97" y="337">RESCUER</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-3">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 447 214 L 447 130 L 607 130 L 607 214" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 447 214 L 607 214" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="527" y="177">EXPERT</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-4">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 1407 214 L 1407 130 L 1567 130 L 1567 214" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 1407 214 L 1567 214" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="1487" y="177">SNAKE_SPECIES</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-5">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 1148 374 L 1148 290 L 1308 290 L 1308 374" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 1148 374 L 1308 374" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="1228" y="337">INCIDENT</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-6">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 1407 374 L 1407 290 L 1567 290 L 1567 374" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 1407 374 L 1567 374" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="1487" y="337">SYMPTOM_TRACK</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-7">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 836 544 L 836 460 L 996 460 L 996 544" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 836 544 L 996 544" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="916" y="507">MEDIA</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-8">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 447 544 L 447 460 L 607 460 L 607 544" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 447 544 L 607 544" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="527" y="507">RESCUE_MISSION</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-9">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 447 734 L 447 650 L 607 650 L 607 734" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 447 734 L 607 734" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="527" y="697">RESCUE_STATUS</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-10">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 647 734 L 647 650 L 807 650 L 807 734" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 647 734 L 807 734" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="727" y="697">RESCUE_TEAM</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-11">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 245 734 L 245 650 L 405 650 L 405 734" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 245 734 L 405 734" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="325" y="697">PRICING_RULE</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-12">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 17 544 L 17 460 L 177 460 L 177 544" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 17 544 L 177 544" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="97" y="507">DISPUTE</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-13">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 127 214 L 127 130 L 287 130 L 287 214" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 127 214 L 287 214" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="207" y="177">RATING</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-14">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 1407 544 L 1407 460 L 1567 460 L 1567 544" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 1407 544 L 1567 544" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="1487" y="507">FACILITY</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-15">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 838 374 L 838 290 L 998 290 L 998 374" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 838 374 L 998 374" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="918" y="337">CONSULTATION</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-16">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 447 374 L 447 290 L 607 290 L 607 374" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 447 374 L 607 374" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="527" y="337">PAYMENT</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-17">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 821 52.08 Q 1188 52.1 1188 290" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 827 46.08 L 827 58.08 M 833 46.08 L 833 58.08" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="1188" cy="272" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 1194 290 L 1188 278 L 1182 290" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="1058" y="94" width="44"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="1080" y="104.59">bao_cao</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-18">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 1268 290 Q 1268 172 1407 172" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <ellipse cx="1268" cy="272" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 1274 290 L 1268 278 L 1262 290" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 1401 178 L 1401 166 M 1395 178 L 1395 166" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="1253" y="194" width="115"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="1310" y="204.5">xac_nhan_or_du_doan</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-19">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 1308 332 L 1407 332" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 1314 326 L 1314 338 M 1320 326 L 1320 338" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="1389" cy="332" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 1407 326 L 1395 332 L 1407 338" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="1337" y="326" width="44"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="1358" y="336.5">theo_doi</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-20">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 1188 374 Q 1188 495.3 996 495.28" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 1194 380 L 1182 380 M 1194 386 L 1182 386" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="1014" cy="495.28" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 996 501.28 L 1008 495.28 L 996 489.28" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="1063" y="464" width="98"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="1111.3" y="474.79">bang_chung_su_co</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-21">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 1268 374 Q 1268 502 1407 502" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <ellipse cx="1268" cy="392" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 1262 374 L 1268 386 L 1274 374" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 1401 508 L 1401 496 M 1395 508 L 1395 496" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="1215" y="496" width="119"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="1274" y="506.5">huong_dan_co_so_y_te</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-22">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 1148 341.24 L 607 460" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path
+                            d="M 1143.43 348.39 L 1140.85 336.67 M 1137.57 349.67 L 1134.99 337.95"
+                            fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="624.58" cy="456.14" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 608.29 465.86 L 618.72 457.43 L 605.71 454.14" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="853" y="395" width="49"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="877.44" y="405.13">kich_hoat</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-23">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 177 353 L 447 488.56" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 185.05 350.33 L 179.67 361.05 M 190.42 353.02 L 185.03 363.75"
+                            fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="430.91" cy="480.48" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 449.69 483.2 L 436.28 483.18 L 444.31 493.92" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="242" y="384" width="50"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="266.83" y="394.77">thuc_hien</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-24">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 647 650 L 607 544" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 639.27 646.5 L 650.5 642.27 M 637.15 640.89 L 648.38 636.65"
+                            fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="613.36" cy="560.84" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 601.39 546.12 L 611.24 555.23 L 612.61 541.88" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="575" y="591" width="105"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="626.88" y="601.17">phan_cong_bo_sung</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-25">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 527 544 L 527 650" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 533 550 L 521 550 M 533 556 L 521 556" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="527" cy="632" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 533 650 L 527 638 L 521 650" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="492" y="591" width="71"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="527" y="601.5">tien_trinh_gps</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-26">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 607 502 L 836 502" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 613 496 L 613 508 M 619 496 L 619 508" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="818" cy="502" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 836 496 L 824 502 L 836 508" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="670" y="496" width="105"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="722" y="506.5">bang_chung_cuu_ho</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-27">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 405 650 L 447 544" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 401.63 642.21 L 412.79 646.63 M 403.84 636.63 L 415 641.05"
+                            fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="440.37" cy="560.73" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 441.42 541.79 L 442.58 555.16 L 452.58 546.21" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="393" y="591" width="66"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="426" y="601.51">ap_dung_phi</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-28">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 527 460 L 527 374" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <ellipse cx="527" cy="442" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 533 460 L 527 448 L 521 460" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 533 380 L 521 380 M 533 386 L 521 386" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="478" y="411" width="99"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="527" y="421.5">thanh_toan_cuu_ho</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-29">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 447 532.24 L 173.48 515.86" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 440.65 537.87 L 441.37 525.89 M 434.66 537.51 L 435.38 525.53"
+                            fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="191.45" cy="516.94" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 173.12 521.85 L 185.46 516.58 L 173.84 509.87" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="249" y="518" width="124"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="310.25" y="528.55">tranh_chap_or_hoan_phi</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-30">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 821 84 L 918 290" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 828.98 86.87 L 818.13 91.98 M 831.54 92.3 L 820.68 97.41"
+                            fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="910.33" cy="273.72" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 923.43 287.44 L 912.89 279.14 L 912.57 292.56" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="848" y="181" width="44"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="869.56" y="191.64">yeu_cau</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-31">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 607 172 Q 838 172 838 290" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 613 166 L 613 178 M 619 166 L 619 178" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="838" cy="272" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 844 290 L 838 278 L 832 290" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="765" y="166" width="35"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="782" y="176.5">tu_van</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-32">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 918 374 L 916 460" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 923.86 380.14 L 911.86 379.86 M 923.72 386.14 L 911.72 385.86"
+                            fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="916.42" cy="442" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 922 460.14 L 916.28 448 L 910 459.86" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="871" y="411" width="94"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="917" y="421.49">ho_tro_chan_doan</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-33">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 838 332 L 607 332" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <ellipse cx="820" cy="332" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 838 326 L 826 332 L 838 338" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 613 326 L 613 338 M 619 326 L 619 338" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="695" y="326" width="56"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="722" y="336.5">phi_tu_van</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-34">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 741 84 Q 741 311 607 311" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 747 90 L 735 90 M 747 96 L 735 96" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="625" cy="311" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 607 317 L 619 311 L 607 305" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="696" y="234" width="44"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="717" y="244.5">khoi_tao</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-35">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 177 311 L 447 325.28" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 183.31 305.33 L 182.67 317.31 M 189.3 305.64 L 188.67 317.63"
+                            fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="429.03" cy="324.33" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 447.32 319.29 L 435.02 324.65 L 446.68 331.27" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="278" y="312" width="69"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="311.81" y="322.63">nhan_cuu_ho</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-36">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 527 214 L 527 290" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 533 220 L 521 220 M 533 226 L 521 226" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="527" cy="272" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 533 290 L 527 278 L 521 290" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="495" y="243" width="66"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="527" y="253.5">nhan_tu_van</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-37">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 447 374 L 177 480.16" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 443.61 381.78 L 439.22 370.61 M 438.03 383.97 L 433.64 372.81"
+                            fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="193.75" cy="473.57" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 179.2 485.74 L 188.17 475.77 L 174.8 474.58" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="230" y="435" width="74"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="266.85" y="445.03">yeu_cau_hoan</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-38">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 661 63 L 287 130" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 656.15 69.96 L 654.04 58.15 M 650.25 71.02 L 648.13 59.21"
+                            fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="304.72" cy="126.83" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 288.06 135.91 L 298.81 127.88 L 285.94 124.09" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="444" y="94" width="47" height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="467.44" y="104.21">danh_gia</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-39">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 137 290 L 167 214" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 133.62 282.22 L 144.78 286.62 M 135.83 276.64 L 146.99 281.04"
+                            fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="160.39" cy="230.74" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 161.42 211.8 L 162.59 225.16 L 172.58 216.2" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="114" y="246" width="77"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="152.05" y="256.36">duoc_danh_gia</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-40">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 447 172 L 287 172" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 441 178 L 441 166 M 435 178 L 435 166" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <ellipse cx="305" cy="172" rx="5" ry="5" fill="#ffffff"
+                            style="fill: light-dark(rgb(255, 255, 255), rgb(18, 18, 18)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" pointer-events="all" />
+                        <path d="M 287 178 L 299 172 L 287 166" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" text-anchor="middle" font-size="11px">
+                            <rect fill="#ffffff" stroke="none" x="329" y="166" width="77"
+                                height="14"
+                                style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212));"
+                                stroke-width="0" />
+                            <text x="367" y="176.5">duoc_danh_gia</text>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-45">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 177 42 Q 527 42 527 130" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="stroke" />
+                        <path d="M 183 36 L 183 48 M 189 36 L 189 48" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 521 124 L 533 124 M 521 118 L 533 118" fill="none"
+                            stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-48">
+                        <g>
+                            <g>
+                                <switch>
+                                    <foreignObject style="overflow: visible; text-align: left;"
+                                        pointer-events="none" width="100%" height="100%"
+                                        requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                                        <div xmlns="http://www.w3.org/1999/xhtml"
+                                            style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 1px; height: 1px; padding-top: 47px; margin-left: 331px;">
+                                            <div
+                                                style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; background-color: #ffffff; ">
+                                                <div
+                                                    style="display: inline-block; font-size: 11px; font-family: Helvetica; color: light-dark(#000000, #ffffff); line-height: 1.2; pointer-events: all; background-color: light-dark(#ffffff, var(--ge-dark-color, #121212)); white-space: nowrap; ">
+                                                    <div
+                                                        style="color: light-dark(rgb(52, 59, 89), rgb(179, 185, 210)); background-color: light-dark(rgb(230, 231, 237), rgb(37, 38, 43)); font-family: Consolas, &quot;Courier New&quot;, monospace; font-weight: normal; font-size: 14px; line-height: 19px; white-space: pre;">
+                                                        <div>
+                                                            <span
+                                                                style="color: light-dark(rgb(56, 95, 13), rgb(146, 180, 109));">
+                                                                system_account</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </foreignObject>
+                                    <image x="277" y="38" width="108" height="21.75"
+                                        xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAABXCAYAAABleBCkAAAVAklEQVR4Xu2da6xVxRXHxy8NUFEs+OChIq8qFPBFKIIWtaBFq1K0EUSJxBCLilXUEkyppVEpiFSqaAnBSBGMLaXYCCpW8QFIaKNwC7YKCJGHDwhgKZp+ae866dzus8+aPWtm7zln73P+54uGO3vPzG+tWf9572P27jvwH4UfCIAACIAACBSIQKeO7Y85BgJWIIuhqCAAAiAAAiUCEDA4AgiAAAiAQCEJQMAKaTYUGgRAAARAAAIGHwABEAABECgkAQhYIc2GQoMACIAACEDA4AMgAAIgAAKFJAABK6TZUGgQAAEQAAEIGHwABEAABECgkAQgYIU0GwoNAiAAAiAAAYMPgAAIgAAIFJIABKyQZkOhQQAEQAAEIGDwARAAARAAgUISgIAV0mwoNAiAAAiAAAQMPgACIAACIFBIAhCwQpoNhQYBEAABEICAwQdAAARAAAQKSQACVkizodAgAAIgAAIQMPgACIAACIBAIQlAwAppNhQaBEAABEAAApZzH9h3YKdat/lF1bR9famkD9yyOOclRvFAAARAgCeQdTyDgOXY08Y/OEAd+ufnLSXs0aW/mnn7ihyXGEUDARAAAZ5AiHgGAcuxt/1gStey0kHAcmwsFA0EQCCRQIh4BgHLsdOFMHiOq4uigQAI1DGBEPEMApZjhwlh8BxXF0UDARCoYwIh4hkELMcOE8LgOa4uigYCIFDHBELEMwhYjh0mhMFzXF0UDQRAoI4JhIhnELAcO0wIg+e4uigaCIBAHRMIEc+cBeztTX9Sm7etVTv3va92f/ah+urfR8uQt2t7oupwfCfVplVbdUan3qp7577q7J4XqmPbtCusaaJnF/Yf2qP27v+ooi60Q5B+XTuepU7+xqmqf88hSv+bb8VDGNylLNt2b1KvbFhasjX9f/RHdaO69usxWA3p/32X1yamPXL0kHpy+VT17j/WlHyL/Ok754xU40ZMrXiOyrT4pVnN/vh26W+dOpyhLj7vWjXq4tsyK081XkR1fu/Dt9T2PU1qy44N6uhXX1T4GNWtQ7vOqm/3QeqCfleoju27Bilakq+3+lob1eWknkHsTpUhe65tPvNIDPYf3lt2hETHlT7dBqrBzfVP27YoP+JO8eydLS+reLvWdc0yvyAGS/lSYr78jd+oXc1tPBrXdPseOfTWzHwtRDwTC9hL63+rnn9tbplTSdlNG79Ind3rImPy9z54U01feFPF35+4d00qePFzB5TBhKt/oS4fdKOo6NSYF780U61vWilKHw/wtjNb9z1+dYUwOGdkeeAPM3Y6v5LqPWfpneKyUXAZf+U0sZA9s/IhteLN+S3lWjTtvVIHhwLKlHkj2Q7CoL4j1L03zGt5hgLPo0vvYOsWT+sMoAoP6OD52l9/L+YcLRbV8UcjH8qsY+jj62T3H14ySdyeTFip/S95ZbYTBwqwY4ZPTowrpvyI/aJVM9SrG58TW9o3v3jQpgxd22S8vdA7fGIqxSMt/C4MvjvgejVx1Awrq1rEM6uAJQUVa43+l8AGm5JxYiMFx5WDehYENPqjXtX8KetEjZ4Ee/6Kn0qrWJFOcmarFga3VYjqvWjVwxUja9tz9HepcMQbpPYPGw+djoLt5MdGJJZR4nOSOoVKwwUl17zIn6dPWJp6NLLs9SfUsy/Pcs2+Jb0vaz3a9ukg6sxdxYDEcubiW738m/J0jUl5ErBo+3nw6ZvZjqLJCSRt29Z+vR0s8mDc3okCloV4SXoLlIZrRNTDW3j/Rq96z1s2paKHJTECZZZWvOgdRRSwpHrTFFabVseVbMFNHWsjSRhzAvbJgV3WDoMOHrOenWgdFffrMSTX125lIWDEnERs9p0rvWcqJCxtDdBHwLKKLS4ClkW7dumoUdq8CViPLv3UhBkXeAm4bfYqdwLGiQAZhYTl/DMvVd069VGntD+9xb+PfHm4NI//ry+/KFsjkzg4OfRN08+uaCt3j/61eGoq+jA3opOUI6l3T0GR1vX6N/83+qM6U90/2ru1ZS69aAJmmpIj0eDmwZOmfa6+aAK7ZqWZcQI293eTW6anSQSHNee7unmKJ9o7J6Z3jX5M3TZraAt+yovsseCFn1X0KF2Cmy1IZ/33OAMSol6nnVvyr5NPOLWsXZG4N+1YbxRtX7FOEi/dxmmN89jWx5eqr9s3+bled6R/l7SrKD+beFFnaUDvYWXtjBh8evBjtXHr6jI7S23MzcjoMnH5bWpeV33j3eXGJRObj+t350nAKJY+t/rRinZC7W3Qt75XsjPZeP3fVrG+ZhtQ5ErAKJBHA4U2yA2X3eu0SE7vadu6nWja7oEFY8sahmtvR5eRW1OzwdfPco2aHPz+m5926uVSg7EtNFOaI0cPG2NjfF2QynHLVT93iqVJa4/6RRRQ4r0yCqj3jX3KusZgmn5KWr+MB29qQFqooiO4eKeGbHhW1wEtaaM9Qk6Ao3P+TtCqkJgYUICkjuDwgaOtvkJForZkmvpxXS82jUbI7rQJxrYRRq/h0br4pOtmW/0kitQknGRfybuIwysblqiX31mslkzfarUWlXXSnGEVYiTx8aQpdQnzPAkY8Y3erZoU10z+kTSgqEU8M04hcoFJ2uuwepQhgWkUoBf5pe/lGoi07GOm9S4bXrusm0nLJ00XYtcOlzc30rZNF0Tf4zpdy40+aMchxzpuD51vfITL9bBdRwZSu2SRjoKqz85cUzB26VhyHRaqk++amktdTBu2KJjOmLjciYk0X2661qWu5FvT5o+umHaTTJfnScCifivZBMTFUdc1wGieIeKZUcC4wlcjIKTdOUjAuKAn6S1xo07JVGAWAY17RwiDx/Phpm5d62wawZl6x6b1H040TdMS3Ogqzqsa/hrK9knv5XrHLtOIaQN6mjpz9vQRL2kZTGLt6hs+Mw1UxjwKGPF+/J7XrQi5TqFrbKiZgHGO5mp0KyEmAde4pMDpddwoTvo81ztMYzCf+oc2eLxMXMP0sTM3CjNNN3A2Nk3xcn5o6vk2ioCl7WhxHTzpDEUanzatQ/n4m7QcnNhLRk7c+7nOtW3kmzcBc+0sxMsvjaXV6pAbR2Cu00JSh7KlM629SUZQ9G5u5CidDjNtJJHmbaub69+rMQK7/ZGLyxZ1pWuF8bpwHQdTUOQEzBQIOAEzrW01ioBxPXtpR4uzE02nSdaSXP03np6LKS4jR5/8uXV1X8H0GfnmScBcpk0163h8oH+XbpyJ2ytEPDMKmGkRrxo9Nc7pJHOvpukClzU0rpdFvY4fX/8r0UK7TyMzPRPC4Dan8g0o3OjV9C5uDcx0Pi8uYEmBGgJm/9hp1usaLv7OtS3fXcbSfOM+kUasuc617X15EjBpJyfKlutAFkLATGJAlcvqBL7JCTnxlIwMspguSDqfQ1MPYy+/z2k3orShVWvIHc2HEx3fDorL9GuccVLDijegpPJBwOwCxvWofUckLr5tmt3wDYaSvLNew6E8ORFO6iBDwP5vqRAd8sSDzLaDf9T7OOebQ0tnCLK8D4+qzM3T23pr3MjN9ky8IdjOqFB6fedeyDvp0kwTSRo3pTEdHqe7LF1/3P19JmGCgPF0qRNA54/0OcokG3B3U9quLuN8iv4tpIjoOrh0cFx9z5Q+yw6azsN1bwAErIYCRlmbDjPHnUaLGR1AlZw9sjmp6xoc18OzDe9NZaDg8NAzt4jufdRidtnAG5y2ANvqXw0By+o2CFNdIGB2K+s7CPXlxfYn+BSS6SGujUhmNnzLFH2OW3vz3UwhLQ/n374zDDpP1zU1CFiNBYyyJ+ebt+wn4utHsphiNG3mMA3XudGiZN3M1BiosT+y5PaKg9VJjSfrKcYQQ+5o+SFg0lAYJl3aOwijpZIIWC1GQbqMIcTEZpUQebperAsBy4GAUREooC9bM690+j3+CRWTI6Xd/MAN1007CrmeURY3MfjclJ22l6d5QsBU6ULm6HRZvayBZXEHIQQsWcIgYOVf+JB0cuJEC7uJI8k1aLRD39CJ3odmSk/TeBNH/dJrjYwbVXHnELjRWprzClxdKI/la55Sf/n7n0VTiz7OEs+3FgKWlfgm+U+jr4GZRl7UVob0v0pd0LxZyDYN7+MbGIEplda/sQbmv2bq47O2Ubb1cypJL4h+EC5JzHxvzDbthIyfy+ICgu2AoQ1M0t/1hx5tYpZmCpPyD2Fw2xRi2gYu4drIAmby6bQHTKUdpiymtCQ2jqephXiGuA6PE7Ckc6JZ8HadtiT2WfGuyxGYaYSiL9jkphh9F2wl51a4rcEuZ798GqR+htYHX3hrgfFjfGkOQYcWsFosrBO3RhYw0xGRuXetdtoE5OsbXECtRlvhAmrWsyQS0fQ956jfze2OTtrFCQHLyRqYNMibbsz23e3EneWIvoubPkzrpNK6RtOZpoWkt4BwefoGKWn5Obahg0qjCxi3VuszW+DrG1xnz/WoidS/oulM58BCiicXG3zjENXF5wov7tyY67EFjMDMHpdqCtH0WtMOQlfD6fdzjU5v0OCMm0Y0fBqnfibNLfi1EDBumpL+Lc2oUcKvkUdgrmsoJp6+Asb5qO/siMTW0TRZXNTtmic3YvLd3OUzJZl2Cs70fULb4XNMIbp6Six9lndoJW2RjzcK37NfKatbetzlPkBJfllepGnKL6tvsEnqo9NAwDaV4bIFozjbNMHJ9Mmi0J0WqgN3tjPNiEjic1kKNifANjHkBEw66ky6VMHmM2l8JMo1rQBH3xUingUZgVGhsxQw0wHMqeMWlLZZR3/V6k1yjSdrAfP9LIykYes0pttWbA3TJY94WgiYv4CZ7CXdxGHaRCJ9Po3dTd8CC7lxyCTYrv7NzfRImKW5HSjpqEURBSxEPAsiYLZ1K59GwBmTHCh+pY6rY/qUxWU0k2Y6k+v9ZL2+l/XHDSU8IWDlAibpdJGdFq2aoV7d+ByLWBJMTSNg/e+ScnCZSz8sSc+avu/m006k+Zou6JZ+QNMkvDYRofr6Cp/tnKAt7zyOwELEs8TPqUjOo3DTGzMX31px2DltL8vkRNH8005HUG+NGkX/Xhc6XdhLzzy5fGrLp+51mdJ+zdm0MUQaaGj+vGP7rlZNMd3IIf28fDwD4kE/0xeHG1nAXD7mGR0lP//a3MTzhy4ClnRRN71nwjXTrV9e0EdoqFyTrpttPbem65LUjiVfCab3kF/rHc+Sz8CYRmEUL2xlN7VBKW/TN9BMgk11m7P0zrKOObXD+M7uIgpYiHhmFLDofCXtTOvQrrM6o1NvdWzr41X3zn3LYtaRLw+r7Xua1Matq8u+LZVVINfv4XpS0YL47OaKPh8NLuQ0XU7qqbp2PEt9vfVxpTpT3aM/qvOOvVuU6R67tKJt+yLA+Wdeqvr1GFxWLroM9rODu9Wufe+XbCHdOMNN+UbtR5c2d+vUp8L2nxzYpT49+HEp6ZYdG9T+w3tLgTapgTWygJk2OBE/CuB9uw1Sp7Q/vcRzXdNK9uA8+Wav084tu0hAGlC1TU1BXf+d2vyA3sPK/F6384/2bi3L2xZM4x0c2/2qNMtAsaZ/83/1T/tZPMZI/ZubytPvJnYD+wwv821qR2+8u5ztNLh2TE1xi/K95LxrS/Ymtpu3rW1eR3+hTKzIDtcPu1s9uvSOMow25nkcgYWIZyIBs3bhLQlssKXvt90dl3YhOsu7AV0DiomBrc42dtIGLrmF35ZX9O8QMDMtWwBP4qw/Srh284tqxZvzW5L6+JvtaxNSe/u0b9sUmTTvavu3z0chbZ0FU111XkeOHlbTF5ZfC2VjnkcBo3pmHc+CCpiPsZMc13SWhJ7JYm0oKwGTTvFJG2maxi5t4FQW4jt94TjjoWxpeSkdBMxMy7ezEL1b1GUUm2Q314u6uXfZgqkp/yzam6t/u17QHS17mrtdXdswTW/SJjW9zh/frGZjnlcBI56uLKI2iNs7iICRcF327bFq1NCJTrcLSAKkaSogi8OYaRsUOduY4ZPF6wGS+uo01FtetOph8UXK+jmXBh7Ny7bmklR2auj33/y0cf3NJfjW62W+tk0ZUb66PY0bMbXln10Y2vzMtIZre47sfOXg8eryQTfakhr/TmtE8/84zbnTRB3Way6a4NXWqC25+DfH36fC0pE31e2eMY+XxU7Xj7XmWcCIXVbxLHEXov7AHq2pfH5wT8lm8V1/9G/R9SJak8n645ZRZ+EELO3mjej7aY1i0wdvldZ1aE2HfnpdJ+60em2wb/dBKvTHLaPi0rRjfckecVtoO5x4QufSelXaMtH7aaoqurYVD6y0TtimVduWNYseXfpl3mnxCRZFeUZfEr2zec0yak+9zkW+FeJbcxwfvTHD5F/Uzuhjp326DVSD+11h3ejhYgPisK7Z15q2r1f7D+2pWEsP0dZo9EnrTnH2VG7K7/Tm9W9ak0wj0HEGJnvr/LL6nqIL+1qmJSFLE8+CbKMPBcS0AJ5280ao8uK9IAACIAAC4QgUSsC4uVPXHUHhUOLNIAACIAAC1SRQGAGrxSn+ahoCeYEACIAACLgRKISA0dz8pDnDKs5kZLn25YYNqUEABEAABGpNoBACZtp5aNtKWmu4yB8EQAAEQCAcgVwLGHetikaR9mvH4ZDizXkjQCP4bbs316RYJ7c/TXSdV00Kh0xBoOAEciFgtH2YTpvrH10bQ1srTVc0VeOjiwW3K4ofISC5RzMUsLTXiYUqF94LAvVAIBcCZrqhmgNM4iW9RboeDIQ6pCcAAUvPEG8AgTwSKJSASW+rziNolKl2BCBgtWOPnEEgJIFCCBjtNhx/5bSgN3yEhIx315YABKy2/JE7CIQikFsBo3sF6VMmoa+mCgUW7wUBEAABEAhLIBcCFraKeDsIgAAIgEA9EoCA1aNVUScQAAEQaAACELAGMDKqCAIgAAL1SAACVo9WRZ1AAARAoAEIQMAawMioIgiAAAjUIwEIWD1aFXUCARAAgQYgAAFrACOjiiAAAiBQjwQgYPVoVdQJBEAABBqAQEnAGqCeqCIIgAAIgEAdEoCA1aFRUSUQAAEQaAQCELBGsDLqCAIgAAJ1SAACVodGRZVAAARAoBEIQMAawcqoIwiAAAjUIQEIWB0aFVUCARAAgUYgAAFrBCujjiAAAiBQhwQgYHVoVFQJBEAABBqBAASsEayMOoIACIBAHRKAgNWhUVElEAABEGgEAv8FnfXLSJkYBO0AAAAASUVORK5CYII=" />
+                                </switch>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+                <g data-cell-id="U_Q1hLoX06c2B5J7E_NR-43">
+                    <g transform="translate(0.5,0.5)">
+                        <path d="M 17 84 L 17 0 L 177 0 L 177 84" fill="#ffffff"
+                            style="fill: light-dark(#ffffff, var(--ge-dark-color, #121212)); stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke="#000000" stroke-miterlimit="10" pointer-events="all" />
+                        <path d="M 17 84 L 177 84" fill="none" stroke="#000000"
+                            style="stroke: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            stroke-miterlimit="10" pointer-events="all" />
+                    </g>
+                    <g>
+                        <g fill="#000000"
+                            style="fill: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));"
+                            font-family="Helvetica" font-weight="bold" text-anchor="middle"
+                            font-size="12px">
+                            <text x="97" y="47">USER</text>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
