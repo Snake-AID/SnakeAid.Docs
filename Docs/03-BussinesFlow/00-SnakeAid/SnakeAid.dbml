@@ -12,19 +12,6 @@ Table users {
   updated_at timestamptz
 }
 
-Table roles {
-  id int [pk]
-}
-
-Table user_roles {
-  user_id uuid [not null, ref: > users.id]
-  role_id int [not null, ref: > roles.id]
-
-  Indexes {
-    (user_id, role_id) [pk]
-  }
-}
-
 Table patient_profile {
   user_id uuid [pk, not null, unique, ref: > users.id]
   emergency_contact varchar
@@ -312,7 +299,7 @@ Table symptom_report {
   symptom_id int [not null, ref: > symptom.id]
 }
 
-Table preparation_steps {
+Table guideline.preparation_steps {
   id uuid [pk]
   steps jsonb
   content jsonb
@@ -363,12 +350,12 @@ Table rescuer_snake_handling_history {
   rescue_mission_id uuid [not null, ref: > rescue_mission.id]
 }
 
-Table rescue_tools {
+Table guideline.rescue_tools {
   id uuid [pk]
   content jsonb
 }
 
-Table safety_guideline {
+Table guideline.safety_guideline {
   id uuid [pk]
   content jsonb
 }
