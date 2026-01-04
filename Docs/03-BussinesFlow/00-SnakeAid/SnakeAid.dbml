@@ -37,6 +37,7 @@ Table rescuer_profile {
   last_open_at timestamptz
   rating_avg numeric
   rating_count int
+  rescuer_type rescuer_type [not null, default: 'BOTH', note: "SOS: Chuyên sơ cứu, REMOVAL: Chuyên dọn rắn, BOTH: Cả hai"]
 }
 
 Table expert_profile {
@@ -104,25 +105,16 @@ Table payment_card {
   user_id uuid [not null, ref: > users.id]
 }
 
-Table skill {
+Table specialization {
   id uuid [pk]
-}
-
-Table rescuer_skill {
-  rescuer_id uuid [not null, ref: > rescuer_profile.user_id]
-  skill_id uuid [not null, ref: > skill.id]
-
-  Indexes {
-    (rescuer_id, skill_id) [pk]
-  }
 }
 
 Table expert_skill {
   expert_id uuid [not null, ref: > expert_profile.user_id]
-  skill_id uuid [not null, ref: > skill.id]
+  specialization_id uuid [not null, ref: > specialization.id]
 
   Indexes {
-    (expert_id, skill_id) [pk]
+    (expert_id, specialization_id) [pk]
   }
 }
 
@@ -409,7 +401,7 @@ Table snake_report {
   '''
 }
 
-Table removal_species_declaration {
+Table snake_removal_declarations {
   id uuid [pk]
   report_id uuid [not null, ref: > snake_report.id]  // Liên kết với removal report
   species_id uuid [not null, ref: > snake_species.id]  // Giống loài khai báo
@@ -422,11 +414,7 @@ Table removal_species_declaration {
     (report_id, species_id) [unique]  // Một report không khai báo trùng loài
   }
 
-  Note: '''
-  Khai báo giống loài và số lượng ban đầu cho removal (có thể nhiều loài).
-  User chọn loài -> nhập số lượng, lặp lại.
-  Rescuer update actual_quantity sau dọn, với ảnh proof để đối chiếu và tính tiền.
-  '''
+  Note: 'Lưu trữ khai báo của người dùng cho yêu cầu diệt rắn, bao gồm ước tính loài/số lượng, cập nhật thực tế bởi người cứu hộ để thanh toán.'
 }
 
 Table rescue_request {
@@ -438,9 +426,16 @@ Table rescue_request {
   status varchar [default: 'PENDING']
   created_at timestamptz [not null, default: `now()`]
 
+  // Gộp từ map.incidents cho SOS
+  location geography [note: "PostGIS: geography(Point,4326), gộp từ map.incidents"]
+  geohash varchar [note: "Optional: for coarse partitioning/analytics"]
+  address_text varchar
+  severity int [note: "0-5 or your own scale, gộp từ map.incidents"]
+  incident_notes text [note: "Gộp từ map.incidents.notes"]
+
   Note: '''
-  Bảng chung cho request gọi đội cứu hộ:
-  - SOS: Gọi đội sơ cứu + di chuyển bệnh viện.
+  Bảng chung cho request gọi đội cứu hộ (gộp map.incidents):
+  - SOS: Gọi đội sơ cứu + di chuyển bệnh viện, thêm location/severity từ incidents.
   - Removal: Gọi đội dọn rắn.
   Có thể có report trước (removal) hoặc sau (SOS cấp bách).
   '''
@@ -456,14 +451,21 @@ Table snake_ai_recognition_report {
   report_id uuid [not null, ref: > snake_report.id]
   ai_results jsonb  // Kết quả AI: top predictions, confidence, etc.
 
+  // Thêm fields cho expert review
+  expert_reviewed_by uuid [ref: > expert_profile.user_id]  // Expert review
+  expert_corrected_species_id uuid [ref: > snake_species.id]  // Species corrected by expert
+  expert_confirmed_at timestamptz  // Timestamp khi expert confirm
+  used_for_training boolean [default: false]  // Flag để dùng cho training model mới
+
   Indexes {
     (snake_ai_recognition_id, report_id) [unique]
   }
 
   Note: '''
   Liên kết AI recognition với reports:
-  - Kết quả nhận diện loài rắn từ ảnh trong snake_report.
   - Lưu ai_results (JSON): top predictions, confidence scores, severity.
+  - Expert review: Correct species nếu AI sai, dùng để train model mới.
+  - used_for_training: Flag data labeled cho AI training.
   - Sử dụng cho tất cả luồng report (SOS, removal, community).
   '''
 }
@@ -472,7 +474,33 @@ Table rescue_mission {
   id uuid [pk]
   request_id uuid [ref: > rescue_request.id]  // Thay cho snake_report_id và sos_request_id
   rescuer_id uuid [not null, ref: > rescuer_profile.user_id]
-  
+
+  // Gộp từ map.rescue_sessions
+  patient_id uuid [ref: > users.id]
+  assigned_rescuer_id uuid [ref: > users.id, null]  // Có thể khác rescuer_id nếu reassign
+  status rescue_mission_status [default: 'PENDING']
+  created_at timestamptz [not null, default: `now()`]
+  accepted_at timestamptz
+  started_at timestamptz
+  completed_at timestamptz
+  cancelled_at timestamptz
+  cancel_reason varchar
+  eta_seconds int
+  route_polyline text [note: "Optional; store if you compute ETA/route server-side"]
+  offer_attempts jsonb [note: "Gộp từ map.rescue_offers: array of offer attempt objects"]
+
+  Indexes {
+    (request_id)
+    (assigned_rescuer_id, status)
+    (status, created_at)
+  }
+
+  Note: '''
+  Bảng mission cứu hộ (refactored: gộp map.rescue_sessions, map.rescue_offers và đơn giản hóa):
+  - Quản lý dispatch, status, timings, offers.
+  - Location events và notifications tách riêng (map.location_events, map.notification_log) để refactor sau.
+  - Không cần bảng riêng cho offers/offers, participants (chỉ 1 rescuer), location events nếu đơn giản.
+  '''
 }
 
 Table rescue_tracking {
@@ -495,30 +523,40 @@ Table guideline.safety_guideline {
   content jsonb
 }
 
-Table snake_quantity {
+Table snake_quantities {
   id uuid [pk]
   rescue_mission_id uuid [not null, ref: > rescue_mission.id]
+
+  Note: 'Theo dõi tổng số lượng rắn được xử lý trong nhiệm vụ cứu hộ để báo cáo và thanh toán.'
 }
 
-Table rescue_condition {
+Table rescue_conditions {
   id uuid [pk]
   rescue_mission_id uuid [not null, ref: > rescue_mission.id]
+
+  Note: 'Ghi lại các điều kiện cụ thể của nhiệm vụ cứu hộ (ví dụ: địa hình, thời tiết, độ khó) ảnh hưởng đến định giá và thực hiện.'
 }
 
-Table snake_price_rule {
+Table snake_pricing_rules {
   id uuid [pk]
-  rescue_condition_id uuid [not null, ref: > rescue_condition.id]
+  rescue_condition_id uuid [not null, ref: > rescue_conditions.id]
   snake_species_id uuid [not null, ref: > snake_species.id]
+
+  Note: 'Xác định quy tắc định giá cho việc diệt rắn dựa trên loài và điều kiện cứu hộ (ví dụ: giá cơ bản cho mỗi loài, hệ số nhân cho địa hình).'
 }
 
-Table snake_price_output {
+Table snake_pricing_outputs {
   id uuid [pk]
-  rescue_condition_id uuid [not null, ref: > rescue_condition.id]
+  rescue_condition_id uuid [not null, ref: > rescue_conditions.id]
+
+  Note: 'Lưu trữ kết quả định giá đã tính toán cho các nhiệm vụ cứu hộ, bao gồm tổng sau khi áp dụng quy tắc và điều kiện.'
 }
 
-Table revenue_share_config {
+Table revenue_share_configs {
   id uuid [pk]
   content jsonb
+
+  Note: 'Cấu hình tỷ lệ chia sẻ doanh thu cho thanh toán (ví dụ: phí nền tảng, phần của người cứu hộ, phần của chuyên gia).'
 }
 
 Table consultation {
@@ -538,8 +576,6 @@ Table call_session {
   id uuid [pk]
   consultation_id uuid [ref: > consultation.id, null]  // Cho tư vấn
   incident_id uuid [ref: > snakebite_incident.id, null]  // Cho SOS
-  caller_id uuid [not null, ref: > users.id]  // User gọi (patient)
-  callee_id uuid [not null, ref: > users.id]  // Expert/rescuer được gọi
   call_type varchar(16) [not null, default: 'VIDEO', note: "VIDEO | AUDIO"]
   status varchar(24) [not null, default: 'INITIATED', note: "INITIATED | ONGOING | ENDED | FAILED"]
   room_id varchar(255) [note: "WebRTC room ID or Zoom meeting ID"]
@@ -552,13 +588,12 @@ Table call_session {
   Indexes {
     (consultation_id)
     (incident_id)
-    (caller_id)
     (status, start_time)
   }
 
   Note: '''
   Phiên video call cho tư vấn hoặc SOS:
-  - Hỗ trợ gọi trước (caller gọi expert/rescuer trước khi bắt đầu consultation/incident handling).
+  - Participants được track qua call_participant (hỗ trợ 1-1 hoặc multi-party).
   - Metadata lưu config cho WebRTC/Zoom.
   - Một consultation/incident có thể có nhiều call sessions nếu retry.
   '''
@@ -568,7 +603,7 @@ Table call_participant {
   id uuid [pk]
   call_session_id uuid [not null, ref: > call_session.id]
   user_id uuid [not null, ref: > users.id]
-  role varchar(16) [not null, default: 'PARTICIPANT', note: "CALLER | CALLEE | MODERATOR"]
+  role varchar(16) [not null, default: 'PARTICIPANT', note: "CALLER | CALLEE | MODERATOR | PARTICIPANT"]
   joined_at timestamptz [not null, default: `now()`]
   left_at timestamptz
   connection_status varchar(24) [default: 'CONNECTED', note: "CONNECTED | DISCONNECTED"]
@@ -579,9 +614,10 @@ Table call_participant {
   }
 
   Note: '''
-  Người tham gia call:
+  Người tham gia call (track tất cả participants qua mối quan hệ 1-N từ users):
+  - Role: CALLER (người gọi), CALLEE (người được gọi), MODERATOR, PARTICIPANT.
+  - Hỗ trợ 1-1 hoặc multi-party.
   - Track join/leave để audit.
-  - Hỗ trợ multi-party (e.g., patient + expert + rescuer).
   '''
 }
 
@@ -608,26 +644,6 @@ Table chat_message {
   '''
 }
 
-Table call_recording {
-  id uuid [pk]
-  call_session_id uuid [not null, ref: > call_session.id]
-  recording_type varchar(16) [not null, default: 'VIDEO', note: "VIDEO | AUDIO"]
-  url text [not null]
-  duration_seconds int
-  uploaded_at timestamptz [not null, default: `now()`]
-  metadata jsonb [note: "e.g., {'quality': 'HD', 'size_mb': 50}"]
-
-  Indexes {
-    (call_session_id)
-  }
-
-  Note: '''
-  Recordings của call:
-  - Optional: Chỉ lưu nếu cần audit/replay.
-  - URL đến cloud storage.
-  '''
-}
-
 Table expert_schedule {
   id uuid [pk]
   expert_id uuid [not null, ref: > expert_profile.user_id]
@@ -636,12 +652,10 @@ Table expert_schedule {
 
 Table user_feedback {
   id uuid [pk]
-  rater_id uuid [not null, ref: > users.id]  // Người rate (patient, rescuer, expert)
-  rater_role user_role [not null]            // Role của người rate
-  target_role user_role [not null]           // Role của người bị rate
-  patient_id uuid [ref: > patient_profile.user_id]  // Target nếu là patient
-  rescuer_id uuid [ref: > rescuer_profile.user_id] // Target nếu là rescuer
-  expert_id uuid [ref: > expert_profile.user_id]   // Target nếu là expert
+  rater_user_id uuid [not null, ref: > users.id]  // Người rate
+  rater_role user_role [not null]                 // Role của người rate
+  target_user_id uuid [not null, ref: > users.id] // Người bị rate
+  target_role user_role [not null]                // Role của người bị rate
   rescue_mission_id uuid [ref: > rescue_mission.id] // Liên kết mission
   consultation_id uuid [ref: > consultation.id]     // Liên kết consultation
   feedback_type feedback_type [not null]           // POSITIVE (patient rate rescuer/expert) or NEGATIVE (rescuer/expert rate patient)
@@ -727,28 +741,22 @@ Table facility_antivenom {
 
 Table payment {
   id uuid [pk]
-  payment_method payment_method [not null]  // Thay thế ref từ bảng payment_method
-  patient_id uuid [ref: > patient_profile.user_id]
-  rescuer_id uuid [ref: > rescuer_profile.user_id]
-  expert_id uuid [ref: > expert_profile.user_id]
+  payment_method payment_method [not null]
+  user_id uuid [not null, ref: > users.id]
+  user_role user_role [not null]
+  amount numeric [not null]
+  status varchar [default: 'PENDING', note: "PENDING | COMPLETED | FAILED | REFUNDED"]
   consultation_id uuid [ref: > consultation.id]
   rescue_mission_id uuid [ref: > rescue_mission.id]
-  incident_id uuid [ref: > snakebite_incident.id]
 }
 
 Table payment_transaction {
   id uuid [pk]
-  payment_id uuid [not null, unique, ref: > payment.id]
-}
-
-Table invoice {
-  id uuid [pk]
-  payment_id uuid [not null, ref: > payment.id]
-}
-
-Table platform_fee {
-  id uuid [pk]
-  payment_id uuid [not null, ref: > payment.id]
+  payment_id uuid [not null, ref: > payment.id]  // Bỏ unique để cho phép 1-N
+  transaction_id varchar [note: "Unique ID từ payment gateway (e.g., VNPay transaction ID)"]
+  status varchar [default: 'INITIATED', note: "INITIATED | SUCCESS | FAILED | REFUNDED"]
+  gateway_response jsonb [note: "Chi tiết response từ gateway (e.g., error codes, metadata)"]
+  processed_at timestamptz [note: "Timestamp khi transaction được xử lý"]
 }
 
 Table content {
@@ -771,94 +779,9 @@ Table map.device_tokens {
   }
 }
 
-Table map.incidents {
-  id uuid [pk]
-  patient_id uuid [ref: > users.id]
-  created_at timestamptz
-  status map.incident_status
-
-  // Location at time of SOS / report
-  location geography [note: "PostGIS: geography(Point,4326)"]
-  geohash varchar [note: "Optional: for coarse partitioning/analytics"]
-  address_text varchar
-
-  // Optional metadata for triage
-  severity int [note: "0-5 or your own scale"]
-  notes text
-
-  Indexes {
-    (patient_id, created_at)
-    (status, created_at)
-  }
-}
-
-Table map.rescue_sessions {
-  id uuid [pk]
-  incident_id uuid [ref: > map.incidents.id]
-  patient_id uuid [ref: > users.id]
-  assigned_rescuer_id uuid [ref: > users.id, null]
-  status map.session_status
-
-  created_at timestamptz
-  accepted_at timestamptz
-  started_at timestamptz
-  completed_at timestamptz
-  cancelled_at timestamptz
-  cancel_reason varchar
-
-  // Optional snapshot fields (not required if you always derive from events)
-  eta_seconds int
-  route_polyline text [note: "Optional; store if you compute ETA/route server-side"]
-
-  Indexes {
-    (incident_id)
-    (assigned_rescuer_id, status)
-    (status, created_at)
-  }
-}
-
-Table map.rescue_offers {
-  id uuid [pk]
-  session_id uuid [ref: > map.rescue_sessions.id]
-  rescuer_id uuid [ref: > users.id]
-
-  attempt_no int [default: 1, note: "Redispatch increments attempt_no"]
-  status map.offer_status
-
-  // Dispatch timings
-  sent_at timestamptz
-  expires_at timestamptz
-  acked_at timestamptz
-  responded_at timestamptz
-
-  // Useful for debugging delivery
-  primary_channel map.notify_channel [note: "SIGNALR by default; FCM used as fallback"]
-  last_error text
-
-  Indexes {
-    (session_id, attempt_no)
-    (rescuer_id, status)
-    (status, expires_at)
-  }
-}
-
-Table map.session_participants {
-  id bigserial [pk]
-  session_id uuid [ref: > map.rescue_sessions.id]
-  user_id uuid [ref: > users.id]
-  role map.location_role
-  joined_at timestamptz
-  left_at timestamptz
-
-  Indexes {
-    (session_id, role)
-    (user_id, joined_at)
-  }
-}
-
 Table map.location_events {
   id bigserial [pk]
-  session_id uuid [ref: > map.rescue_sessions.id]
+  session_id uuid [ref: > rescue_mission.id]  // Đổi ref từ map.rescue_sessions sang rescue_mission
   user_id uuid [ref: > users.id]
   role map.location_role
 
@@ -881,8 +804,7 @@ Table map.location_events {
 Table map.notification_log {
   id bigserial [pk]
   user_id uuid [ref: > users.id]
-  session_id uuid [ref: > map.rescue_sessions.id, null]
-  offer_id uuid [ref: > map.rescue_offers.id, null]
+  session_id uuid [ref: > rescue_mission.id, null]
 
   type map.notify_type
   channel map.notify_channel
@@ -955,6 +877,23 @@ Table snake_attribute_mapping {
 }
 
 // Gộp từ Map.dbml với schema 'map'
+Enum rescuer_type {
+  SOS      // Chuyên sơ cứu
+  REMOVAL  // Chuyên dọn rắn
+  BOTH     // Cả hai
+}
+
+Enum rescue_mission_status {
+  PENDING
+  OFFERING
+  ACCEPTED
+  EN_ROUTE
+  ARRIVED
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
 Enum user_role {
   PATIENT
   RESCUER
