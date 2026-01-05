@@ -441,15 +441,13 @@ Table rescue_request {
   '''
 }
 
-Table snake_ai_recognition {
-  id uuid [pk]
-}
-
 Table snake_ai_recognition_report {
   id uuid [pk]
-  snake_ai_recognition_id uuid [not null, ref: > snake_ai_recognition.id]
   report_id uuid [not null, ref: > snake_report.id]
+  ai_model_id uuid [ref: > ai_model.id, note: "Model AI used for recognition"]
   ai_results jsonb  // Kết quả AI: top predictions, confidence, etc.
+  processed_at timestamptz [not null, default: `now()`, note: "Timestamp when AI processed"]
+  status varchar(24) [not null, default: 'PROCESSED', note: "PROCESSED | FAILED"]
 
   // Thêm fields cho expert review
   expert_reviewed_by uuid [ref: > expert_profile.user_id]  // Expert review
@@ -458,12 +456,13 @@ Table snake_ai_recognition_report {
   used_for_training boolean [default: false]  // Flag để dùng cho training model mới
 
   Indexes {
-    (snake_ai_recognition_id, report_id) [unique]
+    (report_id) [unique]  // 1 report có 1 recognition report
   }
 
   Note: '''
-  Liên kết AI recognition với reports:
+  Liên kết AI recognition với reports (gộp từ snake_ai_recognition):
   - Lưu ai_results (JSON): top predictions, confidence scores, severity.
+  - ai_model_id/processed_at/status: Metadata của phiên AI.
   - Expert review: Correct species nếu AI sai, dùng để train model mới.
   - used_for_training: Flag data labeled cho AI training.
   - Sử dụng cho tất cả luồng report (SOS, removal, community).
