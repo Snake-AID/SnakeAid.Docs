@@ -1,6 +1,6 @@
 /* SnakeAid Unified ERD (DBML) */
 
-Table users {
+Table accounts {
   id uuid [pk]
   full_name varchar
   email varchar
@@ -14,26 +14,26 @@ Table users {
   updated_at timestamptz
 }
 
-Table patient_profile {
-  user_id uuid [pk, not null, unique, ref: > users.id]
+Table member_profile {
+  account_id uuid [pk, not null, unique, ref: > accounts.id]
   emergency_contact varchar
   rating_avg numeric [default: 0, note: "Average rating from rescuers/experts (for bad behavior)"]
   rating_count int [default: 0, note: "Number of ratings from rescuers/experts"]
 
   Note: '''
-  Profile cho patient (người dùng cuối):
+  Profile cho member (người dùng cuối):
   - Lưu thông tin liên hệ khẩn cấp.
   - Thêm rating_avg/rating_count để track reputation dựa trên feedback NEGATIVE từ rescuer/expert (e.g., đặt đơn bậy, quấy rối).
-  - Dùng để cảnh báo hoặc blacklist patient có hành vi xấu.
+  - Dùng để cảnh báo hoặc blacklist member có hành vi xấu.
   '''
 }
 
 Table rescuer_profile {
-  user_id uuid [pk, not null, unique, ref: > users.id]
+  account_id uuid [pk, not null, unique, ref: > accounts.id]
   experience_years int
   certification_level varchar
   is_verified boolean
-  is_available boolean [default: false, note: "User toggles Open/Close; realtime presence still handled in Redis"]
+  is_available boolean [default: false, note: "account toggles Open/Close; realtime presence still handled in Redis"]
   last_open_at timestamptz
   rating_avg numeric
   rating_count int
@@ -41,7 +41,7 @@ Table rescuer_profile {
 }
 
 Table expert_profile {
-  user_id uuid [pk, not null, unique, ref: > users.id]
+  account_id uuid [pk, not null, unique, ref: > accounts.id]
   specialization varchar
   license_number varchar
   verified_at timestamp
@@ -52,14 +52,14 @@ Table expert_profile {
   Note: '''
   Profile cho expert (chuyên gia tư vấn):
   - Lưu thông tin chuyên môn và xác minh.
-  - Thêm rating_avg/rating_count để tính reputation dựa trên feedback POSITIVE từ patient sau consultation.
+  - Thêm rating_avg/rating_count để tính reputation dựa trên feedback POSITIVE từ member sau consultation.
   - Dùng để hiển thị uy tín expert, ưu tiên expert có rating cao.
   '''
 }
 
 Table expert_certificate {
   id uuid [pk]
-  expert_id uuid [not null, ref: > expert_profile.user_id]
+  expert_id uuid [not null, ref: > expert_profile.account_id]
   
   certificate_name varchar(255) [not null, note: "Tên chứng chỉ"]
   issued_by varchar(255) [not null, note: "Tổ chức cấp"]
@@ -70,7 +70,7 @@ Table expert_certificate {
   status varchar(24) [not null, default: "PENDING", note: "PENDING | APPROVED | REJECTED"]
   rejection_reason text [note: "Lý do reject nếu có"]
   
-  reviewed_by uuid [ref: > users.id, note: "Admin duyệt"]
+  reviewed_by uuid [ref: > accounts.id, note: "Admin duyệt"]
   reviewed_at timestamptz
   
   created_at timestamptz [not null, default: `now()`]
@@ -92,7 +92,7 @@ Table expert_certificate {
 Table system_event {
   id uuid [pk]
   event_type varchar
-  actor_id uuid [ref: > users.id]
+  actor_id uuid [ref: > accounts.id]
   actor_role varchar
   ref_type varchar
   ref_id uuid
@@ -102,7 +102,7 @@ Table system_event {
 
 Table payment_card {
   id uuid [pk]
-  user_id uuid [not null, ref: > users.id]
+  account_id uuid [not null, ref: > accounts.id]
 }
 
 Table specialization {
@@ -110,7 +110,7 @@ Table specialization {
 }
 
 Table expert_skill {
-  expert_id uuid [not null, ref: > expert_profile.user_id]
+  expert_id uuid [not null, ref: > expert_profile.account_id]
   specialization_id uuid [not null, ref: > specialization.id]
 
   Indexes {
@@ -120,12 +120,12 @@ Table expert_skill {
 
 Table expert_experience {
   id uuid [pk]
-  expert_id uuid [not null, ref: > expert_profile.user_id]
+  expert_id uuid [not null, ref: > expert_profile.account_id]
 }
 
 Table expert_pricing_rule {
   id uuid [pk]
-  expert_id uuid [not null, ref: > expert_profile.user_id]
+  expert_id uuid [not null, ref: > expert_profile.account_id]
 }
 
 Table venom_types {
@@ -178,8 +178,8 @@ Table snake_species {
 
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null, default: `now()`]
-  created_by uuid [ref: > users.id]
-  updated_by uuid [ref: > users.id]
+  created_by uuid [ref: > accounts.id]
+  updated_by uuid [ref: > accounts.id]
 }
 
 Table snake_species_names {
@@ -219,9 +219,9 @@ Table library_media {
 
   Note: '''
   Media thư viện loài rắn (content tĩnh cho app):
-  - Ảnh/video mẫu của rắn để user đọc thông tin, học tập.
+  - Ảnh/video mẫu của rắn để account đọc thông tin, học tập.
   - Sử dụng cho LIBRARY, TRAINING, VERIFICATION.
-  Không liên quan đến user reports.
+  Không liên quan đến account reports.
   '''
 }
 
@@ -239,8 +239,8 @@ Table first_aid_guidelines {
 
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null, default: `now()`]
-  created_by uuid [ref: > users.id]
-  updated_by uuid [ref: > users.id]
+  created_by uuid [ref: > accounts.id]
+  updated_by uuid [ref: > accounts.id]
 
   Indexes {
     (target_type, target_id, version) [unique]
@@ -273,8 +273,8 @@ Table snake_distribution {
 
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null, default: `now()`]
-  created_by uuid [ref: > users.id]
-  updated_by uuid [ref: > users.id]
+  created_by uuid [ref: > accounts.id]
+  updated_by uuid [ref: > accounts.id]
 
   Indexes {
     (snake_species_id)
@@ -284,8 +284,8 @@ Table snake_distribution {
 
   Note: '''
   Phân bố địa lý của loài rắn:
-  - distribution_geometry: Polygons cho bản đồ range map và geofencing (check user location).
-  - geofence_enabled/alert_message_template: Hỗ trợ notification cảnh báo khi user vào vùng nguy hiểm.
+  - distribution_geometry: Polygons cho bản đồ range map và geofencing (check account location).
+  - geofence_enabled/alert_message_template: Hỗ trợ notification cảnh báo khi account vào vùng nguy hiểm.
   - Confidence: Độ tin cậy của data.
   - Version: Hỗ trợ update distribution over time.
   - Dùng để hiển thị bản đồ, filter loài, validate reports, và trigger alerts.
@@ -358,7 +358,7 @@ Table snake_library_audit_log {
   entity_id uuid [not null]
   action varchar(24) [not null]
 
-  changed_by uuid [ref: > users.id]
+  changed_by uuid [ref: > accounts.id]
   changed_at timestamptz [not null, default: `now()`]
 
   diff_json jsonb
@@ -366,7 +366,7 @@ Table snake_library_audit_log {
 
 Table snakebite_incident {
   id uuid [pk]
-  patient_id uuid [not null, ref: > patient_profile.user_id]
+  member_id uuid [not null, ref: > member_profile.account_id]
   snake_species_id uuid [ref: > snake_species.id]
 }
 
@@ -384,45 +384,145 @@ Table guideline.preparation_steps {
 
 Table snake_report {
   id uuid [pk]
-  patient_id uuid [ref: > patient_profile.user_id]  // Optional cho community
+  member_id uuid [not null, ref: > member_profile.account_id]  // Bắt buộc cho SOS
   snake_species_id uuid [ref: > snake_species.id]
   consultation_id uuid [ref: > consultation.id]
-  report_type report_type [not null]
-  location geography [note: "PostGIS: geography(Point,4326), for community heatmap"]
+  report_type report_type [not null, default: 'SOS']  // Chỉ SOS
+  location geography [note: "PostGIS: geography(Point,4326), vị trí SOS"]
   severity_score int [note: "Chấm điểm nguy hiểm từ triệu chứng/ảnh"]
+  symptoms jsonb [note: "Gộp từ symptom_report: array symptoms với severity"]
   created_at timestamptz [not null, default: `now()`]
 
   Note: '''
-  Bảng chung cho tất cả report rắn từ user:
-  - SOS: Report trước hoặc sau khi gọi cứu hộ (không cần khai báo ban đầu).
-  - Removal: Report trước khi gọi dọn rắn, có khai báo ban đầu qua bảng riêng (hỗ trợ nhiều loài).
-  - Community: Báo cáo rắn xuất hiện, heatmap (không cần khai báo).
-  Bao gồm ảnh để AI nhận diện và chấm điểm nguy hiểm.
+  Bảng chỉ cho SOS reports (gộp symptoms vào jsonb):
+  - SOS: Report trước hoặc sau khi gọi cứu hộ, bao gồm symptoms để chấm điểm nghiêm trọng.
+  - Không dùng cho removal (dùng removal_request) hoặc community (dùng bảng riêng nếu cần).
   '''
 }
 
-Table snake_removal_declarations {
+Table snake_catching_declarations {
   id uuid [pk]
-  report_id uuid [not null, ref: > snake_report.id]  // Liên kết với removal report
+  catching_request_id uuid [not null, ref: > catching_request.id]  // Thay removal_request_id thành catching_request_id
   species_id uuid [not null, ref: > snake_species.id]  // Giống loài khai báo
   declared_quantity int [not null]  // Số lượng khai báo cho loài này
   actual_species_id uuid [not null, ref: > snake_species.id]  // Giống loài thực tế từ rescuer (update sau)
   actual_quantity int [null]  // Số lượng thực tế từ rescuer (update sau)
   notes text  // Ghi chú từ rescuer
+  actual_updated_at timestamptz [note: "Timestamp khi rescuer cập nhật actual"]
+  rescue_mission_id uuid [ref: > rescue_mission.id]  // Liên kết trực tiếp với mission
 
   Indexes {
-    (report_id, species_id) [unique]  // Một report không khai báo trùng loài
+    (catching_request_id, species_id) [unique]  // Một request không khai báo trùng loài
   }
 
-  Note: 'Lưu trữ khai báo của người dùng cho yêu cầu diệt rắn, bao gồm ước tính loài/số lượng, cập nhật thực tế bởi người cứu hộ để thanh toán.'
+  Note: 'Lưu trữ khai báo của người dùng cho yêu cầu bắt rắn, bao gồm ước tính loài/số lượng, cập nhật thực tế bởi người cứu hộ để thanh toán.'
+}
+
+Table catching_request {
+  id uuid [pk]
+  member_id uuid [not null, ref: > member_profile.account_id]  // Người tạo request
+  location geography [note: "PostGIS: geography(Point,4326), vị trí bắt rắn"]
+  address_text varchar  // Địa chỉ text
+  status varchar [default: 'PENDING', note: "PENDING | ACCEPTED | COMPLETED | CANCELLED"]
+  priority int [default: 0, note: "Ưu tiên dựa trên severity, loại rắn"]
+  created_at timestamptz [not null, default: `now()`]
+  accepted_at timestamptz  // Khi rescuer accept
+  completed_at timestamptz  // Khi hoàn thành
+
+  Note: '''
+  Bảng riêng cho catching requests:
+  - account tạo trực tiếp vào đây, không qua rescue_request.
+  - Vào queue để rescuer duyệt và accept.
+  - Khi accept, tạo rescue_mission.
+  '''
+}
+
+Table catching_request_queue {
+  id uuid [pk]
+  catching_request_id uuid [not null, ref: > catching_request.id]  // Thay removal_request_id thành catching_request_id
+  queue_status varchar [default: 'PENDING', note: "PENDING | ACCEPTED | EXPIRED"]  // Trạng thái trong queue
+  priority int [default: 0, note: "Ưu tiên dựa trên severity, loại rắn (e.g., HIGH venomous = cao hơn)"]
+  location geography [note: "PostGIS: geography(Point,4326), để rescuer filter theo khu vực gần"]
+  snake_species_ids jsonb [note: "Array UUID của loài rắn từ declarations, để rescuer filter"]
+  estimated_quantity int [note: "Tổng số lượng khai báo từ declarations"]
+  created_at timestamptz [not null, default: `now()`]
+  expires_at timestamptz [note: "Thời hạn queue, e.g., 24h nếu không accept"]
+
+  Indexes {
+    (queue_status, priority, location)
+    (catching_request_id)
+  }
+
+  Note: '''
+  Bảng queue cho catching requests:
+  - Lưu trữ các catching_request ở trạng thái PENDING, cho rescuer browse và accept.
+  - Không dùng cho SOS (SOS vẫn dùng matching realtime qua rescue_request).
+  '''
+}
+
+Table catching_report_media {
+  id uuid [pk]
+  rescue_mission_id uuid [not null, ref: > rescue_mission.id]  // Liên kết với mission (sau khi accept)
+  media_type media_type [not null]  // IMAGE | VIDEO
+  url text [not null]
+  caption varchar(255)
+  purpose varchar(24) [not null, default: 'FINAL_PROOF', note: "FINAL_PROOF (bằng chứng sau), IDENTIFICATION (nếu cần)"]
+  uploaded_by uuid [ref: > accounts.id]  // Rescuer upload
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (rescue_mission_id, purpose)
+  }
+
+  Note: '''
+  Media proofs riêng cho catching:
+  - Tách media proofs (ảnh/video rắn bắt được, số lượng) riêng cho catching, tránh lẫn với SOS.
+  - Tập trung vào proofs sau khi bắt, dễ quản lý và audit.
+  '''
+}
+
+Table catching_quantity_report {
+  id uuid [pk]
+  rescue_mission_id uuid [not null, ref: > rescue_mission.id]
+  species_id uuid [not null, ref: > snake_species.id]  // Loài thực tế
+  actual_quantity int [not null]  // Số lượng thực tế (cập nhật từ declarations)
+  notes text  // Ghi chú từ rescuer (e.g., lý do khác biệt)
+  reported_by uuid [ref: > accounts.id]  // Rescuer report
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (rescue_mission_id, species_id)
+  }
+
+  Note: '''
+  Báo cáo số lượng thực tế riêng cho catching:
+  - Báo cáo số lượng thực tế từ rescuer, tách riêng để tránh lẫn với SOS.
+  - Link trực tiếp với declarations để cập nhật actual, tính toán pricing chính xác.
+  '''
+}
+
+Table community_report {
+  id uuid [pk]
+  reporter_id uuid [ref: > accounts.id]  // Optional, anonymous
+  snake_species_id uuid [ref: > snake_species.id]
+  location geography [note: "PostGIS: geography(Point,4326), vị trí phát hiện"]
+  description text  // Mô tả từ reporter
+  severity_score int [note: "Chấm điểm nguy hiểm từ AI"]
+  created_at timestamptz [not null, default: `now()`]
+
+  Note: '''
+  Bảng riêng cho community reports:
+  - Báo cáo phát hiện rắn ở khu vực công cộng, để cảnh báo cộng đồng và heatmap.
+  - Không liên quan đến SOS cá nhân hay removal.
+  '''
 }
 
 Table rescue_request {
   id uuid [pk]
   report_id uuid [ref: > snake_report.id]  // Optional: nếu report sau (SOS cấp bách)
   incident_id uuid [ref: > snakebite_incident.id]  // Cho SOS
-  request_type request_type [not null]
-  rescuer_id uuid [ref: > rescuer_profile.user_id]
+  request_type request_type [not null, default: 'SOS']  // Chỉ SOS
+  rescuer_id uuid [ref: > rescuer_profile.account_id]
   status varchar [default: 'PENDING']
   created_at timestamptz [not null, default: `now()`]
 
@@ -434,10 +534,9 @@ Table rescue_request {
   incident_notes text [note: "Gộp từ map.incidents.notes"]
 
   Note: '''
-  Bảng chung cho request gọi đội cứu hộ (gộp map.incidents):
+  Bảng chỉ cho SOS requests (realtime matching):
   - SOS: Gọi đội sơ cứu + di chuyển bệnh viện, thêm location/severity từ incidents.
-  - Removal: Gọi đội dọn rắn.
-  Có thể có report trước (removal) hoặc sau (SOS cấp bách).
+  - Không dùng cho removal (removal dùng removal_request riêng).
   '''
 }
 
@@ -450,7 +549,7 @@ Table snake_ai_recognition_report {
   status varchar(24) [not null, default: 'PROCESSED', note: "PROCESSED | FAILED"]
 
   // Thêm fields cho expert review
-  expert_reviewed_by uuid [ref: > expert_profile.user_id]  // Expert review
+  expert_reviewed_by uuid [ref: > expert_profile.account_id]  // Expert review
   expert_corrected_species_id uuid [ref: > snake_species.id]  // Species corrected by expert
   expert_confirmed_at timestamptz  // Timestamp khi expert confirm
   used_for_training boolean [default: false]  // Flag để dùng cho training model mới
@@ -471,13 +570,15 @@ Table snake_ai_recognition_report {
 
 Table rescue_mission {
   id uuid [pk]
-  request_id uuid [ref: > rescue_request.id]  // Thay cho snake_report_id và sos_request_id
-  rescuer_id uuid [not null, ref: > rescuer_profile.user_id]
+  request_id uuid [ref: > rescue_request.id]  // Cho SOS
+  catching_request_id uuid [ref: > catching_request.id]  // Thay removal_request_id thành catching_request_id
+  rescuer_id uuid [not null, ref: > rescuer_profile.account_id]
 
   // Gộp từ map.rescue_sessions
-  patient_id uuid [ref: > users.id]
-  assigned_rescuer_id uuid [ref: > users.id, null]  // Có thể khác rescuer_id nếu reassign
+  member_id uuid [ref: > accounts.id]
+  assigned_rescuer_id uuid [ref: > accounts.id, null]  // Có thể khác rescuer_id nếu reassign
   status rescue_mission_status [default: 'PENDING']
+  is_realtime_tracking boolean [default: false, note: "True nếu SOS (cần tracking), false nếu catching (không cần)"]
   created_at timestamptz [not null, default: `now()`]
   accepted_at timestamptz
   started_at timestamptz
@@ -490,6 +591,7 @@ Table rescue_mission {
 
   Indexes {
     (request_id)
+    (catching_request_id)
     (assigned_rescuer_id, status)
     (status, created_at)
   }
@@ -499,6 +601,7 @@ Table rescue_mission {
   - Quản lý dispatch, status, timings, offers.
   - Location events và notifications tách riêng (map.location_events, map.notification_log) để refactor sau.
   - Không cần bảng riêng cho offers/offers, participants (chỉ 1 rescuer), location events nếu đơn giản.
+  - Một mission có thể từ SOS (request_id) hoặc catching (catching_request_id).
   '''
 }
 
@@ -548,7 +651,7 @@ Table snake_pricing_outputs {
   id uuid [pk]
   rescue_condition_id uuid [not null, ref: > rescue_conditions.id]
 
-  Note: 'Lưu trữ kết quả định giá đã tính toán cho các nhiệm vụ cứu hộ, bao gồm tổng sau khi áp dụng quy tắc và điều kiện.'
+  Note: 'Lưu trữ kết quả định giá đã tính toán cho các nhiệm vụ cứu hộ, bao gồm tổng sau khi áp dụng quy tắc và điều kiện. Cho catching, dựa trên catching_quantity_report.actual_quantity và snake_catching_declarations (so sánh declared vs actual để tính phí chênh lệch nếu cần).'
 }
 
 Table revenue_share_configs {
@@ -560,9 +663,9 @@ Table revenue_share_configs {
 
 Table consultation {
   id uuid [pk]
-  patient_id uuid [ref: > patient_profile.user_id]
-  rescuer_id uuid [ref: > rescuer_profile.user_id]
-  expert_id uuid [not null, ref: > expert_profile.user_id]
+  member_id uuid [ref: > member_profile.account_id]
+  rescuer_id uuid [ref: > rescuer_profile.account_id]
+  expert_id uuid [not null, ref: > expert_profile.account_id]
   incident_id uuid [ref: > snakebite_incident.id]
 }
 
@@ -601,19 +704,19 @@ Table call_session {
 Table call_participant {
   id uuid [pk]
   call_session_id uuid [not null, ref: > call_session.id]
-  user_id uuid [not null, ref: > users.id]
+  account_id uuid [not null, ref: > accounts.id]
   role varchar(16) [not null, default: 'PARTICIPANT', note: "CALLER | CALLEE | MODERATOR | PARTICIPANT"]
   joined_at timestamptz [not null, default: `now()`]
   left_at timestamptz
   connection_status varchar(24) [default: 'CONNECTED', note: "CONNECTED | DISCONNECTED"]
 
   Indexes {
-    (call_session_id, user_id)
-    (user_id, joined_at)
+    (call_session_id, account_id)
+    (account_id, joined_at)
   }
 
   Note: '''
-  Người tham gia call (track tất cả participants qua mối quan hệ 1-N từ users):
+  Người tham gia call (track tất cả participants qua mối quan hệ 1-N từ accounts):
   - Role: CALLER (người gọi), CALLEE (người được gọi), MODERATOR, PARTICIPANT.
   - Hỗ trợ 1-1 hoặc multi-party.
   - Track join/leave để audit.
@@ -623,8 +726,8 @@ Table call_participant {
 Table chat_message {
   id uuid [pk]
   call_session_id uuid [not null, ref: > call_session.id]
-  sender_id uuid [not null, ref: > users.id]
-  receiver_id uuid [ref: > users.id, null]  // Null cho public chat
+  sender_id uuid [not null, ref: > accounts.id]
+  receiver_id uuid [ref: > accounts.id, null]  // Null cho public chat
   message_type varchar(16) [not null, default: 'TEXT', note: "TEXT | FILE | IMAGE"]
   content text [not null]  // Text hoặc URL nếu file
   timestamp timestamptz [not null, default: `now()`]
@@ -645,34 +748,34 @@ Table chat_message {
 
 Table expert_schedule {
   id uuid [pk]
-  expert_id uuid [not null, ref: > expert_profile.user_id]
+  expert_id uuid [not null, ref: > expert_profile.account_id]
   consultation_id uuid [unique, ref: > consultation.id]
 }
 
-Table user_feedback {
+Table account_feedback {
   id uuid [pk]
-  rater_user_id uuid [not null, ref: > users.id]  // Người rate
-  rater_role user_role [not null]                 // Role của người rate
-  target_user_id uuid [not null, ref: > users.id] // Người bị rate
-  target_role user_role [not null]                // Role của người bị rate
+  rater_account_id uuid [not null, ref: > accounts.id]  // Người rate
+  rater_role account_role [not null]                 // Role của người rate
+  target_account_id uuid [not null, ref: > accounts.id] // Người bị rate
+  target_role account_role [not null]                // Role của người bị rate
   rescue_mission_id uuid [ref: > rescue_mission.id] // Liên kết mission
   consultation_id uuid [ref: > consultation.id]     // Liên kết consultation
-  feedback_type feedback_type [not null]           // POSITIVE (patient rate rescuer/expert) or NEGATIVE (rescuer/expert rate patient)
+  feedback_type feedback_type [not null]           // POSITIVE (member rate rescuer/expert) or NEGATIVE (rescuer/expert rate member)
   score int [note: "Rating score 1-5 (higher for positive, lower for negative)"]
   comment text [note: "Feedback text"]
   created_at timestamptz [not null, default: `now()`]
 
   Note: '''
   Bảng feedback và rating bidirectional (hai chiều):
-  - POSITIVE: Patient rate rescuer/expert sau mission/consultation để đánh giá dịch vụ.
-  - NEGATIVE: Rescuer/expert rate patient nếu có hành vi xấu (đặt đơn bậy, quấy rối) để track reputation.
+  - POSITIVE: member rate rescuer/expert sau mission/consultation để đánh giá dịch vụ.
+  - NEGATIVE: Rescuer/expert rate member nếu có hành vi xấu (đặt đơn bậy, quấy rối) để track reputation.
   - Dùng để tính rating_avg/rating_count cho từng role, hỗ trợ uy tín và quản lý hành vi.
   '''
 }
 
 Table reputation_raw_event {
   id uuid [pk]
-  user_id uuid [not null, ref: > users.id]  // User bị ảnh hưởng (patient, rescuer, expert)
+  account_id uuid [not null, ref: > accounts.id]  // account bị ảnh hưởng (member, rescuer, expert)
   event_type varchar [not null]             // Loại event: 'FEEDBACK_RECEIVED', 'MISSION_COMPLETED', 'CONSULTATION_FINISHED'
   ref_type varchar                           // Loại ref: 'FEEDBACK', 'MISSION', 'CONSULTATION'
   ref_id uuid                                // ID của feedback/mission/consultation
@@ -691,7 +794,7 @@ Table reputation_raw_event {
 
 Table reputation_transaction {
   id uuid [pk]
-  user_id uuid [not null, ref: > users.id]    // User bị thay đổi
+  account_id uuid [not null, ref: > accounts.id]    // account bị thay đổi
   old_rating_avg numeric                      // Giá trị cũ
   new_rating_avg numeric                      // Giá trị mới
   points_added numeric                        // Điểm thực tế thêm/bớt
@@ -701,8 +804,8 @@ Table reputation_transaction {
   Note: '''
   Bảng lưu giao dịch thay đổi uy tín sau khi qua service engine:
   - Log lịch sử thay đổi rating_avg để audit và minh bạch.
-  - Mục đích: Ngăn chặn lạm dụng app bằng cách giảm uy tín cho hành vi xấu (e.g., patient quấy rối rescuer), bảo vệ nền tảng và người dùng tốt.
-  - Dùng để hiển thị history uy tín cho user.
+  - Mục đích: Ngăn chặn lạm dụng app bằng cách giảm uy tín cho hành vi xấu (e.g., member quấy rối rescuer), bảo vệ nền tảng và người dùng tốt.
+  - Dùng để hiển thị history uy tín cho account.
   '''
 }
 
@@ -717,8 +820,8 @@ Table report_media {
   is_used_for_ai boolean [default: true]  // Ảnh có dùng cho AI nhận diện không?
 
   Note: '''
-  Media từ user reports (ảnh/video):
-  - INITIAL_DECLARATION: Khai báo ban đầu từ user (removal).
+  Media từ account reports (ảnh/video):
+  - INITIAL_DECLARATION: Khai báo ban đầu từ account (removal).
   - FINAL_PROOF: Bằng chứng sau từ rescuer (giống loài, số lượng thực tế để tính tiền).
   - IDENTIFICATION: Ảnh rắn để AI nhận diện loài và chấm điểm nguy hiểm.
   Liên kết với reports, incidents, consultations, missions.
@@ -741,8 +844,8 @@ Table facility_antivenom {
 Table payment {
   id uuid [pk]
   payment_method payment_method [not null]
-  user_id uuid [not null, ref: > users.id]
-  user_role user_role [not null]
+  account_id uuid [not null, ref: > accounts.id]
+  account_role account_role [not null]
   amount numeric [not null]
   status varchar [default: 'PENDING', note: "PENDING | COMPLETED | FAILED | REFUNDED"]
   consultation_id uuid [ref: > consultation.id]
@@ -758,14 +861,14 @@ Table payment_transaction {
   processed_at timestamptz [note: "Timestamp khi transaction được xử lý"]
 }
 
-Table content {
+Table blogs {
   id uuid [pk]
-  created_by uuid [not null, ref: > users.id]
+  created_by uuid [not null, ref: > accounts.id]
 }
 
 Table map.device_tokens {
   id bigserial [pk]
-  user_id uuid [ref: > users.id]
+  account_id uuid [ref: > accounts.id]
   platform varchar [note: "android | ios | web"]
   fcm_token varchar [unique]
   is_active boolean [default: true]
@@ -773,7 +876,7 @@ Table map.device_tokens {
   created_at timestamptz
 
   Indexes {
-    (user_id, is_active)
+    (account_id, is_active)
     (last_seen_at)
   }
 }
@@ -781,13 +884,13 @@ Table map.device_tokens {
 Table map.location_events {
   id bigserial [pk]
   session_id uuid [ref: > rescue_mission.id]  // Đổi ref từ map.rescue_sessions sang rescue_mission
-  user_id uuid [ref: > users.id]
+  account_id uuid [ref: > accounts.id]
   role map.location_role
 
   ts timestamptz
   geom geography [note: "PostGIS: geography(Point,4326)"]
   geohash varchar [note: "Optional; precompute if needed"]
-  seq int [note: "Monotonic per user/session; helps de-dup/order"]
+  seq int [note: "Monotonic per account/session; helps de-dup/order"]
   source map.location_source
 
   speed_mps real
@@ -796,13 +899,19 @@ Table map.location_events {
 
   Indexes {
     (session_id, ts)
-    (user_id, ts)
+    (account_id, ts)
   }
+
+  Note: '''
+  Location events cho tracking realtime:
+  - Chỉ insert events nếu rescue_mission.is_realtime_tracking = true (SOS flow).
+  - Không dùng cho removal (queue-based, không tracking giữa member-rescuer).
+  '''
 }
 
 Table map.notification_log {
   id bigserial [pk]
-  user_id uuid [ref: > users.id]
+  account_id uuid [ref: > accounts.id]
   session_id uuid [ref: > rescue_mission.id, null]
 
   type map.notify_type
@@ -820,7 +929,7 @@ Table map.notification_log {
   sent_at timestamptz
 
   Indexes {
-    (user_id, created_at)
+    (account_id, created_at)
     (session_id, created_at)
     (type, created_at)
   }
@@ -834,7 +943,7 @@ Table filter_attributes {
   created_at timestamptz [not null, default: `now()`]
 
   Note: '''
-  Danh mục câu hỏi để user lọc loài rắn khi AI không nhận diện được.
+  Danh mục câu hỏi để account lọc loài rắn khi AI không nhận diện được.
   Ví dụ: Màu sắc, kích thước, môi trường sống, etc.
   Không có confidence_score, chỉ là filter cơ bản.
   '''
@@ -853,7 +962,7 @@ Table filter_options {
 
   Note: '''
   Các lựa chọn cho mỗi attribute (chỉ cho SELECT/MULTISELECT).
-  User chọn từ danh sách để lọc step-by-step.
+  account chọn từ danh sách để lọc step-by-step.
   '''
 }
 
@@ -871,7 +980,43 @@ Table snake_attribute_mapping {
 
   Note: '''
   Liên kết loài rắn với attributes để hỗ trợ filtering.
-  Cho phép user lọc loài dựa trên metadata khi AI fail.
+  Cho phép account lọc loài dựa trên metadata khi AI fail.
+  '''
+}
+
+Table symptom_config {
+  id uuid [pk]
+  symptom_name varchar(255) [not null, unique, note: "Tên triệu chứng, e.g., 'Sưng', 'Buồn nôn'"]
+  severity_points int [not null, default: 0, note: "Điểm severity cộng thêm khi có triệu chứng này"]
+  description text [note: "Mô tả triệu chứng"]
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  Note: '''
+  Cấu hình triệu chứng và điểm severity:
+  - Dùng để tính tổng điểm nguy hiểm trong SOS reports (snake_report.symptoms).
+  - Admin quản lý để cập nhật điểm dựa trên chuyên môn.
+  '''
+}
+
+Table reputation_rules {
+  id uuid [pk]
+  rule_type varchar(64) [not null, note: "Loại rule, e.g., 'BAD_BEHAVIOR', 'MISSION_CANCEL'"]
+  points_deducted int [not null, note: "Điểm trừ uy tín (âm)"]
+  description text [not null, note: "Mô tả rule"]
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (rule_type, is_active)
+  }
+
+  Note: '''
+  Cấu hình rules cho điểm trừ uy tín:
+  - Dùng trong reputation_raw_event để tính points_change.
+  - Admin cấu hình để xử lý sai phạm (e.g., patient quấy rối, rescuer bỏ mission).
   '''
 }
 
@@ -893,15 +1038,15 @@ Enum rescue_mission_status {
   EXPIRED
 }
 
-Enum user_role {
-  PATIENT
+Enum account_role {
+  member
   RESCUER
   EXPERT
 }
 
 Enum feedback_type {
-  POSITIVE  // Patient rates rescuer/expert
-  NEGATIVE  // Rescuer/expert rates patient
+  POSITIVE  // member rates rescuer/expert
+  NEGATIVE  // Rescuer/expert rates member
 }
 
 Enum report_type {
@@ -916,7 +1061,7 @@ Enum request_type {
 }
 
 Enum media_purpose {
-  INITIAL_DECLARATION  // Khai báo ban đầu từ user (removal)
+  INITIAL_DECLARATION  // Khai báo ban đầu từ account (removal)
   FINAL_PROOF  // Bằng chứng sau từ rescuer (giống loài, số lượng thực tế)
   IDENTIFICATION  // Nhận diện rắn
 }
@@ -967,7 +1112,7 @@ Enum map.notify_channel {
 }
 
 Enum map.location_role {
-  PATIENT
+  member
   RESCUER
 }
 
