@@ -8,8 +8,6 @@ Table accounts {
   role varchar
   status varchar
   is_active boolean [default: true]
-  wallet_balance numeric [default: 0]  // Số dư ví
-  wallet_currency varchar [default: 'VND']  // Tiền tệ
   created_at timestamptz
   updated_at timestamptz
 
@@ -472,24 +470,6 @@ Table guideline.preparation_steps {
   content jsonb
 }
 
-Table snake_report {
-  id uuid [pk]
-  member_id uuid [not null, ref: > member_profile.account_id]  // Bắt buộc cho SOS
-  snake_species_id uuid [ref: > snake_species.id]
-  consultation_id uuid [ref: > consultation.id]
-  report_type report_type [not null, default: 'SOS']  // Chỉ SOS
-  location geography [note: "PostGIS: geography(Point,4326), vị trí SOS"]
-  severity_score int [note: "Chấm điểm nguy hiểm từ triệu chứng/ảnh"]
-  symptoms jsonb [note: "Gộp từ symptom_report: array symptoms với severity"]
-  created_at timestamptz [not null, default: `now()`]
-
-  Note: '''
-  Bảng chỉ cho SOS reports (gộp symptoms vào jsonb):
-  - SOS: Report trước hoặc sau khi gọi cứu hộ, bao gồm symptoms để chấm điểm nghiêm trọng.
-  - Không dùng cho removal (dùng removal_request) hoặc community (dùng bảng riêng nếu cần).
-  '''
-}
-
 Table snake_catching_request_details {
   id uuid [pk]
   catching_request_id uuid [not null, ref: > snake_catching_request.id]  // Thay removal_request_id thành catching_request_id
@@ -607,7 +587,6 @@ Table community_report {
 
 Table rescue_request {
   id uuid [pk]
-  report_id uuid [ref: > snake_report.id]  // Optional: nếu report sau (SOS cấp bách)
   incident_id uuid [ref: > snakebite_incident.id]  // Cho SOS
   request_type request_type [not null, default: 'SOS']  // Chỉ SOS
   rescuer_id uuid [ref: > rescuer_profile.account_id]
@@ -628,9 +607,11 @@ Table rescue_request {
   '''
 }
 
-Table snake_ai_recognition_report {
+Table snake_ai_recognition_result {
   id uuid [pk]
-  report_id uuid [not null, ref: > snake_report.id]
+  doc_no uuid [not null]  // ID của document (thay report_id)
+  doc_type doc_type [not null]  // Loại document
+  media_id uuid [not null, ref: > report_media.id]
   ai_model_id uuid [ref: > ai_model.id, note: "Model AI used for recognition"]
   ai_results jsonb  // Kết quả AI: top predictions, confidence, etc.
   processed_at timestamptz [not null, default: `now()`, note: "Timestamp when AI processed"]
@@ -643,16 +624,16 @@ Table snake_ai_recognition_report {
   used_for_training boolean [default: false]  // Flag để dùng cho training model mới
 
   Indexes {
-    (report_id) [unique]  // 1 report có 1 recognition report
+    (doc_no, doc_type) [unique]  // Thay (report_id) để đảm bảo 1 document có 1 recognition
   }
 
   Note: '''
-  Liên kết AI recognition với reports (gộp từ snake_ai_recognition):
+  Liên kết AI recognition với documents qua doc_no và doc_type (giống payment_transaction):
+  - Giảm ref trực tiếp, hỗ trợ nhiều loại document (SOS, community, incident).
   - Lưu ai_results (JSON): top predictions, confidence scores, severity.
   - ai_model_id/processed_at/status: Metadata của phiên AI.
   - Expert review: Correct species nếu AI sai, dùng để train model mới.
   - used_for_training: Flag data labeled cho AI training.
-  - Sử dụng cho tất cả luồng report (SOS, removal, community).
   '''
 }
 
@@ -748,21 +729,15 @@ Table revenue_share_configs {
   Note: 'Cấu hình tỷ lệ chia sẻ doanh thu cho thanh toán (ví dụ: phí nền tảng, phần của người cứu hộ, phần của chuyên gia).'
 }
 
-Table consultation {
+Table consultation_session {
   id uuid [pk]
   member_id uuid [ref: > member_profile.account_id]
   rescuer_id uuid [ref: > rescuer_profile.account_id]
   expert_id uuid [not null, ref: > expert_profile.account_id]
   incident_id uuid [ref: > snakebite_incident.id]
-}
-
-Table call_session {
-  id uuid [pk]
-  consultation_id uuid [ref: > consultation.id, null]  // Cho tư vấn
-  incident_id uuid [ref: > snakebite_incident.id, null]  // Cho SOS
   call_type varchar(16) [not null, default: 'VIDEO', note: "VIDEO | AUDIO"]
   status varchar(24) [not null, default: 'INITIATED', note: "INITIATED | ONGOING | ENDED | FAILED"]
-  room_id varchar(255) [note: "WebRTC room ID or Zoom meeting ID"]
+  room_id varchar(255) [note: "WebRTC room ID"]
   start_time timestamptz
   end_time timestamptz
   duration_seconds int
@@ -770,44 +745,24 @@ Table call_session {
   created_at timestamptz [not null, default: `now()`]
 
   Indexes {
-    (consultation_id)
+    (expert_id)
     (incident_id)
     (status, start_time)
   }
 
   Note: '''
-  Phiên video call cho tư vấn hoặc SOS:
-  - Participants được track qua call_participant (hỗ trợ 1-1 hoặc multi-party).
-  - Metadata lưu config cho WebRTC/Zoom.
-  - Một consultation/incident có thể có nhiều call sessions nếu retry.
-  '''
-}
-
-Table call_participant {
-  id uuid [pk]
-  call_session_id uuid [not null, ref: > call_session.id]
-  account_id uuid [not null, ref: > accounts.id]
-  role varchar(16) [not null, default: 'PARTICIPANT', note: "CALLER | CALLEE | MODERATOR | PARTICIPANT"]
-  joined_at timestamptz [not null, default: `now()`]
-  left_at timestamptz
-  connection_status varchar(24) [default: 'CONNECTED', note: "CONNECTED | DISCONNECTED"]
-
-  Indexes {
-    (call_session_id, account_id)
-    (account_id, joined_at)
-  }
-
-  Note: '''
-  Người tham gia call (track tất cả participants qua mối quan hệ 1-N từ accounts):
-  - Role: CALLER (người gọi), CALLEE (người được gọi), MODERATOR, PARTICIPANT.
-  - Hỗ trợ 1-1 hoặc multi-party.
-  - Track join/leave để audit.
+  Bảng session tư vấn với call video/audio qua WebRTC:
+  - Kết hợp consultation và call_session thành một session duy nhất cho buổi tư vấn.
+  - room_id: WebRTC room ID để join call.
+  - metadata: Config WebRTC (stun_servers, etc.).
+  - Participants track qua call_participant (hỗ trợ 1-1 hoặc multi-party).
+  - Không hỗ trợ retry nhiều sessions; mỗi consultation_session là duy nhất.
   '''
 }
 
 Table chat_message {
   id uuid [pk]
-  call_session_id uuid [not null, ref: > call_session.id]
+  call_session_id uuid [not null, ref: > consultation_session.id]
   sender_id uuid [not null, ref: > accounts.id]
   receiver_id uuid [ref: > accounts.id, null]  // Null cho public chat
   message_type varchar(16) [not null, default: 'TEXT', note: "TEXT | FILE | IMAGE"]
@@ -831,7 +786,7 @@ Table chat_message {
 Table expert_schedule {
   id uuid [pk]
   expert_id uuid [not null, ref: > expert_profile.account_id]
-  consultation_id uuid [unique, ref: > consultation.id]
+  consultation_id uuid [unique, ref: > consultation_session.id]
 }
 
 Table account_feedback {
@@ -841,7 +796,7 @@ Table account_feedback {
   target_account_id uuid [not null, ref: > accounts.id] // Người bị rate
   target_role account_role [not null]                // Role của người bị rate
   rescue_mission_id uuid [ref: > rescue_mission.id] // Liên kết mission
-  consultation_id uuid [ref: > consultation.id]     // Liên kết consultation
+  consultation_id uuid [ref: > consultation_session.id]     // Liên kết consultation
   feedback_type feedback_type [not null]           // POSITIVE (member rate rescuer/expert) or NEGATIVE (rescuer/expert rate member)
   score int [note: "Rating score 1-5 (higher for positive, lower for negative)"]
   comment text [note: "Feedback text"]
@@ -894,9 +849,8 @@ Table reputation_transaction {
 Table report_media {
   id uuid [pk]
   media_type media_type  // Thay thế ref từ bảng media_type
-  report_id uuid [ref: > snake_report.id]  // Thống nhất cho tất cả report
   incident_id uuid [ref: > snakebite_incident.id]
-  consultation_id uuid [ref: > consultation.id]
+  consultation_id uuid [ref: > consultation_session.id]
   rescue_mission_id uuid [ref: > rescue_mission.id]
   purpose media_purpose  // Mục đích media
   is_used_for_ai boolean [default: true]  // Ảnh có dùng cho AI nhận diện không?
@@ -947,47 +901,29 @@ Table facility_antivenom {
   '''
 }
 
-Table payment {
+Table payment_transaction {
   id uuid [pk]
+  trans_date timestamptz [not null, default: `now()`]
+  trans_type transaction_type [not null]
+  doc_no uuid [not null]
   payment_method payment_method [not null]
   account_id uuid [not null, ref: > accounts.id]
   account_role account_role [not null]
   amount numeric [not null]
   status varchar [default: 'PENDING', note: "PENDING | COMPLETED | FAILED | REFUNDED"]
-  consultation_id uuid [ref: > consultation.id]
-  rescue_mission_id uuid [ref: > rescue_mission.id]
-  created_at timestamptz [not null, default: `now()`]
-
-  Indexes {
-    (account_id, created_at)
-    (status, created_at)
-  }
-
-  Note: '''
-  Bảng thanh toán chung:
-  - Hỗ trợ nhiều phương thức thanh toán (credit card, e-wallet, bank transfer).
-  - Liên kết với consultation hoặc rescue_mission.
-  - Trạng thái thanh toán để theo dõi tiến trình.
-  '''
-}
-
-Table payment_transaction {
-  id uuid [pk]
-  payment_id uuid [not null, ref: > payment.id]  // Bỏ unique để cho phép 1-N
   transaction_id varchar [note: "Unique ID từ payment gateway (e.g., VNPay transaction ID)"]
-  status varchar [default: 'INITIATED', note: "INITIATED | SUCCESS | FAILED | REFUNDED"]
   gateway_response jsonb [note: "Chi tiết response từ gateway (e.g., error codes, metadata)"]
   processed_at timestamptz [note: "Timestamp khi transaction được xử lý"]
 
   Indexes {
-    (payment_id)
-    (status, processed_at)
+    (account_id, trans_date)
+    (status, trans_date)
   }
 
   Note: '''
-  Bảng giao dịch thanh toán chi tiết:
-  - Lưu trữ từng giao dịch liên quan đến một payment (hỗ trợ retry, refund).
-  - Theo dõi trạng thái và phản hồi từ payment gateway.
+  Bảng giao dịch thanh toán:
+  - TransType xác định loại giao dịch.
+  - DocNo là ID của document liên quan.
   '''
 }
 
@@ -1335,4 +1271,10 @@ Enum request_status {
   ACCEPTED
   COMPLETED
   CANCELLED
+}
+
+Enum doc_type {
+  SNAKE_REPORT     // SOS report
+  COMMUNITY_REPORT // Community alert
+  INCIDENT         // Snakebite incident
 }
