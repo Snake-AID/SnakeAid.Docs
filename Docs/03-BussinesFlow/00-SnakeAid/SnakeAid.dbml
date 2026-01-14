@@ -12,6 +12,48 @@ Table accounts {
   wallet_currency varchar [default: 'VND']  // Tiền tệ
   created_at timestamptz
   updated_at timestamptz
+
+  Indexes {
+    (email) [unique]
+    (phone) [unique]
+  }
+
+  Note: '''
+  Bảng tài khoản chung cho tất cả người dùng:
+  - Lưu thông tin cơ bản: tên, email, điện thoại, vai trò (member, rescuer, expert).
+  - Quản lý trạng thái và số dư ví.
+  '''
+}
+
+Table wallet_accounts {
+  id uuid [pk]
+  wallet_balance numeric [default: 0]  // Số dư ví
+  wallet_currency varchar [default: 'VND']  // Tiền tệ
+  created_at timestamptz
+  updated_at timestamptz
+
+  user_id uuid [not null, ref: > accounts.id]
+
+  Note: '''
+  Bảng ví riêng biệt (nếu cần tách ví ra khỏi accounts):
+  - Quản lý số dư ví và tiền tệ.
+  '''
+}
+
+Table wallet_withdrawals {
+  id uuid [pk]
+  amount numeric [not null]
+  currency varchar [not null, default: 'VND']
+  status varchar [not null, default: 'PENDING']  // PENDING | COMPLETED | REJECTED
+  created_at timestamptz
+  updated_at timestamptz
+
+  wallet_id uuid [not null, ref: > wallet_accounts.id]
+
+  Note: '''
+  Bảng ví riêng biệt (nếu cần tách ví ra khỏi accounts):
+  - Quản lý số dư ví và tiền tệ.
+  '''
 }
 
 Table member_profile {
@@ -38,13 +80,18 @@ Table rescuer_profile {
   rating_avg numeric
   rating_count int
   rescuer_type rescuer_type [not null, default: 'BOTH', note: "SOS: Chuyên sơ cứu, REMOVAL: Chuyên dọn rắn, BOTH: Cả hai"]
+
+  Note: '''
+  Profile cho rescuer (người cứu hộ):
+  - Lưu thông tin chuyên môn và trạng thái sẵn sàng.
+  - Thêm rescuer_type để phân loại chuyên môn (SOS, REMOVAL, BOTH).
+  - Dùng để lọc và ưu tiên khi dispatch nhiệm vụ cứu hộ.
+  '''
 }
 
 Table expert_profile {
   account_id uuid [pk, not null, unique, ref: > accounts.id]
-  specialization varchar
-  license_number varchar
-  verified_at timestamp
+  bio text
   rating_avg numeric [default: 0, note: "Average rating from consultations"]
   rating_count int [default: 0, note: "Number of ratings from consultations"]
   experience_count int [default: 0, note: "Number of consultations completed"]
@@ -57,11 +104,12 @@ Table expert_profile {
   '''
 }
 
-Table expert_certificate {
+Table expert_certificates {
   id uuid [pk]
   expert_id uuid [not null, ref: > expert_profile.account_id]
   
   certificate_name varchar(255) [not null, note: "Tên chứng chỉ"]
+  certificate_number varchar(255) [not null, note: "Số hiệu chứng chỉ"]
   issued_by varchar(255) [not null, note: "Tổ chức cấp"]
   issued_date date [not null]
   expiry_date date [note: "Ngày hết hạn"]
@@ -98,34 +146,77 @@ Table system_event {
   ref_id uuid
   metadata json
   created_at timestamp
+
+  Indexes {
+    (event_type, created_at)
+    (actor_id, created_at)
+  }
+
+  Note: '''
+  Bảng log sự kiện hệ thống:
+  - Lưu trữ các hành động quan trọng của người dùng (đăng nhập, cập nhật profile, tạo request).
+  - Dùng để audit và phân tích hành vi người dùng.
+  '''
 }
 
 Table payment_card {
   id uuid [pk]
   account_id uuid [not null, ref: > accounts.id]
+  method_type varchar(16) [not null, default: 'CARD', note: "CARD | EWALLET | BANK_TRANSFER"]  // Phân biệt loại
+  provider varchar(32) [not null, note: "e.g., Visa, Mastercard, Grab, Shopee, VNPay"]  // Nhà cung cấp
+  identifier varchar(255) [not null, note: "Mã hóa: card_number (last 4 digits), e-wallet ID, hoặc bank account"]  // Không lưu full sensitive data
+  expiry_date date [note: "Cho card; null cho e-wallet"]
+  card_holder_name varchar(255) [note: "Cho card; mã hóa nếu cần"]
+  is_default boolean [default: false, note: "Phương thức mặc định"]
+  is_active boolean [default: true, note: "Active/inactive"]
+  status varchar(24) [default: 'VERIFIED', note: "PENDING | VERIFIED | FAILED | EXPIRED"]  // Trạng thái xác minh
+  metadata jsonb [note: "Chi tiết bổ sung: e.g., {'bank_code': 'VCB', 'wallet_balance': 100000}"]  // Flexible cho e-wallet
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (account_id, is_default)  // Query nhanh default method
+    (account_id, is_active)
+  }
+
+  Note: '''
+  Lưu phương thức thanh toán linked (card, e-wallet, bank):
+  - identifier: Lưu hashed/encrypted (không plain text) để bảo mật PCI DSS.
+  - method_type/provider: Hỗ trợ đa dạng (card vật lý, e-wallet như Grab/Shopee).
+  - is_default: Chọn method mặc định cho nạp tiền.
+  - status: Xác minh qua gateway (e.g., tokenization).
+  - Không lưu CVV/full card number; dùng token từ payment gateway.
+  '''
 }
 
 Table specialization {
   id uuid [pk]
+  name varchar(64) [not null, unique, note: "e.g., Neurotoxic, Hemotoxic, Cytotoxic, Myotoxic"]
+  description text [note: "Description of specialization"]
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  Note: '''
+  Các chuyên môn chính của chuyên gia
+  - Liên quan đến các loại độc tố rắn.
+  - Hoặc các kỹ năng tư vấn sơ cứu cụ thể.
+  - Dùng để gán chuyên gia theo kỹ năng.
+  '''
 }
 
-Table expert_skill {
+Table expert_specialization {
   expert_id uuid [not null, ref: > expert_profile.account_id]
   specialization_id uuid [not null, ref: > specialization.id]
 
   Indexes {
     (expert_id, specialization_id) [pk]
   }
-}
 
-Table expert_experience {
-  id uuid [pk]
-  expert_id uuid [not null, ref: > expert_profile.account_id]
-}
-
-Table expert_pricing_rule {
-  id uuid [pk]
-  expert_id uuid [not null, ref: > expert_profile.account_id]
+  Note: '''
+  Liên kết nhiều-nhiều giữa expert và chuyên môn:
+  - Một expert có thể có nhiều chuyên môn.
+  - Một chuyên môn có thể được nhiều expert sở hữu.
+  '''
 }
 
 Table venom_types {
@@ -175,6 +266,8 @@ Table snake_species {
   key_features jsonb [note: "Key features in JSON"]
   similar_species_notes text [note: "Notes on similar species"]
   identification_updated_at timestamptz [not null, default: `now()`, note: "Last update for identification data"]
+
+  firstaid_guildeline_override jsonb [note: "Override first aid guideline JSON if needed"]
 
   created_at timestamptz [not null, default: `now()`]
   updated_at timestamptz [not null, default: `now()`]
@@ -228,8 +321,8 @@ Table library_media {
 
 Table first_aid_guidelines {
   id uuid [pk]
-  target_type varchar(24) [not null, note: "SPECIES | COMBINATION | GENERAL"]
-  target_id varchar(255) [not null, note: "species_id for SPECIES, combo key like 'CYTO_NEURO' for COMBINATION, venom_type name for GENERAL"]
+  target_type varchar(24) [not null, note: "COMBINATION | GENERAL"]
+  target_id varchar(255) [not null, note: "combo key like 'CYTO_NEURO' for COMBINATION, venom_type name for GENERAL"]
 
   content_json jsonb [not null, note: "do_list, dont_list, visuals, etc."]
 
@@ -249,7 +342,7 @@ Table first_aid_guidelines {
 
   Note: '''
   Kho hướng dẫn sơ cứu thông minh:
-  - target_type: SPECIES (riêng cho loài), COMBINATION (tổ hợp độc), GENERAL (chung cho loại độc).
+  - target_type: COMBINATION (tổ hợp độc), GENERAL (chung cho loại độc).
   - Logic: Ưu tiên SPECIES → COMBINATION → GENERAL dựa trên venom_types của loài.
   - content_json: Rich data cho UI (bước làm, không làm, hình ảnh).
   '''
@@ -296,7 +389,7 @@ Table antivenom {
   id uuid [pk]
   name varchar(255) [not null, unique]
   manufacturer varchar(255)
-  notes text
+  description text
   is_active boolean [not null, default: true]
 
   created_at timestamptz [not null, default: `now()`]
@@ -351,29 +444,26 @@ Table ai_model_class_map {
   }
 }
 
-Table snake_library_audit_log {
-  id uuid [pk]
-
-  entity_type varchar(64) [not null]
-  entity_id uuid [not null]
-  action varchar(24) [not null]
-
-  changed_by uuid [ref: > accounts.id]
-  changed_at timestamptz [not null, default: `now()`]
-
-  diff_json jsonb
-}
-
 Table snakebite_incident {
   id uuid [pk]
   member_id uuid [not null, ref: > member_profile.account_id]
   snake_species_id uuid [ref: > snake_species.id]
-}
+  symptoms jsonb [note: "Array of selected symptoms with severity points, e.g., [{'symptom': 'SWELLING', 'severity_points': 3}, {'symptom': 'NAUSEA', 'severity_points': 2}]"]
+  severity_score int [note: "Calculated severity score from symptoms, used for prioritization and guideline fallback"]
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
 
-Table symptom_report {
-  id uuid [pk]
-  incident_id uuid [not null, ref: > snakebite_incident.id]
-  symptom symptom [not null]  // Thay thế ref từ bảng symptom
+  Indexes {
+    (member_id, created_at)
+    (severity_score)
+  }
+
+  Note: '''
+  Bảng incident cho snakebite (SOS flow):
+  - symptoms: JSONB chứa danh sách triệu chứng đã chọn với điểm severity từ symptom_config.
+  - severity_score: Tổng điểm tính từ symptoms, dùng để ưu tiên và fallback guideline.
+  - Tách riêng cho SOS, không dùng cho community_alert hay snake_catching_request.
+  '''
 }
 
 Table guideline.preparation_steps {
@@ -400,25 +490,22 @@ Table snake_report {
   '''
 }
 
-Table snake_catching_declarations {
+Table snake_catching_request_details {
   id uuid [pk]
-  catching_request_id uuid [not null, ref: > catching_request.id]  // Thay removal_request_id thành catching_request_id
+  catching_request_id uuid [not null, ref: > snake_catching_request.id]  // Thay removal_request_id thành catching_request_id
   species_id uuid [not null, ref: > snake_species.id]  // Giống loài khai báo
+  declared_size snake_size [not null, note: "Kích thước ước tính của rắn"]
   declared_quantity int [not null]  // Số lượng khai báo cho loài này
-  actual_species_id uuid [not null, ref: > snake_species.id]  // Giống loài thực tế từ rescuer (update sau)
-  actual_quantity int [null]  // Số lượng thực tế từ rescuer (update sau)
-  notes text  // Ghi chú từ rescuer
-  actual_updated_at timestamptz [note: "Timestamp khi rescuer cập nhật actual"]
-  rescue_mission_id uuid [ref: > rescue_mission.id]  // Liên kết trực tiếp với mission
-
+  notes text  // Ghi chú bổ sung từ người dùng
+  created_at timestamptz [not null, default: `now()`]
   Indexes {
-    (catching_request_id, species_id) [unique]  // Một request không khai báo trùng loài
+    (catching_request_id, species_id, declared_size) [unique]  // Một request không khai báo trùng loài và kích thước
   }
 
-  Note: 'Lưu trữ khai báo của người dùng cho yêu cầu bắt rắn, bao gồm ước tính loài/số lượng, cập nhật thực tế bởi người cứu hộ để thanh toán.'
+  Note: 'Lưu trữ khai báo của người dùng cho yêu cầu bắt rắn, bao gồm ước tính loài, kích thước và số lượng.'
 }
 
-Table catching_request {
+Table snake_catching_request {
   id uuid [pk]
   member_id uuid [not null, ref: > member_profile.account_id]  // Người tạo request
   location geography [note: "PostGIS: geography(Point,4326), vị trí bắt rắn"]
@@ -439,7 +526,7 @@ Table catching_request {
 
 Table catching_request_queue {
   id uuid [pk]
-  catching_request_id uuid [not null, ref: > catching_request.id]  // Thay removal_request_id thành catching_request_id
+  catching_request_id uuid [not null, ref: > snake_catching_request.id]  // Thay removal_request_id thành catching_request_id
   queue_status varchar [default: 'PENDING', note: "PENDING | ACCEPTED | EXPIRED"]  // Trạng thái trong queue
   priority int [default: 0, note: "Ưu tiên dựa trên severity, loại rắn (e.g., HIGH venomous = cao hơn)"]
   location geography [note: "PostGIS: geography(Point,4326), để rescuer filter theo khu vực gần"]
@@ -485,19 +572,20 @@ Table catching_quantity_report {
   id uuid [pk]
   rescue_mission_id uuid [not null, ref: > rescue_mission.id]
   species_id uuid [not null, ref: > snake_species.id]  // Loài thực tế
+  actual_size snake_size [not null, note: "Kích thước thực tế của rắn"]
   actual_quantity int [not null]  // Số lượng thực tế (cập nhật từ declarations)
   notes text  // Ghi chú từ rescuer (e.g., lý do khác biệt)
   reported_by uuid [ref: > accounts.id]  // Rescuer report
   created_at timestamptz [not null, default: `now()`]
 
   Indexes {
-    (rescue_mission_id, species_id)
+    (rescue_mission_id, species_id, actual_size)
   }
 
   Note: '''
   Báo cáo số lượng thực tế riêng cho catching:
-  - Báo cáo số lượng thực tế từ rescuer, tách riêng để tránh lẫn với SOS.
-  - Link trực tiếp với declarations để cập nhật actual, tính toán pricing chính xác.
+  - Báo cáo số lượng và kích thước thực tế từ rescuer, tách riêng để tránh lẫn với SOS.
+  - Link trực tiếp với declarations để cập nhật actual, tính toán pricing chính xác dựa trên tariffs.
   '''
 }
 
@@ -571,37 +659,33 @@ Table snake_ai_recognition_report {
 Table rescue_mission {
   id uuid [pk]
   request_id uuid [ref: > rescue_request.id]  // Cho SOS
-  catching_request_id uuid [ref: > catching_request.id]  // Thay removal_request_id thành catching_request_id
   rescuer_id uuid [not null, ref: > rescuer_profile.account_id]
 
   // Gộp từ map.rescue_sessions
   member_id uuid [ref: > accounts.id]
   assigned_rescuer_id uuid [ref: > accounts.id, null]  // Có thể khác rescuer_id nếu reassign
-  status rescue_mission_status [default: 'PENDING']
-  is_realtime_tracking boolean [default: false, note: "True nếu SOS (cần tracking), false nếu catching (không cần)"]
+  status rescue_mission_status [default: 'PENDING'] // PENDING | ACCEPTED | STARTED | COMPLETED | CANCELLED
+  location geography [note: "PostGIS: geography(Point,4326)"]
+  address_text varchar
   created_at timestamptz [not null, default: `now()`]
   accepted_at timestamptz
   started_at timestamptz
   completed_at timestamptz
   cancelled_at timestamptz
   cancel_reason varchar
-  eta_seconds int
   route_polyline text [note: "Optional; store if you compute ETA/route server-side"]
-  offer_attempts jsonb [note: "Gộp từ map.rescue_offers: array of offer attempt objects"]
 
   Indexes {
     (request_id)
-    (catching_request_id)
     (assigned_rescuer_id, status)
     (status, created_at)
   }
 
   Note: '''
-  Bảng mission cứu hộ (refactored: gộp map.rescue_sessions, map.rescue_offers và đơn giản hóa):
+  Bảng mission cứu hộ (dành riêng cho luồng SOS):
   - Quản lý dispatch, status, timings, offers.
   - Location events và notifications tách riêng (map.location_events, map.notification_log) để refactor sau.
-  - Không cần bảng riêng cho offers/offers, participants (chỉ 1 rescuer), location events nếu đơn giản.
-  - Một mission có thể từ SOS (request_id) hoặc catching (catching_request_id).
+  - Một mission có thể từ SOS (request_id).
   '''
 }
 
@@ -610,9 +694,11 @@ Table rescue_tracking {
   rescue_mission_id uuid [not null, ref: > rescue_mission.id]
 }
 
-Table rescue_report {
+Table guideline.first_aid_guideline {
   id uuid [pk]
-  rescue_mission_id uuid [not null, ref: > rescue_mission.id]
+  content jsonb
+  venom_type_id uuid [not null, ref: > venom_types.id]
+
 }
 
 Table guideline.rescue_tools {
@@ -625,13 +711,6 @@ Table guideline.safety_guideline {
   content jsonb
 }
 
-Table snake_quantities {
-  id uuid [pk]
-  rescue_mission_id uuid [not null, ref: > rescue_mission.id]
-
-  Note: 'Theo dõi tổng số lượng rắn được xử lý trong nhiệm vụ cứu hộ để báo cáo và thanh toán.'
-}
-
 Table rescue_conditions {
   id uuid [pk]
   rescue_mission_id uuid [not null, ref: > rescue_mission.id]
@@ -639,12 +718,20 @@ Table rescue_conditions {
   Note: 'Ghi lại các điều kiện cụ thể của nhiệm vụ cứu hộ (ví dụ: địa hình, thời tiết, độ khó) ảnh hưởng đến định giá và thực hiện.'
 }
 
-Table snake_pricing_rules {
+Table snake_catching_tariffs {
   id uuid [pk]
   rescue_condition_id uuid [not null, ref: > rescue_conditions.id]
   snake_species_id uuid [not null, ref: > snake_species.id]
+  size_category snake_size [not null, note: "Kích thước rắn: SMALL (<1m), MEDIUM (1-2m), LARGE (>2m)"]
+  base_price numeric [not null, note: "Giá cơ bản cho kích thước này, VND"]
+  multiplier numeric [default: 1.0, note: "Hệ số nhân dựa trên điều kiện (e.g., địa hình hiểm trở = 1.5)"]
 
-  Note: 'Xác định quy tắc định giá cho việc diệt rắn dựa trên loài và điều kiện cứu hộ (ví dụ: giá cơ bản cho mỗi loài, hệ số nhân cho địa hình).'
+  Indexes {
+    (snake_species_id, size_category)
+    (rescue_condition_id)
+  }
+
+  Note: 'Xác định quy tắc định giá cho việc diệt rắn dựa trên loài, kích thước và điều kiện cứu hộ. Giá tính = base_price * multiplier.'
 }
 
 Table snake_pricing_outputs {
@@ -667,11 +754,6 @@ Table consultation {
   rescuer_id uuid [ref: > rescuer_profile.account_id]
   expert_id uuid [not null, ref: > expert_profile.account_id]
   incident_id uuid [ref: > snakebite_incident.id]
-}
-
-Table consultation_note {
-  id uuid [pk]
-  consultation_id uuid [not null, ref: > consultation.id]
 }
 
 Table call_session {
@@ -830,6 +912,24 @@ Table report_media {
 
 Table treatment_facility {
   id uuid [pk]
+  name varchar [not null]
+  address text
+  contact_number varchar
+  position geography [note: "PostGIS: geography(Point,4326)"]
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (is_active)
+    (position)  // Spatial index for location-based queries
+  }
+
+  Note: '''
+  Cơ sở y tế điều trị rắn cắn:
+  - Lưu trữ thông tin cơ bản về các cơ sở y tế có khả năng điều trị rắn cắn.
+  - Dùng để gợi ý chuyển viện trong quá trình tư vấn hoặc cứu hộ.
+  '''
 }
 
 Table facility_antivenom {
@@ -839,6 +939,12 @@ Table facility_antivenom {
   Indexes {
     (facility_id, antivenom_id) [pk]
   }
+
+  Note: '''
+  Liên kết cơ sở y tế với antivenom có sẵn:
+  - Giúp tư vấn viên và người cứu hộ biết được loại huyết thanh nào có sẵn tại cơ sở y tế.
+  - Hỗ trợ quyết định chuyển viện dựa trên vị trí cơ sở y tế.
+  '''
 }
 
 Table payment {
@@ -850,6 +956,19 @@ Table payment {
   status varchar [default: 'PENDING', note: "PENDING | COMPLETED | FAILED | REFUNDED"]
   consultation_id uuid [ref: > consultation.id]
   rescue_mission_id uuid [ref: > rescue_mission.id]
+  created_at timestamptz [not null, default: `now()`]
+
+  Indexes {
+    (account_id, created_at)
+    (status, created_at)
+  }
+
+  Note: '''
+  Bảng thanh toán chung:
+  - Hỗ trợ nhiều phương thức thanh toán (credit card, e-wallet, bank transfer).
+  - Liên kết với consultation hoặc rescue_mission.
+  - Trạng thái thanh toán để theo dõi tiến trình.
+  '''
 }
 
 Table payment_transaction {
@@ -859,11 +978,36 @@ Table payment_transaction {
   status varchar [default: 'INITIATED', note: "INITIATED | SUCCESS | FAILED | REFUNDED"]
   gateway_response jsonb [note: "Chi tiết response từ gateway (e.g., error codes, metadata)"]
   processed_at timestamptz [note: "Timestamp khi transaction được xử lý"]
+
+  Indexes {
+    (payment_id)
+    (status, processed_at)
+  }
+
+  Note: '''
+  Bảng giao dịch thanh toán chi tiết:
+  - Lưu trữ từng giao dịch liên quan đến một payment (hỗ trợ retry, refund).
+  - Theo dõi trạng thái và phản hồi từ payment gateway.
+  '''
 }
 
 Table blogs {
   id uuid [pk]
   created_by uuid [not null, ref: > accounts.id]
+  title varchar [not null]
+  slug varchar [not null, unique]
+  content text [not null]
+  is_published boolean [not null, default: false]
+  published_at timestamptz
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  Note: '''
+  Bảng quản lý blog/articles:
+  - Cho phép expert hoặc admin tạo nội dung chia sẻ kiến thức về rắn, phòng tránh rắn cắn, v.v.
+  - Hỗ trợ trạng thái draft/published để quản lý xuất bản.
+  - Nếu Expert tạo blog, thì admin sẽ duyệt trước khi publish.
+  '''
 }
 
 Table map.device_tokens {
@@ -879,6 +1023,12 @@ Table map.device_tokens {
     (account_id, is_active)
     (last_seen_at)
   }
+
+  Note: '''
+  Device tokens để gửi push notifications qua FCM:
+  - Lưu trữ token theo account và platform.
+  - is_active để quản lý token còn hiệu lực.
+  '''
 }
 
 Table map.location_events {
@@ -933,9 +1083,15 @@ Table map.notification_log {
     (session_id, created_at)
     (type, created_at)
   }
+
+  Note: '''
+  Log notifications gửi qua hệ thống:
+  - Ghi lại tất cả notifications (push, SMS, email) gửi đến account.
+  - Bao gồm trạng thái gửi để theo dõi và debug.
+  '''
 }
 
-Table filter_attributes {
+Table filter_questions {
   id uuid [pk]
   question_text text [not null, note: "Câu hỏi để lọc rắn, e.g., 'Màu sắc chính?'"]
   attribute_type varchar(32) [not null, note: "TEXT | SELECT | MULTISELECT"]
@@ -951,7 +1107,7 @@ Table filter_attributes {
 
 Table filter_options {
   id uuid [pk]
-  attribute_id uuid [not null, ref: > filter_attributes.id]
+  attribute_id uuid [not null, ref: > filter_questions.id]
   option_text varchar(255) [not null, note: "Lựa chọn, e.g., 'Đen', 'Vàng'"]
   is_active boolean [not null, default: true]
   created_at timestamptz [not null, default: `now()`]
@@ -966,9 +1122,9 @@ Table filter_options {
   '''
 }
 
-Table snake_attribute_mapping {
+Table snake_questions_mapping {
   snake_species_id uuid [not null, ref: > snake_species.id]
-  attribute_id uuid [not null, ref: > filter_attributes.id]
+  attribute_id uuid [not null, ref: > filter_questions.id]
   option_id uuid [ref: > filter_options.id, note: "Optional nếu attribute là TEXT"]
   value_text text [note: "Nếu attribute là TEXT, lưu giá trị nhập"]
   created_at timestamptz [not null, default: `now()`]
@@ -1018,6 +1174,30 @@ Table reputation_rules {
   - Dùng trong reputation_raw_event để tính points_change.
   - Admin cấu hình để xử lý sai phạm (e.g., patient quấy rối, rescuer bỏ mission).
   '''
+}
+
+// bảng courses, cho rescuer training
+Table courses {
+  id uuid [pk]
+  title varchar(255) [not null]
+  description text
+  content jsonb  // Nội dung khóa học (có thể là bài viết, video, quiz)
+  is_active boolean [not null, default: true]
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+}
+
+// bảng junction giữa rescuer và courses
+Table rescuer_courses {
+  rescuer_id uuid [not null, ref: > rescuer_profile.account_id]
+  course_id uuid [not null, ref: > courses.id]
+  enrolled_at timestamptz [not null, default: `now()`]
+  completed_at timestamptz
+
+  Indexes {
+    (rescuer_id, course_id) [pk]
+    (course_id)
+  }
 }
 
 // Gộp từ Map.dbml với schema 'map'
@@ -1142,4 +1322,17 @@ Enum payment_method {
   DEBIT_CARD
   DIGITAL_WALLET
   BANK_TRANSFER
+}
+
+Enum snake_size {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+Enum request_status {
+  PENDING
+  ACCEPTED
+  COMPLETED
+  CANCELLED
 }
