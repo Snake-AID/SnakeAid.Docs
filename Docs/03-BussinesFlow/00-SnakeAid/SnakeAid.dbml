@@ -70,9 +70,7 @@ Table member_profile {
 
 Table rescuer_profile {
   account_id uuid [pk, not null, unique, ref: > accounts.id]
-  experience_years int
-  certification_level varchar
-  is_verified boolean
+  bio text
   is_available boolean [default: false, note: "account toggles Open/Close; realtime presence still handled in Redis"]
   last_open_at timestamptz
   rating_avg numeric
