@@ -1,0 +1,1536 @@
+{
+  "version": "1.0.0",
+  "darkMode": false,
+  "gridEnabling": true,
+  "detailLevel": "Tables",
+  "tablePositions": [
+    {
+      "name": "ACCOUNT",
+      "schemaName": "public",
+      "x": 471,
+      "y": 1595
+    },
+    {
+      "name": "WALLET",
+      "schemaName": "public",
+      "x": -39.2639481386916,
+      "y": 1460
+    },
+    {
+      "name": "WALLET_WITHDRAW",
+      "schemaName": "public",
+      "x": -39.2639481386916,
+      "y": 1370
+    },
+    {
+      "name": "MEMBER_PROFILE",
+      "schemaName": "public",
+      "x": 1564,
+      "y": 1255
+    },
+    {
+      "name": "RESCUER_PROFILE",
+      "schemaName": "public",
+      "x": 339,
+      "y": 1255
+    },
+    {
+      "name": "EXPERT_PROFILE",
+      "schemaName": "public",
+      "x": 340,
+      "y": 2015
+    },
+    {
+      "name": "EXPERT_CERTIFICATE",
+      "schemaName": "public",
+      "x": -39.2639481386916,
+      "y": 1973.13
+    },
+    {
+      "name": "SYSTEM_EVENT",
+      "schemaName": "public",
+      "x": -39.2639481386916,
+      "y": 1662
+    },
+    {
+      "name": "APP_NOTIFICATION",
+      "schemaName": "public",
+      "x": -39.2639481386916,
+      "y": 1730
+    },
+    {
+      "name": "PAYMENT_CARD",
+      "schemaName": "public",
+      "x": -39.2639481386916,
+      "y": 1525
+    },
+    {
+      "name": "SPECIALIZATION",
+      "schemaName": "public",
+      "x": 400,
+      "y": 2135
+    },
+    {
+      "name": "VENOM_TYPES",
+      "schemaName": "public",
+      "x": 1333.92,
+      "y": 2126.38
+    },
+    {
+      "name": "SPECIES_VENOM",
+      "schemaName": "public",
+      "x": 1333.92,
+      "y": 2056.38
+    },
+    {
+      "name": "SNAKE_SPECIES",
+      "schemaName": "public",
+      "x": 1672,
+      "y": 1840
+    },
+    {
+      "name": "SNAKE_SPECIES_NAMES",
+      "schemaName": "public",
+      "x": 1333.92,
+      "y": 1851.13
+    },
+    {
+      "name": "LIBRARY_MEDIA",
+      "schemaName": "public",
+      "x": 1333.92,
+      "y": 1988.63
+    },
+    {
+      "name": "FIRST_AID_GUIDELINES",
+      "schemaName": "public",
+      "x": 1031,
+      "y": 2126.75
+    },
+    {
+      "name": "SNAKE_DISTRIBUTION",
+      "schemaName": "public",
+      "x": 1333.92,
+      "y": 1921.38
+    },
+    {
+      "name": "ANTIVENOM",
+      "schemaName": "public",
+      "x": 1912,
+      "y": 2136
+    },
+    {
+      "name": "SNAKE_SPECIES_ANTIVENOM",
+      "schemaName": "public",
+      "x": 1596,
+      "y": 2194.37
+    },
+    {
+      "name": "AI_MODEL",
+      "schemaName": "public",
+      "x": 2166.0000000000005,
+      "y": 2057
+    },
+    {
+      "name": "AI_MODEL_CLASS_MAP",
+      "schemaName": "public",
+      "x": 1909,
+      "y": 2057
+    },
+    {
+      "name": "SNAKEBITE_INCIDENT",
+      "schemaName": "public",
+      "x": 1333.920000000001,
+      "y": 1345
+    },
+    {
+      "name": "CATCHING_REQUEST_DETAIL",
+      "schemaName": "public",
+      "x": 2112,
+      "y": 1360
+    },
+    {
+      "name": "SNAKE_CATCHING_REQUEST",
+      "schemaName": "public",
+      "x": 1801.000000000001,
+      "y": 1345
+    },
+    {
+      "name": "SNAKE_CATCHING_MISSION",
+      "schemaName": "public",
+      "x": 2112.000000000001,
+      "y": 1530
+    },
+    {
+      "name": "SNAKE_CATCHING_DETAIL",
+      "schemaName": "public",
+      "x": 2112,
+      "y": 1655
+    },
+    {
+      "name": "COMMUNITY_REPORT",
+      "schemaName": "public",
+      "x": 1564.000000000001,
+      "y": 1345
+    },
+    {
+      "name": "RESCUE_REQUEST",
+      "schemaName": "public",
+      "x": 1021,
+      "y": 1345
+    },
+    {
+      "name": "SNAKE_AI_RECOGNITION_RESULT",
+      "schemaName": "public",
+      "x": 1522,
+      "y": 1640
+    },
+    {
+      "name": "RESCUE_MISSION",
+      "schemaName": "public",
+      "x": 771,
+      "y": 1345
+    },
+    {
+      "name": "RESCUE_TRACKING",
+      "schemaName": "public",
+      "x": 620,
+      "y": 1170
+    },
+    {
+      "name": "RESCUE_TOOLS",
+      "schemaName": "public",
+      "x": 621.7309648837523,
+      "y": 1096
+    },
+    {
+      "name": "SAFETY_GUIDELINES",
+      "schemaName": "public",
+      "x": 339,
+      "y": 1170
+    },
+    {
+      "name": "CATCHING_ENVIRONMENT",
+      "schemaName": "public",
+      "x": 2112,
+      "y": 1440
+    },
+    {
+      "name": "SNAKE_CATCHING_TARIFF",
+      "schemaName": "public",
+      "x": 1912,
+      "y": 1760
+    },
+    {
+      "name": "REVENUE_SHARE",
+      "schemaName": "public",
+      "x": 2428.0000000000005,
+      "y": 2038.6199999999994
+    },
+    {
+      "name": "CONSULTATION",
+      "schemaName": "public",
+      "x": 771,
+      "y": 1825
+    },
+    {
+      "name": "CHAT_MESSAGE",
+      "schemaName": "public",
+      "x": 776.0000000000009,
+      "y": 1921.38
+    },
+    {
+      "name": "EXPERT_TIME_SLOT",
+      "schemaName": "public",
+      "x": 620,
+      "y": 2135
+    },
+    {
+      "name": "CONSULTATION_BOOKING",
+      "schemaName": "public",
+      "x": 1026,
+      "y": 1825
+    },
+    {
+      "name": "CONSULTATION_PING_REQUEST",
+      "schemaName": "public",
+      "x": 771,
+      "y": 1677
+    },
+    {
+      "name": "USER_FEEDBACK",
+      "schemaName": "public",
+      "x": 1021,
+      "y": 1515
+    },
+    {
+      "name": "REPUTATION_RAW_EVENT",
+      "schemaName": "public",
+      "x": 400,
+      "y": 1808.63
+    },
+    {
+      "name": "REPUTATION_TRANSACTION",
+      "schemaName": "public",
+      "x": -40,
+      "y": 1808
+    },
+    {
+      "name": "REPORT_MEDIA",
+      "schemaName": "public",
+      "x": 1021,
+      "y": 1585
+    },
+    {
+      "name": "TREATMENT_FACILITY",
+      "schemaName": "public",
+      "x": 2166.0000000000005,
+      "y": 2136
+    },
+    {
+      "name": "FACILITY_ANTIVENOM",
+      "schemaName": "public",
+      "x": -40.2639481386916,
+      "y": 2233.9999999999995
+    },
+    {
+      "name": "TRANSACTION",
+      "schemaName": "public",
+      "x": 2428.0000000000005,
+      "y": 1962.37
+    },
+    {
+      "name": "BLOG",
+      "schemaName": "public",
+      "x": -39.2639481386916,
+      "y": 2049.9999999999995
+    },
+    {
+      "name": "FCM_DEVICE_TOKEN",
+      "schemaName": "public",
+      "x": -40.2639481386916,
+      "y": 1591
+    },
+    {
+      "name": "MAP_LOCATION_EVENTS",
+      "schemaName": "public",
+      "x": 1020,
+      "y": 1170
+    },
+    {
+      "name": "MAP_NOTIFICATION_LOG",
+      "schemaName": "public",
+      "x": 1021,
+      "y": 1110
+    },
+    {
+      "name": "FILTER_QUESTIONS",
+      "schemaName": "public",
+      "x": 1909,
+      "y": 1990.5
+    },
+    {
+      "name": "ANSWER_OPTIONS",
+      "schemaName": "public",
+      "x": 2166.0000000000005,
+      "y": 1990.5
+    },
+    {
+      "name": "SPECIES_QUESTIONS_MAPPING",
+      "schemaName": "public",
+      "x": 1909,
+      "y": 1853.5
+    },
+    {
+      "name": "SYMPTOM_CONFIG",
+      "schemaName": "public",
+      "x": 1030,
+      "y": 2054.63
+    },
+    {
+      "name": "REPUTATION_RULE",
+      "schemaName": "public",
+      "x": -40.2639481386916,
+      "y": 1900
+    },
+    {
+      "name": "LESSON",
+      "schemaName": "public",
+      "x": -40.2639481386916,
+      "y": 1240
+    }
+  ],
+  "tableGroupCollapseStates": [],
+  "stickyNoteLayouts": [],
+  "referencePaths": [
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ACCOUNT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "WALLET",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "WALLET",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "WALLET_WITHDRAW",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ACCOUNT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "MEMBER_PROFILE",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ACCOUNT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "RESCUER_PROFILE",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ACCOUNT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "EXPERT_PROFILE",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SPECIALIZATION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "EXPERT_PROFILE",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "EXPERT_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "EXPERT_CERTIFICATE",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ACCOUNT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SYSTEM_EVENT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ACCOUNT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "APP_NOTIFICATION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ACCOUNT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "PAYMENT_CARD",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SPECIES_VENOM",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "VENOM_TYPES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SPECIES_VENOM",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_SPECIES_NAMES",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "LIBRARY_MEDIA",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "VENOM_TYPES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "FIRST_AID_GUIDELINES",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_DISTRIBUTION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_SPECIES_ANTIVENOM",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ANTIVENOM",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_SPECIES_ANTIVENOM",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "AI_MODEL",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "AI_MODEL_CLASS_MAP",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "AI_MODEL_CLASS_MAP",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "MEMBER_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKEBITE_INCIDENT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKEBITE_INCIDENT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_CATCHING_REQUEST",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CATCHING_REQUEST_DETAIL",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CATCHING_REQUEST_DETAIL",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "MEMBER_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_CATCHING_REQUEST",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_CATCHING_REQUEST",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_CATCHING_MISSION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUER_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_CATCHING_MISSION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_CATCHING_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_CATCHING_DETAIL",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "MEMBER_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "COMMUNITY_REPORT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKEBITE_INCIDENT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "RESCUE_REQUEST",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUER_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "RESCUE_REQUEST",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "REPORT_MEDIA",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_AI_RECOGNITION_RESULT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_AI_RECOGNITION_RESULT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKEBITE_INCIDENT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_AI_RECOGNITION_RESULT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "COMMUNITY_REPORT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_AI_RECOGNITION_RESULT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_CATCHING_REQUEST",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_AI_RECOGNITION_RESULT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUE_REQUEST",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "RESCUE_MISSION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUER_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "RESCUE_MISSION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUE_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "RESCUE_TRACKING",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SNAKE_CATCHING_TARIFF",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "MEMBER_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CONSULTATION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUER_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CONSULTATION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "EXPERT_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CONSULTATION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "EXPERT_TIME_SLOT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CONSULTATION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "CONSULTATION_BOOKING",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CONSULTATION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "CONSULTATION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CHAT_MESSAGE",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ACCOUNT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CHAT_MESSAGE",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "EXPERT_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "EXPERT_TIME_SLOT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "MEMBER_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CONSULTATION_BOOKING",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "EXPERT_TIME_SLOT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CONSULTATION_BOOKING",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "CONSULTATION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CONSULTATION_PING_REQUEST",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUE_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CONSULTATION_PING_REQUEST",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUER_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CONSULTATION_PING_REQUEST",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "EXPERT_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "CONSULTATION_PING_REQUEST",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "MEMBER_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "USER_FEEDBACK",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUER_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "USER_FEEDBACK",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "EXPERT_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "USER_FEEDBACK",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUE_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "USER_FEEDBACK",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_CATCHING_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "USER_FEEDBACK",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "CONSULTATION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "USER_FEEDBACK",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ACCOUNT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "REPUTATION_RAW_EVENT",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ACCOUNT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "REPUTATION_TRANSACTION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "REPUTATION_RAW_EVENT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "REPUTATION_TRANSACTION",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKEBITE_INCIDENT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "REPORT_MEDIA",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "COMMUNITY_REPORT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "REPORT_MEDIA",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_CATCHING_REQUEST",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "REPORT_MEDIA",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_CATCHING_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "REPORT_MEDIA",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUE_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "REPORT_MEDIA",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "TREATMENT_FACILITY",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "FACILITY_ANTIVENOM",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ANTIVENOM",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "FACILITY_ANTIVENOM",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "EXPERT_PROFILE",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "BLOG",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ACCOUNT",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "FCM_DEVICE_TOKEN",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUE_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "MAP_LOCATION_EVENTS",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "RESCUE_MISSION",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "MAP_NOTIFICATION_LOG",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "FILTER_QUESTIONS",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "ANSWER_OPTIONS",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "SNAKE_SPECIES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SPECIES_QUESTIONS_MAPPING",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "ANSWER_OPTIONS",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SPECIES_QUESTIONS_MAPPING",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        ""
+      ],
+      "firstTableName": "VENOM_TYPES",
+      "firstSchemaName": "public",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        ""
+      ],
+      "secondTableName": "SYMPTOM_CONFIG",
+      "secondSchemaName": "public",
+      "secondRelation": "*",
+      "checkPoints": []
+    }
+  ]
+}
