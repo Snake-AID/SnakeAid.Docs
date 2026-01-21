@@ -4,6 +4,7 @@
     "dbdiagram.dbdiagram-vscode",
     "shd101wyy.markdown-preview-enhanced",
     "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
-    "jebbs.plantuml"
+    "jebbs.plantuml",
+    "hediet.vscode-drawio"
   ]
 }
