@@ -747,6 +747,16 @@ Table REVENUE_SHARE {
   Note: 'Cấu hình tỷ lệ chia sẻ doanh thu cho thanh toán (ví dụ: phí nền tảng, phần của người cứu hộ, phần của chuyên gia).'
 }
 
+Enum consultation_status {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+  USER_ABSENT
+  EXPERT_ABSENT
+  ALL_ABSENT
+  CANCELLED
+}
+
 Table CONSULTATION [headercolor: #07ae07] {
   id uuid [pk]
   member_id uuid [ref: > MEMBER_PROFILE.account_id]
@@ -756,7 +766,7 @@ Table CONSULTATION [headercolor: #07ae07] {
   expert_time_slot_id uuid [not null, unique, ref: > EXPERT_TIME_SLOT.id]
   consultation_booking_id uuid [not null, unique, ref: > CONSULTATION_BOOKING.id]
   call_type varchar(16) [not null, default: 'VIDEO', note: "VIDEO | AUDIO"]
-  status varchar(24) [not null, default: 'INITIATED', note: "INITIATED | ONGOING | ENDED | FAILED"]
+  status consultation_status [not null, default: 'SCHEDULED']
   room_id varchar(255) [note: "WebRTC room ID"]
   start_time timestamptz
   end_time timestamptz
@@ -803,12 +813,18 @@ Table CHAT_MESSAGE {
   '''
 }
 
+Enum expert_time_slot_status {
+  AVAILABLE
+  BOOKED
+  CANCELLED
+}
+
 Table EXPERT_TIME_SLOT {
   id uuid [pk]
   expert_id uuid [not null, ref: > EXPERT_PROFILE.account_id]
   start_time timestamptz [not null]
   end_time timestamptz [not null]
-  status varchar(24) [default: "AVAILABLE", note: "AVAILABLE | BOOKED | CLOSED"]
+  status expert_time_slot_status [default: "AVAILABLE"]
   created_at timestamptz [not null, default: `now()`]
 
   Indexes {
@@ -816,16 +832,33 @@ Table EXPERT_TIME_SLOT {
   }
 }
 
+Enum consultation_booking_status {
+  PENDING_PAYMENT
+  CONFIRMED
+  COMPLETED
+  REFUNDED
+  CANCELLED
+  EXPIRED
+}
+
 Table CONSULTATION_BOOKING [headercolor: #07ae07] {
   id uuid [pk]
   member_id uuid [not null, ref: > MEMBER_PROFILE.account_id]
   expert_time_slot_id uuid [not null, unique, ref: > EXPERT_TIME_SLOT.id]
-  status varchar(24) [default: "PENDING", note: "PENDING | CONFIRMED | CANCELLED"]
+  status consultation_booking_status [default: "PENDING_PAYMENT"]
   created_at timestamptz [not null, default: `now()`]
 
   Indexes {
     (member_id, created_at)
   }
+}
+
+Enum consultation_ping_request_status {
+  PENDING_EXPERT_ACCEPT
+  EXPERT_ACCEPTED
+  REJECTED_BY_EXPERT
+  CANCELLED_BY_RESCUER
+  EXPIRED
 }
 
 Table CONSULTATION_PING_REQUEST [headercolor: #07ae07] {
@@ -834,7 +867,7 @@ Table CONSULTATION_PING_REQUEST [headercolor: #07ae07] {
   rescue_mission_id uuid [ref: > RESCUE_MISSION.id]
   rescuer_id uuid [ref: > RESCUER_PROFILE.account_id]
   expert_id uuid [ref: > EXPERT_PROFILE.account_id]
-  status varchar(24) [default: "PENDING", note: "PENDING | ACCEPTED | REJECTED | EXPIRED"]
+  status consultation_ping_request_status [default: "PENDING_EXPERT_ACCEPT"]
   created_at timestamptz [not null, default: `now()`]
 
   Indexes {
