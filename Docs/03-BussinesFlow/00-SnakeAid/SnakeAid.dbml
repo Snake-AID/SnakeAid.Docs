@@ -1,5 +1,11 @@
 /* SnakeAid Unified ERD (DBML) */
 
+Enum ai_recognition_doc_type {
+  SNAKEBITE_INCIDENT
+  COMMUNITY_REPORT
+  SNAKE_CATCHING_REQUEST
+}
+
 Table ACCOUNT [headercolor: #FFD700] {
   id uuid [pk]
   full_name varchar
@@ -75,7 +81,7 @@ Table RESCUER_PROFILE [headercolor: #FFA500] {
   last_open_at timestamptz
   rating_avg numeric
   rating_count int
-  rescuer_type rescuer_type [not null, default: 'BOTH', note: "SOS: Chuyên sơ cứu, REMOVAL: Chuyên dọn rắn, BOTH: Cả hai"]
+  rescuer_type varchar [not null, default: 'BOTH', note: "SOS: Chuyên sơ cứu, REMOVAL: Chuyên dọn rắn, BOTH: Cả hai"]
 
   Note: '''
   Profile cho rescuer (người cứu hộ):
@@ -141,8 +147,8 @@ Table SYSTEM_EVENT {
   actor_role varchar
   ref_type varchar
   ref_id uuid
-  metadata json
-  created_at timestamp
+  metadata jsonb
+  created_at timestamptz
 
   Indexes {
     (event_type, created_at)
@@ -466,7 +472,7 @@ Table CATCHING_REQUEST_DETAIL {
   id uuid [pk]
   catching_request_id uuid [not null, ref: > SNAKE_CATCHING_REQUEST.id]  // Thay removal_request_id thành catching_request_id
   species_id uuid [not null, ref: > SNAKE_SPECIES.id]  // Giống loài khai báo
-  declared_size snake_size [not null, note: "Kích thước ước tính của rắn"]
+  declared_size varchar [not null, note: "Kích thước ước tính của rắn"]
   declared_quantity int [not null]  // Số lượng khai báo cho loài này
   notes text  // Ghi chú bổ sung từ người dùng
   created_at timestamptz [not null, default: `now()`]
@@ -516,7 +522,7 @@ Table SNAKE_CATCHING_DETAIL {
   id uuid [pk]
   snake_catching_mission_id uuid [not null, ref: > SNAKE_CATCHING_MISSION.id]
   species_id uuid [not null]  // Loài thực tế
-  actual_size snake_size [not null, note: "Kích thước thực tế của rắn"]
+  actual_size varchar [not null, note: "Kích thước thực tế của rắn"]
   actual_quantity int [not null]  // Số lượng thực tế (cập nhật từ declarations)
   notes text  // Ghi chú từ rescuer (e.g., lý do khác biệt)
   reported_by uuid   // Rescuer report
@@ -552,7 +558,7 @@ Table COMMUNITY_REPORT [headercolor: #07ae07] {
 Table RESCUE_REQUEST [headercolor: #07ae07] {
   id uuid [pk]
   incident_id uuid [ref: > SNAKEBITE_INCIDENT.id]  // Cho SOS
-  request_type request_type [not null, default: 'SOS']  // Chỉ SOS
+  request_type varchar [not null, default: 'SOS']  // Chỉ SOS
   rescuer_id uuid [ref: > RESCUER_PROFILE.account_id]
   status varchar [default: 'PENDING']
   created_at timestamptz [not null, default: `now()`]
@@ -574,22 +580,18 @@ Table RESCUE_REQUEST [headercolor: #07ae07] {
 Table SNAKE_AI_RECOGNITION_RESULT {
   id uuid [pk]
   doc_no uuid [not null]  // ID của document (thay report_id)
-  doc_type doc_type [not null]  // Loại document
+  doc_type ai_recognition_doc_type [not null]  // Loại document
   media_id uuid [not null, ref: > REPORT_MEDIA.id]
   snake_species_id uuid [not null, ref: > SNAKE_SPECIES.id]
-  snakebite_incident_id uuid [ref: > SNAKEBITE_INCIDENT.id]
-  community_report_id uuid [ref: > COMMUNITY_REPORT.id]
-  snake_catching_request_id uuid [ref: > SNAKE_CATCHING_REQUEST.id]
-  ai_model_id uuid [note: "Model AI used for recognition"]
+  ai_model_id uuid [ref: > AI_MODEL.id, note: "Model AI used for recognition"]
   ai_results jsonb  // Kết quả AI: top predictions, confidence, etc.
   processed_at timestamptz [not null, default: `now()`, note: "Timestamp when AI processed"]
   status varchar(24) [not null, default: 'PROCESSED', note: "PROCESSED | FAILED"]
 
   // Thêm fields cho expert review
-  expert_reviewed_by uuid  // Expert review
+  expert_reviewed_by uuid [ref: > EXPERT_PROFILE.account_id]  // Expert review
   expert_corrected_species_id uuid [ref: > SNAKE_SPECIES.id]  // Species corrected by expert
   expert_confirmed_at timestamptz  // Timestamp khi expert confirm
-  used_for_training boolean [default: false]  // Flag để dùng cho training model mới
 
   Indexes {
     (doc_no, doc_type) [unique]  // Thay (report_id) để đảm bảo 1 document có 1 recognition
@@ -603,7 +605,6 @@ Table SNAKE_AI_RECOGNITION_RESULT {
   - Lưu ai_results (JSON): top predictions, confidence scores, severity.
   - ai_model_id/processed_at/status: Metadata của phiên AI.
   - Expert review: Correct species nếu AI sai, dùng để train model mới.
-  - used_for_training: Flag data labeled cho AI training.
   '''
 }
 
@@ -615,7 +616,7 @@ Table RESCUE_MISSION [headercolor: #07ae07] {
   // Gộp từ map.rescue_sessions
   member_id uuid 
   assigned_rescuer_id uuid [null]  // Có thể khác rescuer_id nếu reassign
-  status rescue_mission_status [default: 'PENDING'] // PENDING | ACCEPTED | STARTED | COMPLETED | CANCELLED
+  status varchar [default: 'PENDING'] // PENDING | ACCEPTED | STARTED | COMPLETED | CANCELLED
   location geography [note: "PostGIS: geography(Point,4326)"]
   address_text varchar
   created_at timestamptz [not null, default: `now()`]
@@ -666,7 +667,7 @@ Table SNAKE_CATCHING_TARIFF {
   id uuid [pk]
   catching_environment_id uuid [not null]
   snake_species_id uuid [not null, ref: > SNAKE_SPECIES.id]
-  size_category snake_size [not null, note: "Kích thước rắn: SMALL (<1m), MEDIUM (1-2m), LARGE (>2m)"]
+  size_category varchar [not null, note: "Kích thước rắn: SMALL (<1m), MEDIUM (1-2m), LARGE (>2m)"]
   base_price numeric [not null, note: "Giá cơ bản cho kích thước này, VND"]
   multiplier numeric [default: 1.0, note: "Hệ số nhân dựa trên điều kiện (e.g., địa hình hiểm trở = 1.5)"]
 
@@ -789,12 +790,12 @@ Table USER_FEEDBACK {
   rescuer_id uuid [ref: > RESCUER_PROFILE.account_id]
   expert_rater_id uuid [ref: > EXPERT_PROFILE.account_id]
   expert_target_id uuid [ref: > EXPERT_PROFILE.account_id]
-  rater_role account_role [not null]                 // Role của người rate
-  target_role account_role [not null]                // Role của người bị rate
+  rater_role varchar [not null]                 // Role của người rate
+  target_role varchar [not null]                // Role của người bị rate
   rescue_mission_id uuid [ref: > RESCUE_MISSION.id] // Liên kết mission
   snake_catching_mission_id uuid [ref: > SNAKE_CATCHING_MISSION.id] // Liên kết catching mission
   consultation_id uuid [ref: > CONSULTATION.id]     // Liên kết consultation
-  feedback_type feedback_type [not null]           // POSITIVE (member rate rescuer/expert) or NEGATIVE (rescuer/expert rate member)
+  feedback_type varchar [not null]           // POSITIVE (member rate rescuer/expert) or NEGATIVE (rescuer/expert rate member)
   score int [note: "Rating score 1-5 (higher for positive, lower for negative)"]
   comment text [note: "Feedback text"]
   created_at timestamptz [not null, default: `now()`]
@@ -845,14 +846,14 @@ Table REPUTATION_TRANSACTION {
 
 Table REPORT_MEDIA {
   id uuid [pk]
-  media_type media_type  // Thay thế ref từ bảng media_type
+  media_type varchar  // Thay thế ref từ bảng media_type
   incident_id uuid [ref: > SNAKEBITE_INCIDENT.id]
   community_report_id uuid [ref: > COMMUNITY_REPORT.id]
   snake_catching_request_id uuid [ref: > SNAKE_CATCHING_REQUEST.id]
   snake_catching_mission_id uuid [ref: > SNAKE_CATCHING_MISSION.id]
   consultation_id uuid 
   rescue_mission_id uuid [ref: > RESCUE_MISSION.id]
-  purpose media_purpose  // Mục đích media
+  purpose varchar  // Mục đích media
   is_used_for_ai boolean [default: true]  // Ảnh có dùng cho AI nhận diện không?
 
   Note: '''
@@ -904,11 +905,11 @@ Table FACILITY_ANTIVENOM {
 Table TRANSACTION {
   id uuid [pk]
   trans_date timestamptz [not null, default: `now()`]
-  trans_type transaction_type [not null]
+  trans_type varchar [not null]
   doc_no uuid [not null]
-  payment_method payment_method [not null]
+  payment_method varchar [not null]
   account_id uuid [not null]
-  account_role account_role [not null]
+  account_role varchar [not null]
   amount numeric [not null]
   status varchar [default: 'PENDING', note: "PENDING | COMPLETED | FAILED | REFUNDED"]
   transaction_id varchar [note: "Unique ID từ payment gateway (e.g., VNPay transaction ID)"]
@@ -971,13 +972,13 @@ Table MAP_LOCATION_EVENTS {
   id bigserial [pk]
   session_id uuid [ref: > RESCUE_MISSION.id]  // Đổi ref từ map.rescue_sessions sang rescue_mission
   account_id uuid 
-  role map.location_role
+  role varchar
 
   ts timestamptz
   geom geography [note: "PostGIS: geography(Point,4326)"]
   geohash varchar [note: "Optional; precompute if needed"]
   seq int [note: "Monotonic per account/session; helps de-dup/order"]
-  source map.location_source
+  source varchar
 
   speed_mps real
   heading_deg real
@@ -1000,8 +1001,8 @@ Table MAP_NOTIFICATION_LOG {
   account_id uuid 
   session_id uuid [ref: > RESCUE_MISSION.id, null]
 
-  type map.notify_type
-  channel map.notify_channel
+  type varchar
+  channel varchar
 
   title varchar
   body text

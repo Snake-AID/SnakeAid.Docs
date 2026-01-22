@@ -861,11 +861,11 @@
       "firstFieldNames": [
         "id"
       ],
-      "firstTableName": "SNAKEBITE_INCIDENT",
+      "firstTableName": "AI_MODEL",
       "firstSchemaName": "public",
       "firstRelation": "1",
       "secondFieldNames": [
-        "snakebite_incident_id"
+        "ai_model_id"
       ],
       "secondTableName": "SNAKE_AI_RECOGNITION_RESULT",
       "secondSchemaName": "public",
@@ -874,28 +874,13 @@
     },
     {
       "firstFieldNames": [
-        "id"
+        "account_id"
       ],
-      "firstTableName": "COMMUNITY_REPORT",
+      "firstTableName": "EXPERT_PROFILE",
       "firstSchemaName": "public",
       "firstRelation": "1",
       "secondFieldNames": [
-        "community_report_id"
-      ],
-      "secondTableName": "SNAKE_AI_RECOGNITION_RESULT",
-      "secondSchemaName": "public",
-      "secondRelation": "*",
-      "checkPoints": []
-    },
-    {
-      "firstFieldNames": [
-        "id"
-      ],
-      "firstTableName": "SNAKE_CATCHING_REQUEST",
-      "firstSchemaName": "public",
-      "firstRelation": "1",
-      "secondFieldNames": [
-        "snake_catching_request_id"
+        "expert_reviewed_by"
       ],
       "secondTableName": "SNAKE_AI_RECOGNITION_RESULT",
       "secondSchemaName": "public",
