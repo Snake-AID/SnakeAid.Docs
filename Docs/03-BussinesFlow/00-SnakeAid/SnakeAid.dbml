@@ -446,8 +446,25 @@ Table AI_MODEL_CLASS_MAP {
   }
 }
 
+Enum snakebite_incident_status {
+  PENDING
+  PROCESSING
+  EN_ROUTE
+  RESCUER_ARRIVED
+  MEDICAL_PROCESSING
+  HOSPITAL_TRANSPORTING
+  HOSPITAL_ARRIVED
+  AWAITING_PAYMENT
+  PAID
+  COMPLETED
+  CANCELLED
+  NO_RESCUER_FOUND
+  DISPUTE
+}
+
 Table SNAKEBITE_INCIDENT [headercolor: #07ae07] {
   id uuid [pk]
+  status snakebite_incident_status [default: 'PENDING']
   member_id uuid [not null, ref: > MEMBER_PROFILE.account_id]
   snake_species_id uuid [ref: > SNAKE_SPECIES.id]
   symptoms jsonb [note: "Array of selected symptoms with severity points, e.g., [{'symptom': 'SWELLING', 'severity_points': 3}, {'symptom': 'NAUSEA', 'severity_points': 2}]"]
