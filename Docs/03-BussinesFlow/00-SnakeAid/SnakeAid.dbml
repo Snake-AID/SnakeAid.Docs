@@ -1,6 +1,6 @@
 /* SnakeAid Unified ERD (DBML) */
 
-Table ACCOUNT {
+Table ACCOUNT [headercolor: #FFD700] {
   id uuid [pk]
   full_name varchar
   email varchar
@@ -54,7 +54,7 @@ Table WALLET_WITHDRAW {
   '''
 }
 
-Table MEMBER_PROFILE {
+Table MEMBER_PROFILE [headercolor: #FFA500] {
   account_id uuid [pk, not null, unique, ref: > ACCOUNT.id]
   emergency_contact varchar
   rating_avg numeric [default: 0, note: "Average rating from rescuers/experts (for bad behavior)"]
@@ -68,7 +68,7 @@ Table MEMBER_PROFILE {
   '''
 }
 
-Table RESCUER_PROFILE {
+Table RESCUER_PROFILE [headercolor: #FFA500] {
   account_id uuid [pk, not null, unique, ref: > ACCOUNT.id]
   bio text
   is_available boolean [default: false, note: "account toggles Open/Close; realtime presence still handled in Redis"]
@@ -85,7 +85,7 @@ Table RESCUER_PROFILE {
   '''
 }
 
-Table EXPERT_PROFILE {
+Table EXPERT_PROFILE [headercolor: #FFA500] {
   account_id uuid [pk, not null, unique, ref: > ACCOUNT.id]
   specialization_id uuid [not null, ref: > SPECIALIZATION.id]
   bio text
@@ -442,7 +442,7 @@ Table AI_MODEL_CLASS_MAP {
   }
 }
 
-Table SNAKEBITE_INCIDENT {
+Table SNAKEBITE_INCIDENT [headercolor: #07ae07] {
   id uuid [pk]
   member_id uuid [not null, ref: > MEMBER_PROFILE.account_id]
   snake_species_id uuid [ref: > SNAKE_SPECIES.id]
@@ -479,7 +479,7 @@ Table CATCHING_REQUEST_DETAIL {
   Note: 'Lưu trữ khai báo của người dùng cho yêu cầu bắt rắn, bao gồm ước tính loài, kích thước và số lượng.'
 }
 
-Table SNAKE_CATCHING_REQUEST {
+Table SNAKE_CATCHING_REQUEST [headercolor: #07ae07] {
   id uuid [pk]
   member_id uuid [not null, ref: > MEMBER_PROFILE.account_id]  // Người tạo request
   location geography [note: "PostGIS: geography(Point,4326), vị trí bắt rắn"]
@@ -498,7 +498,7 @@ Table SNAKE_CATCHING_REQUEST {
   '''
 }
 
-Table SNAKE_CATCHING_MISSION {
+Table SNAKE_CATCHING_MISSION [headercolor: #07ae07] {
   id uuid [pk]
   catching_request_id uuid [not null, ref: > SNAKE_CATCHING_REQUEST.id]
   rescuer_id uuid [not null, ref: > RESCUER_PROFILE.account_id]
@@ -535,7 +535,7 @@ Table SNAKE_CATCHING_DETAIL {
   '''
 }
 
-Table COMMUNITY_REPORT {
+Table COMMUNITY_REPORT [headercolor: #07ae07] {
   id uuid [pk]
   member_id uuid [ref: > MEMBER_PROFILE.account_id]  // Optional, anonymous
   snake_species_id uuid 
@@ -551,7 +551,7 @@ Table COMMUNITY_REPORT {
   '''
 }
 
-Table RESCUE_REQUEST {
+Table RESCUE_REQUEST [headercolor: #07ae07] {
   id uuid [pk]
   incident_id uuid [ref: > SNAKEBITE_INCIDENT.id]  // Cho SOS
   request_type request_type [not null, default: 'SOS']  // Chỉ SOS
@@ -609,7 +609,7 @@ Table SNAKE_AI_RECOGNITION_RESULT {
   '''
 }
 
-Table RESCUE_MISSION {
+Table RESCUE_MISSION [headercolor: #07ae07] {
   id uuid [pk]
   request_id uuid [ref: > RESCUE_REQUEST.id]  // Cho SOS
   rescuer_id uuid [not null, ref: > RESCUER_PROFILE.account_id]
@@ -687,7 +687,7 @@ Table REVENUE_SHARE {
   Note: 'Cấu hình tỷ lệ chia sẻ doanh thu cho thanh toán (ví dụ: phí nền tảng, phần của người cứu hộ, phần của chuyên gia).'
 }
 
-Table CONSULTATION {
+Table CONSULTATION [headercolor: #07ae07] {
   id uuid [pk]
   member_id uuid [ref: > MEMBER_PROFILE.account_id]
   rescuer_id uuid [ref: > RESCUER_PROFILE.account_id]
@@ -756,7 +756,7 @@ Table EXPERT_TIME_SLOT {
   }
 }
 
-Table CONSULTATION_BOOKING {
+Table CONSULTATION_BOOKING [headercolor: #07ae07] {
   id uuid [pk]
   member_id uuid [not null, ref: > MEMBER_PROFILE.account_id]
   expert_time_slot_id uuid [not null, unique, ref: > EXPERT_TIME_SLOT.id]
@@ -768,7 +768,7 @@ Table CONSULTATION_BOOKING {
   }
 }
 
-Table CONSULTATION_PING_REQUEST {
+Table CONSULTATION_PING_REQUEST [headercolor: #07ae07] {
   id uuid [pk]
   consultation_id uuid [not null, ref: > CONSULTATION.id]
   rescue_mission_id uuid [ref: > RESCUE_MISSION.id]
