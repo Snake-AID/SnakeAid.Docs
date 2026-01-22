@@ -572,12 +572,20 @@ Table COMMUNITY_REPORT [headercolor: #07ae07] {
   '''
 }
 
+Enum rescue_request_status {
+  PENDING
+  RESCUER_ACCEPTED
+  TAKEN
+  CANCELLED
+  EXPIRED
+}
+
 Table RESCUE_REQUEST [headercolor: #07ae07] {
   id uuid [pk]
   incident_id uuid [ref: > SNAKEBITE_INCIDENT.id]  // Cho SOS
   request_type varchar [not null, default: 'SOS']  // Chỉ SOS
   rescuer_id uuid [ref: > RESCUER_PROFILE.account_id]
-  status varchar [default: 'PENDING']
+  status rescue_request_status [default: 'PENDING']
   created_at timestamptz [not null, default: `now()`]
 
   // Gộp từ map.incidents cho SOS
@@ -625,6 +633,16 @@ Table SNAKE_AI_RECOGNITION_RESULT {
   '''
 }
 
+Enum rescue_mission_status {
+  PREPARING
+  EN_ROUTE
+  RESCUER_ARRIVED
+  MISSION_COMPLETED
+  MISSION_UNCOMPLETED
+  MISSION_ABORT
+  CANCELLED
+}
+
 Table RESCUE_MISSION [headercolor: #07ae07] {
   id uuid [pk]
   request_id uuid [ref: > RESCUE_REQUEST.id]  // Cho SOS
@@ -633,7 +651,7 @@ Table RESCUE_MISSION [headercolor: #07ae07] {
   // Gộp từ map.rescue_sessions
   member_id uuid 
   assigned_rescuer_id uuid [null]  // Có thể khác rescuer_id nếu reassign
-  status varchar [default: 'PENDING'] // PENDING | ACCEPTED | STARTED | COMPLETED | CANCELLED
+  status rescue_mission_status [default: 'PREPARING']
   location geography [note: "PostGIS: geography(Point,4326)"]
   address_text varchar
   created_at timestamptz [not null, default: `now()`]
