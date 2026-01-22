@@ -44,11 +44,19 @@ Table WALLET {
   '''
 }
 
+Enum wallet_withdraw_status {
+  PENDING
+  APPROVED
+  COMPLETED
+  REJECTED
+  CANCELLED
+}
+
 Table WALLET_WITHDRAW {
   id uuid [pk]
   amount numeric [not null]
   currency varchar [not null, default: 'VND']
-  status varchar [not null, default: 'PENDING']  // PENDING | COMPLETED | REJECTED
+  status wallet_withdraw_status [not null, default: 'PENDING']
   created_at timestamptz
   updated_at timestamptz
 
