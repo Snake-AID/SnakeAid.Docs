@@ -500,12 +500,28 @@ Table CATCHING_REQUEST_DETAIL {
   Note: 'Lưu trữ khai báo của người dùng cho yêu cầu bắt rắn, bao gồm ước tính loài, kích thước và số lượng.'
 }
 
+Enum snake_catching_request_status {
+  PENDING
+  PROCESSING
+  EN_ROUTE
+  RESCUER_ARRIVED
+  MEDICAL_PROCESSING
+  HOSPITAL_TRANSPORTING
+  HOSPITAL_ARRIVED
+  AWAITING_PAYMENT
+  PAID
+  COMPLETED
+  CANCELLED
+  NO_RESCUER_FOUND
+  DISPUTE
+}
+
 Table SNAKE_CATCHING_REQUEST [headercolor: #07ae07] {
   id uuid [pk]
   member_id uuid [not null, ref: > MEMBER_PROFILE.account_id]  // Người tạo request
   location geography [note: "PostGIS: geography(Point,4326), vị trí bắt rắn"]
   address_text varchar  // Địa chỉ text
-  status varchar [default: 'PENDING', note: "PENDING | ACCEPTED | COMPLETED | CANCELLED"]
+  status snake_catching_request_status [default: 'PENDING']
   priority int [default: 0, note: "Ưu tiên dựa trên severity, loại rắn"]
   created_at timestamptz [not null, default: `now()`]
   accepted_at timestamptz  // Khi rescuer accept
@@ -519,11 +535,21 @@ Table SNAKE_CATCHING_REQUEST [headercolor: #07ae07] {
   '''
 }
 
+Enum snake_catching_mission_status {
+  PREPARING
+  EN_ROUTE
+  RESCUER_ARRIVED
+  MISSION_COMPLETED
+  MISSION_UNCOMPLETED
+  MISSION_ABORT
+  CANCELLED
+}
+
 Table SNAKE_CATCHING_MISSION [headercolor: #07ae07] {
   id uuid [pk]
   catching_request_id uuid [not null, ref: > SNAKE_CATCHING_REQUEST.id]
   rescuer_id uuid [not null, ref: > RESCUER_PROFILE.account_id]
-  status varchar [default: 'PENDING', note: "PENDING | ACCEPTED | IN_PROGRESS | COMPLETED | CANCELLED"]
+  status snake_catching_mission_status [default: 'PREPARING']
   created_at timestamptz [not null, default: `now()`]
   accepted_at timestamptz
   completed_at timestamptz
