@@ -7,134 +7,134 @@
     {
       "name": "ACCOUNT",
       "schemaName": "public",
-      "x": 471,
-      "y": 1595
+      "x": 48,
+      "y": 1616
     },
     {
       "name": "WALLET",
       "schemaName": "public",
-      "x": -39.2639481386916,
-      "y": 1460
+      "x": -663.0476862397004,
+      "y": 1184
     },
     {
       "name": "WALLET_WITHDRAW",
       "schemaName": "public",
-      "x": -39.2639481386916,
-      "y": 1370
+      "x": -927.0476862397004,
+      "y": 990
     },
     {
       "name": "MEMBER_PROFILE",
       "schemaName": "public",
-      "x": 1564,
-      "y": 1255
+      "x": 1692.9286968050615,
+      "y": 1160
     },
     {
       "name": "RESCUER_PROFILE",
       "schemaName": "public",
-      "x": 339,
-      "y": 1255
+      "x": 16,
+      "y": 1272
     },
     {
       "name": "EXPERT_PROFILE",
       "schemaName": "public",
-      "x": 340,
-      "y": 2015
+      "x": -296.460203963548,
+      "y": 2584
     },
     {
       "name": "EXPERT_CERTIFICATE",
       "schemaName": "public",
-      "x": -39.2639481386916,
-      "y": 1973.13
+      "x": -1048.4602039635479,
+      "y": 2552
     },
     {
       "name": "SYSTEM_EVENT",
       "schemaName": "public",
-      "x": -39.2639481386916,
-      "y": 1662
+      "x": -912,
+      "y": 1648
     },
     {
       "name": "APP_NOTIFICATION",
       "schemaName": "public",
-      "x": -39.2639481386916,
-      "y": 1730
+      "x": -664,
+      "y": 1792
     },
     {
       "name": "PAYMENT_CARD",
       "schemaName": "public",
-      "x": -39.2639481386916,
-      "y": 1525
+      "x": -1232,
+      "y": 1368
     },
     {
       "name": "SPECIALIZATION",
       "schemaName": "public",
-      "x": 400,
-      "y": 2135
+      "x": -312.460203963548,
+      "y": 2840
     },
     {
       "name": "VENOM_TYPES",
       "schemaName": "public",
-      "x": 1333.92,
-      "y": 2126.38
+      "x": 1291.9719684364045,
+      "y": 4089.267219510178
     },
     {
       "name": "SPECIES_VENOM",
       "schemaName": "public",
-      "x": 1333.92,
-      "y": 2056.38
+      "x": 1300.4238131890404,
+      "y": 3937.267219510178
     },
     {
       "name": "SNAKE_SPECIES",
       "schemaName": "public",
-      "x": 1672,
-      "y": 1840
+      "x": 1650.8844251720257,
+      "y": 2812.635037741464
     },
     {
       "name": "SNAKE_SPECIES_NAMES",
       "schemaName": "public",
-      "x": 1333.92,
-      "y": 1851.13
+      "x": 1280,
+      "y": 2812.2088647589853
     },
     {
       "name": "LIBRARY_MEDIA",
       "schemaName": "public",
-      "x": 1333.92,
-      "y": 1988.63
+      "x": 1290.3108520008816,
+      "y": 3593.267219510178
     },
     {
       "name": "FIRST_AID_GUIDELINES",
       "schemaName": "public",
-      "x": 1031,
-      "y": 2126.75
+      "x": 944,
+      "y": 3920
     },
     {
       "name": "SNAKE_DISTRIBUTION",
       "schemaName": "public",
-      "x": 1333.92,
-      "y": 1921.38
+      "x": 1278.9886191298358,
+      "y": 3089.267219510178
     },
     {
       "name": "ANTIVENOM",
       "schemaName": "public",
-      "x": 1912,
-      "y": 2136
+      "x": 2111.4225331271814,
+      "y": 3796.340002028517
     },
     {
       "name": "SNAKE_SPECIES_ANTIVENOM",
       "schemaName": "public",
-      "x": 1596,
-      "y": 2194.37
+      "x": 1704,
+      "y": 3760
     },
     {
       "name": "AI_MODEL",
       "schemaName": "public",
-      "x": 2166.0000000000005,
-      "y": 2057
+      "x": 2478.00376932626,
+      "y": 3429.5150377414643
     },
     {
       "name": "AI_MODEL_CLASS_MAP",
       "schemaName": "public",
-      "x": 1909,
-      "y": 2057
+      "x": 2103.0816750043855,
+      "y": 3437.2200020285172
     },
     {
       "name": "SNAKEBITE_INCIDENT",
@@ -145,218 +145,218 @@
     {
       "name": "CATCHING_REQUEST_DETAIL",
       "schemaName": "public",
-      "x": 2112,
-      "y": 1360
+      "x": 2440,
+      "y": 1352
     },
     {
       "name": "SNAKE_CATCHING_REQUEST",
       "schemaName": "public",
-      "x": 1801.000000000001,
-      "y": 1345
+      "x": 2088,
+      "y": 1335.704964287053
     },
     {
       "name": "SNAKE_CATCHING_MISSION",
       "schemaName": "public",
-      "x": 2112.000000000001,
-      "y": 1530
+      "x": 2440.000000000001,
+      "y": 1636
     },
     {
       "name": "SNAKE_CATCHING_DETAIL",
       "schemaName": "public",
-      "x": 2112,
-      "y": 1655
+      "x": 2431.000000000002,
+      "y": 1952
     },
     {
       "name": "COMMUNITY_REPORT",
       "schemaName": "public",
-      "x": 1564.000000000001,
-      "y": 1345
+      "x": 1685.4970143352768,
+      "y": 1368
     },
     {
       "name": "RESCUE_REQUEST",
       "schemaName": "public",
-      "x": 1021,
-      "y": 1345
+      "x": 754.8742549980296,
+      "y": 1448
     },
     {
       "name": "SNAKE_AI_RECOGNITION_RESULT",
       "schemaName": "public",
-      "x": 1522,
-      "y": 1640
+      "x": 1664,
+      "y": 1646.5558025728576
     },
     {
       "name": "RESCUE_MISSION",
       "schemaName": "public",
-      "x": 771,
-      "y": 1345
+      "x": 437.0850930354668,
+      "y": 1456
     },
     {
       "name": "RESCUE_TRACKING",
       "schemaName": "public",
-      "x": 620,
-      "y": 1170
+      "x": 446.884033203125,
+      "y": 1202
     },
     {
       "name": "RESCUE_TOOLS",
       "schemaName": "public",
-      "x": 621.7309648837523,
-      "y": 1096
+      "x": 448,
+      "y": 1088
     },
     {
       "name": "SAFETY_GUIDELINES",
       "schemaName": "public",
-      "x": 339,
-      "y": 1170
+      "x": 40,
+      "y": 1160
     },
     {
       "name": "CATCHING_ENVIRONMENT",
       "schemaName": "public",
-      "x": 2112,
-      "y": 1440
+      "x": 2800,
+      "y": 1637.7180348387164
     },
     {
       "name": "SNAKE_CATCHING_TARIFF",
       "schemaName": "public",
-      "x": 1912,
-      "y": 1760
+      "x": 2098.151723963438,
+      "y": 2756.340002028518
     },
     {
       "name": "REVENUE_SHARE",
       "schemaName": "public",
-      "x": 2428.0000000000005,
-      "y": 2038.6199999999994
+      "x": 2802.8844251720257,
+      "y": 3284.635037741464
     },
     {
       "name": "CONSULTATION",
       "schemaName": "public",
-      "x": 771,
-      "y": 1825
+      "x": 419.05246312606323,
+      "y": 2641
     },
     {
       "name": "CHAT_MESSAGE",
       "schemaName": "public",
-      "x": 776.0000000000009,
-      "y": 1921.38
+      "x": 758.0725044555521,
+      "y": 2984
     },
     {
       "name": "EXPERT_TIME_SLOT",
       "schemaName": "public",
-      "x": 620,
-      "y": 2135
+      "x": -0.46020396354799686,
+      "y": 2584
     },
     {
       "name": "CONSULTATION_BOOKING",
       "schemaName": "public",
-      "x": 1026,
-      "y": 1825
+      "x": 767.4979696328834,
+      "y": 2752
     },
     {
       "name": "CONSULTATION_PING_REQUEST",
       "schemaName": "public",
-      "x": 771,
-      "y": 1677
+      "x": 421.16842992293823,
+      "y": 2360
     },
     {
       "name": "USER_FEEDBACK",
       "schemaName": "public",
-      "x": 1021,
-      "y": 1515
+      "x": 754.3295397099452,
+      "y": 1848
     },
     {
       "name": "REPUTATION_RAW_EVENT",
       "schemaName": "public",
-      "x": 400,
-      "y": 1808.63
+      "x": -303.5496624502787,
+      "y": 2216
     },
     {
       "name": "REPUTATION_TRANSACTION",
       "schemaName": "public",
-      "x": -40,
-      "y": 1808
+      "x": -1024,
+      "y": 2208
     },
     {
       "name": "REPORT_MEDIA",
       "schemaName": "public",
-      "x": 1021,
-      "y": 1585
+      "x": 759.4979696328834,
+      "y": 2376
     },
     {
       "name": "TREATMENT_FACILITY",
       "schemaName": "public",
-      "x": 2166.0000000000005,
-      "y": 2136
+      "x": 2769.0748869751296,
+      "y": 3773.7498747226914
     },
     {
       "name": "FACILITY_ANTIVENOM",
       "schemaName": "public",
-      "x": -40.2639481386916,
-      "y": 2233.9999999999995
+      "x": 2488,
+      "y": 3768
     },
     {
       "name": "TRANSACTION",
       "schemaName": "public",
-      "x": 2428.0000000000005,
-      "y": 1962.37
+      "x": 2802.8844251720257,
+      "y": 2820.635037741464
     },
     {
       "name": "BLOG",
       "schemaName": "public",
-      "x": -39.2639481386916,
-      "y": 2049.9999999999995
+      "x": -679.7485322800636,
+      "y": 2640
     },
     {
       "name": "FCM_DEVICE_TOKEN",
       "schemaName": "public",
-      "x": -40.2639481386916,
-      "y": 1591
+      "x": -640,
+      "y": 1480
     },
     {
       "name": "MAP_LOCATION_EVENTS",
       "schemaName": "public",
-      "x": 1020,
-      "y": 1170
+      "x": 968,
+      "y": 568
     },
     {
       "name": "MAP_NOTIFICATION_LOG",
       "schemaName": "public",
-      "x": 1021,
-      "y": 1110
+      "x": 704,
+      "y": 568
     },
     {
       "name": "FILTER_QUESTIONS",
       "schemaName": "public",
-      "x": 1909,
-      "y": 1990.5
+      "x": 2100.3893243074895,
+      "y": 3213.2200020285172
     },
     {
       "name": "ANSWER_OPTIONS",
       "schemaName": "public",
-      "x": 2166.0000000000005,
-      "y": 1990.5
+      "x": 2474.22056620126,
+      "y": 3180.635037741464
     },
     {
       "name": "SPECIES_QUESTIONS_MAPPING",
       "schemaName": "public",
-      "x": 1909,
-      "y": 1853.5
+      "x": 2095.875992885464,
+      "y": 2994.7200020285172
     },
     {
       "name": "SYMPTOM_CONFIG",
       "schemaName": "public",
-      "x": 1030,
-      "y": 2054.63
+      "x": 920,
+      "y": 3592
     },
     {
       "name": "REPUTATION_RULE",
       "schemaName": "public",
-      "x": -40.2639481386916,
-      "y": 1900
+      "x": -679.5496624502787,
+      "y": 2344
     },
     {
       "name": "LESSON",
       "schemaName": "public",
-      "x": -40.2639481386916,
-      "y": 1240
+      "x": 16,
+      "y": 856
     }
   ],
   "tableGroupCollapseStates": [],
