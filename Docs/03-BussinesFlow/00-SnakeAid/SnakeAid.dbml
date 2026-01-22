@@ -398,8 +398,6 @@ Table SNAKE_SPECIES_ANTIVENOM {
   snake_species_id uuid [not null, ref: > SNAKE_SPECIES.id]
   antivenom_id uuid [not null, ref: > ANTIVENOM.id]
 
-  evidence_note text
-
   Indexes {
     (snake_species_id, antivenom_id) [pk]
     (antivenom_id)

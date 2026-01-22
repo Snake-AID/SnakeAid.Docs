@@ -49,8 +49,8 @@
     {
       "name": "SYSTEM_EVENT",
       "schemaName": "public",
-      "x": -912,
-      "y": 1648
+      "x": -968,
+      "y": 1664
     },
     {
       "name": "APP_NOTIFICATION",
@@ -61,7 +61,7 @@
     {
       "name": "PAYMENT_CARD",
       "schemaName": "public",
-      "x": -1232,
+      "x": -1344,
       "y": 1368
     },
     {
@@ -115,20 +115,20 @@
     {
       "name": "ANTIVENOM",
       "schemaName": "public",
-      "x": 2111.4225331271814,
-      "y": 3796.340002028517
+      "x": 2110.4662286043645,
+      "y": 3789.7498747226914
     },
     {
       "name": "SNAKE_SPECIES_ANTIVENOM",
       "schemaName": "public",
-      "x": 1704,
-      "y": 3760
+      "x": 1712,
+      "y": 3757.937840159955
     },
     {
       "name": "AI_MODEL",
       "schemaName": "public",
       "x": 2478.00376932626,
-      "y": 3429.5150377414643
+      "y": 3437.2200020285172
     },
     {
       "name": "AI_MODEL_CLASS_MAP",
@@ -182,7 +182,7 @@
       "name": "SNAKE_AI_RECOGNITION_RESULT",
       "schemaName": "public",
       "x": 1664,
-      "y": 1646.5558025728576
+      "y": 1656
     },
     {
       "name": "RESCUE_MISSION",
@@ -223,8 +223,8 @@
     {
       "name": "REVENUE_SHARE",
       "schemaName": "public",
-      "x": 2802.8844251720257,
-      "y": 3284.635037741464
+      "x": 2808,
+      "y": 3310.9841880661875
     },
     {
       "name": "CONSULTATION",
@@ -283,14 +283,14 @@
     {
       "name": "TREATMENT_FACILITY",
       "schemaName": "public",
-      "x": 2769.0748869751296,
-      "y": 3773.7498747226914
+      "x": 2767.541115579494,
+      "y": 3789.5281154570353
     },
     {
       "name": "FACILITY_ANTIVENOM",
       "schemaName": "public",
-      "x": 2488,
-      "y": 3768
+      "x": 2486.4662286043645,
+      "y": 3790.174319168991
     },
     {
       "name": "TRANSACTION",
@@ -331,8 +331,8 @@
     {
       "name": "ANSWER_OPTIONS",
       "schemaName": "public",
-      "x": 2474.22056620126,
-      "y": 3180.635037741464
+      "x": 2468.481186192488,
+      "y": 3120
     },
     {
       "name": "SPECIES_QUESTIONS_MAPPING",
