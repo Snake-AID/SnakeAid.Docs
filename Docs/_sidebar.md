@@ -1,68 +1,79 @@
-- [Home](/README.md)
 
-- Introduction
+*   [🏠 Trang chủ](/)
 
-  - [Introduction](00-Introduction/Introduction.md)
+*   📂 00. Tổng Quan (General)
+    *   [📄 Giới thiệu dự án](00-General/Project-Overview.md)
 
-- Requirements
+*   📂 01. Nghiệp Vụ (Functional Specs)
+    *   📂 Concepts
+        *   [📋 Feature Matrix](01-Functional-Specs/00-Concepts/Feature-Matrix.md)
+    *   📂 Core Flows
+        *   [📄 Flows Overview](01-Functional-Specs/01-Core-Flows/00-Flows-Overview.md)
+        *   [🚑 Emergency Response](01-Functional-Specs/01-Core-Flows/01-Emergency-Response.md)
+        *   [🐍 Rescue Service](01-Functional-Specs/01-Core-Flows/02-Rescue-Service.md)
+        *   [👨‍⚕️ Expert Consultation](01-Functional-Specs/01-Core-Flows/03-Expert-Consultation.md)
+        *   [📢 Community Safety](01-Functional-Specs/01-Core-Flows/04-Community-Safety.md)
+        *   [⚙️ Admin Operations](01-Functional-Specs/01-Core-Flows/05-Admin-Operations.md)
+    *   📂 Financial Model
+        *   [💰 Overview](01-Functional-Specs/02-Financial-Model/00-Overview.md)
+        *   [🏷️ Pricing Strategy](01-Functional-Specs/02-Financial-Model/01-Pricing-Strategy.md)
+        *   [💳 Payment Processes](01-Functional-Specs/02-Financial-Model/02-Payment-Processes.md)
+        *   [🛡️ Insurance Policy](01-Functional-Specs/02-Financial-Model/03-Insurance-Policy.md)
 
-  - [Main Flow](01-Requirements/Main-Flow/Main-Flow.md)
-  - [Major Features Summary](01-Requirements/Major-Features/Major-Features-Summary.md)
-  - Payment Flow
-    - [Payment Flow Summary](01-Requirements/Payment-Flow/Payment-Flow-Summary.md)
-    - [Payment Flow Detail](01-Requirements/Payment-Flow/Payment-Flow-Detail.md)
-    - [Insurance and Fund Detail](01-Requirements/Payment-Flow/Insurance-Fund-Detail.md)
-    - [Service Pricing Strategy](01-Requirements/Payment-Flow/Service-Pricing-Strategy.md)
-  - Swimlane Diagrams
-    - [Emergency Flow](01-Requirements/Swimlane-Diagram/01-Swimlane-Emergency-Flow.md)
-    - [Rescue Request Flow](01-Requirements/Swimlane-Diagram/02-Swimlane-Rescue-Request-Flow.md)
-    - [Expert Consultation Flow](01-Requirements/Swimlane-Diagram/03-Swimlane-Expert-Consultation-Flow.md)
-    - [Admin Management Flow](01-Requirements/Swimlane-Diagram/04-Swimlane-Admin-Management-Flow.md)
+*   📂 02. Kiến Trúc (Architecture)
+    *   [🏗️ System Context](02-Technical-Architecture/00-System-Context.md)
+    *   📂 Swimlanes
+        *   [🏊 Expert Swimlane](02-Technical-Architecture/01-Swimlanes/Expert.md)
+        *   [🏊 Patient Swimlane](02-Technical-Architecture/01-Swimlanes/Patient.md)
+        *   [🏊 Rescuer Swimlane](02-Technical-Architecture/01-Swimlanes/Rescuer.md)
 
-- Architecture Design
+*   📂 03. Dữ Liệu (Data Design)
+    *   📂 SnakeAid Core
+        *   [🗃️ ERD](03-Data-Design/00-SnakeAid/SnakeAid.md)
+    *   📂 Emergency Module
+        *   [🗃️ ERD](03-Data-Design/01-EmergencyRescue/EmergencyRescue.md)
+    *   📂 Rescue Module
+        *   [🗃️ ERD](03-Data-Design/02-SnakeCatching/SnakeCatching.md)
+    *   📂 Consultation Module
+        *   [🗃️ ERD](03-Data-Design/03-ExpertConsultation/ExpertConsultation.md)
+    *   📂 Snake Library
+        *   [🗃️ ERD](03-Data-Design/04-SnakeLibrary/SnakeLibrary.md)
+    *   📂 Statistics
+        *   [🗃️ ERD](03-Data-Design/05-Statitics/Statitics.md)
+    *   📂 Chatting
+        *   [🗃️ ERD](03-Data-Design/06-Chatting/Chatting.md)
+    *   📂 Video Call
+        *   [🗃️ ERD](03-Data-Design/07-VideoCall/VideoCall.md)
+    *   📂 Map Service
+        *   [🗃️ ERD](03-Data-Design/08-Map/Map.md)
 
-  - [Context Diagram](02-Architecture-Design/Context-Diagram.md)
-  - SnakeERD
-    - [SnakeCatching](02-Architecture-Design/ERD/SnakeERD_SnakeCatching.md)
-
-- Bussines Flow
-
-  - [EmergencyRescue](03-BussinesFlow/01-EmergencyRescue/EmergencyRescue.md)
-  - [SnakeCatching](03-BussinesFlow/02-SnakeCatching/SnakeCatching.md)
-  - [ExpertConsultation](03-BussinesFlow/03-ExpertConsultation/ExpertConsultation.md)
-  - [SnakeLibrary](03-BussinesFlow/04-SnakeLibrary/SnakeLibrary.md)
-  - [Statitics](03-BussinesFlow/05-Statitics/Statitics.md)
-  - [Chatting](03-BussinesFlow/06-Chatting/Chatting.md)
-  - [VideoCall](03-BussinesFlow/07-VideoCall/VideoCall.md)
-  - [Map](03-BussinesFlow/08-Map/Map.md)
-
-- UI Design
-  - [UI Design Overview](04-UI-Design/UI-Design-Overview.md)
-  - Admin
-    - [Dashboard Screens](04-UI-Design/Admin/Admin-Dashboard-Screens.md)
-    - [User Management Screens](04-UI-Design/Admin/Admin-User-Management-Screens.md)
-    - [Snake Database Screens](04-UI-Design/Admin/Admin-Snake-Database-Screens.md)
-    - [Hospital Management Screens](04-UI-Design/Admin/Admin-Hospital-Management-Screens.md)
-    - [Financial Management Screens](04-UI-Design/Admin/Admin-Financial-Management-Screens.md)
-    - [Analytics and Reporting](04-UI-Design/Admin/Admin-Analytics-Reporting-Screens.md)
-  - Expert
-    - [Dashboard Screens](04-UI-Design/Expert/Expert-Dashboard-Screens.md)
-    - [Consultation Flow Screens](04-UI-Design/Expert/Expert-Consultation-Flow-Screens.md)
-    - [Snake Verification Screens](04-UI-Design/Expert/Expert-Snake-Verification-Screens.md)
-    - [Profile Settings Part 1](04-UI-Design/Expert/Expert-Profile-Settings-Screens-Part1.md)
-    - [Profile Settings Part 2](04-UI-Design/Expert/Expert-Profile-Settings-Screens-Part2.md)
-    - [Revenue Management Screens](04-UI-Design/Expert/Expert-Revenue-Management-Screens.md)
-  - Patient
-    - [Homepage (Enhanced)](04-UI-Design/Patient/Patient-Homepage-Enhanced.md)
-    - [Emergency Flow Screens](04-UI-Design/Patient/Patient-Emergency-Flow-Screens.md)
-    - [Rescue Request Flow Screens](04-UI-Design/Patient/Patient-Rescue-Request-Flow-Screens.md)
-    - [Expert Consultation Flow Screens](04-UI-Design/Patient/Patient-Expert-Consultation-Flow-Screens.md)
-    - [Profile Settings Screens](04-UI-Design/Patient/Patient-Profile-Settings-Screens.md)
-  - Rescuer
-    - [Emergency Response Flow Screens](04-UI-Design/Rescuer/Rescuer-Emergency-Response-Flow-Screens.md)
-    - [Rescue Request Flow Screens](04-UI-Design/Rescuer/Rescuer-Rescue-Request-Flow-Screens.md)
-    - [Expert Consultation Flow Screens](04-UI-Design/Rescuer/Rescuer-Expert-Consultation-Flow-Screens.md)
-    - [Profile Settings Part 1](04-UI-Design/Rescuer/Rescuer-Profile-Settings-Screens-Part1.md)
-    - [Profile Settings Part 2](04-UI-Design/Rescuer/Rescuer-Profile-Settings-Screens-Part2.md)
-    - [Revenue Management Screens](04-UI-Design/Rescuer/Rescuer-Revenue-Management-Screens.md)
-    - [Safety Guidelines Screens](04-UI-Design/Rescuer/Rescuer-Safety-Guidelines-Screens.md)
+*   📂 04. Giao Diện (UI/UX)
+    *   [🎨 Design Overview](04-UI-UX/00-Overview.md)
+    *   📂 Patient App
+        *   [🏠 Homepage](04-UI-UX/01-Patient-App/Patient-Homepage-Enhanced.md)
+        *   [🚑 Emergency Flow](04-UI-UX/01-Patient-App/Patient-Emergency-Flow-Screens.md)
+        *   [🐍 Rescue Request](04-UI-UX/01-Patient-App/Patient-Rescue-Request-Flow-Screens.md)
+        *   [👨‍⚕️ Expert Consult](04-UI-UX/01-Patient-App/Patient-Expert-Consultation-Flow-Screens.md)
+        *   [⚙️ Profile & Settings](04-UI-UX/01-Patient-App/Patient-Profile-Settings-Screens.md)
+    *   📂 Rescuer App
+        *   [🚑 Emergency Response](04-UI-UX/02-Rescuer-App/Rescuer-Emergency-Response-Flow-Screens.md)
+        *   [🐍 Rescue Tasks](04-UI-UX/02-Rescuer-App/Rescuer-Rescue-Request-Flow-Screens.md)
+        *   [👨‍⚕️ Consult Expert](04-UI-UX/02-Rescuer-App/Rescuer-Expert-Consultation-Flow-Screens.md)
+        *   [� Revenue](04-UI-UX/02-Rescuer-App/Rescuer-Revenue-Management-Screens.md)
+        *   [🛡️ Safety Guidelines](04-UI-UX/02-Rescuer-App/Rescuer-Safety-Guidelines-Screens.md)
+        *   [⚙️ Profile (Part 1)](04-UI-UX/02-Rescuer-App/Rescuer-Profile-Settings-Screens-Part1.md)
+        *   [⚙️ Profile (Part 2)](04-UI-UX/02-Rescuer-App/Rescuer-Profile-Settings-Screens-Part2.md)
+    *   📂 Expert App
+        *   [📊 Dashboard](04-UI-UX/03-Expert-App/Expert-Dashboard-Screens.md)
+        *   [�‍⚕️ Consultation Flow](04-UI-UX/03-Expert-App/Expert-Consultation-Flow-Screens.md)
+        *   [🔍 Snake Verification](04-UI-UX/03-Expert-App/Expert-Snake-Verification-Screens.md)
+        *   [💰 Revenue](04-UI-UX/03-Expert-App/Expert-Revenue-Management-Screens.md)
+        *   [⚙️ Profile (Part 1)](04-UI-UX/03-Expert-App/Expert-Profile-Settings-Screens-Part1.md)
+        *   [⚙️ Profile (Part 2)](04-UI-UX/03-Expert-App/Expert-Profile-Settings-Screens-Part2.md)
+    *   📂 Admin Portal
+        *   [📊 Dashboard](04-UI-UX/04-Admin-Portal/Admin-Dashboard-Screens.md)
+        *   [👥 User Management](04-UI-UX/04-Admin-Portal/Admin-User-Management-Screens.md)
+        *   [🐍 Snake Database](04-UI-UX/04-Admin-Portal/Admin-Snake-Database-Screens.md)
+        *   [🏥 Hospital Management](04-UI-UX/04-Admin-Portal/Admin-Hospital-Management-Screens.md)
+        *   [💰 Financials](04-UI-UX/04-Admin-Portal/Admin-Financial-Management-Screens.md)
+        *   [📈 Analytics](04-UI-UX/04-Admin-Portal/Admin-Analytics-Reporting-Screens.md)
