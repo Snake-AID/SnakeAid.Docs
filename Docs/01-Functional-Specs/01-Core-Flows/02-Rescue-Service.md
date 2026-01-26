@@ -38,7 +38,7 @@
    - Mức độ khẩn cấp
    - Loại rắn (từ AI)
 3. Tìm kiếm Snake Rescuer phù hợp:
-   - Đang online trong bán kính **10 km**
+   - Đang online trong bán kính **5 km**
    - Có kinh nghiệm với loài rắn này
    - Đánh giá tốt từ khách hàng trước
    - Sắp xếp theo: Khoảng cách → Rating → Thời gian phản hồi
@@ -49,8 +49,8 @@
    - Thời gian chấp nhận: **2 phút**
 5. Kịch bản:
    - **Nếu có Rescuer chấp nhận trong 2 phút** → Chuyển sang **Flow 2.3**.
-   - **Nếu không có** → Mở rộng bán kính lên **20 km**, gửi đến top 5 và tăng phí đề xuất 20%.
-   - **Nếu vẫn không có sau 5 phút** → Thông báo cho Patient: "Không tìm thấy đội cứu hộ" và đề xuất gọi trung tâm kiểm soát động vật hoặc 115.
+   - **Nếu không có** → Mở rộng bán kính lên **10 km**, gửi đến top 5 và tăng phí đề xuất 20%.
+   - **Nếu vẫn không có sau 5 phút** → Mở rộng bán kính lên **15 km**. Nếu vẫn không tìm thấy → Thông báo cho Patient: "Không tìm thấy đội cứu hộ" và đề xuất gọi trung tâm kiểm soát động vật hoặc 115.
 
 ---
 
