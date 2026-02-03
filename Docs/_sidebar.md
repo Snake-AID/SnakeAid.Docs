@@ -77,7 +77,56 @@
         *   [🏥 Hospital Management](04-UI-UX/04-Admin-Portal/Admin-Hospital-Management-Screens.md)
         *   [💰 Financials](04-UI-UX/04-Admin-Portal/Admin-Financial-Management-Screens.md)
         *   [📈 Analytics](04-UI-UX/04-Admin-Portal/Admin-Analytics-Reporting-Screens.md)
-*   📂 05. Review
+*   📂 05. Backend
+    *   [🏠 Home](05-Backend/HOME.md)
+    *   📂 Documentation Guide
+        *   [How to Organize Docs](05-Backend/README.md)
+        *   [Docsify Configuration](05-Backend/DOCSIFY.md)
+    *   📂 Flows (Vertical)
+        *   [API Plan Overview](05-Backend/01-flows/API_Plan.md)
+        *   [Test Flow Plan (CSV)](05-Backend/01-flows/Snake%20Backend%20Plans.csv)
+        *   **P1 - Emergency Rescue**
+            *   [S1: Nhận diện được rắn](05-Backend/01-flows/P1-emergency/S1-identified/_flow.md)
+            *   [S2: Không nhận diện được rắn](05-Backend/01-flows/P1-emergency/S2-not-identified/_flow.md)
+        *   **P2 - Snake Catching**
+            *   [S1: Bắt 1 con rắn](05-Backend/01-flows/P2-catching/S1-single-snake/_flow.md)
+            *   [S2: Bắt nhiều rắn (2-5)](05-Backend/01-flows/P2-catching/S2-multiple-snakes/_flow.md)
+            *   [S3: Bắt cả ổ rắn](05-Backend/01-flows/P2-catching/S3-snake-nest/_flow.md)
+            *   [S4: Màn hình chung](05-Backend/01-flows/P2-catching/S4-common/_flow.md)
+    *   📂 Layers (Horizontal)
+        *   **ASP.NET Identity**
+            *   [Introduction](05-Backend/02-layers/aspnet%20identity/aspnet-identity.introduction.md)
+            *   [Implementation Plan](05-Backend/02-layers/aspnet%20identity/aspnet-identity.plan.md)
+            *   [Agent Prompt](05-Backend/02-layers/aspnet%20identity/aspnet-identity.prompt.md)
+            *   [Source Code Reference](05-Backend/02-layers/aspnet%20identity/aspnet-identity.sourcecode.md)
+            *   [Usage Guide](05-Backend/02-layers/aspnet%20identity/aspnet-identity.usageguilde.md)
+        *   **Cloudinary**
+            *   [Introduction](05-Backend/02-layers/cloudinary/cloudinary.introduction.md)
+            *   [Implementation Plan](05-Backend/02-layers/cloudinary/cloudinary.plan.md)
+            *   [Agent Prompt](05-Backend/02-layers/cloudinary/cloudinary.prompt.md)
+            *   [Source Code Reference](05-Backend/02-layers/cloudinary/cloudinary.sourcecode.md)
+            *   [Usage Guide](05-Backend/02-layers/cloudinary/cloudinary.usageguilde.md)
+        *   **AI Services**
+            *   [Introduction](05-Backend/02-layers/ai/SankeAi.introduction.md)
+        *   **Domain Driven Design**
+            *   [Introduction](05-Backend/02-layers/domain%20driven%20design/ddd-migration.introduction.md)
+            *   [Migration Plan](05-Backend/02-layers/domain%20driven%20design/ddd-migration.plan.md)
+            *   [Source Code](05-Backend/02-layers/domain%20driven%20design/ddd-migration.sourcecode.md)
+            *   [Usage Guide](05-Backend/02-layers/domain%20driven%20design/ddd-migration.usageguide.md)
+            *   [Agent Prompts](05-Backend/02-layers/domain%20driven%20design/ddd-migration.prompt.md)
+        *   **Docker**
+            *   [Introduction](05-Backend/02-layers/docker/docker.introduction.md)
+            *   [Source Code](05-Backend/02-layers/docker/docker.sourcecode.md)
+            *   [Usage Guide](05-Backend/02-layers/docker/docker.usageguide.md)
+        *   **Jenkins**
+            *   [Introduction](05-Backend/02-layers/jenkins/jenkins.introduction.md)
+            *   [Plan](05-Backend/02-layers/jenkins/jenkins.plan.md)
+            *   [Source Code](05-Backend/02-layers/jenkins/jenkins.sourcecode.md)
+            *   [Usage Guide](05-Backend/02-layers/jenkins/jenkins.usageguide.md)
+        *   **NuGet**
+            *   [NuGet Upgrade Doc](05-Backend/02-layers/nuget/NuGet_Upgrade_Doc.md)
+            *   [NuGet Toys Tracker](05-Backend/02-layers/nuget/Nuget%20Toys%20Tracker.md)
+*   📂 06. Review
     *   📂 R01
-        *   [📑 Note](05-Review/R01/Note.md)
-        *   [📑 Mentor Feedback Report](05-Review/R01/Mentor_Feedback_Report.md)
+        *   [📑 Note](06-Review/R01/Note.md)
+        *   [📑 Mentor Feedback Report](06-Review/R01/Mentor_Feedback_Report.md)
