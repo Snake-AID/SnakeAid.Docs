@@ -254,7 +254,7 @@ Chuyển từ Flat DTO sang cấu trúc phân tách Metadata/Results để rõ r
         // --- SPECIAL LOGIC: FIRST AID ---
         // Nếu DB null -> Tự động điền từ VenomType (Fallback)
         "firstAidGuidelineOverride": {
-          "mode": 0, // Append/Replace
+          "mode": "Append", // Append/Replace
           "steps": [
              "Trấn an nạn nhân", 
              "Bất động chi bị cắn"
@@ -262,7 +262,7 @@ Chuyển từ Flat DTO sang cấu trúc phân tách Metadata/Results để rõ r
         },
 
         // --- Navigation Props (Có thể null để tránh loop/heavy payload) ---
-        "primaryVenomType": 0 // Enum Value
+        "primaryVenomType": "Neurotoxic" // Enum Value
       }
     }
   ]
@@ -276,4 +276,4 @@ Frontend cần hiển thị hướng dẫn sơ cứu ngay lập tức. Logic fal
 2.  Nếu `Null` -> Truy vấn ngược qua relation:
     `SnakeSpecies -> SpeciesVenoms -> VenomType -> FirstAidGuidelineId`
 3.  Lấy Content từ `FirstAidGuideline` và populate vào field trả về (đổi tên thành `firstAidGuideline`).
-4.  **Serialization**: Cấu hình Enum thành String (`Neurotoxic` thay vì `0`).
+4.  **Serialization**: Cấu hình Enum thành String (`"Neurotoxic"` thay vì `0`).

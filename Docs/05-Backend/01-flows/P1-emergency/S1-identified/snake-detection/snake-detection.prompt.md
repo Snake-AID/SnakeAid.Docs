@@ -371,7 +371,7 @@ Implement the response structure exactly matching the JSON below. Do not omit an
         // --- SPECIAL LOGIC: FIRST AID ---
         // Nếu DB null -> Tự động điền từ VenomType (Fallback)
         "firstAidGuidelineOverride": { // [JSONB] Maps to 'FirstAidGuidelineOverride'
-          "mode": 0, // Append/Replace
+          "mode": "Append", // Append/Replace
           "steps": [
              "Trấn an nạn nhân", 
              "Bất động chi bị cắn"
@@ -379,7 +379,7 @@ Implement the response structure exactly matching the JSON below. Do not omit an
         },
 
         // --- Navigation Props (Có thể null để tránh loop/heavy payload) ---
-        "primaryVenomType": 0 // Enum Value
+        "primaryVenomType": "Neurotoxic" // Enum Value
       }
     }
   ]
@@ -401,6 +401,6 @@ Implement the response structure exactly matching the JSON below. Do not omit an
     *   If found, create a temporary `FirstAidOverride` object with `Mode = 0` (Append) and populate `Steps`.
 
 3.  **Serialization**:
-    *   Ensure Enums serialize as Integers (or Strings if requested, but JSON shows `0` for Mode). *Correction from previous plan: JSON above shows `0` for Mode and `0` for primaryVenomType. Use default int serialization unless specified otherwise.*
+    *   Ensure Enums serialize as **Strings** (e.g., `"Append"`, `"Neurotoxic"`). *Correction from previous plan: JSON above shows String for Mode and primaryVenomType. Use GLOBAL JsonStringEnumConverter.*
     *   Use `[JsonPropertyName("...")]` to match snake_case keys exactly.
 
