@@ -9,6 +9,8 @@
   
   <!-- Theme: Vue -->
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <!-- Sidebar Collapse Style -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/sidebar.min.css" />
   
   <!-- Custom styles -->
   <style>
@@ -57,6 +59,23 @@
     body.dark-mode .markdown-section h4,
     body.dark-mode .markdown-section h5,
     body.dark-mode .markdown-section h6 {
+      color: #ffffff !important;
+    }
+
+    /* Force all headings and their children to white in dark mode */
+    body.dark-mode .markdown-section h1, body.dark-mode .markdown-section h1 *,
+    body.dark-mode .markdown-section h2, body.dark-mode .markdown-section h2 *,
+    body.dark-mode .markdown-section h3, body.dark-mode .markdown-section h3 *,
+    body.dark-mode .markdown-section h4, body.dark-mode .markdown-section h4 *,
+    body.dark-mode .markdown-section h5, body.dark-mode .markdown-section h5 *,
+    body.dark-mode .markdown-section h6, body.dark-mode .markdown-section h6 * {
+      color: #ffffff !important;
+      text-decoration: none;
+    }
+
+    /* Force bold text to white in dark mode */
+    body.dark-mode .markdown-section strong,
+    body.dark-mode .markdown-section b {
       color: #ffffff !important;
     }
     
@@ -132,6 +151,19 @@
     
     .markdown-section pre > code {
       padding: 1.2em 1.4em;
+    }
+
+    /* Sidebar Active Item "Dim" Effect */
+    .sidebar ul li.active > a {
+      background-color: #f0f0f0;
+      border-right: none; /* Remove default border to look more like a button/dim */
+      margin-right: 10px; /* Add some spacing */
+    }
+
+    /* Dark mode override for "Dim" effect */
+    body.dark-mode .sidebar ul li.active > a {
+      background-color: #333;
+      color: #66bb6a !important;
     }
     
     /* Split-pane layout for API documentation */
@@ -227,6 +259,7 @@
       repo: 'https://github.com/Snake-AID/SnakeAid.Docs',
       loadSidebar: true,
       subMaxLevel: 3,
+      sidebarDisplayLevel: 1, // set to 0 to collapse all, 1 to expand first level
       auto2top: true,
       
       // Flexible Alerts configuration
@@ -345,7 +378,7 @@
         },
         // Last updated footer
         function(hook, vm) {
-          hook.beforeEach(function(html) {
+          hook.afterEach(function(html, next) {
             // Add "Last Updated" timestamp
             const footer = `
               <hr/>
@@ -353,7 +386,7 @@
                 <small>Last updated: ${new Date().toLocaleString()}</small>
               </footer>
             `;
-            return html + footer;
+            next(html + footer);
           });
         }
       ]
@@ -377,6 +410,9 @@
   
   <!-- Zoom image plugin -->
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+
+  <!-- Sidebar Collapse Plugin -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
   
   <!-- Flexible Alerts plugin -->
   <script src="https://unpkg.com/docsify-plugin-flexible-alerts"></script>
