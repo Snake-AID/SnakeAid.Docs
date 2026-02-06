@@ -1,19 +1,31 @@
-# 📖 Rescue Trigger Usage Guide
+# Rescue Trigger Usage Guide
 
-> **Audience**: Mobile App (Flutter) Developers
-> **Purpose**: Trigger an emergency rescue and manage search range.
+Audience: mobile/web client developers integrating emergency dispatch.
 
-## 1. Trigger SOS (Create Incident)
+## 1. Response Envelope
 
-Call this endpoint immediately when the user confirms an emergency or requests help.
+HTTP APIs in this module return:
+
+```json
+{
+  "status_code": 200,
+  "message": "Operation successful",
+  "is_success": true,
+  "data": {},
+  "error": null
+}
+```
+
+Use `is_success` and `status_code` for client control flow.
+
+## 2. Trigger SOS Dispatch
 
 ### Endpoint
-`POST api/incidents/sos`
+- Method: `POST`
+- URL: `/api/incidents/sos`
+- Auth: required (`Bearer` token)
 
-### Request Header
-`Authorization: Bearer <token>`
-
-### Request Body
+### Request body
 ```json
 {
   "lng": 106.660172,
@@ -21,110 +33,106 @@ Call this endpoint immediately when the user confirms an emergency or requests h
 }
 ```
 
-### Response (200 OK)
+### Success response (`data` excerpt)
 ```json
 {
-  "data": {
-    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "locationCoordinates": {
-      "latitude": 10.762622,
-      "longitude": 106.660172
-    },
-    "status": 0,
-    "currentSessionNumber": 1,
-    "currentRadiusKm": 10,
-    "incidentOccurredAt": "2026-02-06T12:00:00Z",
-    "sessionId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "sessionNumber": 1,
-    "radiusKm": 10,
-    "rescuersPinged": 12
+  "id": "incident-guid",
+  "userId": "member-guid",
+  "locationCoordinates": {
+    "latitude": 10.762622,
+    "longitude": 106.660172
   },
-  "success": true,
-  "message": "Snakebite Incident created and rescue session started! Broadcasting to nearby rescuers."
+  "status": 0,
+  "currentSessionNumber": 1,
+  "currentRadiusKm": 10,
+  "incidentOccurredAt": "2026-02-06T12:00:00Z",
+  "sessionId": "session-guid",
+  "sessionNumber": 1,
+  "radiusKm": 10,
+  "rescuersPinged": 3
 }
 ```
 
----
-
-## 2. Expand Search Range
-
-Call this if the user manually requests to widen the search or if no rescuers accept within the timeout.
+## 3. Raise Search Range Manually
 
 ### Endpoint
-`POST api/incidents/{incidentId}/raise-range`
+- Method: `POST`
+- URL: `/api/incidents/{incidentId}/raise-range`
+- Auth: required
 
-### Request Params
-*   `incidentId` (Path): The GUID of the current incident.
+### Current behavior note
+Current implementation creates a new session record and updates incident radius/session counters.
+It does not trigger broadcast automatically for that session.
+Treat this endpoint as internal/admin/debug until service path is completed.
 
-### Response (200 OK)
+## 4. Incident Detail and Symptom Update
+
+### Get incident detail
+- Method: `GET`
+- URL: `/api/incidents/{incidentId}`
+
+### Update symptoms
+- Method: `PUT`
+- URL: `/api/incidents/{incidentId}/symptoms-tracking`
+
+Request body follows `UpdateSymptomReportRequest` contract.
+
+## 5. Rescuer SignalR Integration
+
+### Hub
+- URL: `/rescuer-hub`
+
+### Client -> Server methods
+- `JoinAsRescuer(string userId)`
+- `AcceptRequest(Guid requestId, Guid rescuerId)`
+- `RejectRequest(Guid requestId)`
+- `UpdateLocation(string userId, double latitude, double longitude)`
+- `GetConnectedRescuers()`
+
+### Server -> Client events (production path)
+- `Joined`
+- `NewRescueRequest`
+- `RequestAccepted`
+- `RequestTaken`
+- `RequestCancelled`
+- `RequestRejected`
+- `RequestError`
+- `LocationUpdated`
+- `ConnectedRescuers`
+
+### `NewRescueRequest` payload shape
 ```json
 {
-  "data": {
-    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "currentRadiusKm": 10,
-    "currentSessionNumber": 2
-    // ... other fields similar to Create Response
-  },
-  "success": true,
-  "message": "Session range expanded successfully. New radius: 10km"
+  "requestId": "request-guid",
+  "sessionId": "session-guid",
+  "incidentId": "incident-guid",
+  "radiusKm": 10,
+  "expiredAt": "2026-02-06T12:01:00Z",
+  "requestSentAt": "2026-02-06T12:00:00Z"
 }
 ```
 
+## 6. Monitoring Endpoints
 
-## 3. Rescuer App Integration (SignalR)
+Both endpoints require auth:
+- `GET /api/monitoring/session-timeout-status`
+- `GET /api/monitoring/health/session-timeout`
 
-Rescuers must connect to the `RescuerHub` to receive requests.
+Use these for operational visibility of in-memory timeout scheduler.
 
-### Connection
-`Hub URL`: `/rescuer-hub`
-`Auth`: JWT Token required.
+## 7. Important Integration Caveats
 
-### Client-to-Server Methods
-*   **`JoinAsRescuer(string userId)`**: Registers the socket connection for receiving alerts.
-*   **`AcceptRequest(Guid requestId, Guid rescuerId)`**: Attempt to accept a rescue. Setting `rescuerId` is redundant if using Token, but required by API.
-*   **`RejectRequest(Guid requestId)`**: Decline the request.
-*   **`UpdateLocation(string userId, double lat, double lng)`**: Keep location fresh for spatial queries.
+1. `UpdateLocation(...)` currently does not persist rescuer coordinates to database.
+2. Hub currently does not enforce authorization attributes at endpoint level.
+3. `RequestExpired` notification method exists in service, but production timeout path currently does not push this event.
+4. FCM fallback is not integrated yet in production path.
 
-### Server-to-Client Events
-*   **`Joined`**: Confirmation of connection.
-*   **`NewRescueRequest`**: A new rescue request is available for you.
-    ```json
-    {
-      "RequestId": "...",
-      "IncidentId": "...",
-      "Lat": 10.762622,
-      "Lng": 106.660172,
-      "RadiusKm": 10,
-      "TimeoutSeconds": 60
-    }
-    ```
-*   **`RequestAccepted`**: You successfully won the mission race.
-    ```json
-    { "RequestId": "...", "Message": "..." }
-    ```
-*   **`RequestTaken`**: Another rescuer claimed this mission first.
-*   **`RequestExpired`**: The session timed out before you responded.
-*   **`RequestError`**: Operation failed (e.g., "Already accepted by another rescuer").
-    ```json
-    { "RequestId": "...", "Error": "Request has expired." }
-    ```
-*   **`RequestRejected`**: Confirmation of rejection.
+## 8. Error Cases to Handle
 
----
+- `400`: invalid state transition (for example accepting expired/taken request).
+- `401`: unauthorized API access.
+- `404`: incident/request/session not found.
+- `500`: unexpected server error.
 
-## 4. Testing & Development
-For testing without real mobile devices, use the built-in **Rescue Demo Dashboard**:
-*   **URL**: `/demo/rescuedemo` (Requires Backend to be running)
-*   **Features**:
-    *   Simulate User (Connect, Create Incident, SOS).
-    *   Simulate 4 Mock Rescuers (Auto-connect, Accept/Reject).
-    *   Visual map of "Race Condition" logic.
+Always show `message` to user and log `error.errorCode` when available.
 
-## 5. Status Codes
-| Code | Meaning |
-|---|---|
-| 200 | Success. The SOS is active. |
-| 400 | Invalid request (e.g. invalid coordinates or missing profile). |
-| 404 | Incident not found (for raise-range). |
-| 401 | Unauthorized (User not logged in). |

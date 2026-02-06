@@ -2,6 +2,10 @@
 
 > **SYSTEM INSTRUCTION**: This document defines the **STRICT STANDARD** for SnakeAid Backend documentation. As an AI Agent, you **MUST** follow this protocol when referencing, creating, or updating documentation. This structure is designed to be your **External Memory**, allowing you to load context efficiently without re-reading the entire codebase.
 
+## Encoding Hygiene
+- All markdown stays UTF-8 (no BOM). If Vietnamese text shows mojibake (e.g., `lÃ `), run a one-time repair with `python -m pip install ftfy` and a small script using `ftfy.fix_encoding` on the affected files, then save back as UTF-8.
+- Do not keep alternate encodings in the repo. The ftfy dependency is only for recovery; it is not required for normal builds.
+
 ## 🧠 The 5-Document Standard
 
 Every technical component (Layer) or functional feature (Flow) in this project consists of exactly **5 document types**. You must maintain these files to ensure data consistency.

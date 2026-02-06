@@ -1,166 +1,190 @@
-# 💻 Rescue Trigger Source Code
+# Rescue Trigger Source Code
 
-> **State**: Implemented
-> **Last Updated**: 2026-02-06
-> **Commit**: `f6aca477`
+## Status
+- Module status: implemented for session-based rescue dispatch.
+- Baseline commit analyzed: `f6aca477d58cdae30b1c1d952aecbd10bf54f378`.
+- Current branch also includes follow-up changes (for example `GetIncidentDetail` endpoint in later commit).
+- Last verified against code: 2026-02-06.
 
-## File Paths (Quick Reference)
-| Component | Path |
-|-----------|------|
-| API Controller | `SnakeAid.Api/Controllers/SnakebiteIncidentController.cs` |
-| Session Service | `SnakeAid.Service/Implements/RescueRequestSessionService.cs` |
-| Incident Service | `SnakeAid.Service/Implements/SnakebiteIncidentService.cs` |
-| SignalR Hub | `SnakeAid.Api/Hubs/RescuerHub.cs` |
-| Timeout Service | `SnakeAid.Service/Implements/SessionTimeoutService.cs` |
-| Demo Controller | `SnakeAid.Api/Controllers/RescueDemoController.cs` |
+## Key Files
 
-## Constants (Hardcoded)
-```csharp
-// SnakebiteIncidentService.cs:26 & RescueRequestSessionService.cs:36
-private static readonly int[] RADIUS_PROGRESSION = { 10, 20, 30 }; // km
+### API
+- `SnakeAid.Api/Controllers/SnakebiteIncidentController.cs`
+- `SnakeAid.Api/Hubs/RescuerHub.cs`
+- `SnakeAid.Api/Controllers/MonitoringController.cs`
+- `SnakeAid.Api/Services/SignalRRescueNotificationService.cs`
+- `SnakeAid.Api/Program.cs`
 
-// SessionTimeoutService (derived from usage)
-private const int SESSION_TIMEOUT_SECONDS = 60;
-private const int MAX_SESSIONS = 3; // = RADIUS_PROGRESSION.Length
-```
+### Service
+- `SnakeAid.Service/Implements/SnakebiteIncidentService.cs`
+- `SnakeAid.Service/Implements/RescueRequestSessionService.cs`
+- `SnakeAid.Service/Implements/RescueMissionService.cs`
+- `SnakeAid.Service/Implements/SessionTimeoutBackgroundService.cs`
 
-## 1. API Extensions (`SnakebiteIncidentController`)
+### Contracts and Domains
+- `SnakeAid.Service/Interfaces/ISnakebiteIncidentService.cs`
+- `SnakeAid.Service/Interfaces/IRescueRequestSessionService.cs`
+- `SnakeAid.Service/Interfaces/IRescueMissionService.cs`
+- `SnakeAid.Service/Interfaces/IRescueNotificationService.cs`
+- `SnakeAid.Service/Interfaces/ISessionTimeoutService.cs`
+- `SnakeAid.Core/Domains/SnakebiteIncident.cs`
+- `SnakeAid.Core/Domains/RescueRequestSession.cs`
+- `SnakeAid.Core/Domains/RescuerRequest.cs`
+- `SnakeAid.Core/Domains/RescueMission.cs`
 
-### `POST /api/incidents/sos`
-Combines incident creation and rescue triggering.
-```csharp
-[HttpPost("sos")]
-public async Task<IActionResult> CreateSnakebiteIncident([FromBody] CreateIncidentRequest request)
-{
-    var userId = GetCurrentUserId();
-    // 1. Create Incident
-    var result = await _incidentService.CreateIncidentAsync(request, userId);
-    // 2. Start Rescue (Broadcast)
-    var rescueResult = await _incidentService.StartRescueAsync(result.Id);
-    
-    // Combine results
-    result.SessionId = rescueResult.SessionId;
-    // ... maps other session properties
-    return StatusCode(200, ...);
-}
-```
+## Runtime Flow in Current Code
 
-### `POST /api/incidents/{incidentId}/raise-range`
-Expands the search radius manually.
-```csharp
-[HttpPost("{incidentId}/raise-range")]
-public async Task<IActionResult> RaiseSessionRange(Guid incidentId)
-{
-    var request = new RaiseSessionRangeRequest { IncidentId = incidentId };
-    var result = await _incidentService.RaiseSessionRangeAsync(request);
-    return Ok(...);
-}
-```
+### 1) SOS creates incident and starts first session
 
-## 2. Service Interface (`ISnakebiteIncidentService`)
+`POST /api/incidents/sos`
 
-Extensions to the core service to support rescue mechanics.
+Flow:
+1. `SnakebiteIncidentController.CreateSnakebiteIncident(...)`
+2. `_incidentService.CreateIncidentAsync(...)`
+   - Creates `SnakebiteIncident` with:
+     - `Status = Pending`
+     - `CurrentSessionNumber = 0`
+     - `CurrentRadiusKm = 0`
+3. `_incidentService.StartRescueAsync(incidentId)`
+4. `_sessionService.StartRescueSessionAsync(incidentId)`
+5. `RescueRequestSessionService.CreateSessionAsync(...)` creates session 1:
+   - Radius `10`
+   - Trigger `Initial`
+   - Status `Active`
+   - Schedules timeout at `now + 60s` via `_timeoutService.ScheduleSessionTimeout`
+6. `BroadcastRequestsAsync(sessionId)`:
+   - Finds rescuers in radius using PostGIS `Distance(...)`
+   - Filters by online/type/connected
+   - Inserts `RescuerRequest` rows
+   - Sends `NewRescueRequest` SignalR events
+   - Updates `session.RescuersPinged`
 
-```csharp
-public interface ISnakebiteIncidentService
-{
-    // ... existing CRUD methods
+Constants:
+- `RADIUS_PROGRESSION = { 10, 20, 30 }`
+- `MAX_SESSIONS = 3`
+- `REQUEST_TIMEOUT_SECONDS = 60`
 
-    // Trigger rescue: Create session initial, broadcast requests
-    Task<TriggerRescueResponse> TriggerRescueAsync(Guid incidentId);
+### 2) Timeout monitoring and auto-expansion
 
-    // Start rescue session for existing incident (separated from CreateIncident)
-    Task<TriggerRescueResponse> StartRescueAsync(Guid incidentId);
-}
-```
+`SessionTimeoutBackgroundService` responsibilities:
+- Tracks scheduled session timeout timestamps in memory.
+- Wakes up based on nearest timeout.
+- Calls `IRescueRequestSessionService.HandleSessionTimeoutAsync(sessionId)` for expired sessions.
 
-## 3. Core Logic & Algorithms
+`HandleSessionTimeoutAsync` responsibilities:
+- Ignore sessions not `Active`.
+- Mark pending requests as `Expired`.
+- Mark session as `Failed`.
+- Call `TryExpandAndCreateNewSessionAsync(incidentId)`.
 
-### A. Finding Rescuers (Spatial Query)
-Located in `RescueRequestSessionService.GetRescuersInRadiusAsync`.
-Uses **PostGIS** to calculate distance on a sphere (WGS84).
+`TryExpandAndCreateNewSessionAsync` responsibilities:
+- If incident is no longer `Pending`, stop.
+- If max session reached, mark incident `NoRescuerFound`.
+- Else create next session with next radius and immediately broadcast requests.
 
-```csharp
-var rescuers = await _unitOfWork.GetRepository<RescuerProfile>()
-    .CreateBaseQuery(asNoTracking: true)
-    .Where(r => r.IsOnline)
-    // Filter by capabilities
-    .Where(r => r.Type == RescuerType.Emergency || r.Type == RescuerType.Both)
-    // Spatial Filter: ST_Distance(point, point) <= meters
-    .Where(r => r.LastLocation!.Distance(incidentLocation) <= radiusMeters)
-    .OrderBy(r => r.LastLocation!.Distance(incidentLocation))
-    .ToListAsync();
+### 3) Rescuer accepts request (race winner path)
 
-// Final check: Must be connected to SignalR Hub
-var connectedRescuers = rescuers
-    .Where(r => _notificationService.IsRescuerConnected(r.AccountId.ToString()))
-    .ToList();
-```
+Hub method:
+- `RescuerHub.AcceptRequest(Guid requestId, Guid rescuerId)`
 
-### B. Accepting Request (Race Condition Handling)
-Located in `RescueRequestSessionService.AcceptRequestAsync`.
-Uses **Serializable Transaction** (implicit via UoW) to prevent double-booking.
+Service:
+- `RescueRequestSessionService.AcceptRequestAsync(...)`
 
-1.  **Validate**: Check if Request is Pending and not Expired.
-2.  **Check Race**: `if (Session.Status == Completed) throw "Already Taken"`.
-3.  **Update Winner**: Mark Request as `Accepted`, Session as `Completed`.
-4.  **Update Losers**: Mark all other `Pending` requests in session as `Taken`.
-5.  **Create Mission**: Immediately create `RescueMission` record.
-6.  **Notify**: Broadcast updates to all involved rescuers.
+Behavior:
+1. Validate request exists and belongs to rescuer.
+2. Validate request is `Pending` and not expired.
+3. Reject if session already `Completed` (another rescuer already won).
+4. Mark winner request `Accepted`.
+5. Mark other pending requests in same session `Taken`.
+6. Notify other rescuers with `RequestTaken`.
+7. Mark session `Completed` and cancel timeout monitoring.
+8. Commit changes.
+9. Create mission via `RescueMissionService.CreateMissionAsync(...)`:
+   - Creates `RescueMission` (`Preparing`)
+   - Updates incident to `Assigned`
+   - Sets `AssignedRescuerId`, `AssignedAt`
 
-## 4. Data Transfer Objects (DTOs)
+### 4) Rescuer rejects request
 
-### `CreateIncidentRequest`
-Input payload for the SOS signal.
+Hub method:
+- `RescuerHub.RejectRequest(Guid requestId)`
 
-```csharp
-public class CreateIncidentRequest
-{
-    [Required] [Range(-180, 180)]
-    public double Lng { get; set; }
+Service:
+- `RescueRequestSessionService.RejectRequestAsync(requestId)`
 
-    [Required] [Range(-90, 90)]
-    public double Lat { get; set; }
-}
-```
+Behavior:
+- Validates `Pending` request.
+- Marks request as `Rejected`.
 
-### `CreateIncidentResponse`
-Unified response containing incident ID and session status.
+## SignalR Contract (Current)
 
-```csharp
-public class CreateIncidentResponse
-{
-    public Guid Id { get; set; }
-    public Guid UserId { get; set; }
-    public SnakebiteIncidentStatus Status { get; set; } // Default: Pending
-    
-    // Session Info
-    public int CurrentSessionNumber { get; set; }
-    public int CurrentRadiusKm { get; set; } // Default: 10
-    
-    // Session Details (Populated on Start)
-    public Guid? SessionId { get; set; }
-    public int SessionNumber { get; set; }
-    public int RadiusKm { get; set; }
-    public int RescuersPinged { get; set; }
-}
-```
+Hub route:
+- `/rescuer-hub`
 
-## 5. Dependencies
-*   **`IRescueRequestSessionService`**: Orchestrates the search logic.
-*   **`ISessionTimeoutService`**: Background scheduler for the 60s timeout.
-*   **`RescuerHub`**: SignalR Hub for real-time bi-directional communication.
-*   **`SignalRRescueNotificationService`**: Manages connection mapping (`UserId` <-> `ConnectionId`).
+Client -> Server methods:
+- `JoinAsRescuer(string userId)`
+- `AcceptRequest(Guid requestId, Guid rescuerId)`
+- `RejectRequest(Guid requestId)`
+- `UpdateLocation(string userId, double latitude, double longitude)`
+- `GetConnectedRescuers()`
 
-## 6. Developer Tools (Demo & Monitoring)
+Server -> Client events used in production flow:
+- `Joined`
+- `NewRescueRequest`
+- `RequestAccepted`
+- `RequestTaken`
+- `RequestCancelled`
+- `RequestRejected`
+- `RequestError`
+- `LocationUpdated` (echo to caller from `UpdateLocation`)
+- `ConnectedRescuers`
 
-### `RescueDemoController`
-A full-stack simulation controller for testing the entire rescue flow without mobile devices.
-*   **Purpose**: Debugging SignalR events, validating the "Race Condition" logic, and simulating Rescuers.
-*   **Path**: `api/rescuedemo`
-*   **UI**: `SnakeAid.Api/Pages/Demo/RescueDemo.cshtml` (Self-contained Razor page)
+`NewRescueRequest` payload currently includes:
+- `requestId`
+- `sessionId`
+- `incidentId`
+- `radiusKm`
+- `expiredAt`
+- `requestSentAt`
 
-### `MonitoringController`
-Health-check endpoints for the background schedulers.
-*   **`GET /api/monitoring/session-timeout-status`**: Inspects the active timeout queue.
-*   **`GET /api/monitoring/health/session-timeout`**: Liveness probe for the timeout service.
+## HTTP Endpoints in This Flow
+
+- `POST /api/incidents/sos`
+- `POST /api/incidents/{incidentId}/raise-range`
+- `GET /api/incidents/{incidentId}` (detail endpoint)
+- `PUT /api/incidents/{incidentId}/symptoms-tracking`
+- `GET /api/monitoring/session-timeout-status`
+- `GET /api/monitoring/health/session-timeout`
+
+## Current Gaps and Inconsistencies
+
+1. Manual `raise-range` path is incomplete
+- `SnakebiteIncidentService.RaiseSessionRangeAsync(...)` creates a new session row only.
+- It does not broadcast requests for that new session.
+- It does not schedule timeout monitoring for that new session.
+
+2. Location update is not persisted
+- `RescuerHub.UpdateLocation(...)` does not write `RescuerProfile.LastLocation`.
+- Matching still depends on `RescuerProfile.LastLocation` in database.
+
+3. No production request-expired notification fanout
+- `IRescueNotificationService.NotifyRequestExpiredAsync(...)` exists.
+- Timeout flow in `HandleSessionTimeoutAsync(...)` does not call it.
+
+4. Security hardening is incomplete on hub
+- `RescuerHub` has no `[Authorize]` attribute.
+- `JoinAsRescuer(userId)` trusts client-provided `userId`.
+
+5. Some interface methods are currently not part of active call path
+- `SnakebiteIncidentService.TriggerRescueAsync(...)`
+- `SnakebiteIncidentService.AcceptRescueAsync(...)`
+- `SnakebiteIncidentService.RejectRescueAsync(...)`
+
+## Related Demo Artifacts
+
+- `SnakeAid.Api/Controllers/RescueDemoController.cs`
+- `SnakeAid.Api/Pages/Demo/RescueDemo.cshtml`
+- `SnakeAid.Api/Pages/Demo/RescueDemo.cshtml.cs`
+
+These are mock/demo flow assets and should not be treated as production API contracts.
+
