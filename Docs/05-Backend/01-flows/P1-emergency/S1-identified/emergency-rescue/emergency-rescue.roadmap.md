@@ -70,3 +70,37 @@ Output bắt buộc:
 - Domain Phase LT-1 = Global Phase 2
 - Domain Phase LT-2 = Global Phase 3
 
+---
+
+## Deferred Alignment Notes (Implement later)
+
+Section nay la ghi chu can nhac ky thuat de doi den luc implement, KHONG lam code ngay trong turn nay.
+
+### 1) UpdateLocation current state
+- `RescuerHub.UpdateLocation(...)` hien tai chi log + echo event cho caller.
+- Chua persist DB, chua validate payload, chua dung claim identity.
+
+### 2) ASP.NET Identity feasibility
+- Co the bo `userId` khoi payload.
+- Lay account id tu `ClaimTypes.NameIdentifier` trong token la kha thi va nen dung.
+
+### 3) LT-1 ingest policy (de xuat can chot)
+- Client publish interval: ~2s (co the tinh chinh sau load test).
+- Server min interval (throttle): ~1s/account.
+- Stale threshold: 30-60s (qua nguong thi khong dung de pairing).
+- Payload toi thieu LT-1: `lat`, `lng`, `timestamp?`, `accuracy?`.
+- `speed`/`heading` de optional, uu tien LT-2.
+
+### 4) Entity strategy for location fields
+- Giu `RescuerProfile.LastLocation` + `LastLocationUpdate` cho dispatch matching.
+- Dung `TrackingSession.MemberLocation` + `RescuerLocation` cho vi tri theo phien.
+- Dung `LocationEvent.Location` cho history/audit.
+- Khong them `MemberProfile.LastLocation` o LT-1 (tranh profile-scoped location khong can thiet).
+
+### 5) Data model normalization note
+- Can can nhac chuan hoa `LocationEvent.Location` ve `geometry(Point, 4326)` de dong bo voi cac field PostGIS khac.
+- Viec nay de phase implementation (co migration plan).
+
+### 6) Team conflict note (Global Phase 1 song song)
+- Diem de va cham nhat la `RescuerHub`.
+- LT-1 nen gioi han scope vao location ingestion path, tranh cham vao accept/reject orchestration neu khong can thiet.
