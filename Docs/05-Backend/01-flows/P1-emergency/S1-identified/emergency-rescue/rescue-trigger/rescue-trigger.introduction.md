@@ -1,5 +1,13 @@
 # Rescue Trigger Introduction
 
+## Roadmap Position
+This domain follows:
+- `RT-1` (Global Phase 1): stabilize dispatch core.
+- `RT-2` (Global Phase 4): switch matching to `Redis-first` with `PostGIS-fallback`.
+
+Roadmap source:
+- `../emergency-rescue.roadmap.md`
+
 ## Purpose
 `rescue-trigger` is the backend flow that turns an emergency report into active rescuer dispatch:
 
@@ -20,6 +28,11 @@ This module is the current operational bridge between emergency API and real-tim
 - Maximum sessions: `3`.
 - Per-session timeout: `60` seconds.
 - Timeout handling runs in background (`SessionTimeoutBackgroundService`) and auto-expands radius while incident is still `Pending`.
+
+### Current matching mode (RT-1)
+- Candidate lookup is PostGIS-based from `RescuerProfile.LastLocation`.
+- No production `Redis GEO` matching path yet.
+- Live accuracy depends on whether location ingestion is implemented by `live-tracking` LT-1.
 
 ### Rescuer eligibility
 A rescuer is considered dispatchable only when all conditions are true:
@@ -66,8 +79,14 @@ Current implementation is functional for dispatch, but not fully aligned with fu
 - `NotifyRequestExpiredAsync` exists in notification service but is not invoked in production timeout flow.
 - Hub does not enforce `[Authorize]` at class/endpoint level in current code.
 
+## Dependency on Live Tracking
+- `rescue-trigger` reads location for matching.
+- `live-tracking` LT-1 is responsible for making that location feed truly live (persisting rescuer updates).
+- `rescue-trigger` RT-2 will consume Redis geo pipeline when LT-2 contracts are ready.
+
 ## Cross References
 - Source state: `rescue-trigger.sourcecode.md`
+- Implementation prompt: `rescue-trigger.prompt.md`
+- Plan: `rescue-trigger.plan.md`
 - Integration contract: `rescue-trigger.usageguide.md`
-- Related direction doc: `../../../../02-layers/live-tracking/live-tracking.architecture.md`
-
+- Related live tracking direction: `../live-tracking/live-tracking.architecture.md`

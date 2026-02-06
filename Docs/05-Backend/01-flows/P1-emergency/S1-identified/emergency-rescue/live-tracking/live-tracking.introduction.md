@@ -1,5 +1,13 @@
 # Live Tracking Introduction
 
+## Roadmap Position
+This domain follows:
+- `LT-1` (Global Phase 2): ingestion foundation.
+- `LT-2` (Global Phase 3): full live tracking pipeline.
+
+Roadmap source:
+- `../emergency-rescue.roadmap.md`
+
 ## Context
 Live tracking is a cross-layer capability for emergency rescue:
 - Patient should see rescuer movement in near real time.
@@ -35,6 +43,11 @@ Not implemented yet:
 - FCM fallback for critical events.
 - Session-based map group broadcast for patient/admin clients.
 
+## Domain Boundaries vs Rescue Trigger
+- `rescue-trigger` owns dispatch state machine and assignment decisions.
+- `live-tracking` owns location ingestion, session stream, snapshot/history, and realtime data pipeline.
+- `rescue-trigger` RT-2 depends on `live-tracking` LT-2 contracts for Redis GEO readiness.
+
 ## Scope Boundary for This Layer
 
 In-scope:
@@ -56,9 +69,9 @@ The live-tracking layer now needs to:
 
 ## Related Documents
 
+- Roadmap: `../emergency-rescue.roadmap.md`
 - Architecture direction: `live-tracking.architecture.md`
 - Current code state: `live-tracking.sourcecode.md`
 - Completion roadmap: `live-tracking.plan.md`
 - Implementation prompt template: `live-tracking.prompt.md`
 - Integration contract and current API/hub behavior: `live-tracking.usageguide.md`
-

@@ -2,6 +2,14 @@
 
 Audience: mobile/web client developers integrating emergency dispatch.
 
+## 0. Phase Context
+
+This guide reflects current `RT-1` behavior (Global Phase 1).
+Roadmap: `../emergency-rescue.roadmap.md`
+
+Current matching path is PostGIS-based from persisted rescuer location.
+`Redis-first` matching described in roadmap belongs to `RT-2` and is not active yet.
+
 ## 1. Response Envelope
 
 HTTP APIs in this module return:
@@ -127,7 +135,13 @@ Use these for operational visibility of in-memory timeout scheduler.
 3. `RequestExpired` notification method exists in service, but production timeout path currently does not push this event.
 4. FCM fallback is not integrated yet in production path.
 
-## 8. Error Cases to Handle
+## 8. Planned Changes in RT-2 (Not Active Yet)
+
+1. Candidate lookup will move to `Redis-first`.
+2. `PostGIS-fallback` will be used when Redis data is unavailable.
+3. Endpoint contracts are expected to remain stable, but matching latency and candidate freshness should improve.
+
+## 9. Error Cases to Handle
 
 - `400`: invalid state transition (for example accepting expired/taken request).
 - `401`: unauthorized API access.
@@ -135,4 +149,3 @@ Use these for operational visibility of in-memory timeout scheduler.
 - `500`: unexpected server error.
 
 Always show `message` to user and log `error.errorCode` when available.
-

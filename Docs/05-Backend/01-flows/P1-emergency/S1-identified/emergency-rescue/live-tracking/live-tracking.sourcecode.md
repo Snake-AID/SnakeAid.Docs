@@ -1,5 +1,11 @@
 # Live Tracking Source Code
 
+## Roadmap Alignment
+- Domain phase mapping:
+  - `LT-1` (Global Phase 2): ingestion foundation.
+  - `LT-2` (Global Phase 3): full live tracking pipeline.
+- Roadmap source: `../emergency-rescue.roadmap.md`
+
 ## Status Snapshot (Current Codebase)
 
 Last verified: 2026-02-06.
@@ -16,6 +22,13 @@ Last verified: 2026-02-06.
 | Snapshot/history tracking API | Missing | No `/tracking/snapshot` or `/tracking/history` endpoints |
 | FCM fallback delivery | Missing | Notification service is SignalR-only |
 | Redis NOW state | Missing | No Redis integration in current implementation |
+
+## Phase Readiness Matrix
+
+| Domain phase | Current status | Notes |
+|---|---|---|
+| LT-1 ingestion foundation | Not complete | Location publish path exists but does not persist profile location |
+| LT-2 full pipeline | Not started | No viewer stream, no snapshot/history, no Redis NOW path |
 
 ## Modules and Responsibilities
 
@@ -119,6 +132,7 @@ No fallback channel is used for delivery guarantees.
 ### Gap 5: Manual range raise is not equivalent to timeout expansion
 `RaiseSessionRangeAsync` creates session row but does not broadcast/schedule timeout.
 This diverges from `TryExpandAndCreateNewSessionAsync`.
+This gap belongs to `rescue-trigger` RT-1 and is a dependency for stable full tracking rollout.
 
 ## Operational Interfaces
 
@@ -131,9 +145,9 @@ This diverges from `TryExpandAndCreateNewSessionAsync`.
 
 ## Notes for Next Iteration
 
-1. Keep existing dispatch flow stable while adding tracking features.
-2. Treat signal transport and business state ownership as separate concerns.
-3. Ensure docs are updated when contracts change:
+1. Execute LT-1 first (real location ingestion for dispatch freshness).
+2. Execute LT-2 after LT-1 is stable and RT-1 dispatch behavior is aligned.
+3. Keep transport and business state ownership separated.
+4. Ensure docs are updated when contracts change:
    - `live-tracking.usageguide.md`
    - `rescue-trigger.usageguide.md`
-
