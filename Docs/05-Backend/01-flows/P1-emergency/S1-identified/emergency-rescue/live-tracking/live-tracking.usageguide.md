@@ -8,7 +8,8 @@ Roadmap: `../emergency-rescue.roadmap.md`
 
 Current behavior is pre-LT-1 completion:
 - Dispatch exists via rescue-trigger.
-- Full live-tracking contracts are not active.
+- Location ingestion is active (LT-1).
+- Full viewer tracking contracts (LT-2) are not active.
 
 Phase intent:
 1. `LT-1`: make location ingestion real and reliable.
@@ -28,8 +29,11 @@ Phase intent:
 3. Location history endpoint.
 4. Fallback push channel for critical dispatch events.
 
-### Not reliable yet (LT-1 gap)
-1. `UpdateLocation` does not persist rescuer profile location in production path.
+3. Location history endpoint.
+4. Fallback push channel for critical dispatch events.
+
+### Now Reliable (LT-1)
+1. `UpdateLocation` persists rescuer profile location (PostGIS) with throttling (default 10s).
 
 ## 2. SOS Entry for Tracking Lifecycle
 
@@ -87,17 +91,17 @@ Use returned `incidentId` and `sessionId` as correlation keys in client state.
 
 ## 4. Important Behavior Notes
 
-1. `UpdateLocation(...)` currently does not persist rescuer location for matching.
+1. `UpdateLocation(...)` now persists `LastLocation` for matching (LT-1).
 2. Manual `raise-range` currently does not trigger dispatch broadcast/schedule.
 3. Hub authorization hardening is not complete in current code.
 4. `RequestExpired` push is not emitted in production timeout flow.
 
 ## 5. Planned Contracts by Phase
 
-### LT-1 expected additions
+### LT-1 expected additions (Delivered 2026-02-13)
 1. Persisted location ingestion from rescuer publish path.
-2. Identity-safe location write contract.
-3. Throttling and stale-location policy.
+2. Throttling and stale-location policy (default 10s interval).
+3. PostGIS `geometry(Point, 4326)` integration.
 
 ### LT-2 expected additions
 1. `GET /api/sessions/{id}/tracking/snapshot`
@@ -137,3 +141,142 @@ Check `is_success` before using `data`.
 Do not integrate LT-2 endpoints/events until they exist in backend source and are marked implemented in:
 - `live-tracking.sourcecode.md`
 - `rescue-trigger.sourcecode.md` (if dispatch dependency changes)
+
+## 9. Flutter Implementation Guide (LT-1)
+
+This section details how to implement the Rescuer Live Tracking feature in the Flutter app.
+
+### 9.1. Dependencies
+Add the following to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  signalr_netcore: ^1.3.6 # Recommended for SignalR
+  geolocator: ^13.0.1     # For GPS location
+  flutter_secure_storage: ^9.0.0 # To retrieve JWT token
+```
+
+### 9.2. Connection Manager (`RescuerSignalRService`)
+
+Create a singleton service to manage the connection.
+
+```dart
+// lib/services/rescuer_signalr_service.dart
+
+import 'package:signalr_netcore/signalr_client.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class RescuerSignalRService {
+  HubConnection? _hubConnection;
+  final _storage = const FlutterSecureStorage();
+  final String _hubUrl = "https://your-backend-url/rescuer-hub"; // Update URL
+  
+  // Events
+  Function(String)? onStatusMessage;
+
+  Future<void> connect() async {
+    final token = await _storage.read(key: "access_token"); // Ensure key matches your auth logic
+    
+    if (token == null) {
+      throw Exception("Unauthorized: No access token found");
+    }
+
+    _hubConnection = HubConnectionBuilder()
+        .withUrl(_hubUrl, options: HttpConnectionOptions(
+          accessTokenFactory: () async => token,
+          // transport: HttpTransportType.WebSockets, // Optional: Force WebSockets
+        ))
+        .withAutomaticReconnect()
+        .build();
+
+    _hubConnection?.onclose((error) {
+      print("Connection Closed: $error");
+    });
+
+    _hubConnection?.on("Joined", (arguments) {
+      final data = arguments?[0] as Map<String, dynamic>;
+      print("Joined: ${data['message']}");
+    });
+
+    _hubConnection?.on("LocationUpdated", (arguments) {
+        // Ack from server
+        print("Location ack received");
+    });
+
+    await _hubConnection?.start();
+    print("SignalR Connected: ${_hubConnection?.state}");
+  }
+
+  // LT-1: Send Location
+  Future<void> updateLocation(String userId, double lat, double lng) async {
+    if (_hubConnection?.state == HubConnectionState.Connected) {
+      print("Sending location: $lat, $lng");
+      await _hubConnection?.invoke("UpdateLocation", args: [userId, lat, lng]);
+    } else {
+      print("Cannot send location: Disconnected");
+    }
+  }
+
+  Future<void> joinAsRescuer(String userId) async {
+      await _hubConnection?.invoke("JoinAsRescuer", args: [userId]);
+  }
+}
+```
+
+### 9.3. Throttling Logic & Background Location
+
+**Requirement:** The server throttles updates to **once every 10 seconds**. The client must respect this to save battery.
+
+```dart
+// lib/managers/location_manager.dart
+
+import 'package:geolocator/geolocator.dart';
+import 'dart:async';
+
+class LocationManager {
+  final RescuerSignalRService _signalRService;
+  Timer? _throttleTimer;
+  Position? _lastPosition;
+  bool _isThrottled = false;
+  
+  LocationManager(this._signalRService);
+
+  void startTracking(String userId) {
+    const locationSettings = LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 10, // Only push if moved 10 meters
+    );
+
+    Geolocator.getPositionStream(locationSettings: locationSettings)
+        .listen((Position position) {
+      _handleNewPosition(userId, position);
+    });
+  }
+
+  void _handleNewPosition(String userId, Position position) {
+    _lastPosition = position;
+    
+    if (_isThrottled) return;
+
+    // Send immediately
+    _sendLocation(userId, position);
+    
+    // Enable throttle
+    _isThrottled = true;
+    _throttleTimer = Timer(const Duration(seconds: 10), () {
+      _isThrottled = false;
+      // Optionally: if position changed significantly while throttled, send valid latest immediately
+      // But for simple implementation, just wait for next stream event
+    });
+  }
+
+  void _sendLocation(String userId, Position position) {
+    _signalRService.updateLocation(userId, position.latitude, position.longitude);
+  }
+}
+```
+
+### 9.4. Important Notes for Flutter Devs
+1. **Background Execution**: Standard `Geolocator` stream may pause when app is backgrounded. For true "On-Shift" tracking (Phase 2), consider using `flutter_background_service` or `background_locator_2`. For Phase 1 (LT-1), foreground/active tracking is acceptable.
+2. **Permissions**: Ensure `AndroidManifest.xml` and `Info.plist` have correct location permissions (`ACCESS_FINE_LOCATION`, `NSLocationWhenInUseUsageDescription`).
+3. **Reconnect**: `signalr_netcore` has `.withAutomaticReconnect()`. Ensure your app handles re-auth if the token expires during a long shift.

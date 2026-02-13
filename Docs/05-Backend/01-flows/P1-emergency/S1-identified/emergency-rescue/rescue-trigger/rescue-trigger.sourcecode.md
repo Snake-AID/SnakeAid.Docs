@@ -10,7 +10,7 @@
 - Module status: implemented for session-based rescue dispatch.
 - Baseline commit analyzed: `f6aca477d58cdae30b1c1d952aecbd10bf54f378`.
 - Current branch also includes follow-up changes (for example `GetIncidentDetail` endpoint in later commit).
-- Last verified against code: 2026-02-06.
+- Last verified against code: 2026-02-13.
 
 ## Function Implementation Status (Agent Guardrail)
 
@@ -54,7 +54,7 @@ Use this section before coding to avoid re-implementing existing functions.
 | Layer | Function | Status | Missing part |
 |---|---|---|---|
 | Incident Service | `RaiseSessionRangeAsync` | Partial | Creates session row only; missing broadcast + timeout scheduling |
-| Hub | `UpdateLocation` | Partial | Echoes location only; missing persistence to `RescuerProfile` |
+| Hub | `UpdateLocation` | Implemented | Persists to `RescuerProfile` via `RescuerLocationService` (LT-1) |
 | Notification Service | `NotifyRequestExpiredAsync` | Partial wiring | Method exists, timeout flow does not call it |
 
 ### D. Not implemented yet (expected future work)
@@ -228,9 +228,9 @@ Server -> Client events used in production flow:
 - It does not broadcast requests for that new session.
 - It does not schedule timeout monitoring for that new session.
 
-2. Location update is not persisted
-- `RescuerHub.UpdateLocation(...)` does not write `RescuerProfile.LastLocation`.
-- Matching still depends on `RescuerProfile.LastLocation` in database.
+2. Location update is not persisted (RESOLVED in LT-1)
+- `RescuerHub.UpdateLocation(...)` now updates `RescuerProfile.LastLocation`.
+- Matching depends on `RescuerProfile.LastLocation` in database.
 
 3. No production request-expired notification fanout
 - `IRescueNotificationService.NotifyRequestExpiredAsync(...)` exists.

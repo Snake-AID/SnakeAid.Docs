@@ -8,7 +8,7 @@
 
 ## Status Snapshot (Current Codebase)
 
-Last verified: 2026-02-06.
+Last verified: 2026-02-13.
 
 | Capability | Status | Notes |
 |---|---|---|
@@ -18,7 +18,7 @@ Last verified: 2026-02-06.
 | Mission creation after acceptance | Implemented | `RescueMission` created, incident becomes `Assigned` |
 | Realtime rescuer offer delivery | Implemented (SignalR) | `NewRescueRequest` sent to connected rescuers |
 | Realtime map tracking for patient/admin | Missing | No session tracking group and no tracking events for viewers |
-| Persisted rescuer live location ingestion | Missing | Hub update does not persist `LastLocation` |
+| Persisted rescuer live location ingestion | Implemented | Hub update now persists `LastLocation` and `LastLocationUpdate` via `RescuerLocationService` |
 | Snapshot/history tracking API | Missing | No `/tracking/snapshot` or `/tracking/history` endpoints |
 | FCM fallback delivery | Missing | Notification service is SignalR-only |
 | Redis NOW state | Missing | No Redis integration in current implementation |
@@ -27,7 +27,7 @@ Last verified: 2026-02-06.
 
 | Domain phase | Current status | Notes |
 |---|---|---|
-| LT-1 ingestion foundation | Not complete | Location publish path exists but does not persist profile location |
+| LT-1 ingestion foundation | Complete | Location publish path now persists profile location with throttling |
 | LT-2 full pipeline | Not started | No viewer stream, no snapshot/history, no Redis NOW path |
 
 ## Modules and Responsibilities
@@ -73,6 +73,13 @@ Last verified: 2026-02-06.
   - Update mission status
   - Handle user cancellation / rescuer abort
 
+### Location Ingestion (New in LT-1)
+- File: `SnakeAid.Service/Implements/RescuerLocationService.cs`
+- Responsibilities:
+  - Validate location/throttling strategy
+  - Persist `RescuerProfile.LastLocation` (PostGIS)
+  - Update `RescuerProfile.IsOnline` via Hub disconnection flow
+
 ## Current Dispatch Sequence
 
 1. `POST /api/incidents/sos`
@@ -112,9 +119,9 @@ Last verified: 2026-02-06.
 
 ## Live Tracking Gap Analysis
 
-### Gap 1: Location publish path is non-persistent
-`RescuerHub.UpdateLocation(...)` only replies to caller with `LocationUpdated`.
-No write path updates `RescuerProfile.LastLocation` from this method.
+### Gap 1: Location publish path is non-persistent (RESOLVED)
+`RescuerHub.UpdateLocation(...)` now calls `RescuerLocationService` to persist `LastLocation`.
+This gap is closed in LT-1.
 
 ### Gap 2: No session-viewer realtime channel
 There is no `JoinSession/LeaveSession` contract for patient/admin watchers.
