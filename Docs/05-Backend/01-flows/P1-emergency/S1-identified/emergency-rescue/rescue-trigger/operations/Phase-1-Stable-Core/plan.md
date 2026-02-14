@@ -1,4 +1,15 @@
-# Rescue Trigger Plan (2 Domain Phases)
+---
+doc_role: operation
+operation_id: phase-1-stable-core
+type: SETUP
+status: done
+created_at: 2026-02-15
+affects:
+  - Flows/RescueTrigger
+---
+
+# Feature Design: Rescue Trigger (Phase 1)
+
 
 Liên kết roadmap tổng:
 - `../emergency-rescue.roadmap.md`

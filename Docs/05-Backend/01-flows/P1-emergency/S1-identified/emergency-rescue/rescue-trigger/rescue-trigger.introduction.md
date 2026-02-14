@@ -1,4 +1,13 @@
-# Rescue Trigger Introduction
+---
+doc_role: baseline
+module: rescue-trigger
+kind: flow
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
+# Rescue Trigger Module - Introduction
 
 ## Roadmap Position
 This domain follows:

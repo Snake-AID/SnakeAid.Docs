@@ -1,10 +1,19 @@
-# Rescue Trigger Prompt
+---
+doc_role: operation
+operation_id: phase-1-stable-core
+generated_from: plan.md
+status: done
+created_at: 2026-02-15
+---
 
-Use this prompt when implementing rescue-trigger tasks in the `emergency-rescue` roadmap.
+# Agent Prompt: Rescue Trigger Implementation (Phase 1)
 
 Roadmap reference:
 - `../emergency-rescue.roadmap.md`
 - `rescue-trigger.plan.md`
+
+## Prompt
+
 
 ## Prompt
 

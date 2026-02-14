@@ -1,4 +1,14 @@
-# Rescue Trigger Usage Guide
+```
+---
+doc_role: baseline
+module: rescue-trigger
+kind: flow
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
+# Rescue Trigger Module - Usage Guide
 
 Audience: mobile/web client developers integrating emergency dispatch.
 
