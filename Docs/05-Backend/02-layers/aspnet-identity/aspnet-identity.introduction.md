@@ -1,4 +1,13 @@
-﻿# ASP.NET Core Identity - Introduction
+﻿---
+doc_role: baseline
+module: aspnet-identity
+kind: layer
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
+# ASP.NET Core Identity - Introduction
 
 > [!NOTE]
 > **Goals**

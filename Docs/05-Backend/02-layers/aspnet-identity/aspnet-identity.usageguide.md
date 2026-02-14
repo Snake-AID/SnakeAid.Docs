@@ -1,3 +1,12 @@
+---
+doc_role: baseline
+module: aspnet-identity
+kind: layer
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
 # ASP.NET Identity Auth API Usage Guide
 
 This document describes how frontend clients (Flutter and React) should authenticate against the SnakeAid API.
