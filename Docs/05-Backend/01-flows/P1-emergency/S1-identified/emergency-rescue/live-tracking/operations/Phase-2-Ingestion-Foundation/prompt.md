@@ -1,4 +1,12 @@
-# Live Tracking Prompt
+---
+doc_role: operation
+operation_id: phase-2-ingestion-foundation
+generated_from: plan.md
+status: done
+created_at: 2026-02-15
+---
+
+# Agent Prompt: Live Tracking Implementation (Phase 2)
 
 Use this prompt when implementing live-tracking tasks in `emergency-rescue` roadmap.
 

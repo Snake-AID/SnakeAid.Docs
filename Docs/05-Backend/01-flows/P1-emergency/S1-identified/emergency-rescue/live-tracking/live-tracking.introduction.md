@@ -1,4 +1,13 @@
-# Live Tracking Introduction
+---
+doc_role: baseline
+module: live-tracking
+kind: flow
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
+# Live Tracking Module - Introduction
 
 ## Roadmap Position
 This domain follows:

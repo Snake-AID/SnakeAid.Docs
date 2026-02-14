@@ -10,7 +10,17 @@ affects:
   - PostGIS/History
 ---
 
-# Plan: Live Tracking Phase 3 - Full Data Pipeline
+---
+doc_role: operation
+operation_id: phase-3-full-data-pipeline
+type: SETUP
+status: pending
+created_at: 2026-02-15
+affects:
+  - Flows/LiveTracking
+---
+
+# Feature Design: Live Tracking (Phase 3 Full Pipeline)
 
 ## As-Is
 *Current state description pending.*

@@ -1,4 +1,13 @@
-# Live Tracking Usage Guide
+---
+doc_role: baseline
+module: live-tracking
+kind: flow
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
+# Live Tracking Module - Usage Guide
 
 This guide documents what clients can use today and what is not available yet.
 

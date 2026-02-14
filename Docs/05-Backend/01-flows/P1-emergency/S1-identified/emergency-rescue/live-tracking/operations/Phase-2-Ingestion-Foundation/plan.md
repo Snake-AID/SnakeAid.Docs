@@ -1,4 +1,14 @@
-# Live Tracking Plan (2 Domain Phases)
+---
+doc_role: operation
+operation_id: phase-2-ingestion-foundation
+type: SETUP
+status: done
+created_at: 2026-02-15
+affects:
+  - Flows/LiveTracking
+---
+
+# Feature Design: Live Tracking (Phase 2 Ingestion) Phases)
 
 Liên kết roadmap tổng:
 - `../emergency-rescue.roadmap.md`
