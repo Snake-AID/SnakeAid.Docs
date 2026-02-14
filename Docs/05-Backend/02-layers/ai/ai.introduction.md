@@ -1,4 +1,13 @@
-# SnakeAI Model Endpoint - API Reference
+---
+doc_role: baseline
+module: ai
+kind: layer
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
+# SnakeAI Integration - Introductiont - API Reference
 
 This document provides detailed technical documentation for the SnakeAI Model Endpoint (FastAPI). It is intended for backend developers implementing clients for this service.
 
