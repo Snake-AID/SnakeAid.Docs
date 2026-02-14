@@ -1,3 +1,14 @@
+---
+doc_role: operation
+operation_id: ddd-migration
+type: REFACTOR
+status: done
+created_at: 2026-02-15
+affects:
+  - Services/DomainDesign
+  - Core/Architecture
+---
+
 # Feature-Based Architecture Migration - Implementation Plan
 
 ## Migration Overview

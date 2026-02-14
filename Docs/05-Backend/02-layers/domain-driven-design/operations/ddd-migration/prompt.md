@@ -1,3 +1,11 @@
+---
+doc_role: operation
+operation_id: ddd-migration
+generated_from: plan.md
+status: done
+created_at: 2026-02-15
+---
+
 # Domain-Driven Design Migration - Agent Prompt
 
 ## GitHub Copilot Agent Configuration

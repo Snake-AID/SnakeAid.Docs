@@ -1,3 +1,12 @@
+---
+doc_role: baseline
+module: domain-driven-design
+kind: layer
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
 # Domain-Driven Design Migration - Introduction
 
 ## What is Domain-Driven Design?
