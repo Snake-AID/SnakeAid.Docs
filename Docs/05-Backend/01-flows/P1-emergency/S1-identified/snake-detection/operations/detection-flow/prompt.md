@@ -1,4 +1,12 @@
-# Snake Detection - Implementation Prompt ✅ COMPLETED
+---
+doc_role: operation
+operation_id: detection-flow
+generated_from: plan.md
+status: done
+created_at: 2026-02-15
+---
+
+# Snake Detection - Implementation Prompt
 
 > **Loại file:** `prompt.md` - Yeu cầu chi tiết từng bước cho Agent  
 > **Timeline:** Phase 2 Implementation ✅ COMPLETED  

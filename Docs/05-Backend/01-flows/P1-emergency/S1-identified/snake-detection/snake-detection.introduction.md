@@ -1,3 +1,12 @@
+---
+doc_role: baseline
+module: snake-detection
+kind: flow
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
 # Snake Detection - Introduction
 
 ## 🎯 Overview

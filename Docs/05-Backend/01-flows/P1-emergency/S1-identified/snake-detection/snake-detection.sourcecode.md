@@ -1,4 +1,13 @@
-# Snake Detection - Usage Guide Status
+---
+doc_role: baseline
+module: snake-detection
+kind: flow
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
+# Snake Detection Module - Source Code Status
 
 > **Loại file:** `sourcecode.md` - Thể hiện trạng thái codebase sau khi implement  
 > **Timeline:** Phase 2 Implementation ✅ COMPLETED  

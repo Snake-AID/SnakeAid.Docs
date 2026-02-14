@@ -1,4 +1,13 @@
-# Snake Detection - Usage Guide
+---
+doc_role: baseline
+module: snake-detection
+kind: flow
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
+# Snake Detection Module - Usage Guide
 
 > **Loại file:** `usageguide.md` - Hướng dẫn sử dụng API/chức năng sau khi implement  
 > **Timeline:** Phase 2 Implementation ✅ COMPLETED  

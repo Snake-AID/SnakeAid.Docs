@@ -1,4 +1,14 @@
-# Snake Detection (Phase 2 & 2.1) - Implementation Plan ✅ COMPLETED
+---
+doc_role: operation
+operation_id: detection-flow
+type: SETUP
+status: done
+created_at: 2026-02-15
+affects:
+  - Flows/SnakeDetection
+---
+
+# Snake Detection (Phase 2 & 2.1) - Implementation Plan
 
 ## 1. Overview
 **STATUS: ✅ COMPLETED** - Giai đoạn 2 đã hoàn thành việc tích hợp kết quả nhận diện từ AI (YOLO) với cơ sở dữ liệu loài rắn (SnakeLibs) của hệ thống.
