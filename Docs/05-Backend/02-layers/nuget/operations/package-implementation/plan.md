@@ -1,4 +1,14 @@
-# Nuget Toys Tracker
+---
+doc_role: operation
+operation_id: package-implementation
+type: SETUP
+status: in_progress
+created_at: 2026-02-15
+affects:
+  - Infrastructure/NuGet
+---
+
+# Nuget Implementation Tracker
 
 Track implementation and configuration work for packages already referenced in CPM and csproj files.
 Goal: mirror EzyFix behavior and config from `D:\SourceCode\EZYFIX\EzyFix.aspnet`.

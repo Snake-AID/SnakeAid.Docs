@@ -1,3 +1,12 @@
+---
+doc_role: baseline
+module: nuget
+kind: layer
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
 # NuGet Package Upgrade Documentation
 
 This document lists all NuGet packages defined in `Directory.Packages.props` and their current status regarding updates. The status is determined by checking for newer versions available on NuGet.org.
