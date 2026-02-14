@@ -1,3 +1,14 @@
+```
+---
+doc_role: operation
+operation_id: observability-setup
+type: SETUP
+status: done
+created_at: 2026-02-15
+affects:
+  - Infrastructure/Observability
+---
+
 # Observability Stack – Implementation Plan
 
 ## 1. Goal Description

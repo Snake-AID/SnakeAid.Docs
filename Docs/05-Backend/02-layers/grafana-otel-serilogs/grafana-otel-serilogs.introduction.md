@@ -1,3 +1,12 @@
+---
+doc_role: baseline
+module: grafana-otel-serilogs
+kind: layer
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
 # Observability Stack – Introduction
 
 ## 1. Mục tiêu

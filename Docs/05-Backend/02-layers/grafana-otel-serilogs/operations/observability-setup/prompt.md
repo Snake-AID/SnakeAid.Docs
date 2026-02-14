@@ -1,3 +1,12 @@
+```
+---
+doc_role: operation
+operation_id: observability-setup
+generated_from: plan.md
+status: done
+created_at: 2026-02-15
+---
+
 # Observability Stack – Implementation Prompt
 
 > **SYSTEM INSTRUCTION**: This prompt contains the exact instructions to implement the Observability Stack (Serilog, OpenTelemetry, Grafana, Loki, Tempo, Prometheus). Execute these steps sequentially.
