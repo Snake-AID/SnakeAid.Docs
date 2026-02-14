@@ -95,24 +95,25 @@
                     *   [Introduction](05-Backend/01-flows/P1-emergency/S1-identified/aivision-detect/aivision-detect.introduction.md)
                 *   **Snake Detection**
                     *   [Introduction](05-Backend/01-flows/P1-emergency/S1-identified/snake-detection/snake-detection.introduction.md)
-                    *   [Implementation Plan](05-Backend/01-flows/P1-emergency/S1-identified/snake-detection/snake-detection.plan.md)
-                    *   [Agent Prompt](05-Backend/01-flows/P1-emergency/S1-identified/snake-detection/snake-detection.prompt.md)
-                    *   [Source Code Reference](05-Backend/01-flows/P1-emergency/S1-identified/snake-detection/snake-detection.sourcecode.md)
+                    *   [Source Code](05-Backend/01-flows/P1-emergency/S1-identified/snake-detection/snake-detection.sourcecode.md)
                     *   [Usage Guide](05-Backend/01-flows/P1-emergency/S1-identified/snake-detection/snake-detection.usageguide.md)
+                    *   📂 Operations
+                        *   [Implementation Plan](05-Backend/01-flows/P1-emergency/S1-identified/snake-detection/operations/detection-flow/plan.md)
+                        *   [Agent Prompt](05-Backend/01-flows/P1-emergency/S1-identified/snake-detection/operations/detection-flow/prompt.md)
                 *   **Emergency Rescue Roadmap**
                     *   [Roadmap](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/emergency-rescue.roadmap.md)
                     *   **Rescue Trigger**
                         *   [Introduction](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/rescue-trigger/rescue-trigger.introduction.md)
-                        *   [Implementation Plan](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/rescue-trigger/rescue-trigger.plan.md)
-                        *   [Agent Prompt](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/rescue-trigger/rescue-trigger.prompt.md)
-                        *   [Source Code Reference](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/rescue-trigger/rescue-trigger.sourcecode.md)
+                        *   [Source Code](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/rescue-trigger/rescue-trigger.sourcecode.md)
                         *   [Usage Guide](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/rescue-trigger/rescue-trigger.usageguide.md)
+                        *   📂 Operations
+                            *   [Phase 1 Plan](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/rescue-trigger/operations/Phase-1-Stable-Core/plan.md)
                     *   **Live Tracking**
                         *   [Introduction](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/live-tracking/live-tracking.introduction.md)
-                        *   [Implementation Plan](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/live-tracking/live-tracking.plan.md)
-                        *   [Agent Prompt](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/live-tracking/live-tracking.prompt.md)
-                        *   [Source Code Reference](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/live-tracking/live-tracking.sourcecode.md)
+                        *   [Source Code](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/live-tracking/live-tracking.sourcecode.md)
                         *   [Usage Guide](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/live-tracking/live-tracking.usageguide.md)
+                        *   📂 Operations
+                            *   [Phase 2 Plan](05-Backend/01-flows/P1-emergency/S1-identified/emergency-rescue/live-tracking/operations/Phase-2-Ingestion-Foundation/plan.md)
             *   [S2: Không nhận diện được rắn](05-Backend/01-flows/P1-emergency/S2-not-identified/_flow.md)
         *   **P2 - Snake Catching**
             *   [S1: Bắt 1 con rắn](05-Backend/01-flows/P2-catching/S1-single-snake/_flow.md)
@@ -121,38 +122,43 @@
             *   [S4: Màn hình chung](05-Backend/01-flows/P2-catching/S4-common/_flow.md)
     *   📂 Layers (Horizontal)
         *   **ASP.NET Identity**
-            *   [Introduction](05-Backend/02-layers/aspnet%20identity/aspnet-identity.introduction.md)
-            *   [UI Plan](05-Backend/02-layers/aspnet%20identity/aspi%20ui/aspi-ui.plan.md)
-            *   [Implementation Plan](05-Backend/02-layers/aspnet%20identity/aspnet-identity.plan.md)
-            *   [Agent Prompt](05-Backend/02-layers/aspnet%20identity/aspnet-identity.prompt.md)
-            *   [Source Code Reference](05-Backend/02-layers/aspnet%20identity/aspnet-identity.sourcecode.md)
-            *   [Usage Guide](05-Backend/02-layers/aspnet%20identity/aspnet-identity.usageguilde.md)
+            *   [Introduction](05-Backend/02-layers/aspnet-identity/aspnet-identity.introduction.md)
+            *   [Source Code](05-Backend/02-layers/aspnet-identity/aspnet-identity.sourcecode.md)
+            *   [Usage Guide](05-Backend/02-layers/aspnet-identity/aspnet-identity.usageguide.md)
+            *   📂 Operations
+                *   [Legacy Migration Plan](05-Backend/02-layers/aspnet-identity/operations/legacy-migration/plan.md)
         *   **Cloudinary**
             *   [Introduction](05-Backend/02-layers/cloudinary/cloudinary.introduction.md)
-            *   [Implementation Plan](05-Backend/02-layers/cloudinary/cloudinary.plan.md)
-            *   [Agent Prompt](05-Backend/02-layers/cloudinary/cloudinary.prompt.md)
-            *   [Source Code Reference](05-Backend/02-layers/cloudinary/cloudinary.sourcecode.md)
-            *   [Usage Guide](05-Backend/02-layers/cloudinary/cloudinary.usageguilde.md)
+            *   [Source Code](05-Backend/02-layers/cloudinary/cloudinary.sourcecode.md)
+            *   [Usage Guide](05-Backend/02-layers/cloudinary/cloudinary.usageguide.md)
         *   **AI Services**
-            *   [Introduction](05-Backend/02-layers/ai/SankeAi.introduction.md)
+            *   [Introduction](05-Backend/02-layers/ai/ai.introduction.md)
         *   **Domain Driven Design**
-            *   [Introduction](05-Backend/02-layers/domain%20driven%20design/ddd-migration.introduction.md)
-            *   [Migration Plan](05-Backend/02-layers/domain%20driven%20design/ddd-migration.plan.md)
-            *   [Source Code](05-Backend/02-layers/domain%20driven%20design/ddd-migration.sourcecode.md)
-            *   [Usage Guide](05-Backend/02-layers/domain%20driven%20design/ddd-migration.usageguide.md)
-            *   [Agent Prompts](05-Backend/02-layers/domain%20driven%20design/ddd-migration.prompt.md)
+            *   [Introduction](05-Backend/02-layers/domain-driven-design/domain-driven-design.introduction.md)
+            *   [Source Code](05-Backend/02-layers/domain-driven-design/domain-driven-design.sourcecode.md)
+            *   [Usage Guide](05-Backend/02-layers/domain-driven-design/domain-driven-design.usageguide.md)
+            *   📂 Operations
+                *   [Migration Plan](05-Backend/02-layers/domain-driven-design/operations/ddd-migration/plan.md)
         *   **Docker**
             *   [Introduction](05-Backend/02-layers/docker/docker.introduction.md)
             *   [Source Code](05-Backend/02-layers/docker/docker.sourcecode.md)
             *   [Usage Guide](05-Backend/02-layers/docker/docker.usageguide.md)
         *   **Jenkins**
             *   [Introduction](05-Backend/02-layers/jenkins/jenkins.introduction.md)
-            *   [Plan](05-Backend/02-layers/jenkins/jenkins.plan.md)
             *   [Source Code](05-Backend/02-layers/jenkins/jenkins.sourcecode.md)
             *   [Usage Guide](05-Backend/02-layers/jenkins/jenkins.usageguide.md)
+            *   📂 Operations
+                *   [Pipeline Automation](05-Backend/02-layers/jenkins/operations/pipeline-automation/plan.md)
         *   **NuGet**
-            *   [NuGet Upgrade Doc](05-Backend/02-layers/nuget/NuGet_Upgrade_Doc.md)
-            *   [NuGet Toys Tracker](05-Backend/📂 layers/nuget/Nuget%20Toys%20Tracker.md)
+            *   [Introduction](05-Backend/02-layers/nuget/nuget.introduction.md)
+            *   📂 Operations
+                *   [Implementation Tracker](05-Backend/02-layers/nuget/operations/package-implementation/plan.md)
+        *   **Grafana & Observability**
+            *   [Introduction](05-Backend/02-layers/grafana-otel-serilogs/grafana-otel-serilogs.introduction.md)
+            *   📂 Operations
+                *   [Setup Plan](05-Backend/02-layers/grafana-otel-serilogs/operations/observability-setup/plan.md)
+        *   **Snake Library**
+            *   [Introduction](05-Backend/02-layers/snake-library/snake-library.introduction.md)
 *   📂 06. Review
     *   📂 R01
         *   [Note](06-Review/R01/Note.md)
