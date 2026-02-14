@@ -1,3 +1,13 @@
+---
+doc_role: operation
+operation_id: pipeline-automation
+type: SETUP
+status: done
+created_at: 2026-02-15
+affects:
+  - DevOps/Jenkinsfile
+---
+
 # Jenkins Pipeline for ASP.NET Core - Implementation Plan
 
 ## Current State

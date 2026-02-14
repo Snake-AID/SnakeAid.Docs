@@ -1,3 +1,12 @@
+---
+doc_role: baseline
+module: jenkins
+kind: layer
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
 # Jenkins Pipeline - Source Code
 
 ## Jenkinsfile
