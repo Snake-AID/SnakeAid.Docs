@@ -1,4 +1,13 @@
-# Docker - Introduction
+---
+doc_role: baseline
+module: docker
+kind: layer
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
+# Docker & Containerization - Introduction
 
 ## What is it?
 Docker is a platform for developing, shipping, and running applications in containers. `docker-compose` is a tool for defining and running multi-container Docker applications.

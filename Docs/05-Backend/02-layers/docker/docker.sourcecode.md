@@ -1,3 +1,12 @@
+---
+doc_role: baseline
+module: docker
+kind: layer
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
 # Docker - Source Code
 
 ## Docker Compose
