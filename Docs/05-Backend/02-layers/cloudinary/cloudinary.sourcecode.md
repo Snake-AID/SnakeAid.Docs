@@ -1,3 +1,12 @@
+---
+doc_role: baseline
+module: cloudinary
+kind: layer
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
 # Cloudinary Integration - Source Code Documentation
 
 This document describes the intended source code structure after Cloudinary integration is implemented in SnakeAid. It is written to minimize future code crawling by capturing the key method signatures, flows, and configuration contracts in one place.

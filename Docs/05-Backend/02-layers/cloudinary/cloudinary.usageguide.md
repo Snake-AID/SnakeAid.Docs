@@ -1,3 +1,12 @@
+---
+doc_role: baseline
+module: cloudinary
+kind: layer
+status: active
+last_updated: 2026-02-15
+owners: [backend-team]
+---
+
 # Cloudinary Integration - Usage Guide
 
 This guide describes how frontend or mobile clients should upload media once the Cloudinary integration is implemented in SnakeAid.
