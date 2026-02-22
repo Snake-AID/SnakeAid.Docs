@@ -1,108 +1,360 @@
-# 🤖 AGENT MEMORY: Flutter Documentation Protocol
+# AGENT MEMORY: Flutter Integration Protocol
 
-> **SYSTEM INSTRUCTION**: This document defines the **STRICT STANDARD** for SnakeAid Flutter documentation. As an AI Agent, you **MUST** follow this protocol when referencing, creating, or updating documentation. This structure is designed to be your **External Memory**, allowing you to load context efficiently without re-reading the entire codebase.
+# SnakeAid.Mobile — Integration-Driven Model
 
-## 📱 The 5-Document Standard (Flutter Edition)
-
-Every Screen or Feature in the Flutter App consists of exactly **5 document types**. You must maintain these files to ensure visual and logic consistency.
-
-| ID | File Type | Purpose | Agent Action | Tokens |
-|----|-----------|---------|--------------|--------|
-| **1** | `*.introduction.md` | **UI Specification**. Mockups, Wireframes, User Flows, and **Links to Backend Usage Guides**. | **READ** to understand "What to build" and "Where to get data". | Low |
-| **2** | `*.plan.md` | **Widget Tree & State**. Component hierarchy, State Management (Bloc/Cubit), and Dependencies. | **WRITE** during Planning Phase. **READ** to understand architecture. | Medium |
-| **3** | `*.prompt.md` | **Implementation Instructions**. The exact prompts used to generate the UI code. Use this to re-generate or understand intent. | **WRITE** before coding. **READ** to understand specific implementation directives. | Medium |
-| **4** | `*.sourcecode.md` | **Component Registry**. List of created Widgets, Screens, Providers, and their file paths. | **WRITE/UPDATE** immediately after coding. **READ** this instead of raw source files to save context. | High |
-| **5** | `*.usageguide.md` | **Navigation & Testing**. Route arguments, Provider requirements, and Manual Test Steps. | **WRITE** after coding/verification. **READ** to integrate this screen elsewhere. | Medium |
+> SYSTEM INSTRUCTION (STRICT)
+>
+> This file defines the official documentation standard for SnakeAid.Mobile (Flutter).
+> You MUST follow this protocol when creating, reading, or updating documentation.
+>
+> Flutter is a Backend Contract Consumer.
+> Backend remains the authoritative source of truth.
+>
+> This system prevents contract drift, duplication, and unsafe AI-generated code.
 
 ---
 
-## 📂 Context Loading Protocol
+# Documentation Repository Structure
 
-**Directive**: When you are asked to work on a screen (e.g., `LoginScreen`), do **NOT** blindly read all source files. Follow this efficient context-loading sequence:
+All documentation lives in the separate Docs repository.
+Flutter documentation is organized as follows:
 
-1.  **Locate the Feature**: Check `01-flows/` or `02-widgets/`.
-2.  **Read `*.introduction.md`**: Grasp the UI/UX and Backend Binding requirements.
-3.  **Read `*.sourcecode.md`**: Load the current Widget structure and key logic.
-4.  **Read `*.plan.md`**: (Optional) Only if checking state management strategy.
+```
+Docs/
+  06-Flutter/
+    AGENTS.md
 
----
+    01-Standards/
+      networking-core.standards.md
+      contract-governance.standards.md
 
-## 📝 Documentation Maintenance Protocol
+    02-Features/
+      <feature>/
+        <feature>.integration.md
+        operations/
+          <TYPE>-<short-slug>/
+            plan.md
+            prompt.md
 
-**Directive**: You are responsible for keeping the "External Memory" in sync with the Codebase.
-
-### When Implementing New Screens:
-1.  **Draft `introduction.md`**:
-    *   Embed UI Mockups/Wireframes.
-    *   **CRITICAL**: Link to `backend.usageguide.md` for required APIs.
-2.  **Create `plan.md`**:
-    *   Outline the **Widget Tree** (to avoid nesting hell).
-    *   Define **State Management** (Cubit/Bloc structure).
-    *   List external packages needed.
-    *   Get User Approval.
-3.  **Create `prompt.md`**: (Optional) Save your implementation strategy instructions.
-4.  **Implement Code**: Write the actual Dart code.
-5.  **Generate `sourcecode.md`**:
-    *   List all Widgets, Screens, and Logic files created.
-    *   Show folder structure.
-6.  **Create `usageguide.md`**:
-    *   **Navigation**: Route Name + Arguments.
-    *   **Providers**: Required ancestors (e.g., `MultiBlocProvider`).
-    *   **Test Data**: JSON mocks for UI testing.
-
-### When Modifying Existing Screens:
-1.  **Identify Impact**: Which Screen/Flow is affected?
-2.  **Update `sourcecode.md`**: Reflect changes in Widget Tree or Logic immediately.
-3.  **Update `usageguide.md`**: If Navigation arguments changed.
-
----
-
-## 🗂️ Folder Structure Reference
-
-### 1. Vertical Flows (`01-flows/`)
-*   **Concept**: User Journeys (Screens).
-*   **Naming Convention**: `P{Priority}-{FlowName} / S{Sequence}-{SubFlowName}`.
-*   **Example**: `01-flows/P1-auth/S1-login/`
-
-### 2. Horizontal Widgets (`02-widgets/`)
-*   **Concept**: Reusable UI Components shared across flows.
-*   **Naming Convention**: Lowercase, kebab-case.
-*   **Example**: `02-widgets/custom-button/`
-
-## 🚦 Naming Convention
-
-| File Type | Pattern | Example |
-|-----------|---------|---------|
-| Introduction | `{name}.introduction.md` | `login-screen.introduction.md` |
-| Plan | `{name}.plan.md` | `login-screen.plan.md` |
-| Prompt | `{name}.prompt.md` | `login-screen.prompt.md` |
-| Source Code | `{name}.sourcecode.md` | `login-screen.sourcecode.md` |
-| Usage Guide | `{name}.usageguide.md` | `login-screen.usageguide.md` |
-
----
-
-## 🛠️ Workflow Diagram
-
-```mermaid
-graph TD
-    Start[User Request] --> Context[Load Context]
-    Context --> |Read| Intro[introduction.md]
-    Context --> |Read| BackendDocs[backend.usageguide.md]
-    
-    BackendDocs --> Plan[Design Widget Tree]
-    Plan --> |Write| PlanFile[plan.md]
-    
-    PlanFile --> Code[Implement Flutter Code]
-    Code --> Verify[Verification]
-    
-    Verify --> Sync[Sync Memory]
-    Sync --> |Update| SourceFile[sourcecode.md]
-    Sync --> |Update| UsageFile[usageguide.md]
-    
-    style BackendDocs fill:#ffecb3,stroke:#ff6f00
-    style PlanFile fill:#e1bee7,stroke:#4a148c
-    style SourceFile fill:#ffccbc,stroke:#d84315
+    03-Migrations/
+      <topic>.migration.md
 ```
 
-**Last Updated**: 2026-02-14
-**Maintained By**: AI Agents & Flutter Team
+Operations are NOT a top-level category.
+They are subordinate to a specific feature.
+
+---
+
+# Core Philosophy
+
+Flutter is NOT a source of business truth.
+Flutter is an Integration Boundary + Presentation Layer.
+
+Backend owns:
+
+- Business rules
+- Schema
+- API contract
+- Invariants
+
+Flutter owns:
+
+- Contract consumption
+- DTO mapping
+- State orchestration
+- UI rendering
+
+Flutter documentation focuses on:
+
+- Contract alignment
+- Mapping clarity
+- Drift prevention
+- Duplication prevention
+
+It does NOT redefine backend behavior.
+
+---
+
+# 01-Standards
+
+Standards define long-term architectural rules.
+All standard documents MUST use the suffix:
+
+```
+.standards.md
+```
+
+Examples:
+
+- networking-core.standards.md
+- contract-governance.standards.md
+
+Standards are:
+
+- Long-lived
+- Architecture-defining
+- Not time-bound
+- Not tied to a single feature
+  Standards MUST NOT describe temporary refactors.
+
+---
+
+## networking-core.standards.md
+
+Defines:
+
+- HttpService responsibilities
+- Base URL configuration
+- Interceptor chain
+- Token refresh mechanism
+- Error normalization contract
+- Endpoint exclusion rules
+  All features depend on this documented networking contract.
+
+---
+
+## contract-governance.standards.md
+
+Defines:
+
+- No hardcoded endpoints
+- Mandatory backend_reference in operations
+- DTO naming conventions
+- Error normalization policy
+- Rules for backend schema changes
+  This document prevents contract drift.
+
+---
+
+# 02-Features
+
+Each feature documentation lives under:
+
+```
+Docs/06-Flutter/02-Features/<feature>/
+  <feature>.integration.md
+  operations/
+```
+
+Example:
+
+```
+Docs/06-Flutter/02-Features/auth/
+  auth.integration.md
+  operations/
+    FEAT-integrate-refresh-token/
+      plan.md
+      prompt.md
+```
+
+---
+
+## <feature>.integration.md
+
+This is the integration baseline truth for the feature.
+It MUST document:
+
+1. Backend Endpoints Consumed
+
+- Endpoint path
+- HTTP method
+- Authentication requirement
+- Backend usageguide reference
+
+2. DTO Mapping Table
+
+| Backend Field | Dart Field | Nullable | Notes |
+| ------------- | ---------- | -------- | ----- |
+
+3. Repository Surface
+
+- Public repository methods
+- Return types
+- Error behavior
+
+4. State Flow
+   UI → Provider → Repository → HttpService → Backend
+
+5. Error Handling Strategy
+
+- Shared error normalization usage
+- No duplicated \_handleError
+
+6. Backend Dependencies
+
+- Token refresh reliance
+- Required headers
+- Backend invariants assumed
+
+RULES:
+
+- Do NOT duplicate backend usageguide.
+- Do NOT redefine backend schema.
+- Only describe integration assumptions.
+
+---
+
+# Feature Operations (Subordinate Element)
+
+Every backend integration MUST go through an operation.
+Operations live under a feature, not as a peer category.
+
+Folder naming:
+
+```
+{TYPE}-{short-slug}
+```
+
+Allowed TYPE:
+
+- FEAT
+- FIX
+- REFACTOR
+- PERF
+- SECURITY
+
+Each operation contains:
+
+```
+plan.md
+prompt.md
+```
+
+---
+
+## plan.md (Integration Strategy)
+
+Written BEFORE coding.
+REQUIRED STRUCTURE:
+
+1. Backend Contract Reference
+
+- Backend repository path
+- Backend module path
+- Backend operation (if any)
+- Backend usageguide section
+
+2. As-Is (Flutter State)
+
+- Existing models
+- Existing repository methods
+- Existing provider flow
+
+3. Gap Analysis
+
+- New models required?
+- Repository changes?
+- State changes?
+
+4. Mapping Definition
+
+- JSON key expectations
+- Nullable rules
+- Error structure expectations
+
+5. Duplication Check
+
+- Endpoint must use central constant
+- No duplicate \_handleError
+
+6. Validation Plan
+
+- Happy path scenario
+- Token expiry scenario
+- Error scenario
+
+---
+
+## prompt.md (Execution Instructions)
+
+Generated FROM plan.md.
+Must enforce:
+
+- Use centralized endpoint definitions
+- No hardcoded URLs
+- No duplicated error handling
+- Respect backend JSON schema exactly
+
+AI MUST NOT:
+
+- Invent endpoint paths
+- Modify backend assumptions
+- Create new interceptors
+- Copy error handling logic
+
+---
+
+# 03-Migrations
+
+Migration documents describe transitional refactors.
+All migration documents MUST use the suffix:
+
+```
+.migration.md
+```
+
+Examples:
+
+- migrate-manual-json-to-json-serializable.migration.md
+- unify-error-handling.migration.md
+
+Migration documents:
+
+- Are temporary
+- Have clear start and end state
+- Include completion criteria
+- May be archived after completion
+  They are NOT architectural standards.
+
+---
+
+# Backend Contract Dependency Rule (CRITICAL)
+
+Flutter must NEVER define API contracts independently.
+All endpoints, request/response models, and error assumptions MUST be traceable to Backend documentation.
+Each operation MUST include a backend_reference block in plan.md.
+
+---
+
+# Operation Lifecycle
+
+1. Backend operation completes.
+2. Read backend usageguide.
+3. Create feature operation.
+4. Write plan.md with backend reference.
+5. Generate prompt.md.
+6. Implement code.
+7. Update <feature>.integration.md.
+8. Mark operation status as done.
+
+---
+
+# Traceability Model
+
+Backend Operation → Backend Baseline → Flutter Operation → Flutter Integration Baseline
+
+---
+
+# Scalability Rule
+
+Only ONE integration operation per feature should be `in_progress` at a time.
+
+---
+
+# Security & Hygiene
+
+- Never store API keys or tokens in docs.
+- Use placeholders.
+- UTF-8 only (no BOM).
+
+---
+
+# Canonical Statement
+
+This protocol guarantees:
+
+- Explicit backend contract traceability
+- Clear separation of standards, features, and migrations
+- No integration drift
+- No duplicated networking logic
+- AI-safe Dart generation
