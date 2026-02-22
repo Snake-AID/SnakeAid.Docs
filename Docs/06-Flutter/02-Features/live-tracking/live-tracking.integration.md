@@ -57,6 +57,7 @@ _(No complex REST DTOs for LT-1 ingestion route. Only primitive types sent to Hu
 
 ### `RescuerSignalRService` (Singleton)
 
+- Located in `lib/core/services/rescuer_signalr_service.dart` (moved from `features/rescuer` for shared access).
 - `connect()`
 - `joinAsRescuer(String userId)`
 - `updateLocation(String userId, double lat, double lng)`

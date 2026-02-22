@@ -14,7 +14,7 @@ Implement the `RescuerSignalRService` and `LocationManager` to send real-time re
 
 ## Instructions
 
-1. **Create `lib/features/rescuer/services/rescuer_signalr_service.dart`**
+1. **Create `lib/core/services/rescuer_signalr_service.dart`** (Moved from `features/rescuer` for shared access)
    - Import `signalr_netcore`.
    - Setup a Singleton or Provider class.
    - Read token from storage. Build `HubConnection`.
