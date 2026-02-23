@@ -16,37 +16,43 @@ This guide documents what clients can use today and what is not available yet.
 Roadmap: `../emergency-rescue.roadmap.md`
 
 Current behavior is pre-LT-1 completion:
+
 - Dispatch exists via rescue-trigger.
 - Location ingestion is active (LT-1).
 - Full viewer tracking contracts (LT-2) are not active.
 
 Phase intent:
+
 1. `LT-1`: make location ingestion real and reliable.
 2. `LT-2`: provide full viewer tracking experience.
 
 ## 1. Current Integration Surface
 
 ### Available now
+
 1. Start rescue dispatch via `POST /api/incidents/sos`.
 2. Rescuer real-time offer handling via SignalR hub `/rescuer-hub`.
 3. Incident detail read via `GET /api/incidents/{incidentId}`.
 4. Session timeout monitoring endpoints for operations.
 
 ### Not available yet
+
 1. Patient/admin map snapshot endpoint.
 2. Patient/admin tracking stream endpoint/group contract.
 3. Location history endpoint.
 4. Fallback push channel for critical dispatch events.
 
-3. Location history endpoint.
-4. Fallback push channel for critical dispatch events.
+5. Location history endpoint.
+6. Fallback push channel for critical dispatch events.
 
 ### Now Reliable (LT-1)
+
 1. `UpdateLocation` persists rescuer profile location (PostGIS) with throttling (default 10s).
 
 ## 2. SOS Entry for Tracking Lifecycle
 
 ### Request
+
 - Method: `POST`
 - URL: `/api/incidents/sos`
 - Auth: required
@@ -60,15 +66,18 @@ Phase intent:
 ```
 
 ### Purpose
+
 Starts dispatch lifecycle and creates first rescue session.
 Use returned `incidentId` and `sessionId` as correlation keys in client state.
 
 ## 3. Rescuer Hub Contract
 
 ### Connect
+
 - Hub URL: `/rescuer-hub`
 
 ### Client -> Server methods
+
 1. `JoinAsRescuer(string userId)`
 2. `AcceptRequest(Guid requestId, Guid rescuerId)`
 3. `RejectRequest(Guid requestId)`
@@ -76,6 +85,7 @@ Use returned `incidentId` and `sessionId` as correlation keys in client state.
 5. `GetConnectedRescuers()`
 
 ### Server -> Client events
+
 1. `Joined`
 2. `NewRescueRequest`
 3. `RequestAccepted`
@@ -85,8 +95,10 @@ Use returned `incidentId` and `sessionId` as correlation keys in client state.
 7. `RequestError`
 8. `LocationUpdated`
 9. `ConnectedRescuers`
+10. `RequestExpired`
 
 ### `NewRescueRequest` payload example
+
 ```json
 {
   "requestId": "request-guid",
@@ -103,16 +115,17 @@ Use returned `incidentId` and `sessionId` as correlation keys in client state.
 1. `UpdateLocation(...)` now persists `LastLocation` for matching (LT-1).
 2. Manual `raise-range` currently does not trigger dispatch broadcast/schedule.
 3. Hub authorization hardening is not complete in current code.
-4. `RequestExpired` push is not emitted in production timeout flow.
 
 ## 5. Planned Contracts by Phase
 
 ### LT-1 expected additions (Delivered 2026-02-13)
+
 1. Persisted location ingestion from rescuer publish path.
 2. Throttling and stale-location policy (default 10s interval).
 3. PostGIS `geometry(Point, 4326)` integration.
 
 ### LT-2 expected additions
+
 1. `GET /api/sessions/{id}/tracking/snapshot`
 2. `GET /api/sessions/{id}/tracking/history`
 3. Session viewer methods:
@@ -148,6 +161,7 @@ Check `is_success` before using `data`.
 ## 8. Integration Rule
 
 Do not integrate LT-2 endpoints/events until they exist in backend source and are marked implemented in:
+
 - `live-tracking.sourcecode.md`
 - `rescue-trigger.sourcecode.md` (if dispatch dependency changes)
 
@@ -156,12 +170,13 @@ Do not integrate LT-2 endpoints/events until they exist in backend source and ar
 This section details how to implement the Rescuer Live Tracking feature in the Flutter app.
 
 ### 9.1. Dependencies
+
 Add the following to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
   signalr_netcore: ^1.3.6 # Recommended for SignalR
-  geolocator: ^13.0.1     # For GPS location
+  geolocator: ^13.0.1 # For GPS location
   flutter_secure_storage: ^9.0.0 # To retrieve JWT token
 ```
 
@@ -179,13 +194,13 @@ class RescuerSignalRService {
   HubConnection? _hubConnection;
   final _storage = const FlutterSecureStorage();
   final String _hubUrl = "https://your-backend-url/rescuer-hub"; // Update URL
-  
+
   // Events
   Function(String)? onStatusMessage;
 
   Future<void> connect() async {
     final token = await _storage.read(key: "access_token"); // Ensure key matches your auth logic
-    
+
     if (token == null) {
       throw Exception("Unauthorized: No access token found");
     }
@@ -247,7 +262,7 @@ class LocationManager {
   Timer? _throttleTimer;
   Position? _lastPosition;
   bool _isThrottled = false;
-  
+
   LocationManager(this._signalRService);
 
   void startTracking(String userId) {
@@ -264,12 +279,12 @@ class LocationManager {
 
   void _handleNewPosition(String userId, Position position) {
     _lastPosition = position;
-    
+
     if (_isThrottled) return;
 
     // Send immediately
     _sendLocation(userId, position);
-    
+
     // Enable throttle
     _isThrottled = true;
     _throttleTimer = Timer(const Duration(seconds: 10), () {
@@ -286,6 +301,7 @@ class LocationManager {
 ```
 
 ### 9.4. Important Notes for Flutter Devs
+
 1. **Background Execution**: Standard `Geolocator` stream may pause when app is backgrounded. For true "On-Shift" tracking (Phase 2), consider using `flutter_background_service` or `background_locator_2`. For Phase 1 (LT-1), foreground/active tracking is acceptable.
 2. **Permissions**: Ensure `AndroidManifest.xml` and `Info.plist` have correct location permissions (`ACCESS_FINE_LOCATION`, `NSLocationWhenInUseUsageDescription`).
 3. **Reconnect**: `signalr_netcore` has `.withAutomaticReconnect()`. Ensure your app handles re-auth if the token expires during a long shift.
