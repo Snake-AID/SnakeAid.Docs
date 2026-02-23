@@ -34,20 +34,28 @@ Build a read-only **Live Tracking Monitoring Dashboard** using ASP.NET Core Razo
 
 Trang Monitor sẽ được bố cục lại theo hướng Component-based, loại bỏ Terminal cũ, chia màn hình thành 2 khu vực chính (Layout 75% - 25%):
 
-**Khu vực 1 (Main - 75%): Bảng Điều Khiển Rescuers (Rescuers Grid)**
-Hiển thị danh sách các Rescuer đang kết nối dưới dạng mạng lưới các thẻ (Cards).
-Mỗi **Rescuer Card** bao gồm:
+**Khu vực 1 (Main - 75%): Bảng Điều Khiển Grid đa Tab (Tabs Layout)**
+Được chia thành 3 Tab chính để quản lý trạng thái kết nối và user:
 
-1. **Header**: Avatar, FullName, PhoneNumber, và Badge hiển thị loại Rescuer (Emergency/Catching/Both).
-2. **Status Bar**: Chấm trạng thái Online/Offline, Rating (⭐), CompletedMissions/TotalMissions, và Reputation Points.
-3. **Live Location (UC2)**: Hiển thị tọa độ (Lat, Lng) và `Last Update: X seconds ago`. Vùng này sẽ tự động **nhấp nháy highlight** khi có sự kiện `LocationUpdated` để test Throttling 10s.
-4. **Session State (UC1, UC3, UC5)**: Màu sắc viền (Border) và Background của thẻ sẽ thay đổi realtime theo vòng đời Incident:
-   - _Mặc định_: Đang rảnh (Màu xám/trắng).
-   - _Khi có SOS (Nằm trong bán kính)_: Viền **nháy Vàng** (Pinged - Đang chờ Accept).
-   - _Khi Win ca cấp cứu_: Thẻ đổi màu **Xanh Lá** đậm (Winner/Accepted).
-   - _Khi bị nẫng tay trên_: Thẻ đổi màu **Xám Xỉn** (Taken/Lost).
+- **Tab 1 - Connected Rescuers:** Hiển thị mạng lưới các thẻ Rescuer đang kết nối thành công.
+- **Tab 2 - Ghost Scanner:** Hiển thị mạng lưới các tài khoản bị "Ghost" (IsOnline = true trong DB nhưng mất kết nối SignalR). Cho phép Admin ấn nút _Rescan_ để quét chủ động các ca Lệch Pha (State Drift).
+- **Tab 3 - All Rescuers:** Liệt kê toàn bộ Rescuers có trong Database bất kể trạng thái nào. Dùng để đối chiếu và theo dõi tổng dung lượng nhân sự. Các user offline sẽ được làm mờ (dimmed) đi.
 
-**Khu vực 2 (Sidebar - 25%): Active Incident Tracker (UC3 & UC4)**
+Mỗi **Rescuer Card (Tab 1)** bao gồm:
+
+1. **Header**: Avatar, FullName, PhoneNumber, và Badge hiển thị loại Rescuer. Đi kèm là **Status Badge** chỉ báo trạng thái luân chuyển (IDLE / PINGED / BUSY).
+2. **Ping Timer**: Một vòng tròn đếm ngược 10 giây. Nó sẽ lặp lại mỗi khi nhận được sự kiện `LocationUpdated`. Nếu quá 10s không có ping (do logic tối ưu pin <10 mét của Flutter), vòng tròn sẽ chuyển sang màu xỉn (stale) để báo hiệu người dùng đang đứng yên thay vì mất mạng.
+3. **Metrics Area**: Khu vực dải thẻ (Pills) nằm dưới cùng, gộp chung các thông số để tiết kiệm diện tích và dễ nhìn:
+   - 📡 **Websocket**: `SignalR` (Màu xanh nếu connected)
+   - 🗄️ **Database**: `IsOnline` (Màu xanh nếu true, đỏ nếu false)
+   - 📍 **Tọa độ**: `Lat` và `Lng` (Sẽ chớp sáng khi có data mới).
+4. **Session State (UC1, UC3, UC5)**: Màu sắc thẻ và Status Badge thay đổi realtime theo vòng đời Incident:
+   - _Mặc định_: Status `IDLE`, thẻ màu xám/trắng.
+   - _Khi có SOS_: Status `PINGED`, viền nháy Vàng.
+   - _Khi Win ca cấp cứu_: Status `BUSY`, thẻ đổi màu Xanh Lá đậm.
+   - _Khi bị nẫng tay trên/Hết hạn_: Thẻ xám lại, Status văng về `IDLE`.
+
+**Khu vực 2 (Sidebar - 25%): Active Incident Tracker (UC3 & UC4) & Log Console**
 Theo dõi tiến độ chung của hệ thống khi có 1 ca cấp cứu (Incident) nổ ra.
 
 - **Incident Info**: Incident ID, Session Number hiện tại, Radius hiện tại (10km, 20km).
@@ -56,20 +64,22 @@ Theo dõi tiến độ chung của hệ thống khi có 1 ca cấp cứu (Incide
 
 **Technical Approach:**
 
-- **Backend (`SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml.cs`)**: Page model that auto-generates a temporary Admin JWT to inject into the view.
+- **Backend (`SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml.cs`)**:
+  - Page model that auto-generates a temporary Admin JWT to inject into the view.
+  - Cung cấp các RESTful API endpoints (Razor Page Handlers) như `?handler=Ghosts` và `?handler=AllRescuers` để gọi riêng rẽ các tác vụ I/O nặng (quét DB) thay vì nhồi nhét vào SignalR Hub.
 - **Frontend (`SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml`)**:
-  - Use raw HTML/CSS/JS.
-  - Integrate `@microsoft/signalr` JS client to connect to `/rescuer-hub` as an "Admin/Monitor" role.
-  - _Note:_ The Hub might need a minor adjustment to broadcast administrative logs to a specific "MonitorGroup" so the dashboard can listen without intercepting actual Rescuer messages, OR the dashboard simply connects and listens to standard events if applicable.
-- **Authentication**: The backend `Index.cshtml.cs` will auto-generate a valid `access_token` (JWT) with Admin privileges. The Razor View will read this token and pass it to the SignalR connection automatically, meaning the user just needs to open the page.
+  - Dùng HTML/CSS/JS thuần với giao diện 3 Tabs.
+  - Tích hợp `@microsoft/signalr` JS client để kết nối nhóm "Monitors".
+  - Sử dụng `fetch()` AJAX để xử lý các luồng dữ liệu nặng và scan lệch pha (State Drift).
+- **Authentication**: Backend sinh `access_token` JWT quyền Admin, frontend tự nạp token vào Socket và fetch queries.
 
 ## 4. Impacted Components
 
 - **Affected Pages:**
 - `SnakeAid.Api/Pages/Demo/RescueDemo.cshtml` (add link to monitor)
-- **New:** `SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml`
-- **New:** `SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml.cs`
-- **Modified:** `SnakeAid.Api/Hubs/RescuerHub.cs` (Minor changes to emit connection state/admin logs to a "Monitor" SignalR group if necessary).
+- **New:** `SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml` (Giao diện 3 khu vực + AJAX logic)
+- **New:** `SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml.cs` (Cấp Token + Cung cấp Handlers `OnGetGhostsAsync` & `OnGetAllRescuersAsync`)
+- **Modified:** `SnakeAid.Api/Hubs/RescuerHub.cs` (Sạch sẽ, chỉ thuần túy phát sóng RT event như `LocationUpdated`, `RescuerJoined`, không chứa logic truy xuất DB nặng ngoài trừ lúc Join/Disconnect).
 
 ## 5. Risks & Constraints
 
