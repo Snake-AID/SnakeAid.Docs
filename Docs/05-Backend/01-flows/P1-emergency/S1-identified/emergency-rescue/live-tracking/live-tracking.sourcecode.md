@@ -10,6 +10,7 @@ owners: [backend-team]
 # Live Tracking Module - Source Code
 
 ## Roadmap Alignment
+
 - Domain phase mapping:
   - `LT-1` (Global Phase 2): ingestion foundation.
   - `LT-2` (Global Phase 3): full live tracking pipeline.
@@ -19,29 +20,30 @@ owners: [backend-team]
 
 Last verified: 2026-02-13.
 
-| Capability | Status | Notes |
-|---|---|---|
-| Session-based rescue dispatch | Implemented | SOS creates incident and starts session broadcast |
-| Radius progression with timeout | Implemented | `10 -> 20 -> 30`, 60s/session |
-| Acceptance race winner handling | Implemented | First accepted request wins, others become `Taken` |
-| Mission creation after acceptance | Implemented | `RescueMission` created, incident becomes `Assigned` |
-| Realtime rescuer offer delivery | Implemented (SignalR) | `NewRescueRequest` sent to connected rescuers |
-| Realtime map tracking for patient/admin | Missing | No session tracking group and no tracking events for viewers |
-| Persisted rescuer live location ingestion | Implemented | Hub update now persists `LastLocation` and `LastLocationUpdate` via `RescuerLocationService` |
-| Snapshot/history tracking API | Missing | No `/tracking/snapshot` or `/tracking/history` endpoints |
-| FCM fallback delivery | Missing | Notification service is SignalR-only |
-| Redis NOW state | Missing | No Redis integration in current implementation |
+| Capability                                | Status                | Notes                                                                                        |
+| ----------------------------------------- | --------------------- | -------------------------------------------------------------------------------------------- |
+| Session-based rescue dispatch             | Implemented           | SOS creates incident and starts session broadcast                                            |
+| Radius progression with timeout           | Implemented           | `10 -> 20 -> 30`, 60s/session                                                                |
+| Acceptance race winner handling           | Implemented           | First accepted request wins, others become `Taken`                                           |
+| Mission creation after acceptance         | Implemented           | `RescueMission` created, incident becomes `Assigned`                                         |
+| Realtime rescuer offer delivery           | Implemented (SignalR) | `NewRescueRequest` sent to connected rescuers                                                |
+| Realtime map tracking for patient/admin   | Missing               | No session tracking group and no tracking events for viewers                                 |
+| Persisted rescuer live location ingestion | Implemented           | Hub update now persists `LastLocation` and `LastLocationUpdate` via `RescuerLocationService` |
+| Snapshot/history tracking API             | Missing               | No `/tracking/snapshot` or `/tracking/history` endpoints                                     |
+| FCM fallback delivery                     | Missing               | Notification service is SignalR-only                                                         |
+| Redis NOW state                           | Missing               | No Redis integration in current implementation                                               |
 
 ## Phase Readiness Matrix
 
-| Domain phase | Current status | Notes |
-|---|---|---|
-| LT-1 ingestion foundation | Complete | Location publish path now persists profile location with throttling |
-| LT-2 full pipeline | Not started | No viewer stream, no snapshot/history, no Redis NOW path |
+| Domain phase              | Current status | Notes                                                               |
+| ------------------------- | -------------- | ------------------------------------------------------------------- |
+| LT-1 ingestion foundation | Complete       | Location publish path now persists profile location with throttling |
+| LT-2 full pipeline        | Not started    | No viewer stream, no snapshot/history, no Redis NOW path            |
 
 ## Modules and Responsibilities
 
 ### Incident orchestration
+
 - File: `SnakeAid.Service/Implements/SnakebiteIncidentService.cs`
 - Responsibilities:
   - Create incident (`CreateIncidentAsync`)
@@ -50,6 +52,7 @@ Last verified: 2026-02-13.
   - Symptom updates and incident detail read
 
 ### Session orchestration
+
 - File: `SnakeAid.Service/Implements/RescueRequestSessionService.cs`
 - Responsibilities:
   - Create session
@@ -60,6 +63,7 @@ Last verified: 2026-02-13.
   - Handle mission abort re-dispatch
 
 ### Timeout scheduler
+
 - File: `SnakeAid.Service/Implements/SessionTimeoutBackgroundService.cs`
 - Responsibilities:
   - In-memory timeout schedule queue
@@ -67,15 +71,18 @@ Last verified: 2026-02-13.
   - Health and queue status for monitoring
 
 ### Realtime transport
+
 - Files:
   - `SnakeAid.Api/Hubs/RescuerHub.cs`
   - `SnakeAid.Api/Services/SignalRRescueNotificationService.cs`
 - Responsibilities:
   - Rescuer registration in connection dictionary
-  - Receive accept/reject hub calls
+  - Receive accept/reject/monitor hub calls (`JoinAsRescuer`, `JoinAsMonitor`)
+  - Broadcase admin logs to `Monitors` group
   - Send request/taken/cancelled notifications
 
 ### Mission state
+
 - File: `SnakeAid.Service/Implements/RescueMissionService.cs`
 - Responsibilities:
   - Create mission when rescuer wins request
@@ -83,6 +90,7 @@ Last verified: 2026-02-13.
   - Handle user cancellation / rescuer abort
 
 ### Location Ingestion (New in LT-1)
+
 - File: `SnakeAid.Service/Implements/RescuerLocationService.cs`
 - Responsibilities:
   - Validate location/throttling strategy
@@ -107,13 +115,16 @@ Last verified: 2026-02-13.
 ## Data Surfaces Used by Dispatch
 
 ### Incident location
+
 - `SnakebiteIncident.LocationCoordinates` (`geometry(Point, 4326)`)
 
 ### Rescuer location used for matching
+
 - `RescuerProfile.LastLocation` (`geometry(Point, 4326)`)
 - `RescuerProfile.LastLocationUpdate`
 
 ### Session records
+
 - `RescueRequestSession` with:
   - `SessionNumber`
   - `RadiusKm`
@@ -122,6 +133,7 @@ Last verified: 2026-02-13.
   - `RescuersPinged`
 
 ### Request records
+
 - `RescuerRequest` with:
   - per-rescuer state (`Pending`, `Accepted`, `Rejected`, `Taken`, `Cancelled`, `Expired`)
   - timeout fields (`ExpiredAt`)
@@ -129,23 +141,29 @@ Last verified: 2026-02-13.
 ## Live Tracking Gap Analysis
 
 ### Gap 1: Location publish path is non-persistent (RESOLVED)
+
 `RescuerHub.UpdateLocation(...)` now calls `RescuerLocationService` to persist `LastLocation`.
 This gap is closed in LT-1.
 
 ### Gap 2: No session-viewer realtime channel
+
 There is no `JoinSession/LeaveSession` contract for patient/admin watchers.
 Current hub is rescuer-centric only.
 
 ### Gap 3: No tracking read APIs
+
 No endpoint for:
+
 - current snapshot for reconnect,
 - historical path retrieval.
 
 ### Gap 4: Fallback and durable notification path missing
+
 `IRescueNotificationService` currently has SignalR implementation only.
 No fallback channel is used for delivery guarantees.
 
 ### Gap 5: Manual range raise is not equivalent to timeout expansion
+
 `RaiseSessionRangeAsync` creates session row but does not broadcast/schedule timeout.
 This diverges from `TryExpandAndCreateNewSessionAsync`.
 This gap belongs to `rescue-trigger` RT-1 and is a dependency for stable full tracking rollout.
@@ -153,10 +171,13 @@ This gap belongs to `rescue-trigger` RT-1 and is a dependency for stable full tr
 ## Operational Interfaces
 
 ### Monitoring
+
 - `GET /api/monitoring/session-timeout-status`
 - `GET /api/monitoring/health/session-timeout`
+- `GET /Admin/LiveTracking` (Razor Page for real-time SignalR observation)
 
 ### Hub path
+
 - `/rescuer-hub`
 
 ## Notes for Next Iteration
