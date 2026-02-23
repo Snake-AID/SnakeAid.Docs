@@ -1,4 +1,4 @@
-```
+````
 ---
 doc_role: baseline
 module: rescue-trigger
@@ -32,18 +32,20 @@ HTTP APIs in this module return:
   "data": {},
   "error": null
 }
-```
+````
 
 Use `is_success` and `status_code` for client control flow.
 
 ## 2. Trigger SOS Dispatch
 
 ### Endpoint
+
 - Method: `POST`
 - URL: `/api/incidents/sos`
 - Auth: required (`Bearer` token)
 
 ### Request body
+
 ```json
 {
   "lng": 106.660172,
@@ -52,6 +54,7 @@ Use `is_success` and `status_code` for client control flow.
 ```
 
 ### Success response (`data` excerpt)
+
 ```json
 {
   "id": "incident-guid",
@@ -74,11 +77,13 @@ Use `is_success` and `status_code` for client control flow.
 ## 3. Raise Search Range Manually
 
 ### Endpoint
+
 - Method: `POST`
 - URL: `/api/incidents/{incidentId}/raise-range`
 - Auth: required
 
 ### Current behavior note
+
 Current implementation creates a new session record and updates incident radius/session counters.
 It does not trigger broadcast automatically for that session.
 Treat this endpoint as internal/admin/debug until service path is completed.
@@ -86,10 +91,12 @@ Treat this endpoint as internal/admin/debug until service path is completed.
 ## 4. Incident Detail and Symptom Update
 
 ### Get incident detail
+
 - Method: `GET`
 - URL: `/api/incidents/{incidentId}`
 
 ### Update symptoms
+
 - Method: `PUT`
 - URL: `/api/incidents/{incidentId}/symptoms-tracking`
 
@@ -98,9 +105,11 @@ Request body follows `UpdateSymptomReportRequest` contract.
 ## 5. Rescuer SignalR Integration
 
 ### Hub
+
 - URL: `/rescuer-hub`
 
 ### Client -> Server methods
+
 - `JoinAsRescuer(string userId)`
 - `AcceptRequest(Guid requestId, Guid rescuerId)`
 - `RejectRequest(Guid requestId)`
@@ -108,6 +117,7 @@ Request body follows `UpdateSymptomReportRequest` contract.
 - `GetConnectedRescuers()`
 
 ### Server -> Client events (production path)
+
 - `Joined`
 - `NewRescueRequest`
 - `RequestAccepted`
@@ -117,8 +127,10 @@ Request body follows `UpdateSymptomReportRequest` contract.
 - `RequestError`
 - `LocationUpdated`
 - `ConnectedRescuers`
+- `RequestExpired`
 
 ### `NewRescueRequest` payload shape
+
 ```json
 {
   "requestId": "request-guid",
@@ -133,6 +145,7 @@ Request body follows `UpdateSymptomReportRequest` contract.
 ## 6. Monitoring Endpoints
 
 Both endpoints require auth:
+
 - `GET /api/monitoring/session-timeout-status`
 - `GET /api/monitoring/health/session-timeout`
 
@@ -142,8 +155,7 @@ Use these for operational visibility of in-memory timeout scheduler.
 
 1. `UpdateLocation(...)` currently does not persist rescuer coordinates to database.
 2. Hub currently does not enforce authorization attributes at endpoint level.
-3. `RequestExpired` notification method exists in service, but production timeout path currently does not push this event.
-4. FCM fallback is not integrated yet in production path.
+3. FCM fallback is not integrated yet in production path.
 
 ## 8. Planned Changes in RT-2 (Not Active Yet)
 

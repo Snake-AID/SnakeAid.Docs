@@ -11,9 +11,9 @@
 - **Networking Core**: Uses SignalR connection via `signalr_netcore`
 - **Authentication**: Requires valid `access_token`
 
-## 3. Backend Endpoints Consumed (SignalR Hub)
+## 3. SignalR Integration Strategy
 
-### Rescuer Hub (`/rescuer-hub`)
+### Rescuer Hub Connection (`/rescuer-hub`)
 
 - **Transport**: WebSockets / SignalR
 - **Auth**: Required (Bearer Token)
@@ -28,6 +28,7 @@
 | `RequestTaken`     | Another rescuer won      | No       |                                        |
 | `RequestCancelled` | Patient cancelled        | No       |                                        |
 | `RequestRejected`  | Acknowledgment of reject | No       |                                        |
+| `RequestExpired`   | Request session expired  | No       | Backend sends when request times out   |
 | `RequestError`     | Operation failure        | No       |                                        |
 | `LocationUpdated`  | Server ack of location   | No       | Useful for debug tracking              |
 
@@ -35,8 +36,9 @@
 
 | Method Name      | Arguments                                            | Notes                               |
 | ---------------- | ---------------------------------------------------- | ----------------------------------- |
-| `JoinAsRescuer`  | `(string userId)`                                    | Must be called after SignalR starts |
-| `UpdateLocation` | `(string userId, double latitude, double longitude)` | Requires 10s client throttling      |
+| `JoinAsRescuer`  | `(String userId)`                                    | Must be called after SignalR starts |
+| `UpdateLocation` | `(String userId, double latitude, double longitude)` | Requires 10s client throttling      |
+| `AcceptRequest`  | `(String requestId, String rescuerId)`               | Rescuer accepts the mission         |
 
 ## 4. DTO Mapping Table
 
@@ -44,14 +46,14 @@ _(No complex REST DTOs for LT-1 ingestion route. Only primitive types sent to Hu
 
 ### NewRescueRequest Event Payload Example (from UsageGuide)
 
-| Backend Field   | Dart Field      | Nullable | Notes                     |
-| --------------- | --------------- | -------- | ------------------------- |
-| `requestId`     | `requestId`     | No       | Guid String               |
-| `sessionId`     | `sessionId`     | No       | Guid String               |
-| `incidentId`    | `incidentId`    | No       | Guid String               |
-| `radiusKm`      | `radiusKm`      | No       | Integer                   |
-| `expiredAt`     | `expiredAt`     | No       | DateTime string (ISO8601) |
-| `requestSentAt` | `requestSentAt` | No       | DateTime string (ISO8601) |
+| JSON Field      | Dart Field      | Dart Type  | Notes                                 |
+| --------------- | --------------- | ---------- | ------------------------------------- |
+| `requestId`     | `requestId`     | `String`   | Guid format string                    |
+| `sessionId`     | `sessionId`     | `String`   | Guid format string                    |
+| `incidentId`    | `incidentId`    | `String`   | Guid format string                    |
+| `radiusKm`      | `radiusKm`      | `int`      |                                       |
+| `expiredAt`     | `expiredAt`     | `DateTime` | Parsed from DateTime string (ISO8601) |
+| `requestSentAt` | `requestSentAt` | `DateTime` | Parsed from DateTime string (ISO8601) |
 
 ## 5. Repository / Service Surface
 
@@ -61,6 +63,7 @@ _(No complex REST DTOs for LT-1 ingestion route. Only primitive types sent to Hu
 - `connect()`
 - `joinAsRescuer(String userId)`
 - `updateLocation(String userId, double lat, double lng)`
+- `acceptRequest(String requestId, String rescuerId)`
 
 ### `LocationManager`
 
