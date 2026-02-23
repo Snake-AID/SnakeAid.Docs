@@ -14,6 +14,8 @@ This document defines the architectural rules for the core networking layer in S
 - **Scope**: Acts as a dedicated service for fast pre-flight connection testing.
 - **Fail-Fast Mechanism**: Configured with a very strict 2-second timeout. It pings the `/health` backend endpoint.
 - **Global Integration**: It is directly injected into `HttpService`. Before any `GET`, `POST`, `PUT`, or `DELETE` request is sent, a health check ping is executed. If the server is offline, it fails instantly with a timeout exception, sparing the user from waiting the standard 30-second limit of `HttpService`.
+- **TTL Cache**: Results are cached for **15 seconds** (configurable via `cacheTtl` constructor param). Subsequent requests within the same window reuse the cached result without pinging the server again — reducing overhead for burst request flows (e.g., login → getCurrentUser → refreshToken).
+- **Cache Invalidation**: Exposes `invalidateCache()` to force a re-check on the next call (e.g., after a network connectivity change).
 
 ## 3. Configuration & Dependency Injection
 

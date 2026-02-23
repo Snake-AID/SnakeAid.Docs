@@ -10,7 +10,7 @@ created_at: 2026-02-23
 
 ## 1. Objective
 
-Implement a read-only ASP.NET Core Razor Pages dashboard (`LiveTrackingMonitor.cshtml`) that visualizes real-time SignalR events from `RescuerHub`. This dashboard acts as a "God Mode/Admin View" for QA and developers to observe Flutter client behavior without manually querying the database.
+Implement a read-only ASP.NET Core Razor Pages dashboard (`Index.cshtml`) that visualizes real-time SignalR events from `RescuerHub`. This dashboard acts as a "God Mode/Admin View" for QA and developers to observe Flutter client behavior without manually querying the database.
 
 ## 2. Requirements
 
@@ -18,13 +18,15 @@ Implement a read-only ASP.NET Core Razor Pages dashboard (`LiveTrackingMonitor.c
 
 **`SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml` (New)**
 
-- Create a UI with 4 main components:
-  1.  **Connection Table**: Shows currently connected Rescuers.
-  2.  **Event Console**: Auto-scrolling div showing SignalR traffic (throttle logs, `LocationUpdated`).
-  3.  **Active Session Tracker**: Shows `incidentId`, `sessionId`, `radiusKm`, and a 60s countdown timer for `RequestExpired`.
-  4.  **Race Condition Log**: Highlights the winner of `AcceptRequest`.
+- Create a UI with a 3-Tab main area and a sidebar:
+  1.  **Tab 1 — Connected Rescuers**: Card grid of rescuers currently in SignalR hub. Cards show Avatar/Name/Type/Rating/TotalMissions, a **Ping Timer** circle, SignalR/IsOnline status pills, and live Lat/Lng pills that blink on update.
+  2.  **Tab 2 — Ghost Scanner**: Rescuers with `IsOnline=true` in DB but absent from Hub (state drift). Trigger via `?handler=Ghosts`.
+  3.  **Tab 3 — All Rescuers**: Full DB list via `?handler=AllRescuers`; offline cards are dimmed.
+  4.  **Sidebar — Active Incident Tracker**: Shows `incidentId`, `sessionId`, `radiusKm`, 60s countdown bar on `NewRescueRequest`.
+  5.  **Sidebar — Event Console**: Auto-scrolling terminal log for all SignalR events.
+- `createRescuerCard(rescuer)` supports both a plain `id` string (placeholder, from early `LocationUpdated`) and a full object (from `AdminLog/RescuerJoined`). When a card already exists and richer data arrives, call `updateRescuerCard(id, rescuer)` to upgrade placeholder content in-place.
 - Do NOT require manual input of JWT. Read the auto-generated token from the Model.
-- Include a "Connect as Admin" button to initialize `@microsoft/signalr` (or auto-connect on page load).
+- Auto-connect on page load (no manual button required).
 
 **`SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml.cs` (New)**
 
@@ -44,12 +46,15 @@ Implement a read-only ASP.NET Core Razor Pages dashboard (`LiveTrackingMonitor.c
   - Connect to `/rescuer-hub` using the provided JWT.
   - Call `JoinAsMonitor` on connect.
 - **Event Listeners**:
-  - `AdminLog`: Print to the Event Console.
-  - `NewRescueRequest`: Update "Active Session Tracker" and start the 60s countdown progress bar.
-  - `RequestAccepted`: Log the winner to the Console and Race Condition panel.
-  - `RequestExpired`: Reset countdown and log failure to the Console.
-  - `ConnectedRescuers`: Refresh the Connection Table.
-  - `LocationUpdated`: Log to Console (to verify 10s throttling).
+  - `ConnectedRescuers`: Sync initial card grid from Hub state on join.
+  - `AdminLog` (types: `RescuerJoined`, `RescuerDisconnected`, `MonitorJoined`): Create/remove rescuer cards and log to Console.
+  - `LocationUpdated`: Update Lat/Lng pills, restart Ping Timer. If card doesn't exist yet, call `createRescuerCard(data.userId)` to create a placeholder.
+  - `NewRescueRequest`: Update Active Incident Tracker, start 60s countdown, mark targeted rescuer card as `PINGED`.
+  - `RequestAccepted`: Log winner and mark card as `BUSY (MISSION)`.
+  - `RequestTaken`: Mark losing rescuer card back to `IDLE`.
+  - `RequestExpired`: Reset countdown, mark card back to `IDLE`.
+  - `RequestCancelled`: Hide Incident Tracker, reset all `PINGED` cards to `IDLE`.
+- **Reconnect**: Attach `connection.onreconnected(async () => { await connection.invoke("JoinAsMonitor"); })` after `.build()` to restore Monitor group membership after any automatic reconnect.
 
 ## 3. Constraints & Rules
 

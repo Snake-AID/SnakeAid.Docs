@@ -5,8 +5,11 @@ type: FEAT
 status: done
 created_at: 2026-02-23
 affects:
-  - SnakeAid.Api/Pages/Demo
+  - SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml
+  - SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml.cs
   - SnakeAid.Api/Hubs/RescuerHub.cs
+  - SnakeAid.Api/Services/SignalRRescueNotificationService.cs
+  - SnakeAid.Service/Implements/RescuerLocationService.cs
 ---
 
 # Plan: Live Tracking Monitoring Dashboard
@@ -43,7 +46,7 @@ Trang Monitor sẽ được bố cục lại theo hướng Component-based, lo�
 
 Mỗi **Rescuer Card (Tab 1)** bao gồm:
 
-1. **Header**: Avatar, FullName, PhoneNumber, và Badge hiển thị loại Rescuer. Đi kèm là **Status Badge** chỉ báo trạng thái luân chuyển (IDLE / PINGED / BUSY).
+1. **Header**: Avatar, FullName, và Badge hiển thị loại Rescuer (Type), Rating (⭐), TotalMissions (🚑). Đi kèm là **Status Badge** chỉ báo trạng thái luân chuyển (IDLE / PINGED / BUSY).
 2. **Ping Timer**: Một vòng tròn đếm ngược 10 giây. Nó sẽ lặp lại mỗi khi nhận được sự kiện `LocationUpdated`. Nếu quá 10s không có ping (do logic tối ưu pin <10 mét của Flutter), vòng tròn sẽ chuyển sang màu xỉn (stale) để báo hiệu người dùng đang đứng yên thay vì mất mạng.
 3. **Metrics Area**: Khu vực dải thẻ (Pills) nằm dưới cùng, gộp chung các thông số để tiết kiệm diện tích và dễ nhìn:
    - 📡 **Websocket**: `SignalR` (Màu xanh nếu connected)
@@ -75,11 +78,11 @@ Theo dõi tiến độ chung của hệ thống khi có 1 ca cấp cứu (Incide
 
 ## 4. Impacted Components
 
-- **Affected Pages:**
-- `SnakeAid.Api/Pages/Demo/RescueDemo.cshtml` (add link to monitor)
-- **New:** `SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml` (Giao diện 3 khu vực + AJAX logic)
-- **New:** `SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml.cs` (Cấp Token + Cung cấp Handlers `OnGetGhostsAsync` & `OnGetAllRescuersAsync`)
-- **Modified:** `SnakeAid.Api/Hubs/RescuerHub.cs` (Sạch sẽ, chỉ thuần túy phát sóng RT event như `LocationUpdated`, `RescuerJoined`, không chứa logic truy xuất DB nặng ngoài trừ lúc Join/Disconnect).
+- **New:** `SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml` — Giao diện 3 Tab (Connected / Ghost Scanner / All Rescuers) + toàn bộ SignalR JS + AJAX logic.
+- **New:** `SnakeAid.Api/Pages/Admin/LiveTracking/Index.cshtml.cs` — Cấp JWT Admin token qua `AdminToken` property; handlers `OnGetGhostsAsync` & `OnGetAllRescuersAsync`.
+- **Modified:** `SnakeAid.Api/Hubs/RescuerHub.cs` — Thêm `JoinAsMonitor()`, `GetConnectedRescuers()`, và instrumentation phát `AdminLog` tới nhóm `"Monitors"` tại `JoinAsRescuer`, `AcceptRequest`, `OnDisconnectedAsync`. `UpdateLocation` phát `LocationUpdated` tới `Clients.Caller` và `Clients.Group("Monitors")`.
+- **Modified:** `SnakeAid.Api/Services/SignalRRescueNotificationService.cs` — Thêm hỗ trợ phát `NewRescueRequest`, `RequestTaken`, `RequestCancelled`, `RequestExpired` tới nhóm `"Monitors"`.
+- **Modified:** `SnakeAid.Service/Implements/RescuerLocationService.cs` — Throttle window sử dụng `_throttleInterval` từ cấu hình (`LocationUpdate:ThrottleIntervalSeconds`, mặc định 10s).
 
 ## 5. Risks & Constraints
 
@@ -92,3 +95,16 @@ Theo dõi tiến độ chung của hệ thống khi có 1 ca cấp cứu (Incide
 2. **UC2**: Trigger location update stream on AVD. Monitor console shows updates arriving and verifies logs aren't spamming faster than throttle policy.
 3. **UC3 & UC4**: Trigger SOS. Monitor displays Session 1 and 60s countdown. Wait 60s. Monitor displays logic advancing to Session 2.
 4. **UC5**: Connect 2 AVDs. Trigger SOS. Both receive it. AVD 1 accepts. AVD 2 accepts 1s later. Monitor explicitly logs AVD 1 as winner and AVD 2 receiving `RequestTaken`.
+
+## 7. Post-Implementation Bug Fixes
+
+Các lỗi sau được phát hiện và vá sau khi feature được deliver:
+
+| File                                  | Bug                                                                                                                                                             | Fix                                                                                                                                                      |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RescuerHub.cs` · `UpdateLocation`    | Sau khi GUID parse thất bại, code vẫn tiếp tục log success và broadcast tới Caller/Monitors                                                                     | Moved log + `SendAsync` calls vào bên trong nhánh GUID hợp lệ; nhánh `else` chỉ log warning rồi kết thúc                                                 |
+| `Index.cshtml` · `startPingTimer`     | `clearInterval(connectedRescuers[id].timerInterval)` được gọi sau khi đã xác nhận `connectedRescuers[id]` là falsy → TypeError                                  | Dùng `const intervalId = setInterval(...)` local closure; guard bên trong tick bằng `if (!connectedRescuers[id]) { clearInterval(intervalId); return; }` |
+| `Index.cshtml` · `createRescuerCard`  | Early-return khi card đã tồn tại khiến placeholder card (từ `LocationUpdated`) chặn dữ liệu đầy đủ hơn từ `AdminLog/RescuerJoined`                              | Thêm `updateRescuerCard(id, rescuer)` helper; `createRescuerCard` gọi helper thay vì return sớm                                                          |
+| `Index.cshtml` · reconnect            | `withAutomaticReconnect()` được dùng nhưng không có `onreconnected` handler → mất membership nhóm Monitors sau mỗi reconnect                                    | Thêm `connection.onreconnected(async () => { await connection.invoke("JoinAsMonitor"); })`                                                               |
+| `SignalRRescueNotificationService.cs` | `Monitors` broadcast của `RequestTaken`, `RequestCancelled`, `RequestExpired` nằm bên trong `TryGetValue` guard → dashboard bỏ lỡ events khi rescuer đã offline | Chuyển `Clients.Group("Monitors").SendAsync(...)` ra ngoài `TryGetValue` block                                                                           |
+| `RescuerLocationService.cs`           | Cache expiry hardcode `TimeSpan.FromSeconds(5)` — ngắn hơn `_throttleInterval` (10s) → throttle bị vô hiệu hóa trong nửa sau cửa sổ                             | Thay bằng `_memoryCache.Set(cacheKey, DateTime.UtcNow, _throttleInterval)`                                                                               |
