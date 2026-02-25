@@ -3,7 +3,7 @@ doc_role: baseline
 module: video-call
 kind: feature
 status: active
-last_updated: 2026-02-24
+last_updated: 2026-02-25
 owners: [mobile-team]
 backend_reference:
   module: live-kit-cloud
@@ -36,22 +36,29 @@ This feature enables real-time video calling between Patient↔Expert and Rescue
 
 ## 2. Backend Endpoints Consumed
 
-| Endpoint                             | Method | Auth         | Purpose                                              | Backend Ref                          |
-| ------------------------------------ | ------ | ------------ | ---------------------------------------------------- | ------------------------------------ |
-| `/api/consultation/{id}/video-token` | POST   | Bearer (JWT) | Generate LiveKit access token for joining video room | `live-kit-cloud.usageguide.md` (TBD) |
+All endpoints are under `VideoCallController` (route prefix: `api/videocall`).
 
-### Token Response DTO
+| #   | Endpoint                                        | Method | Auth           | Purpose                                           | Backend Ref            |
+| --- | ----------------------------------------------- | ------ | -------------- | ------------------------------------------------- | ---------------------- |
+| 1   | `/api/videocall/livekit-token/{consultationId}` | POST   | Bearer (JWT)   | Generate LiveKit token for a consultation session | `FEAT-video-call`      |
+| 2   | `/api/videocall/livekit-webhook`                | POST   | AllowAnonymous | Receive LiveKit event webhooks (server-side only) | `FEAT-video-call`      |
+| 3   | `/api/videocall/livekit-token/demo/{roomname}`  | POST   | Bearer (JWT)   | **[DEV]** Generate token with custom room name    | `FEAT-video-call-demo` |
+
+> [!IMPORTANT]
+> Endpoint 2 (webhook) is server-to-server — Flutter does NOT call this endpoint. It is listed here for reference only.
+
+> [!NOTE]
+> Endpoint 3 (demo) bypasses consultation validation. It accepts any `{roomname}` string and uses the authenticated user's `userId` + `role` from JWT. Intended for development/testing when the Consultation module is not ready.
+
+### Token Response DTO (Endpoint 1 & 3)
 
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIs...",
   "wsUrl": "wss://{{PROJECT_ID}}.livekit.cloud",
-  "roomName": "consultation-{consultationId}"
+  "roomName": "consultation-{consultationId}" // or custom {roomname} for demo
 }
 ```
-
-> [!NOTE]
-> Backend usageguide is not yet available (code not implemented). This section will be updated with exact response format and status codes once the backend endpoint is built.
 
 ---
 
@@ -71,7 +78,7 @@ This feature enables real-time video calling between Patient↔Expert and Rescue
 
 ```yaml
 dependencies:
-  livekit_client: ^2.6.3
+  livekit_client: ^2.5.4
 ```
 
 **Package**: [livekit_client on pub.dev](https://pub.dev/packages/livekit_client)
@@ -173,8 +180,8 @@ platform :ios, '12.1'
 ### Detailed Flow
 
 1. **User taps "Join Call"** → UI triggers provider
-2. **Provider** calls `VideoCallRepository.getToken(consultationId)`
-3. **Repository** makes HTTP request to backend `/api/consultation/{id}/video-token`
+2. **Provider** calls `VideoCallRepository.getVideoToken(consultationId)` (or `getDemoVideoToken(roomName)` for dev testing)
+3. **Repository** makes HTTP request to backend `/api/videocall/livekit-token/{consultationId}` (or `.../demo/{roomname}`)
 4. **Backend** validates ownership, returns `{ token, wsUrl, roomName }`
 5. **Provider** creates `Room()` instance, calls `room.connect(wsUrl, token)`
 6. **Provider** enables camera + microphone via `room.localParticipant.setCameraEnabled(true)`
@@ -190,14 +197,14 @@ platform :ios, '12.1'
 ### Connecting to a Room
 
 ```dart
-final room = Room();
-final roomOptions = RoomOptions(
+final roomOptions = const RoomOptions(
   adaptiveStream: true,
   dynacast: true,
 );
+final room = Room(roomOptions: roomOptions);
 
 await room.prepareConnection(wsUrl, token);
-await room.connect(wsUrl, token, roomOptions: roomOptions);
+await room.connect(wsUrl, token);
 
 await room.localParticipant?.setCameraEnabled(true);
 await room.localParticipant?.setMicrophoneEnabled(true);

@@ -1,4 +1,5 @@
 # 🤖 AGENT MEMORY: Backend Documentation Protocol
+
 # SnakeAid — Baseline + Operations Model
 
 > SYSTEM INSTRUCTION (STRICT)
@@ -17,15 +18,15 @@ SnakeAid documentation is organized by **Flows** and **Layers**:
 
 ## 1) Vertical Flows (`01-flows/`)
 
-* **Concept**: User journeys spanning multiple layers.
-* **Naming**: `P{Priority}-{FlowName} / S{Sequence}-{SubFlowName}`
-* **Example**: `01-flows/P1-emergency/S1-identified/`
+- **Concept**: User journeys spanning multiple layers.
+- **Naming**: `P{Priority}-{FlowName} / S{Sequence}-{SubFlowName}`
+- **Example**: `01-flows/P1-emergency/S1-identified/`
 
 ## 2) Horizontal Layers (`02-layers/`)
 
-* **Concept**: Technical infrastructure shared across flows.
-* **Naming**: lowercase, kebab-case
-* **Example**: `02-layers/aspnet-identity/`
+- **Concept**: Technical infrastructure shared across flows.
+- **Naming**: lowercase, kebab-case
+- **Example**: `02-layers/aspnet-identity/`
 
 ---
 
@@ -75,9 +76,9 @@ Represents the system **as it exists in code right now**.
 
 Baseline files:
 
-* `*.introduction.md`
-* `*.sourcecode.md` (CRITICAL)
-* `*.usageguide.md`
+- `*.introduction.md`
+- `*.sourcecode.md` (CRITICAL)
+- `*.usageguide.md`
 
 Baseline must NEVER contain future plans.
 
@@ -85,21 +86,21 @@ Baseline must NEVER contain future plans.
 
 Represents **intentional changes** to the baseline.
 
-* Each operation is isolated in its own folder.
-* Operations are append-only artifacts.
-* Do not merge unrelated changes into one operation.
-* Do not overwrite historical operations.
+- Each operation is isolated in its own folder.
+- Operations are append-only artifacts.
+- Do not merge unrelated changes into one operation.
+- Do not overwrite historical operations.
 
 ---
 
 # 🚦 Quick Rules (Non-Negotiable)
 
-* Baseline describes current reality only.
-* Operations describe change intent only.
-* Never mix future plans into baseline.
-* Always update baseline after implementation.
-* Never store secrets in documentation.
-* UTF-8 only (no BOM).
+- Baseline describes current reality only.
+- Operations describe change intent only.
+- Never mix future plans into baseline.
+- Always update baseline after implementation.
+- Never store secrets in documentation.
+- UTF-8 only (no BOM).
 
 ---
 
@@ -109,10 +110,10 @@ Represents **intentional changes** to the baseline.
 
 Purpose:
 
-* Domain context
-* Business rules / invariants
-* Scope / out-of-scope
-* Non-functional requirements
+- Domain context
+- Business rules / invariants
+- Scope / out-of-scope
+- Non-functional requirements
 
 Explains WHY the module exists.
 
@@ -122,19 +123,19 @@ Compressed Source of Truth.
 
 Must reflect:
 
-* Public API surface (endpoints / public services)
-* Key signatures
-* Entities and schema
-* Relationships (Mermaid allowed)
-* Invariants and guarantees
-* Cross-cutting concerns (auth, logging, caching)
+- Public API surface (endpoints / public services)
+- Key signatures
+- Entities and schema
+- Relationships (Mermaid allowed)
+- Invariants and guarantees
+- Cross-cutting concerns (auth, logging, caching)
 
 Rules:
 
-* No TODOs
-* No future plans
-* No “about to implement”
-* Only what exists in code
+- No TODOs
+- No future plans
+- No “about to implement”
+- Only what exists in code
 
 ## 3) `<module>.usageguide.md`
 
@@ -142,11 +143,11 @@ External contract for consumers.
 
 Includes:
 
-* Endpoints
-* Request/Response examples
-* Status codes
-* Error catalog
-* Auth requirements
+- Endpoints
+- Request/Response examples
+- Status codes
+- Error catalog
+- Auth requirements
 
 Update whenever contract changes.
 
@@ -159,26 +160,29 @@ Every change MUST be implemented through an operation folder:
 ## Operation Folder Naming
 
 ```
-{TYPE}-{short-slug}
+{NN}-{TYPE}-{short-slug}
 ```
+
+Where `{NN}` is a **sequential zero-padded number** (01, 02, 03...) based on creation order within the module.
 
 Allowed TYPE:
 
-* FEAT
-* FIX
-* REFACTOR
-* PERF
-* SECURITY
-* HOTFIX
+- FEAT
+- FIX
+- REFACTOR
+- PERF
+- SECURITY
+- HOTFIX
 
 Examples:
 
-* `FEAT-refresh-token`
-* `FIX-null-claim`
-* `SECURITY-rate-limit`
+- `01-FEAT-refresh-token`
+- `02-FIX-null-claim`
+- `03-SECURITY-rate-limit`
 
 Do NOT include dates in folder names.
 Dates belong in metadata.
+Always check existing operations to determine the next sequence number.
 
 ---
 
@@ -197,13 +201,13 @@ Written BEFORE implementation.
 
 Purpose:
 
-* Read baseline
-* Assess current state (As-Is)
-* Define gap
-* Define To-Be direction/design
-* List impacted components
-* Define risks/constraints
-* Define validation plan
+- Read baseline
+- Assess current state (As-Is)
+- Define gap
+- Define To-Be direction/design
+- List impacted components
+- Define risks/constraints
+- Define validation plan
 
 REQUIRED STRUCTURE:
 
@@ -220,16 +224,16 @@ Generated FROM plan.md.
 
 Purpose:
 
-* Convert plan into precise machine instructions
-* Define required outputs
-* Define forbidden changes
-* Define test requirements
+- Convert plan into precise machine instructions
+- Define required outputs
+- Define forbidden changes
+- Define test requirements
 
 Rules:
 
-* No secrets
-* No environment-specific values
-* Do not modify unrelated modules
+- No secrets
+- No environment-specific values
+- Do not modify unrelated modules
 
 ---
 
@@ -240,9 +244,9 @@ Rules:
 3. Generate prompt.md.
 4. Implement code.
 5. Update baseline:
+   - `<module>.sourcecode.md`
+   - `<module>.usageguide.md`
 
-   * `<module>.sourcecode.md`
-   * `<module>.usageguide.md`
 6. Mark operation status as `done`.
 
 Operations are historical artifacts.
@@ -272,7 +276,7 @@ owners: [backend-team]
 doc_role: operation
 operation_id: FEAT-refresh-token
 type: FEAT
-status: draft   # draft | approved | in_progress | done
+status: draft # draft | approved | in_progress | done
 created_at: YYYY-MM-DD
 affects:
   - Controllers/AuthController
@@ -298,20 +302,20 @@ created_at: YYYY-MM-DD
 
 Never write secrets into docs:
 
-* API keys, tokens, passwords, private certs, JWT secrets
-* Internal IPs/hostnames, production URLs, personal data
+- API keys, tokens, passwords, private certs, JWT secrets
+- Internal IPs/hostnames, production URLs, personal data
 
 Always use placeholders:
 
-* `{{JWT_SECRET}}`, `{{DB_PASSWORD}}`, `https://api.example.com`
+- `{{JWT_SECRET}}`, `{{DB_PASSWORD}}`, `https://api.example.com`
 
 ---
 
 # 📅 Encoding Hygiene (UTF-8 only)
 
-* All markdown files MUST be UTF-8 (no BOM).
-* If mojibake occurs, repair once with `ftfy.fix_encoding`.
-* Do not keep alternate encodings in the repo.
+- All markdown files MUST be UTF-8 (no BOM).
+- If mojibake occurs, repair once with `ftfy.fix_encoding`.
+- Do not keep alternate encodings in the repo.
 
 ---
 
@@ -323,10 +327,9 @@ When working on a module:
 2. Read `<module>.introduction.md`.
 3. Read `<module>.sourcecode.md`.
 4. If you need changes:
-
-   * Create a new `operations/{TYPE}-{slug}/`
-   * Write `plan.md` → generate `prompt.md`
-   * Do NOT edit baseline until implementation completes.
+   - Create a new `operations/{TYPE}-{slug}/`
+   - Write `plan.md` → generate `prompt.md`
+   - Do NOT edit baseline until implementation completes.
 
 This minimizes tokens and prevents drift.
 

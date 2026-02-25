@@ -1,16 +1,17 @@
 ---
 doc_role: operation
-operation_id: FEAT-integrate-video-call
+operation_id: FEAT-integrate-video-call-demo
 generated_from: plan.md
 status: draft
-created_at: 2026-02-24
+created_at: 2026-02-25
 ---
 
-# FEAT-integrate-video-call — Flutter Prompt
+# FEAT-integrate-video-call-demo — Flutter Prompt
 
 ## Objective
 
-Integrate LiveKit Cloud video call into SnakeAid Flutter app.
+Implement standalone demo video call screen using LiveKit Cloud.
+Uses `livekit-token/demo/{roomname}` endpoint (bypasses consultation validation).
 Follow existing codebase conventions strictly.
 
 ## Code Culture Rules (MUST FOLLOW)
@@ -21,6 +22,7 @@ Follow existing codebase conventions strictly.
 | Subfolder structure | `models/`, `providers/`, `repository/`, `screens/`, `widgets/` | All feature folders                                 |
 | Shared services     | `lib/core/services/{name}_service.dart`                        | `rescuer_signalr_service.dart`, `http_service.dart` |
 | HTTP provider       | Import from `core/providers/http_provider.dart`                | `httpServiceProvider`                               |
+| Routing             | `go_router` in `lib/app/router.dart`                           | All routes                                          |
 | File naming         | `snake_case.dart`                                              | All .dart files                                     |
 | Riverpod            | `Provider<T>((ref) { ... })` for services                      | `http_provider.dart`                                |
 
@@ -31,7 +33,7 @@ Follow existing codebase conventions strictly.
 ```yaml
 # pubspec.yaml
 dependencies:
-  livekit_client: ^2.6.3
+  livekit_client: ^2.5.4
 ```
 
 Run `flutter pub get`.
@@ -79,13 +81,13 @@ class LiveKitService {
 
   /// Connect to a LiveKit room
   Future<Room> connect(String wsUrl, String token) async {
-    _room = Room();
-    final options = RoomOptions(
+    final options = const RoomOptions(
       adaptiveStream: true,
       dynacast: true,
     );
+    _room = Room(roomOptions: options);
     await _room!.prepareConnection(wsUrl, token);
-    await _room!.connect(wsUrl, token, roomOptions: options);
+    await _room!.connect(wsUrl, token);
     _listener = _room!.createListener();
     return _room!;
   }
@@ -145,14 +147,18 @@ class VideoCallRepository {
 
   VideoCallRepository(this._httpService);
 
-  Future<VideoTokenResponse> getVideoToken(String consultationId) async {
+  /// [DEV] Fetch video token for testing with custom room name
+  Future<VideoTokenResponse> getDemoVideoToken(String roomName) async {
     final response = await _httpService.post(
-      '/api/livekit/consultation/$consultationId/video-token',
+      '/api/videocall/livekit-token/demo/$roomName',
     );
     return VideoTokenResponse.fromJson(response.data);
   }
 }
 ```
+
+> [!NOTE]
+> `getVideoToken(consultationId)` will be added in Operation 2 (`FEAT-integrate-video-call-consultation`).
 
 ### 6. Providers — `lib/features/video_call/providers/video_call_provider.dart`
 
@@ -172,39 +178,57 @@ final videoCallRepositoryProvider = Provider<VideoCallRepository>((ref) {
   return VideoCallRepository(ref.read(httpServiceProvider));
 });
 
-// State management for video call UI
+// State management for demo video call UI
 // Follow existing provider patterns in the codebase
 ```
 
-### 7. Screens — `lib/features/video_call/screens/`
+### 7. Screen — `lib/features/video_call/screens/demo_video_call_screen.dart`
 
-**`pre_call_screen.dart`**:
+Single screen with state transitions:
 
-- Request camera/mic permissions
-- Show local camera preview
-- Mute toggles before joining
-- "Join Call" button → fetch token + connect
+**Idle state**:
 
-**`in_call_screen.dart`**:
+- `TextField` for room name input
+- "Join Call" button
+- Request camera/mic permissions on tap
 
-- Local video (small overlay)
-- Remote video (full screen)
-- Controls: mute mic, toggle camera, end call, flip camera
+**Connecting state**:
+
+- Loading indicator
+- "Connecting to room..."
+
+**Connected state**:
+
+- Remote video (full screen) — or "Waiting for participant..." placeholder
+- Local video (small PiP overlay, bottom-right)
+- Bottom controls bar: mute mic, toggle camera, flip camera, end call
 - Connection quality indicator
-- "Reconnecting..." overlay on disconnect
-- "Waiting for participant..." when alone
 
-**`end_call_screen.dart`**:
+**Disconnected state**:
 
-- Call duration
-- "Back to consultation" button
+- "Call ended" message
+- "Rejoin" and "Back" buttons
 
 ### 8. Widgets — `lib/features/video_call/widgets/`
 
-**`video_tile.dart`**: Wraps `VideoTrackRenderer` with participant info overlay
-**`call_controls.dart`**: Bottom bar with mute/camera/end buttons
+**`video_tile.dart`**: Wraps `VideoTrackRenderer` with participant info overlay.
+Designed to be reusable in Operation 2's `InCallScreen`.
 
-### 9. Permission Helper
+**`call_controls.dart`**: Bottom bar with mute/camera/end buttons.
+Designed to be reusable in Operation 2's `InCallScreen`.
+
+### 9. Route — Add to `lib/app/router.dart`
+
+```dart
+// === VIDEO CALL DEMO ROUTE ===
+GoRoute(
+  path: '/demo-video-call',
+  name: 'demo_video_call',
+  builder: (context, state) => const DemoVideoCallScreen(),
+),
+```
+
+### 10. Permission Helper
 
 ```dart
 import 'package:permission_handler/permission_handler.dart';
@@ -229,11 +253,12 @@ Future<bool> requestVideoCallPermissions() async {
 - Do NOT duplicate error handling — use `HttpService` interceptors
 - Do NOT hardcode WebSocket URLs — use backend-provided `wsUrl`
 - Do NOT store LiveKit API keys in Flutter
-- Do NOT create custom endpoint constants if codebase uses inline strings
+- Do NOT implement `getVideoToken(consultationId)` — that is Operation 2
+- Do NOT create PreCallScreen/InCallScreen/EndCallScreen — those are Operation 2
 
 ## Test Requirements
 
-- Widget test: `PreCallScreen` permission flow
-- Widget test: `InCallScreen` video tile rendering
-- Unit test: `VideoCallRepository.getVideoToken()` DTO parsing
+- Widget test: `DemoVideoCallScreen` room name input + join flow
+- Unit test: `VideoCallRepository.getDemoVideoToken()` DTO parsing
 - Unit test: `LiveKitService.connect()` Room creation
+- Integration test: demo endpoint → connect to LiveKit room → verify video track

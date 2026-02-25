@@ -202,8 +202,11 @@ Operations live under a feature, not as a peer category.
 Folder naming:
 
 ```
-{TYPE}-{short-slug}
+{NN}-{TYPE}-{short-slug}
 ```
+
+Where `{NN}` is a **sequential zero-padded number** (01, 02, 03...) based on creation order within the feature.
+Always check existing operations to determine the next sequence number.
 
 Allowed TYPE:
 
