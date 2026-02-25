@@ -133,6 +133,7 @@ Each feature documentation lives under:
 ```
 Docs/06-Flutter/02-Features/<feature>/
   <feature>.integration.md
+  <feature>.function-graph.md (optional)
   operations/
 ```
 
@@ -141,6 +142,7 @@ Example:
 ```
 Docs/06-Flutter/02-Features/auth/
   auth.integration.md
+  auth.function-graph.md
   operations/
     FEAT-integrate-refresh-token/
       plan.md
@@ -191,6 +193,33 @@ RULES:
 - Do NOT duplicate backend usageguide.
 - Do NOT redefine backend schema.
 - Only describe integration assumptions.
+
+---
+
+## <feature>.function-graph.md (Optional Supplement)
+
+This document serves as a high-level code architecture reference for how a feature's components interact at the Flutter client level.
+It MUST document:
+
+1. Sequence Diagram
+
+- Use Mermaid syntax (`sequenceDiagram`)
+- Clearly map out interactions between UI (Widgets), State Management (Providers), Managers/Services, and Backend APIs
+
+2. Core Components and Logic
+
+- List the key files and classes involved
+- Describe their responsibilities (e.g., Trigger, Service Manager, Network Service)
+- Explain complex internal logic (e.g., Throttling, Permission Handling)
+
+3. Architecture Overview
+
+- Summarize the Separation of Concerns (SoC) for the feature.
+
+RULES:
+
+- Do NOT duplicate `.integration.md` (which maps the contract). Focus exclusively on the codebase execution flow.
+- Use this primarily for complex features that span across multiple layers (UI, Provider, Core Service).
 
 ---
 
