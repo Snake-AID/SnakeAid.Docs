@@ -89,3 +89,19 @@ Container(
 - **Member App**: Navigate to the Home Screen. Scroll to the bottom and verify the "Video Call Demonstration" block appears. Tapping the button should navigate to the Demo Video Call Screen without breaking the back navigation stack.
 - **Rescuer App**: Repeat the above steps.
 - **Expert App**: Repeat the above steps.
+
+## 6. Component Locator (For Future Modifications)
+
+To save time searching the codebase in the future (e.g., when removing this temporary UI for Task 2), here are the exact locations of the newly implemented "Video Call Demonstration" UI blocks:
+
+1. **`lib/features/member/screens/home_screen.dart`**
+   - **Target**: The `Container` with the `Colors.purple.shade50` background.
+   - **Location**: Inside `MemberHomeScreen`'s `build` method, located just before the `const SizedBox(height: 90), // Space for bottom nav` comment.
+
+2. **`lib/features/rescuer/screens/rescuer_home_screen.dart`**
+   - **Target**: The `Container` with the `Colors.purple.shade50` background.
+   - **Location**: Inside `_HomeTabState`'s `build` method, located exactly below the `_buildQuickAccess(),` function call.
+
+3. **`lib/features/expert/screens/expert_home_screen.dart`**
+   - **Target**: The `Container` with the `Colors.purple.shade50` background.
+   - **Location**: Inside `_HomeTabState`'s `build` method within the `SliverList` delegate, located after the `hasImage: false, ),` block and just before `const SizedBox(height: 100),`.
