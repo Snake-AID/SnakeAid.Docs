@@ -141,31 +141,111 @@ Always determine the next `{NN}` based on existing operations.
 
 # Optional Analysis Layer (For Complex Changes Only)
 
-Inside an operation folder, you MAY include:
+Inside an operation folder, you MAY include a structured analysis pack when the change involves concurrency, distributed state, complex transitions, or breaking architectural shifts.
 
 ```
 analysis/
-  01-architecture-decision.md
-  02-state-machine.md
-  03-sequence-flows.md
-  decision-log.md
+  00-analysis-structure.md          # optional but recommended for large refactors
+  01-architecture-decision.md       # ADR (mandatory if multiple design options exist)
+  02-state-machine.md               # mandatory if stateful or event-driven
+  03-sequence-flows.md              # mandatory if async / multi-actor / realtime
+  decision-log.md                   # optional stress-test / multi-agent review log
 ```
+
+## Role of Each Analysis Document
+
+### 00-analysis-structure.md (Operation-Specific Structure Declaration)
 
 Purpose:
 
-- Explore multiple solutions
-- Record trade-offs
-- Define state machines
-- Define sequence diagrams
-- Stress-test architecture before execution
+* Explains WHY this operation deviates from a simple linear plan.
+* Defines the internal document hierarchy for this specific refactor.
+* Clarifies how analysis files map into plan.md.
+
+Use when:
+
+* The operation is a breaking change.
+* Multiple artifacts are required before planning.
+
+This file governs the structure of the operation, not the system.
+
+---
+
+### 01-architecture-decision.md (ADR)
+
+Purpose:
+
+* Define the core architectural problem.
+* List alternative solutions.
+* Compare trade-offs.
+* Record final decision and mitigations.
 
 Rules:
 
-- Use analysis ONLY for complex, distributed, concurrent, or breaking changes.
-- Do NOT use for simple CRUD or small fixes.
-- analysis is NOT baseline.
-- analysis may become outdated.
-- Baseline (`*.sourcecode.md`) always overrides analysis.
+* Must clearly state the chosen option.
+* Must record rejected alternatives.
+* Must define constraints.
+
+This document captures "why this design".
+
+---
+
+### 02-state-machine.md
+
+Purpose:
+
+* Define valid states for each actor/entity.
+* Define allowed transitions.
+* Define invariants and forbidden transitions.
+* Separate presence state from persistent state (if applicable).
+
+Rules:
+
+* No ambiguous transitions.
+* Must handle cancellation, timeout, failure paths.
+* Must define edge cases explicitly.
+
+This document prevents logical drift in distributed systems.
+
+---
+
+### 03-sequence-flows.md
+
+Purpose:
+
+* Provide Mermaid sequence diagrams.
+* Visualize exact ordering of API calls, events, and hub interactions.
+* Highlight race-condition risks.
+
+Rules:
+
+* Must include happy path.
+* Must include at least critical edge cases.
+* Diagrams must reflect exact interaction timing.
+
+This document prevents async and concurrency bugs.
+
+---
+
+### decision-log.md
+
+Purpose:
+
+* Capture structured challenge/critique.
+* Record objections and mitigations.
+* Preserve reasoning history for future refactors.
+
+Optional but recommended for high-risk operations.
+
+---
+
+## Analysis Constraints
+
+* analysis documents are NOT baseline.
+* analysis may become outdated after further operations.
+* Baseline (`*.sourcecode.md`) always overrides analysis artifacts.
+* plan.md MUST explicitly reference relevant analysis files.
+* prompt.md MUST NOT bypass analysis decisions.
 
 Lifecycle:
 analysis → plan → prompt → implementation → baseline update
