@@ -1,38 +1,36 @@
-# 🤖 AGENT MEMORY: Backend Documentation Protocol
+# AGENT MEMORY: Backend Documentation Protocol
 
 # SnakeAid — Baseline + Operations Model
 
 > SYSTEM INSTRUCTION (STRICT)
->
 > This file defines the official documentation standard for SnakeAid Backend.
 > You MUST follow this protocol when creating, reading, or updating documentation.
->
 > This system is designed for an AI-generated-first workflow.
 > It prevents document drift, context mixing, and historical corruption.
 
 ---
 
-# 📂 Repo Folder Structure (READ FIRST)
+# Repo Folder Structure (READ FIRST)
 
-SnakeAid documentation is organized by **Flows** and **Layers**:
+SnakeAid documentation is organized by Flows and Layers:
 
 ## 1) Vertical Flows (`01-flows/`)
 
-- **Concept**: User journeys spanning multiple layers.
-- **Naming**: `P{Priority}-{FlowName} / S{Sequence}-{SubFlowName}`
-- **Example**: `01-flows/P1-emergency/S1-identified/`
+- Concept: User journeys spanning multiple layers.
+- Naming: `P{Priority}-{FlowName} / S{Sequence}-{SubFlowName}`
+- Example: `01-flows/P1-emergency/S1-identified/`
 
 ## 2) Horizontal Layers (`02-layers/`)
 
-- **Concept**: Technical infrastructure shared across flows.
-- **Naming**: lowercase, kebab-case
-- **Example**: `02-layers/aspnet-identity/`
+- Concept: Technical infrastructure shared across flows.
+- Naming: lowercase, kebab-case
+- Example: `02-layers/aspnet-identity/`
 
 ---
 
-# 🧱 Canonical Module Structure (Inside any Flow/Layer)
+# Canonical Module Structure (Inside any Flow/Layer)
 
-Every module root (either a flow folder or a layer folder) MUST follow:
+Every module root MUST follow:
 
 ```
 <module-root>/
@@ -41,11 +39,12 @@ Every module root (either a flow folder or a layer folder) MUST follow:
   <module>.usageguide.md
 
   operations/
-    FEAT-short-slug/
+    01-INIT-module/
+      analysis/            # optional (complex cases only)
       plan.md
       prompt.md
 
-    FIX-short-slug/
+    02-FEAT-short-slug/
       plan.md
       prompt.md
 ```
@@ -59,20 +58,32 @@ Example:
   aspnet-identity.usageguide.md
 
   operations/
-    FEAT-refresh-token/
+    01-INIT-aspnet-identity/
+      analysis/
+        01-architecture-decision.md
+        02-state-machine.md
+        03-sequence-flows.md
+        decision-log.md
+      plan.md
+      prompt.md
+
+    02-FEAT-refresh-token/
       plan.md
       prompt.md
 ```
 
+INIT is the first operation that creates the module baseline.
+There is NO separate genesis layer.
+
 ---
 
-# 🧠 Core Philosophy
+# Core Philosophy
 
-Docs are split into **Baseline** (current truth) and **Operations** (controlled changes).
+Docs are split into Baseline (current truth) and Operations (controlled mutations).
 
-## 1️⃣ Baseline (Current System State)
+## 1) Baseline (Current System State)
 
-Represents the system **as it exists in code right now**.
+Represents the system as it exists in code right now.
 
 Baseline files:
 
@@ -81,32 +92,89 @@ Baseline files:
 - `*.usageguide.md`
 
 Baseline must NEVER contain future plans.
+Baseline is the ONLY authoritative description of the current system.
 
-## 2️⃣ Operations (Controlled Mutations)
+## 2) Operations (Controlled Mutations)
 
-Represents **intentional changes** to the baseline.
+Represents intentional changes to the baseline.
 
 - Each operation is isolated in its own folder.
 - Operations are append-only artifacts.
 - Do not merge unrelated changes into one operation.
 - Do not overwrite historical operations.
+- Baseline always overrides operation reasoning.
+
+Operations are historical events.
+Baseline is current truth.
 
 ---
 
-# 🚦 Quick Rules (Non-Negotiable)
+# Operation Folder Naming
 
-- Baseline describes current reality only.
-- Operations describe change intent only.
-- Never mix future plans into baseline.
-- Always update baseline after implementation.
-- Never store secrets in documentation.
-- UTF-8 only (no BOM).
+```
+{NN}-{TYPE}-{short-slug}
+```
+
+Where `{NN}` is a sequential zero-padded number (01, 02, 03...) within the module.
+
+Allowed TYPE:
+
+- INIT (module creation only, must be first)
+- FEAT
+- FIX
+- REFACTOR
+- PERF
+- SECURITY
+- HOTFIX
+
+Examples:
+
+- `01-INIT-live-tracking`
+- `02-FEAT-refresh-token`
+- `03-REFACTOR-split-hub`
+
+Do NOT include dates in folder names.
+Dates belong in frontmatter.
+Always determine the next `{NN}` based on existing operations.
 
 ---
 
-# 🧾 Baseline Documents (State Layer)
+# Optional Analysis Layer (For Complex Changes Only)
 
-## 1) `<module>.introduction.md`
+Inside an operation folder, you MAY include:
+
+```
+analysis/
+  01-architecture-decision.md
+  02-state-machine.md
+  03-sequence-flows.md
+  decision-log.md
+```
+
+Purpose:
+
+- Explore multiple solutions
+- Record trade-offs
+- Define state machines
+- Define sequence diagrams
+- Stress-test architecture before execution
+
+Rules:
+
+- Use analysis ONLY for complex, distributed, concurrent, or breaking changes.
+- Do NOT use for simple CRUD or small fixes.
+- analysis is NOT baseline.
+- analysis may become outdated.
+- Baseline (`*.sourcecode.md`) always overrides analysis.
+
+Lifecycle:
+analysis → plan → prompt → implementation → baseline update
+
+---
+
+# Baseline Documents (State Layer)
+
+## `<module>.introduction.md`
 
 Purpose:
 
@@ -114,13 +182,11 @@ Purpose:
 - Business rules / invariants
 - Scope / out-of-scope
 - Non-functional requirements
+  Explains WHY the module exists.
 
-Explains WHY the module exists.
-
-## 2) `<module>.sourcecode.md` (CRITICAL)
+## `<module>.sourcecode.md` (CRITICAL)
 
 Compressed Source of Truth.
-
 Must reflect:
 
 - Public API surface (endpoints / public services)
@@ -137,10 +203,9 @@ Rules:
 - No “about to implement”
 - Only what exists in code
 
-## 3) `<module>.usageguide.md`
+## `<module>.usageguide.md`
 
 External contract for consumers.
-
 Includes:
 
 - Endpoints
@@ -148,47 +213,13 @@ Includes:
 - Status codes
 - Error catalog
 - Auth requirements
-
-Update whenever contract changes.
-
----
-
-# ⚙️ Operations (Mutation Layer)
-
-Every change MUST be implemented through an operation folder:
-
-## Operation Folder Naming
-
-```
-{NN}-{TYPE}-{short-slug}
-```
-
-Where `{NN}` is a **sequential zero-padded number** (01, 02, 03...) based on creation order within the module.
-
-Allowed TYPE:
-
-- FEAT
-- FIX
-- REFACTOR
-- PERF
-- SECURITY
-- HOTFIX
-
-Examples:
-
-- `01-FEAT-refresh-token`
-- `02-FIX-null-claim`
-- `03-SECURITY-rate-limit`
-
-Do NOT include dates in folder names.
-Dates belong in metadata.
-Always check existing operations to determine the next sequence number.
+  Update whenever contract changes.
 
 ---
 
-# 📄 Operation Content
+# Operation Content
 
-Each operation contains:
+Each operation MUST contain:
 
 ```
 plan.md
@@ -199,16 +230,6 @@ prompt.md
 
 Written BEFORE implementation.
 
-Purpose:
-
-- Read baseline
-- Assess current state (As-Is)
-- Define gap
-- Define To-Be direction/design
-- List impacted components
-- Define risks/constraints
-- Define validation plan
-
 REQUIRED STRUCTURE:
 
 1. As-Is (from `<module>.sourcecode.md`)
@@ -217,6 +238,8 @@ REQUIRED STRUCTURE:
 4. Impacted Components
 5. Risks & Constraints
 6. Validation Plan
+
+If analysis/ exists, plan MUST reference it explicitly.
 
 ## prompt.md (Execution Layer)
 
@@ -234,29 +257,31 @@ Rules:
 - No secrets
 - No environment-specific values
 - Do not modify unrelated modules
+- Do not bypass plan.md
 
 ---
 
-# 🔁 Operation Lifecycle
+# Operation Lifecycle
 
-1. Create operation folder.
-2. Write plan.md.
-3. Generate prompt.md.
-4. Implement code.
-5. Update baseline:
+1. Create operation folder with next sequence number.
+2. (Optional) Create analysis/ for complex cases.
+3. Write plan.md.
+4. Generate prompt.md.
+5. Implement code.
+6. Update baseline:
    - `<module>.sourcecode.md`
    - `<module>.usageguide.md`
 
-6. Mark operation status as `done`.
+7. Mark operation status as `done`.
 
-Operations are historical artifacts.
+Operations are immutable history.
 Never delete past operations.
 
 ---
 
-# 🧾 Required Frontmatter
+# Required Frontmatter
 
-## Baseline files frontmatter
+## Baseline files
 
 ```yaml
 ---
@@ -269,12 +294,12 @@ owners: [backend-team]
 ---
 ```
 
-## Operation plan.md frontmatter
+## Operation plan.md
 
 ```yaml
 ---
 doc_role: operation
-operation_id: FEAT-refresh-token
+operation_id: 02-FEAT-refresh-token
 type: FEAT
 status: draft # draft | approved | in_progress | done
 created_at: YYYY-MM-DD
@@ -284,12 +309,12 @@ affects:
 ---
 ```
 
-## Operation prompt.md frontmatter
+## Operation prompt.md
 
 ```yaml
 ---
 doc_role: operation
-operation_id: FEAT-refresh-token
+operation_id: 02-FEAT-refresh-token
 generated_from: plan.md
 status: draft
 created_at: YYYY-MM-DD
@@ -298,7 +323,7 @@ created_at: YYYY-MM-DD
 
 ---
 
-# 🔒 Security & Privacy Rules
+# Security & Privacy Rules
 
 Never write secrets into docs:
 
@@ -311,7 +336,7 @@ Always use placeholders:
 
 ---
 
-# 📅 Encoding Hygiene (UTF-8 only)
+# Encoding Hygiene (UTF-8 only)
 
 - All markdown files MUST be UTF-8 (no BOM).
 - If mojibake occurs, repair once with `ftfy.fix_encoding`.
@@ -319,26 +344,28 @@ Always use placeholders:
 
 ---
 
-# 🧩 Context Loading Protocol (For AI Agents)
+# Context Loading Protocol (For AI Agents)
 
 When working on a module:
 
 1. Locate module under `01-flows/` or `02-layers/`.
 2. Read `<module>.introduction.md`.
 3. Read `<module>.sourcecode.md`.
-4. If you need changes:
-   - Create a new `operations/{TYPE}-{slug}/`
-   - Write `plan.md` → generate `prompt.md`
+4. If changes are required:
+   - Create a new `operations/{NN}-{TYPE}-{slug}/`
+   - (Optional) Create analysis/ if complexity demands.
+   - Write `plan.md` → generate `prompt.md`.
    - Do NOT edit baseline until implementation completes.
 
 This minimizes tokens and prevents drift.
 
 ---
 
-# 🧠 Mental Model
+# Mental Model
 
 Baseline = Current State
 Operation = Controlled Mutation
+Analysis = Structured Reasoning (Optional)
 Plan = Strategy
 Prompt = Execution
 
@@ -347,9 +374,7 @@ Baseline always reflects final truth.
 
 ---
 
-# 📌 Scalability Rule
+# Scalability Rule
 
-Only ONE operation should be `in_progress` per module at a time,
-unless explicitly coordinated.
-
+Only ONE operation should be `in_progress` per module at a time unless explicitly coordinated.
 Parallel operations risk state conflict.
