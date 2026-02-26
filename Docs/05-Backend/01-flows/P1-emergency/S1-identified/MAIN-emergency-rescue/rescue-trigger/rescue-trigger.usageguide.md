@@ -1,10 +1,9 @@
-````
 ---
 doc_role: baseline
 module: rescue-trigger
 kind: flow
 status: active
-last_updated: 2026-02-15
+last_updated: 2026-02-26
 owners: [backend-team]
 ---
 
@@ -14,11 +13,8 @@ Audience: mobile/web client developers integrating emergency dispatch.
 
 ## 0. Phase Context
 
-This guide reflects current `RT-1` behavior (Global Phase 1).
+This guide reflects current `RT-1.1` behavior with **Segregated Hubs**.
 Roadmap: `../emergency-rescue.roadmap.md`
-
-Current matching path is PostGIS-based from persisted rescuer location.
-`Redis-first` matching described in roadmap belongs to `RT-2` and is not active yet.
 
 ## 1. Response Envelope
 
@@ -32,9 +28,7 @@ HTTP APIs in this module return:
   "data": {},
   "error": null
 }
-````
-
-Use `is_success` and `status_code` for client control flow.
+```
 
 ## 2. Trigger SOS Dispatch
 
@@ -53,121 +47,51 @@ Use `is_success` and `status_code` for client control flow.
 }
 ```
 
-### Success response (`data` excerpt)
+## 3. Rescuer Connection (`RescuerHub`)
 
-```json
-{
-  "id": "incident-guid",
-  "userId": "member-guid",
-  "locationCoordinates": {
-    "latitude": 10.762622,
-    "longitude": 106.660172
-  },
-  "status": 0,
-  "currentSessionNumber": 1,
-  "currentRadiusKm": 10,
-  "incidentOccurredAt": "2026-02-06T12:00:00Z",
-  "sessionId": "session-guid",
-  "sessionNumber": 1,
-  "radiusKm": 10,
-  "rescuersPinged": 3
-}
-```
+Available rescuers should connect to this hub to receive job pings.
 
-## 3. Raise Search Range Manually
+- URL: `/hubs/rescuer` (Requires Auth)
 
-### Endpoint
+### Common Methods
 
-- Method: `POST`
-- URL: `/api/incidents/{incidentId}/raise-range`
-- Auth: required
+- `JoinAsRescuer(string userId)`: Start receiving rescue requests.
+- `AcceptRequest(Guid requestId, Guid rescuerId)`: Accept a pending request.
 
-### Current behavior note
+### Inbound Events
 
-Current implementation creates a new session record and updates incident radius/session counters.
-It does not trigger broadcast automatically for that session.
-Treat this endpoint as internal/admin/debug until service path is completed.
+- `NewRescueRequest`: A new incident is nearby.
+- `RequestAccepted`: You have successfully won the mission. **Client: Switch to MissionHub immediately.**
+- `RequestTaken`: Another rescuer accepted first.
+- `RequestExpired`: The session timed out.
 
-## 4. Incident Detail and Symptom Update
+## 4. Mission Coordination (`MissionHub`)
 
-### Get incident detail
+Once a mission is assigned, both Member and Rescuer must connect to this dedicated hub.
 
-- Method: `GET`
-- URL: `/api/incidents/{incidentId}`
+- URL: `/hubs/mission?incidentId={GUID}` (Requires Auth)
 
-### Update symptoms
+### Rescuer Methods
 
-- Method: `PUT`
-- URL: `/api/incidents/{incidentId}/symptoms-tracking`
+- `UpdateLocation(Guid incidentId, double latitude, double longitude)`: Pushes live updates to the Member.
 
-Request body follows `UpdateSymptomReportRequest` contract.
+### Shared Events
 
-## 5. Rescuer SignalR Integration
+- `LocationUpdated`: `{ userId, latitude, longitude, updatedAt }`
+- `RescuerArrived`: Rescuer has reached the scene.
+- `MissionCompleted`: Mission finished successfully.
+- `MissionCancelled`: Rescuer aborted or User cancelled.
+- `SessionExpired`: (Sent to Member) No rescuers were found after all search phases.
 
-### Hub
+## 5. Important Implementation Details
 
-- URL: `/rescuer-hub`
+1. **Hub Transition**: After receiving `RequestAccepted` on `RescuerHub`, the mobile app must immediately connect to `MissionHub` using the `incidentId`.
+2. **Authorization**: `MissionHub` enforces that only the incident's creator or the assigned rescuer can connect.
+3. **Persistance**: Locations sent via `MissionHub.UpdateLocation` are persisted to the database for tracking.
 
-### Client -> Server methods
+## 6. Error Cases to Handle
 
-- `JoinAsRescuer(string userId)`
-- `AcceptRequest(Guid requestId, Guid rescuerId)`
-- `RejectRequest(Guid requestId)`
-- `UpdateLocation(string userId, double latitude, double longitude)`
-- `GetConnectedRescuers()`
-
-### Server -> Client events (production path)
-
-- `Joined`
-- `NewRescueRequest`
-- `RequestAccepted`
-- `RequestTaken`
-- `RequestCancelled`
-- `RequestRejected`
-- `RequestError`
-- `LocationUpdated`
-- `ConnectedRescuers`
-- `RequestExpired`
-
-### `NewRescueRequest` payload shape
-
-```json
-{
-  "requestId": "request-guid",
-  "sessionId": "session-guid",
-  "incidentId": "incident-guid",
-  "radiusKm": 10,
-  "expiredAt": "2026-02-06T12:01:00Z",
-  "requestSentAt": "2026-02-06T12:00:00Z"
-}
-```
-
-## 6. Monitoring Endpoints
-
-Both endpoints require auth:
-
-- `GET /api/monitoring/session-timeout-status`
-- `GET /api/monitoring/health/session-timeout`
-
-Use these for operational visibility of in-memory timeout scheduler.
-
-## 7. Important Integration Caveats
-
-1. `UpdateLocation(...)` currently does not persist rescuer coordinates to database.
-2. Hub currently does not enforce authorization attributes at endpoint level.
-3. FCM fallback is not integrated yet in production path.
-
-## 8. Planned Changes in RT-2 (Not Active Yet)
-
-1. Candidate lookup will move to `Redis-first`.
-2. `PostGIS-fallback` will be used when Redis data is unavailable.
-3. Endpoint contracts are expected to remain stable, but matching latency and candidate freshness should improve.
-
-## 9. Error Cases to Handle
-
-- `400`: invalid state transition (for example accepting expired/taken request).
-- `401`: unauthorized API access.
-- `404`: incident/request/session not found.
+- `400`: invalid state transition (e.g., accepting expired request).
+- `401`: unauthorized access (e.g., trying to join a MissionHub for an incident you don't own).
+- `404`: incident not found.
 - `500`: unexpected server error.
-
-Always show `message` to user and log `error.errorCode` when available.

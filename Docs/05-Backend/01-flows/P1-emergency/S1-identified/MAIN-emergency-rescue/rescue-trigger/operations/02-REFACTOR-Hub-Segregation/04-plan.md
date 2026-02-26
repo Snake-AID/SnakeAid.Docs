@@ -2,7 +2,7 @@
 doc_role: operation
 operation_id: REFACTOR-split-mission-hub
 type: REFACTOR
-status: draft
+status: done
 created_at: 2026-02-26
 ---
 

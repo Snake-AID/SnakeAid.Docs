@@ -3,7 +3,7 @@ doc_role: baseline
 module: rescue-trigger
 kind: flow
 status: active
-last_updated: 2026-02-15
+last_updated: 2026-02-26
 owners: [backend-team]
 ---
 
@@ -13,15 +13,14 @@ owners: [backend-team]
 
 - Domain phase mapping:
   - `RT-1` (Global Phase 1): dispatch core stabilization.
+  - `RT-1.1`: Hub Segregation (RescuerHub vs MissionHub) - **RESOLVED**.
   - `RT-2` (Global Phase 4): dynamic locator switch (`Redis-first`, `PostGIS-fallback`).
 - Roadmap source: `../emergency-rescue.roadmap.md`
 
 ## Status
 
-- Module status: implemented for session-based rescue dispatch.
-- Baseline commit analyzed: `f6aca477d58cdae30b1c1d952aecbd10bf54f378`.
-- Current branch also includes follow-up changes (for example `GetIncidentDetail` endpoint in later commit).
-- Last verified against code: 2026-02-13.
+- Module status: implemented for session-based rescue dispatch with segregated hubs.
+- Last verified against code: 2026-02-26.
 
 ## Function Implementation Status (Agent Guardrail)
 
@@ -29,37 +28,23 @@ Use this section before coding to avoid re-implementing existing functions.
 
 ### A. Implemented and in active production path
 
-| Layer                | Function                            | Status      | Notes                                                |
-| -------------------- | ----------------------------------- | ----------- | ---------------------------------------------------- |
-| Controller           | `CreateSnakebiteIncident`           | Implemented | Main SOS entry (`POST /api/incidents/sos`)           |
-| Controller           | `RaiseSessionRange`                 | Implemented | Endpoint exists, but behavior gap noted in section C |
-| Controller           | `GetIncidentDetail`                 | Implemented | Read incident detail                                 |
-| Controller           | `UpdateSymptomReport`               | Implemented | Updates symptom report                               |
-| Service              | `CreateIncidentAsync`               | Implemented | Creates incident record                              |
-| Service              | `StartRescueAsync`                  | Implemented | Calls session service to start dispatch              |
-| Session Service      | `CreateSessionAsync`                | Implemented | Creates session + schedules timeout                  |
-| Session Service      | `BroadcastRequestsAsync`            | Implemented | Creates rescuer requests + pushes SignalR            |
-| Session Service      | `HandleSessionTimeoutAsync`         | Implemented | Expires pending requests + marks session failed      |
-| Session Service      | `TryExpandAndCreateNewSessionAsync` | Implemented | Auto expansion path after timeout                    |
-| Session Service      | `StartRescueSessionAsync`           | Implemented | Initial session bootstrap                            |
-| Session Service      | `AcceptRequestAsync`                | Implemented | Winner flow + mission create                         |
-| Session Service      | `RejectRequestAsync`                | Implemented | Reject pending request                               |
-| Timeout Service      | `ScheduleSessionTimeout`            | Implemented | In-memory schedule                                   |
-| Timeout Service      | `CancelSessionTimeout`              | Implemented | Cancel schedule                                      |
-| Timeout Service      | `GetQueueStatus`                    | Implemented | Monitoring support                                   |
-| Timeout Service      | `IsHealthy`                         | Implemented | Monitoring support                                   |
-| Mission Service      | `CreateMissionAsync`                | Implemented | Creates mission and assigns incident                 |
-| Notification Service | `NotifyRequestExpiredAsync`         | Implemented | Triggered via HandleSessionTimeoutAsync              |
+| Layer                | Function                            | Status      | Notes                                              |
+| -------------------- | ----------------------------------- | ----------- | -------------------------------------------------- |
+| Controller           | `CreateSnakebiteIncident`           | Implemented | Main SOS entry (`POST /api/incidents/sos`)         |
+| Session Service      | `CreateSessionAsync`                | Implemented | Creates session + schedules timeout                |
+| Session Service      | `BroadcastRequestsAsync`            | Implemented | Creates rescuer requests + pushes SignalR          |
+| Session Service      | `HandleSessionTimeoutAsync`         | Implemented | Expires pending requests + Pushes MissionHub event |
+| Mission Service      | `CreateMissionAsync`                | Implemented | Creates mission and assigns incident               |
+| Mission Service      | `UpdateMissionStatusAsync`          | Implemented | Updates status + Pushes MissionHub event           |
+| Mission Service      | `CompleteMissionAsync`              | Implemented | Completes mission + Pushes MissionHub event        |
+| Notification Service | `SignalRMissionNotificationService` | Implemented | Dedicated service for MissionHub events            |
 
-### B. Implemented but not in active production call path
+### B. Hub Responsibilities
 
-| Layer            | Function                  | Status                         | Notes                                                          |
-| ---------------- | ------------------------- | ------------------------------ | -------------------------------------------------------------- |
-| Incident Service | `TriggerRescueAsync`      | Implemented (not used)         | Validation/response only, not used by controller path          |
-| Incident Service | `AcceptRescueAsync`       | Implemented (not used)         | Validation/response wrapper, real accept is in session service |
-| Incident Service | `RejectRescueAsync`       | Implemented (not used)         | Validation/response wrapper, real reject is in session service |
-| Session Service  | `HandleMissionAbortAsync` | Implemented (conditional path) | Used when mission abort flow triggers retry                    |
-| Session Service  | `CancelSessionAsync`      | Implemented (conditional path) | Not part of primary SOS path                                   |
+| Hub          | Responsibility                                   | Path            |
+| ------------ | ------------------------------------------------ | --------------- |
+| `RescuerHub` | Broadcasting new rescue requests to rescuers.    | `/hubs/rescuer` |
+| `MissionHub` | Active mission coordination & location tracking. | `/hubs/mission` |
 
 ### C. Implemented but behavior incomplete (do not duplicate, fix existing)
 
@@ -77,34 +62,23 @@ Use this section before coding to avoid re-implementing existing functions.
 | Fallback strategy           | `PostGIS-fallback` under unified locator                              | Missing |
 | Tracking read APIs          | Snapshot/history endpoints for session tracking                       | Missing |
 
-## Key Files
+### API & Hubs
 
-### API
-
-- `SnakeAid.Api/Controllers/SnakebiteIncidentController.cs`
 - `SnakeAid.Api/Hubs/RescuerHub.cs`
-- `SnakeAid.Api/Controllers/MonitoringController.cs`
-- `SnakeAid.Api/Services/SignalRRescueNotificationService.cs`
-- `SnakeAid.Api/Program.cs`
+- `SnakeAid.Api/Hubs/MissionHub.cs`
+- `SnakeAid.Api/Services/SignalRRescueNotificationService.cs` (Targets `RescuerHub`)
+- `SnakeAid.Api/Services/SignalRMissionNotificationService.cs` (Targets `MissionHub`)
+- `SnakeAid.Api/Program.cs` (Hub mappings)
 
 ### Service
 
-- `SnakeAid.Service/Implements/SnakebiteIncidentService.cs`
 - `SnakeAid.Service/Implements/RescueRequestSessionService.cs`
 - `SnakeAid.Service/Implements/RescueMissionService.cs`
-- `SnakeAid.Service/Implements/SessionTimeoutBackgroundService.cs`
 
-### Contracts and Domains
+### Contracts
 
-- `SnakeAid.Service/Interfaces/ISnakebiteIncidentService.cs`
-- `SnakeAid.Service/Interfaces/IRescueRequestSessionService.cs`
-- `SnakeAid.Service/Interfaces/IRescueMissionService.cs`
 - `SnakeAid.Service/Interfaces/IRescueNotificationService.cs`
-- `SnakeAid.Service/Interfaces/ISessionTimeoutService.cs`
-- `SnakeAid.Core/Domains/SnakebiteIncident.cs`
-- `SnakeAid.Core/Domains/RescueRequestSession.cs`
-- `SnakeAid.Core/Domains/RescuerRequest.cs`
-- `SnakeAid.Core/Domains/RescueMission.cs`
+- `SnakeAid.Service/Interfaces/IMissionNotificationService.cs`
 
 ## Runtime Flow in Current Code
 
@@ -207,41 +181,39 @@ Behavior:
 - Validates `Pending` request.
 - Marks request as `Rejected`.
 
-## SignalR Contract (Current)
+## SignalR Contract (Segregated)
 
-Hub route:
+### 1. RescuerHub (`/hubs/rescuer`)
 
-- `/rescuer-hub`
-
-Client -> Server methods:
+**Client -> Server**:
 
 - `JoinAsRescuer(string userId)`
 - `AcceptRequest(Guid requestId, Guid rescuerId)`
 - `RejectRequest(Guid requestId)`
-- `UpdateLocation(string userId, double latitude, double longitude)`
-- `GetConnectedRescuers()`
 
-Server -> Client events used in production flow:
+**Server -> Client**:
 
-- `Joined`
-- `NewRescueRequest`
-- `RequestAccepted`
-- `RequestTaken`
-- `RequestCancelled`
-- `RequestRejected`
-- `RequestError`
-- `LocationUpdated` (echo to caller from `UpdateLocation`)
-- `ConnectedRescuers`
-- `RequestExpired`
+- `NewRescueRequest`: `{ requestId, sessionId, incidentId, radiusKm, ... }`
+- `RequestAccepted`: `{ requestId, incidentId, missionId, ... }`
+- `RequestTaken`: `{ requestId }`
+- `RequestExpired`: `{ requestId }`
 
-`NewRescueRequest` payload currently includes:
+### 2. MissionHub (`/hubs/mission?incidentId={incidentId}`)
 
-- `requestId`
-- `sessionId`
-- `incidentId`
-- `radiusKm`
-- `expiredAt`
-- `requestSentAt`
+**Authorization**: User must be Incident Creator or Assigned Rescuer.
+
+**Client -> Server**:
+
+- `UpdateLocation(Guid incidentId, double latitude, double longitude)`
+
+**Server -> Client**:
+
+- `MissionStarted`: `{ status }` (sent when Rescuer starts moving)
+- `RescuerArrived`: (sent when Rescuer arrives at scene)
+- `MissionCompleted`: `{ missionId }`
+- `MissionCancelled`: `{ reason }`
+- `LocationUpdated`: `{ userId, latitude, longitude, updatedAt }`
+- `SessionExpired`: (sent to member when dispatch fails)
 
 ## HTTP Endpoints in This Flow
 
