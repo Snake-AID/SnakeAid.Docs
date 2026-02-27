@@ -48,7 +48,9 @@ The module uses two specialized SignalR hubs to minimize race conditions and sta
 - **Audience**: Member (Incident Creator) and Assigned Rescuer only.
 - **Purpose**: Active mission coordination.
 - **Features**: Location tracking of active rescuer, arrival notifications, mission cancellation/completion events.
-- **Security**: Strict authorization in `OnConnectedAsync` verifying User is part of requested `IncidentId`.
+- **Security**: Strict authorization in `OnConnectedAsync` (verifying `IncidentId` membership) and per-operation verification via `Context.Items` persistence to prevent ID spoofing.
+- 3. **Persistence**: Locations sent via `MissionHub.UpdateLocation` are persisted to the database for tracking.
+- 4. **Reliability**: Notification delivery is decoupled from database transactions. A failure in the real-time notification layer will not cause a rollback of the underlying business operation. All notification services are hardened with error handling to ensure service continuity.
 
 ## Current Scope In Code
 
@@ -63,6 +65,12 @@ The module uses two specialized SignalR hubs to minimize race conditions and sta
 - Per-session timeout: `60` seconds.
 - Timeout handling runs in background (`SessionTimeoutBackgroundService`) and auto-expands radius while incident is still `Pending`.
 
+### Current matching mode (RT-1)
+
+- Candidate lookup is PostGIS-based from `RescuerProfile.LastLocation`.
+- No production `Redis GEO` matching path yet.
+- Live accuracy depends on whether location ingestion is implemented by `live-tracking` LT-1.
+
 ### Rescuer eligibility
 
 A rescuer is considered dispatchable only when all conditions are true:
@@ -71,30 +79,59 @@ A rescuer is considered dispatchable only when all conditions are true:
 - `RescuerProfile.LastLocation != null`
 - `RescuerProfile.Type` is `Emergency` or `Both`
 - Distance from incident is within current session radius
-- Rescuer has active SignalR connection in `RescuerHub`.
+- Rescuer has active SignalR connection in `SignalRRescueNotificationService.ConnectedRescuers`
 
 ### Resolution rule
 
 - First valid `AcceptRequest` wins.
 - Winning request becomes `Accepted`.
 - Other pending requests in the same session become `Taken`.
-- Mission created; Rescuer and Member connect to `MissionHub`.
+- Session becomes `Completed`.
+- Incident is assigned and `RescueMission` is created.
+
+## State Overview
+
+### Incident (relevant states)
+
+- `Pending` -> dispatching/awaiting acceptance
+- `Assigned` -> rescuer mission created
+- `Finished` -> mission completed
+- `Cancelled` -> cancelled by user/system action
+- `NoRescuerFound` -> max sessions exhausted
+
+### Session
+
+- `Active` -> waiting rescuer responses
+- `Completed` -> one rescuer accepted
+- `Failed` -> timeout reached with no accepted request
+- `Cancelled` -> cancelled before resolution
+
+### Request
+
+- `Pending`, `Accepted`, `Rejected`, `Taken`, `Cancelled`, `Expired`
 
 ## Reality Check (Important)
 
-Current implementation status:
+Current implementation is functional for dispatch and follows a segregated hub architecture for scaling:
 
-- `RescuerHub.UpdateLocation(...)` has been **removed** and moved to `MissionHub`.
-- `MissionHub` enforces authorization at connection time using `incidentId`.
-- API services (`RescueMissionService`, `RescueRequestSessionService`) use `IMissionNotificationService` to push events to the correct hub.
+- `POST /api/incidents/{incidentId}/raise-range` currently creates a next-session record.
+  - It does not automatically trigger broadcast logic or timeout scheduling; these are orchestrated by the background session manager.
+- `RescuerHub` only handles broad-range discovery and request signals.
+- `MissionHub` handles all active mission coordination, including location streaming and status lifecycle.
+- `MissionHub` enforces strict `[Authorize]` at connection time, scoped to the specific `incidentId`.
+- API services (`RescueMissionService`, `RescueRequestSessionService`) utilize `IMissionNotificationService` to target the appropriate hub for specific event types.
+- **Reliability Design**: All SignalR notifications are decoupled from database transactions (dispatched after `Commit`). Notification service implementations are hardened with `try-catch` to ensure SignalR availability issues never interrupt core business logic.
 
 ## Dependency on Live Tracking
 
 - `rescue-trigger` reads location for matching.
-- `live-tracking` LT-1 (via `MissionHub`) is responsible for making that location feed truly live during an active mission.
+- `live-tracking` LT-1 is responsible for making that location feed truly live (persisting rescuer updates).
+- `rescue-trigger` RT-2 will consume Redis geo pipeline when LT-2 contracts are ready.
 
 ## Cross References
 
 - Source state: `rescue-trigger.sourcecode.md`
-- Implementation plan: `REFACTOR-Hub-Segregation/04-plan.md`
+- Implementation prompt: `rescue-trigger.prompt.md`
+- Plan: `rescue-trigger.plan.md`
 - Integration contract: `rescue-trigger.usageguide.md`
+- Related live tracking direction: `../live-tracking/live-tracking.architecture.md`
