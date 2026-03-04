@@ -13,8 +13,8 @@ SnakeAid documentation is organized by Flows and Layers:
 
 ## 1) Vertical Flows (`01-flows/`)
 - Concept: User journeys spanning multiple layers.
-- Naming: `P{Priority}-{FlowName} / S{Sequence}-{SubFlowName}`
-- Example: `01-flows/P1-emergency/S1-identified/`
+- Naming: `P{Priority}-{FlowName} / {FeatureName}`
+- Example: `01-flows/P1-emergency/live-tracking/`
 
 ## 2) Horizontal Layers (`02-layers/`)
 - Concept: Technical infrastructure shared across flows.
