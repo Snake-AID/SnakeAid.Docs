@@ -2,11 +2,18 @@
 doc_role: operation
 operation_id: 01-INIT-expert-directory
 type: INIT
-status: draft
+status: done
 created_at: 2026-03-05
 affects:
-  - Api/Controllers/ExpertsController.cs
-  - Core/Domains/ExpertProfile.cs
+  - Api/Controllers/ExpertController.cs
+  - Service/Implements/ExpertService.cs
+  - Service/Interfaces/IExpertService.cs
+  - Core/Requests/Expert/ExpertSettingsRequest.cs
+  - Core/Requests/Expert/BulkTimeSlotRequest.cs
+  - Core/Responses/Expert/ExpertProfileResponse.cs
+  - Core/Responses/Expert/ExpertTimeSlotResponse.cs
+  - Repository/Data/Configurations/ExpertTimeSlotConfiguration.cs
+  - Repository/Migrations/20260305181346_AddUniqueExpertTimeSlotConstraint.cs
 ---
 
 # Plan: Expert Directory & Availability

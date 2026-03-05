@@ -2,7 +2,7 @@
 doc_role: operation
 operation_id: 01-INIT-expert-directory
 generated_from: plan.md
-status: draft
+status: done
 created_at: 2026-03-05
 ---
 

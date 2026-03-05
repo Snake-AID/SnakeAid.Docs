@@ -37,6 +37,8 @@ _Endpoint: `PUT /api/v1/experts/me/settings`_
 
 _Endpoint: `POST /api/v1/experts/me/time-slots/bulk`_
 
+`weekStartDate` must be UTC (ISO-8601 with `Z` suffix), for example `2026-03-09T00:00:00Z`.
+
 ```json
 {
   "weekStartDate": "2023-11-20T00:00:00Z",
@@ -123,6 +125,8 @@ _Endpoint: `GET /api/v1/experts`_
 
 _Endpoint: `GET /api/v1/experts/{expertId}/reviews`_
 
+Returns only `FeedbackType = Consultation` reviews for the target expert.
+
 ```json
 {
   "items": [
@@ -143,3 +147,13 @@ _Endpoint: `GET /api/v1/experts/{expertId}/reviews`_
   }
 }
 ```
+
+## Query Parameter Rules
+
+- Pagination: `pageNumber >= 1`
+- Pagination: `1 <= pageSize <= 100`
+
+## Error Notes
+
+- `POST /api/v1/experts/me/time-slots/bulk` returns `422` when `weekStartDate` is not UTC (`...Z`).
+- `POST /api/v1/experts/me/time-slots/bulk` returns `409` when a concurrent request inserts the same slot first.

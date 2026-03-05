@@ -23,10 +23,10 @@ owners: [backend-team]
 _Implemented in [ExpertController.cs](SnakeAid.Backend/SnakeAid.Api/Controllers/ExpertController.cs) and [ExpertService.cs](SnakeAid.Backend/SnakeAid.Service/Implements/ExpertService.cs)_
 
 - `PUT /api/v1/experts/me/settings`: Update expert settings (Biography, ConsultationFee).
-- `POST /api/v1/experts/me/time-slots/bulk`: Setup weekly working hours.
+- `POST /api/v1/experts/me/time-slots/bulk`: Setup weekly working hours (deduplicates overlapping/generated duplicates inside payload and DB-existing slots).
 - `GET /api/v1/experts`: Get list of active experts with pagination.
 - `GET /api/v1/experts/{expertId}`: Get expert profile details.
-- `GET /api/v1/experts/{expertId}/reviews`: Get paginated reviews for an expert.
+- `GET /api/v1/experts/{expertId}/reviews`: Get paginated **consultation** reviews for an expert.
 - `GET /api/v1/experts/{expertId}/time-slots`: Get available future time slots for an expert.
 
 ## Hubs
@@ -35,5 +35,9 @@ _None currently implemented._
 
 ## Cross-Cutting Concerns
 
-- **Concurrency**: Optimistic concurrency via `Version` field on `ExpertTimeSlot` to prevent double-booking.
+- **Concurrency**: Optimistic concurrency via `Version` field on `ExpertTimeSlot` is used by booking flows, and a unique DB index on (`ExpertId`, `StartTime`, `EndTime`) prevents duplicate slot rows under concurrent bulk setup requests.
+- **Time Standard**: `POST /api/v1/experts/me/time-slots/bulk` requires `weekStartDate` in UTC (`...Z`). Generated `ExpertTimeSlot` timestamps are persisted in UTC.
 - **Authentication**: Custom roles required for Expert-facing vs User-facing endpoints. User contexts resolved via Claims.
+- **Error Semantics**:
+  - Non-UTC `weekStartDate` is rejected with `ValidationException` (HTTP `422`).
+  - Concurrent duplicate slot insertions are rejected with `ConflictException` (HTTP `409`).
