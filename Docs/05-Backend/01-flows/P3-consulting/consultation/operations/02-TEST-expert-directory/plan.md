@@ -1,13 +1,14 @@
 ---
 doc_role: operation
 operation_id: 02-TEST-expert-directory
-type: FEAT
-status: draft
+type: TEST
+status: done
 created_at: 2026-03-05
 affects:
-  - Tests/Consultation/ExpertControllerIntegrationTests.cs
-  - Tests/Consultation/ExpertServiceUnitTests.cs
-  - Tests/Shared/TestWebApplicationFactory.cs
+  - SnakeAid.Tests/Integration/ExpertControllerIntegrationTests.cs
+  - SnakeAid.Tests/Unit/ExpertServiceTests.cs
+  - SnakeAid.Tests/SnakeAid.Tests.csproj
+  - SnakeAid.Backend.sln
 ---
 
 # Plan: Runtime Test Coverage for Consultation Operation 1
@@ -18,32 +19,33 @@ Operation `01-INIT-expert-directory` is implemented and build passes, but there 
 
 ## 2. Gap Analysis
 
-- No integration tests for consultation expert endpoints (`settings`, `bulk time slots`, `experts list`, `profile`, `reviews`, `time slots`).
+- No focused tests for operation-1 critical path (`bulk time slots`, `reviews`, `time slots`).
 - No unit tests for `ExpertService.CreateBulkTimeSlotsAsync` covering deduplication and UTC validation.
-- No concurrent runtime test to verify conflict behavior when duplicate slot creation happens at the same time.
+- No baseline guard to ensure `ExpertTimeSlot` unique composite index is present in EF model metadata.
 
 ## 3. To-Be Design
 
 Implement targeted test coverage for Operation 1:
 
 - **Integration tests**:
-  - `POST /api/v1/experts/me/time-slots/bulk` with valid UTC payload returns success and persists slots.
-  - `POST /api/v1/experts/me/time-slots/bulk` with non-UTC `weekStartDate` returns `422`.
-  - Concurrent duplicate insert path returns `409` for at least one racing request.
-  - `GET /api/v1/experts/{expertId}/reviews` returns consultation feedback only.
+  - Controller-level `CreateBulkTimeSlots` with valid UTC payload returns success and persists slots.
+  - Controller-level `CreateBulkTimeSlots` with non-UTC `weekStartDate` throws `ValidationException`.
+  - Controller-level `GetExpertReviews` returns consultation feedback only.
+  - Controller-level `GetExpertTimeSlots` returns future + available slots only.
 - **Unit tests**:
   - In-request overlap deduplication in `CreateBulkTimeSlotsAsync`.
   - Existing-slot overlap skip behavior.
   - UTC normalization rule enforcement.
+  - `ExpertTimeSlot` unique composite index (`ExpertId`, `StartTime`, `EndTime`) presence in model.
 
 ## 4. Impacted Components
 
-- **Tests**: consultation-focused integration and unit test classes.
-- **Test Infrastructure**: shared test factory / seeded fixtures for accounts, expert profile, and feedback data.
+- **Tests**: `SnakeAid.Tests/Integration/ExpertControllerIntegrationTests.cs`, `SnakeAid.Tests/Unit/ExpertServiceTests.cs`.
+- **Test Infrastructure**: in-memory `SnakeAidDbContext` per test, explicit seed for account/profile/feedback.
 
 ## 5. Risks & Constraints
 
-- Concurrency tests can be flaky if test DB setup is not isolated per test.
+- Controller integration scope does not validate full HTTP middleware behavior (e.g., centralized exception-to-422 mapping).
 - Integration tests must seed deterministic data and always use UTC values to avoid timezone drift.
 - Runtime test scope should remain focused on Operation 1 to avoid coupling with planned Operations 03/04/05.
 
