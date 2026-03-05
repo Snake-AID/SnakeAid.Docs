@@ -1,6 +1,6 @@
 ---
 doc_role: operation
-operation_id: 03-FEAT-emergency-consultation
+operation_id: 04-FEAT-emergency-consultation
 generated_from: plan.md
 status: draft
 created_at: 2026-03-05

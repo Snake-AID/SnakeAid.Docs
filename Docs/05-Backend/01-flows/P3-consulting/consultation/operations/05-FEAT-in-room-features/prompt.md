@@ -1,6 +1,6 @@
 ---
 doc_role: operation
-operation_id: 04-FEAT-in-room-features
+operation_id: 05-FEAT-in-room-features
 generated_from: plan.md
 status: draft
 created_at: 2026-03-05

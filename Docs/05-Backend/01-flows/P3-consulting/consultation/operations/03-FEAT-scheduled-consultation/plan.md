@@ -1,6 +1,6 @@
 ---
 doc_role: operation
-operation_id: 02-FEAT-scheduled-consultation
+operation_id: 03-FEAT-scheduled-consultation
 type: FEAT
 status: draft
 created_at: 2026-03-05

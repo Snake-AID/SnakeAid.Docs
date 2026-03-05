@@ -1,6 +1,6 @@
 ---
 doc_role: operation
-operation_id: 04-FEAT-in-room-features
+operation_id: 05-FEAT-in-room-features
 type: FEAT
 status: draft
 created_at: 2026-03-05
@@ -14,7 +14,7 @@ affects:
 
 ## 1. As-Is
 
-Users can book consultations (Operation 02) and start emergency rooms (Operation 03). However, inside the active consultation session room, there is no real-time text chat, no UI signaling (e.g., typing, mic toggled), and no auxiliary tools for the expert.
+Users can book consultations (Operation 03) and start emergency rooms (Operation 04). However, inside the active consultation session room, there is no real-time text chat, no UI signaling (e.g., typing, mic toggled), and no auxiliary tools for the expert.
 
 ## 2. Gap Analysis
 
