@@ -13,13 +13,13 @@
     - [Expert Consultation](01-Functional-Specs/01-Core-Flows/03-Expert-Consultation.md)
     - [Community Safety](01-Functional-Specs/01-Core-Flows/04-Community-Safety.md)
     - [Admin Operations](01-Functional-Specs/01-Core-Flows/05-Admin-Operations.md)
-  - 📂 Tech Stack
-    - [Live Tracking Research](01-Functional-Specs/03-TechStack/Live-Tracking/LiveTracking.research.md)
   - 📂 Financial Model
     - [Overview](01-Functional-Specs/02-Financial-Model/00-Overview.md)
     - [Pricing Strategy](01-Functional-Specs/02-Financial-Model/01-Pricing-Strategy.md)
     - [Payment Processes](01-Functional-Specs/02-Financial-Model/02-Payment-Processes.md)
-    - [Insurance Policy](01-Functional-Specs/02-Functional-Model/03-Insurance-Policy.md)
+    - [Insurance Policy](01-Functional-Specs/02-Financial-Model/03-Insurance-Policy.md)
+  - 📂 Tech Stack
+    - [Live Tracking Research](01-Functional-Specs/03-TechStack/Live-Tracking/LiveTracking.research.md)
 
 - 📂 02. Kiến Trúc (Architecture)
   - [System Context](02-Technical-Architecture/00-System-Context.md)
@@ -30,9 +30,7 @@
     - [Admin Management Flow](02-Technical-Architecture/01-Swimlanes/04-Swimlane-Admin-Management-Flow.md)
 
 - 📂 03. Dữ Liệu (Data Design)
-  - 📂 SnakeAid Core
-    - [ERD](03-Data-Design/00-SnakeAid/SnakeAid.md)
-    - [DBML Syntax](03-Data-Design/DBML.syntax.md)
+  - [DBML Syntax](03-Data-Design/DBML.syntax.md)
   - 📂 Emergency Module
     - [ERD](03-Data-Design/01-EmergencyRescue/EmergencyRescue.md)
   - 📂 Rescue Module
@@ -83,74 +81,161 @@
 
 - 📂 05. Backend
   - [Home](05-Backend/HOME.md)
+  - [Backend Code Culture](05-Backend/BackendCodeCulture.md)
   - 📂 Documentation Guide
     - [How to Organize Docs](05-Backend/README.md)
-    - [Docsify Configuration](05-Backend/DOCSIFY.md)
+    - [Agents](05-Backend/AGENTS.md)
+    - [Agents (Old)](05-Backend/AGENTS.old.md)
   - 📂 Flows (Vertical)
     - [API Plan Overview](05-Backend/01-flows/API_Plan.md)
     - **P1 - Emergency Rescue**
-      - 📂 S1: Nhận diện được rắn
-        - [📄 Flow Overview](05-Backend/01-flows/P1-emergency/S1-identified/_flow.md)
-        - 📂 AI Vision Detect
-          - [Introduction](05-Backend/01-flows/P1-emergency/S1-identified/aivision-detect/aivision-detect.introduction.md)
-        - 📂 Snake Detection
-          - [Introduction](05-Backend/01-flows/P1-emergency/S1-identified/snake-detection/snake-detection.introduction.md)
-          - [Source Code](05-Backend/01-flows/P1-emergency/S1-identified/snake-detection/snake-detection.sourcecode.md)
-          - [Usage Guide](05-Backend/01-flows/P1-emergency/S1-identified/snake-detection/snake-detection.usageguide.md)
-          - 📂 Operations
-            - [Implementation Plan](05-Backend/01-flows/P1-emergency/S1-identified/snake-detection/operations/detection-flow/plan.md)
-        - 📂 Emergency Rescue Roadmap
-          - [Roadmap](05-Backend/01-flows/P1-emergency/S1-identified/MAIN-emergency-rescue/emergency-rescue.roadmap.md)
-          - 📂 Rescue Trigger
-            - [Introduction](05-Backend/01-flows/P1-emergency/S1-identified/MAIN-emergency-rescue/rescue-trigger/rescue-trigger.introduction.md)
-            - [Source Code](05-Backend/01-flows/P1-emergency/S1-identified/MAIN-emergency-rescue/rescue-trigger/rescue-trigger.sourcecode.md)
-            - [Usage Guide](05-Backend/01-flows/P1-emergency/S1-identified/MAIN-emergency-rescue/rescue-trigger/rescue-trigger.usageguide.md)
-            - 📂 Operations
-              - [Phase 1 Plan](05-Backend/01-flows/P1-emergency/S1-identified/MAIN-emergency-rescue/rescue-trigger/operations/01-PHASE-1-Stable-Core/plan.md)
-              - [Hub Segregation](05-Backend/01-flows/P1-emergency/S1-identified/MAIN-emergency-rescue/rescue-trigger/operations/02-REFACTOR-Hub-Segregation/04-plan.md)
-          - 📂 Live Tracking
-            - [Introduction](05-Backend/01-flows/P1-emergency/S1-identified/MAIN-emergency-rescue/live-tracking/live-tracking.introduction.md)
-            - [Source Code](05-Backend/01-flows/P1-emergency/S1-identified/MAIN-emergency-rescue/live-tracking/live-tracking.sourcecode.md)
-            - [Usage Guide](05-Backend/01-flows/P1-emergency/S1-identified/MAIN-emergency-rescue/live-tracking/live-tracking.usageguide.md)
-            - 📂 Operations
-              - [Phase 2 Plan](05-Backend/01-flows/P1-emergency/S1-identified/MAIN-emergency-rescue/live-tracking/operations/Phase-2-Ingestion-Foundation/plan.md)
-      - [S2: Không nhận diện được rắn](05-Backend/01-flows/P1-emergency/S2-not-identified/_flow.md)
+      - [S1: Nhận diện được rắn](05-Backend/01-flows/P1-emergency/S1-identified.flow.md)
+      - [S2: Không nhận diện được rắn](05-Backend/01-flows/P1-emergency/S2-not-identified.flow.md)
+      - [Emergency Rescue Roadmap](05-Backend/01-flows/P1-emergency/emergency-rescue.roadmap.md)
+      - 📂 Snake Detection
+        - [Introduction](05-Backend/01-flows/P1-emergency/snake-detection/snake-detection.introduction.md)
+        - [Source Code](05-Backend/01-flows/P1-emergency/snake-detection/snake-detection.sourcecode.md)
+        - [Usage Guide](05-Backend/01-flows/P1-emergency/snake-detection/snake-detection.usageguide.md)
+        - 📂 Operations
+          - [Detection Flow Plan](05-Backend/01-flows/P1-emergency/snake-detection/operations/detection-flow/plan.md)
+          - [Detection Flow Prompt](05-Backend/01-flows/P1-emergency/snake-detection/operations/detection-flow/prompt.md)
+      - 📂 Rescue Trigger
+        - [Introduction](05-Backend/01-flows/P1-emergency/rescue-trigger/rescue-trigger.introduction.md)
+        - [Source Code](05-Backend/01-flows/P1-emergency/rescue-trigger/rescue-trigger.sourcecode.md)
+        - [Usage Guide](05-Backend/01-flows/P1-emergency/rescue-trigger/rescue-trigger.usageguide.md)
+        - 📂 Operations
+          - [Phase 1 Plan](05-Backend/01-flows/P1-emergency/rescue-trigger/operations/01-PHASE-1-Stable-Core/plan.md)
+          - [Phase 1 Prompt](05-Backend/01-flows/P1-emergency/rescue-trigger/operations/01-PHASE-1-Stable-Core/prompt.md)
+          - [Hub Segregation - Architecture Decision](05-Backend/01-flows/P1-emergency/rescue-trigger/operations/02-REFACTOR-Hub-Segregation/01-architecture-decision.md)
+          - [Hub Segregation - State Machine](05-Backend/01-flows/P1-emergency/rescue-trigger/operations/02-REFACTOR-Hub-Segregation/02-state-machine.md)
+          - [Hub Segregation - Sequence Flows](05-Backend/01-flows/P1-emergency/rescue-trigger/operations/02-REFACTOR-Hub-Segregation/03-sequence-flows.md)
+          - [Hub Segregation - Plan](05-Backend/01-flows/P1-emergency/rescue-trigger/operations/02-REFACTOR-Hub-Segregation/04-plan.md)
+          - [Hub Segregation - Decision Log](05-Backend/01-flows/P1-emergency/rescue-trigger/operations/02-REFACTOR-Hub-Segregation/decision-log.md)
+          - [Dynamic Locator Plan](05-Backend/01-flows/P1-emergency/rescue-trigger/operations/03-PHASE-4-Dynamic-Locator/plan.md)
+          - [Dynamic Locator Prompt](05-Backend/01-flows/P1-emergency/rescue-trigger/operations/03-PHASE-4-Dynamic-Locator/prompt.md)
+      - 📂 Live Tracking
+        - [Introduction](05-Backend/01-flows/P1-emergency/live-tracking/live-tracking.introduction.md)
+        - [Source Code](05-Backend/01-flows/P1-emergency/live-tracking/live-tracking.sourcecode.md)
+        - [Usage Guide](05-Backend/01-flows/P1-emergency/live-tracking/live-tracking.usageguide.md)
+        - 📂 Operations
+          - [Phase 2 Plan](05-Backend/01-flows/P1-emergency/live-tracking/operations/Phase-2-Ingestion-Foundation/plan.md)
+          - [Phase 2 Prompt](05-Backend/01-flows/P1-emergency/live-tracking/operations/Phase-2-Ingestion-Foundation/prompt.md)
+          - [Phase 2 Report](05-Backend/01-flows/P1-emergency/live-tracking/operations/Phase-2-Ingestion-Foundation/report.md)
+          - [Phase 3 Plan](05-Backend/01-flows/P1-emergency/live-tracking/operations/Phase-3-Full-Data-Pipeline/plan.md)
+          - [Phase 3 Prompt](05-Backend/01-flows/P1-emergency/live-tracking/operations/Phase-3-Full-Data-Pipeline/prompt.md)
+          - [Dashboard Plan](05-Backend/01-flows/P1-emergency/live-tracking/operations/FEAT-live-tracking-dashboard/plan.md)
+          - [Dashboard Prompt](05-Backend/01-flows/P1-emergency/live-tracking/operations/FEAT-live-tracking-dashboard/prompt.md)
     - **P2 - Snake Catching**
-      - [S1: Bắt 1 con rắn](05-Backend/01-flows/P2-catching/S1-single-snake/_flow.md)
-      - [S2: Bắt nhiều rắn (2-5)](05-Backend/01-flows/P2-catching/S2-multiple-snakes/_flow.md)
-      - [S3: Bắt cả ổ rắn](05-Backend/01-flows/P2-catching/S3-snake-nest/_flow.md)
-      - [S4: Màn hình chung](05-Backend/01-flows/P2-catching/S4-common/_flow.md)
+      - [S1: Bắt 1 con rắn](05-Backend/01-flows/P2-catching/S1-single-snake.flow.md)
+      - [S2: Bắt nhiều rắn (2-5)](05-Backend/01-flows/P2-catching/S2-multiple-snakes.flow.md)
+      - [S3: Bắt cả ổ rắn](05-Backend/01-flows/P2-catching/S3-snake-nest.flow.md)
+      - [S4: Màn hình chung](05-Backend/01-flows/P2-catching/S4-common.flow.md)
     - **P3 - Consulting**
+      - [API Plan](05-Backend/01-flows/P3-consulting/API_Plan.md)
+      - [Consultation Screen API](05-Backend/01-flows/P3-consulting/Consultation%20Screen%20API.md)
+      - [Consultation Flow Wireframe](05-Backend/01-flows/P3-consulting/Consultation%20Flow%20Wireframe.md)
+      - 📂 Consulting Flow Endpoints
+        - [Endpoints Design](05-Backend/01-flows/P3-consulting/ConsultingFlowEndpoints/analysis/Endpoints-design.md)
+        - [Decision Log](05-Backend/01-flows/P3-consulting/ConsultingFlowEndpoints/analysis/decision-log.md)
+        - [Plan](05-Backend/01-flows/P3-consulting/ConsultingFlowEndpoints/plan.md)
       - 📂 Live Kit Cloud
         - [Introduction](05-Backend/01-flows/P3-consulting/live-kit-cloud/live-kit-cloud.introduction.md)
         - [Source Code](05-Backend/01-flows/P3-consulting/live-kit-cloud/live-kit-cloud.sourcecode.md)
         - [Usage Guide](05-Backend/01-flows/P3-consulting/live-kit-cloud/live-kit-cloud.usageguide.md)
+        - 📂 Operations
+          - [Video Call Plan](05-Backend/01-flows/P3-consulting/live-kit-cloud/operations/01-FEAT-video-call/plan.md)
+          - [Video Call Prompt](05-Backend/01-flows/P3-consulting/live-kit-cloud/operations/01-FEAT-video-call/prompt.md)
+          - [Video Call Demo Plan](05-Backend/01-flows/P3-consulting/live-kit-cloud/operations/02-FEAT-video-call-demo/plan.md)
+          - [Video Call Demo Prompt](05-Backend/01-flows/P3-consulting/live-kit-cloud/operations/02-FEAT-video-call-demo/prompt.md)
+      - 📂 Consultation
+        - [Introduction](05-Backend/01-flows/P3-consulting/consultation/consultation.introduction.md)
+        - [Source Code](05-Backend/01-flows/P3-consulting/consultation/consultation.sourcecode.md)
+        - [Usage Guide](05-Backend/01-flows/P3-consulting/consultation/consultation.usageguide.md)
+        - 📂 Operations
+          - [Expert Directory Plan](05-Backend/01-flows/P3-consulting/consultation/operations/01-INIT-expert-directory/plan.md)
+          - [Expert Directory Prompt](05-Backend/01-flows/P3-consulting/consultation/operations/01-INIT-expert-directory/prompt.md)
+          - [Test Expert Directory Plan](05-Backend/01-flows/P3-consulting/consultation/operations/02-TEST-expert-directory/plan.md)
+          - [Test Expert Directory Prompt](05-Backend/01-flows/P3-consulting/consultation/operations/02-TEST-expert-directory/prompt.md)
+          - [Scheduled Consultation Plan](05-Backend/01-flows/P3-consulting/consultation/operations/03-FEAT-scheduled-consultation/plan.md)
+          - [Scheduled Consultation Prompt](05-Backend/01-flows/P3-consulting/consultation/operations/03-FEAT-scheduled-consultation/prompt.md)
+          - [Emergency Consultation Plan](05-Backend/01-flows/P3-consulting/consultation/operations/04-FEAT-emergency-consultation/plan.md)
+          - [Emergency Consultation Prompt](05-Backend/01-flows/P3-consulting/consultation/operations/04-FEAT-emergency-consultation/prompt.md)
+          - [In-Room Features Plan](05-Backend/01-flows/P3-consulting/consultation/operations/05-FEAT-in-room-features/plan.md)
+          - [In-Room Features Prompt](05-Backend/01-flows/P3-consulting/consultation/operations/05-FEAT-in-room-features/prompt.md)
   - 📂 Layers (Horizontal)
-    - **ASP.NET Identity**
-      - [Introduction](05-Backend/02-layers/aspnet-identity/aspnet-identity.introduction.md)
-    - **Cloudinary**
-      - [Introduction](05-Backend/02-layers/cloudinary/cloudinary.introduction.md)
-    - **AI Services**
-      - [Introduction](05-Backend/02-layers/ai/ai.introduction.md)
     - **Domain Driven Design**
       - [Introduction](05-Backend/02-layers/domain-driven-design/domain-driven-design.introduction.md)
+      - [Source Code](05-Backend/02-layers/domain-driven-design/domain-driven-design.sourcecode.md)
+      - [Usage Guide](05-Backend/02-layers/domain-driven-design/domain-driven-design.usageguide.md)
+      - 📂 Operations
+        - [DDD Migration Plan](05-Backend/02-layers/domain-driven-design/operations/ddd-migration/plan.md)
+        - [DDD Migration Prompt](05-Backend/02-layers/domain-driven-design/operations/ddd-migration/prompt.md)
+    - **ASP.NET Identity**
+      - [Introduction](05-Backend/02-layers/aspnet-identity/aspnet-identity.introduction.md)
+      - [Source Code](05-Backend/02-layers/aspnet-identity/aspnet-identity.sourcecode.md)
+      - [Usage Guide](05-Backend/02-layers/aspnet-identity/aspnet-identity.usageguide.md)
+      - 📂 Operations
+        - [Legacy Migration Plan](05-Backend/02-layers/aspnet-identity/operations/legacy-migration/plan.md)
+        - [Legacy Migration Prompt](05-Backend/02-layers/aspnet-identity/operations/legacy-migration/prompt.md)
+        - [ASPI UI Plan](05-Backend/02-layers/aspnet-identity/operations/aspi%20ui/aspi-ui.plan.md)
+    - **Cloudinary**
+      - [Introduction](05-Backend/02-layers/cloudinary/cloudinary.introduction.md)
+      - [Source Code](05-Backend/02-layers/cloudinary/cloudinary.sourcecode.md)
+      - [Usage Guide](05-Backend/02-layers/cloudinary/cloudinary.usageguide.md)
+      - 📂 Operations
+        - [Cloudinary Plan](05-Backend/02-layers/cloudinary/operations/cloudinary/plan.md)
+        - [Cloudinary Prompt](05-Backend/02-layers/cloudinary/operations/cloudinary/prompt.md)
+    - **AI Services**
+      - [Introduction](05-Backend/02-layers/ai/ai.introduction.md)
     - **Docker**
       - [Introduction](05-Backend/02-layers/docker/docker.introduction.md)
+      - [Source Code](05-Backend/02-layers/docker/docker.sourcecode.md)
+      - [Usage Guide](05-Backend/02-layers/docker/docker.usageguide.md)
     - **Jenkins**
       - [Introduction](05-Backend/02-layers/jenkins/jenkins.introduction.md)
+      - [Source Code](05-Backend/02-layers/jenkins/jenkins.sourcecode.md)
+      - [Usage Guide](05-Backend/02-layers/jenkins/jenkins.usageguide.md)
+      - 📂 Operations
+        - [Pipeline Automation Plan](05-Backend/02-layers/jenkins/operations/pipeline-automation/plan.md)
+        - [Pipeline Automation Prompt](05-Backend/02-layers/jenkins/operations/pipeline-automation/prompt.md)
     - **NuGet**
       - [Introduction](05-Backend/02-layers/nuget/nuget.introduction.md)
+      - 📂 Operations
+        - [Package Implementation Plan](05-Backend/02-layers/nuget/operations/package-implementation/plan.md)
     - **Grafana & Observability**
       - [Introduction](05-Backend/02-layers/grafana-otel-serilogs/grafana-otel-serilogs.introduction.md)
+      - 📂 Operations
+        - [Observability Setup Plan](05-Backend/02-layers/grafana-otel-serilogs/operations/observability-setup/plan.md)
+        - [Observability Setup Prompt](05-Backend/02-layers/grafana-otel-serilogs/operations/observability-setup/prompt.md)
     - **Snake Library**
       - [Introduction](05-Backend/02-layers/snake-library/snake-library.introduction.md)
+    - **NoSQL / Report / Media**
+      - [Introduction](05-Backend/02-layers/nosql-report-media/nosql-report-media.introduction.md)
+      - [Source Code](05-Backend/02-layers/nosql-report-media/nosql-report-media.sourcecode.md)
+      - [Usage Guide](05-Backend/02-layers/nosql-report-media/nosql-report-media.usageguide.md)
+    - **Supabase**
+      - [Max Clients Session Error](05-Backend/02-layers/supabase/max-clients-session-error.md)
 
 - 📂 06. Flutter (Mobile)
   - [Mobile Code Culture](06-Flutter/MobileCodeCulture.md)
   - [Agent Manual](06-Flutter/AGENTS.md)
+  - 📂 Standards
+    - [Networking Core](06-Flutter/01-Standards/networking-core.standards.md)
   - 📂 Features
-    - [Live Tracking Integration](06-Flutter/02-Features/live-tracking/live-tracking.integration.md)
-    - [Video Call Integration](06-Flutter/02-Features/video-call/video-call.integration.md)
+    - 📂 Live Tracking
+      - [Integration](06-Flutter/02-Features/live-tracking/live-tracking.integration.md)
+      - [Function Graph](06-Flutter/02-Features/live-tracking/live-tracking.function-graph.md)
+      - 📂 Operations
+        - [LT1 Plan](06-Flutter/02-Features/live-tracking/operations/FEAT-live-tracking-LT1/plan.md)
+        - [LT1 Prompt](06-Flutter/02-Features/live-tracking/operations/FEAT-live-tracking-LT1/prompt.md)
+    - 📂 Video Call
+      - [Integration](06-Flutter/02-Features/video-call/video-call.integration.md)
+      - 📂 Operations
+        - [Video Call Demo Plan](06-Flutter/02-Features/video-call/operations/01-FEAT-integrate-video-call-demo/plan.md)
+        - [Video Call Demo Prompt](06-Flutter/02-Features/video-call/operations/01-FEAT-integrate-video-call-demo/prompt.md)
+        - [Video Call Consultation Plan](06-Flutter/02-Features/video-call/operations/02-FEAT-integrate-video-call-consultation/plan.md)
+        - [Demo Navigation Plan](06-Flutter/02-Features/video-call/operations/03-FEAT-demo-navigation/plan.md)
+        - [Demo Navigation Prompt](06-Flutter/02-Features/video-call/operations/03-FEAT-demo-navigation/prompt.md)
 
 - 📂 07. Artifacts
   - 📂 LiveKit Cloud SFU
