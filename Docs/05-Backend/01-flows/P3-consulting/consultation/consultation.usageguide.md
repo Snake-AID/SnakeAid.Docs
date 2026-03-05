@@ -13,12 +13,12 @@ owners: [backend-team]
 
 ### Expert Directory & Availability
 
-- **Update Settings**: `PUT /api/v1/experts/me/settings`
-- **Setup Weekly Hours**: `POST /api/v1/experts/me/time-slots/bulk`
-- **List Experts**: `GET /api/v1/experts`
-- **Expert Profile**: `GET /api/v1/experts/{expertId}`
-- **Expert Reviews**: `GET /api/v1/experts/{expertId}/reviews`
-- **Available Time Slots**: `GET /api/v1/experts/{expertId}/time-slots`
+- **Update Settings**:     `PUT  /api/v1/experts/me/settings`
+- **Setup Weekly Hours**:  `POST /api/v1/experts/me/time-slots/bulk`
+- **List Experts**:        `GET  /api/v1/experts`
+- **Expert Profile**:      `GET  /api/v1/experts/{expertId}`
+- **Expert Reviews**:      `GET  /api/v1/experts/{expertId}/reviews`
+- **Available Time Slots**:`GET  /api/v1/experts/{expertId}/time-slots`
 
 ## Request/Response Examples
 

@@ -1,5 +1,137 @@
+# Consultation Flow Wireframe
 ---
-Đây là wireframe của flow tư vấn
+# API Mapping (Backend Baseline - Operation 01)
+
+Mục tiêu: map nhanh từ màn hình sang endpoint backend đã sẵn sàng, giúp mobile dev biết chính xác chỗ nào có thể tích hợp ngay.
+
+## Endpoint đã sẵn sàng
+
+### Operation 1
+- `PUT /api/v1/experts/me/settings`
+- `POST /api/v1/experts/me/time-slots/bulk`
+- `GET /api/v1/experts`
+- `GET /api/v1/experts/{expertId}`
+- `GET /api/v1/experts/{expertId}/reviews`
+- `GET /api/v1/experts/{expertId}/time-slots`
+
+### Operation 3
+### Operation 4
+### Operation 5
+
+## Mapping theo màn hình (User Series)
+
+### Screen: Danh sách chuyên gia
+
+- Data source chính: `GET /api/v1/experts`
+- Dùng cho:
+  - Họ tên
+  - Chuyên ngành
+  - Trạng thái xác minh
+  - Đánh giá và số lượng đánh giá
+  - Đơn giá tư vấn
+  - Trạng thái online/offline
+
+### Screen: Thông tin profile chuyên gia
+
+- Data source chính:
+  - `GET /api/v1/experts/{expertId}`
+  - `GET /api/v1/experts/{expertId}/reviews`
+  - `GET /api/v1/experts/{expertId}/time-slots`
+- Dùng cho:
+  - Thông tin cá nhân chuyên gia
+  - Danh sách review (chỉ review consultation)
+  - Lịch trống khả dụng để đặt lịch
+
+### Screen: Chọn loại tư vấn
+
+- Data source:
+  - `GET /api/v1/experts/{expertId}` để hiển thị thông tin chuyên gia
+  - `GET /api/v1/experts/{expertId}/time-slots` cho nhánh đặt lịch
+- Ghi chú:
+  - API tạo tư vấn ngay/chốt booking chưa nằm trong Operation 01.
+
+### Usecase: Đặt lịch tư vấn
+
+- Data source:
+  - `GET /api/v1/experts/{expertId}/time-slots` để lấy slot khả dụng
+- Ghi chú:
+  - API tạo lịch hẹn tư vấn chưa nằm trong Operation 01.
+
+### Screen: Consulting Homepage
+
+- Trạng thái hiện tại:
+  - Chưa có endpoint Operation 01 cho danh sách "Buổi đặt lịch của tôi".
+
+### Screen: Tài liệu tư vấn
+
+- Trạng thái hiện tại:
+  - Chưa có endpoint Operation 01 cho tạo/lưu tài liệu tư vấn.
+
+### Screen: Xác nhận thanh toán
+
+- Trạng thái hiện tại:
+  - Chưa có endpoint Operation 01 cho payment summary/checkout.
+
+### Screen: Sảnh phòng chờ
+
+- Trạng thái hiện tại:
+  - Chưa có endpoint Operation 01 cho room waiting state.
+
+### Screen: Trong phòng tư vấn
+
+- Trạng thái hiện tại:
+  - Chưa có endpoint Operation 01 cho in-room signaling/chat/media control.
+
+### Screen: Chat
+
+- Trạng thái hiện tại:
+  - Chưa có endpoint Operation 01 cho chat.
+
+### Screen: Hoàn thành
+
+- Trạng thái hiện tại:
+  - Chưa có endpoint Operation 01 cho completion summary/feedback submit.
+
+## Mapping theo màn hình (Expert Series)
+
+### Screen: Thiết đặt
+
+- Data source/API:
+  - `PUT /api/v1/experts/me/settings`
+  - `POST /api/v1/experts/me/time-slots/bulk`
+- Ghi chú:
+  - `weekStartDate` bắt buộc UTC (`...Z`).
+  - Backend đang chuẩn hóa slot theo block 30 phút.
+
+### Screen: Các tư vấn khẩn cấp
+
+- Trạng thái hiện tại:
+  - Chưa có endpoint Operation 01 cho nhận/từ chối tư vấn khẩn cấp.
+
+### Screen: Sảnh phòng chờ
+
+- Trạng thái hiện tại:
+  - Chưa có endpoint Operation 01 cho room waiting state phía chuyên gia.
+
+### Screen: Trong phòng tư vấn
+
+- Trạng thái hiện tại:
+  - Chưa có endpoint Operation 01 cho in-room signaling/chat/media control.
+
+### Screen: Chat
+
+- Trạng thái hiện tại:
+  - Chưa có endpoint Operation 01 cho chat/popup actions.
+
+### Side Screen: Tra cứu rắn
+
+- Trạng thái hiện tại:
+  - Không thuộc backend scope của consultation Operation 01.
+
+### Screen: Hoàn tất tư vấn
+
+- Trạng thái hiện tại:
+  - Chưa có endpoint Operation 01 cho payment settlement summary.
 ---
 
 # Series Người dùng:
