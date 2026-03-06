@@ -32,6 +32,7 @@ Codebase verification (2026-03-06):
 ## 2. Gap Analysis
 
 - Missing `ExpertHub` SignalR implementation to manage online/offline status in real-time.
+- Missing member-facing realtime consumption path for expert presence updates (users currently depend on REST polling).
 - Missing an endpoint for a user to request immediate consultation with a selected expert `POST /api/v1/consultations/emergency`.
 - Missing expert endpoints to Accept/Reject a request sent to that selected expert.
 - Missing Domain Event logic to handle the "Slot Paradox", where accepting an unpredictable 30-minute block must lock out any overlapping regular `ExpertTimeSlot`s.
@@ -43,7 +44,13 @@ Codebase verification (2026-03-06):
 
 Implement the following:
 
-- `ExpertHub` at `/hubs/expert` handling `JoinAsExpert`, `OnDisconnectedAsync`, and expert presence updates (`IsOnline`).
+- `ExpertHub` at `/hubs/expert` handling:
+  - `JoinAsExpert`, `OnDisconnectedAsync`, and expert presence updates (`IsOnline`).
+  - `JoinAsMember` (role `User`) so member clients can subscribe to consultation presence updates.
+  - Presence events for member clients:
+    - initial snapshot event `OnlineExpertsSnapshot`
+    - delta event `ExpertPresenceChanged` when expert online status changes.
+  - Add hardcoded safety switch `EnablePresenceSelfHealing` (default `false`) to control whether Hub reconciles DB `ExpertProfile.IsOnline` from in-memory SignalR presence.
 - `POST /api/v1/consultations/emergency` to create a `ConsultationPingRequest` with explicit `ExpertId` chosen by user and push a directed realtime notification to that expert via `IHubContext`.
 - `POST /api/v1/consultations/emergency-requests/{requestId}/accept` to transition the request, create an `Ongoing` consultation, and fire a Domain Event.
 - `POST /api/v1/consultations/emergency-requests/{requestId}/reject`.
@@ -65,6 +72,8 @@ Implement the following:
 ## 5. Risks & Constraints
 
 - Socket lifecycle and Database syncing: `OnDisconnectedAsync` might fire unexpectedly. Real-time drops must sync correctly to `ExpertProfile.IsOnline`.
+- Hub authorization must avoid privilege leakage: only experts can call `JoinAsExpert`; users can only subscribe via `JoinAsMember`.
+- Shared DB across environments can cause accidental cross-environment healing; `EnablePresenceSelfHealing` must stay `false` unless explicitly approved.
 - Racing conditions on concurrent emergency requests targeting the same expert.
 - Accept/Reject authorization must ensure only the targeted expert can respond to the request.
 - Directory sort/filter expansion must preserve backward compatibility for existing clients using pagination-only query.
@@ -73,6 +82,9 @@ Implement the following:
 
 - Unit test Domain Event firing to ensure overlapping `ExpertTimeSlot`s switch to `Reserved`.
 - Integration test or manual Postman testing involving SignalR clients to verify robust `IsOnline` toggle behavior and directed notify to selected expert only.
+- Manual SignalR validation:
+  - User joins `JoinAsMember` and receives `OnlineExpertsSnapshot`.
+  - When an expert joins/disconnects, user receives `ExpertPresenceChanged` with matching `expertId` and `isOnline`.
 - Add/extend directory tests verifying:
   - `GET /api/v1/experts` filters by `isOnline` and `specialization`.
   - Sorting by `isOnline`, `rating`, `consultationFee` with deterministic tie-breakers.

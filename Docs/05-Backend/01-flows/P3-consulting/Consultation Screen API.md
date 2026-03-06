@@ -44,6 +44,9 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - `POST /api/v1/consultations/emergency-requests/{requestId}/reject`
 - SignalR hub endpoint: `/hubs/expert`
   - Expert client method: `JoinAsExpert`
+  - Member client method: `JoinAsMember`
+  - Presence snapshot event: `OnlineExpertsSnapshot`
+  - Presence delta event: `ExpertPresenceChanged`
   - Server push event: `EmergencyConsultationRequest`
 
 ### Planned (Mobile Not Covered in Operation 01-04)
@@ -57,6 +60,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - `Mobile Not Covered`: Backend chưa có endpoint cho component/use-case đó, nên mobile chưa thể build end-to-end.
 - Lưu ý: `Mobile Partial`/`Mobile Not Covered` trong tài liệu này là khoảng trống backend cho nhu cầu mobile handoff.
 - Lưu ý API contract: success response dùng envelope `ApiResponse<T>` (`status_code`, `message`, `is_success`, `data`).
+- Lưu ý presence semantics: realtime online/offline ưu tiên SignalR events (`OnlineExpertsSnapshot`, `ExpertPresenceChanged`); `ExpertProfile.IsOnline` trong DB là trạng thái eventual consistency.
 
 ## Operation 01 Coverage Audit (Wireframe)
 
@@ -107,6 +111,11 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 #### Screen: Danh sách chuyên gia
 
 - Data source chính: `GET /api/v1/experts`
+- Realtime source:
+  - SignalR `/hubs/expert`
+  - Member gọi `JoinAsMember`
+  - Event `OnlineExpertsSnapshot` để hydrate online map ban đầu
+  - Event `ExpertPresenceChanged` để cập nhật online/offline realtime
 - Query phục vụ UI UX:
   - `pageNumber`, `pageSize`
   - `specialization`
@@ -120,6 +129,10 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Đánh giá và số lượng đánh giá
   - Đơn giá tư vấn
   - Trạng thái online/offline
+- Ghi chú:
+  - REST trả snapshot dữ liệu list/filter/sort.
+  - SignalR dùng để cập nhật tức thời badge online, tránh polling liên tục.
+  - `OnlineExpertsSnapshot` lấy từ SignalR connected memory (SignalR-first), không query DB presence.
 
 #### Screen: Thông tin profile chuyên gia
 
@@ -262,6 +275,10 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 ### 1. Screen: Danh sách chuyên gia
 
 - API: `GET /api/v1/experts`
+- Realtime:
+  - Hub endpoint: `/hubs/expert`
+  - Member method: `JoinAsMember`
+  - Event: `OnlineExpertsSnapshot`, `ExpertPresenceChanged`
 - Query:
   - `pageNumber` (>= 1)
   - `pageSize` (1..100)
