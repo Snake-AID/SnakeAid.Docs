@@ -80,8 +80,8 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Handoff note: Mobile có thể render profile bản cơ bản, nhưng các block thống kê + verified badge chuẩn nghiệp vụ cần backend bổ sung.
 - `Screen: Chọn loại tư vấn`
   - Có dữ liệu cho nhánh đặt lịch (expert info + available slots).
-  - Chưa có API tạo yêu cầu tư vấn ngay (emergency branch).
-  - Handoff note: Chỉ mở nhánh đặt lịch, nhánh tư vấn ngay cần feature flag/placeholder.
+  - Nhánh tư vấn ngay đã có API ở Operation 04 (`POST /api/v1/consultations/emergency`).
+  - Handoff note: luồng tư vấn ngay đã mở, riêng bước `Xác nhận thanh toán` vẫn cần Operation 05.
 - `Usecase: Đặt lịch tư vấn`
   - Operation 01 chỉ có phần đọc slot (`GET /experts/{id}/time-slots`).
   - API chốt booking nằm ở Operation 03 (`POST /consultation-bookings`).
@@ -228,6 +228,34 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - Component dùng API:
   - Hiển thị incoming emergency request realtime
   - Expert accept/reject đúng request được push
+
+### Emergency Consultation State Transition (Operation 04)
+
+- Mục tiêu: chuẩn hóa lifecycle của emergency request để mobile render đúng trạng thái ở cả User và Expert.
+- Trạng thái chính:
+  - `Pending`: user vừa tạo request, đang chờ expert phản hồi
+  - `Accepted`: expert đã nhận ca, chuyển sang vào phòng tư vấn
+  - `Rejected`: expert từ chối request
+  - `Expired`: quá thời gian chờ phản hồi (timeout nghiệp vụ)
+
+#### Transition Rules
+
+- `Pending -> Accepted`
+  - Trigger: expert gọi `POST /api/v1/consultations/emergency-requests/{requestId}/accept`
+  - Kết quả UI:
+    - Expert: mở flow vào phòng
+    - User: nhận trạng thái accepted và chuyển sang room/waiting-room tùy UX mobile
+- `Pending -> Rejected`
+  - Trigger: expert gọi `POST /api/v1/consultations/emergency-requests/{requestId}/reject`
+  - Kết quả UI:
+    - User: hiển thị "chuyên gia đã từ chối", cho phép chọn expert khác
+- `Pending -> Expired`
+  - Trigger: backend timeout request pending
+  - Kết quả UI:
+    - User: hiển thị "yêu cầu hết hạn", cho phép tạo yêu cầu mới
+- `Accepted|Rejected|Expired -> (terminal)`
+  - Không cho phép accept/reject lại
+  - Backend trả `409` nếu client thao tác trên request không còn `Pending`
 
 ## Mobile Handoff Checklist (Operation 01-04)
 
@@ -383,6 +411,9 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `401/403` chưa đăng nhập hoặc sai role expert
   - `404` request không tồn tại
   - `409` request không còn pending
+- State transition cần bám:
+  - Chỉ cho phép action khi request đang `Pending`
+  - Sau `Accepted/Rejected/Expired` phải disable action button và sync trạng thái terminal
 - Trạng thái: Ready
 
 ### 14. Các màn hình Mobile Not Covered (Operation 01-04)
