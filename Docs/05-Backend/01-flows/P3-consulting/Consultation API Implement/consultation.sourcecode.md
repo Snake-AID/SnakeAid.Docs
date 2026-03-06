@@ -3,7 +3,7 @@ doc_role: baseline
 module: consultation
 kind: flow
 status: active
-last_updated: 2026-03-05
+last_updated: 2026-03-06
 owners: [backend-team]
 ---
 
@@ -29,6 +29,16 @@ _Implemented in [ExpertController.cs](SnakeAid.Backend/SnakeAid.Api/Controllers/
 - `GET /api/v1/experts/{expertId}/reviews`: Get paginated **consultation** reviews for an expert.
 - `GET /api/v1/experts/{expertId}/time-slots`: Get available future time slots for an expert.
 
+### Scheduled Consultation
+
+_Implemented in `ConsultationBookingsController`, `ConsultationsController`, `BookingService`, `ConsultationService`_
+
+- `POST /api/v1/consultation-bookings`: Reserve an available expert slot and create a pending booking + scheduled consultation room.
+- `GET /api/v1/consultation-bookings/my-bookings`: Get booking history of current user.
+- `POST /api/v1/consultations/{consultationId}/end`: End consultation and update booking/slot status.
+- `POST /api/v1/consultations/{consultationId}/reviews`: Submit consultation review (user -> expert).
+- `POST /api/videocall/livekit-token/{consultationId}`: Generate LiveKit token only if caller is consultation participant (or admin), using persisted `RoomId`.
+
 ## Hubs
 
 _None currently implemented._
@@ -41,3 +51,4 @@ _None currently implemented._
 - **Error Semantics**:
   - Non-UTC `weekStartDate` is rejected with `ValidationException` (HTTP `422`).
   - Concurrent duplicate slot insertions are rejected with `ConflictException` (HTTP `409`).
+  - Concurrent slot reservation in `POST /api/v1/consultation-bookings` is translated to `ConflictException` (HTTP `409`).

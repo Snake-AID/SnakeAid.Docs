@@ -2,14 +2,24 @@
 doc_role: operation
 operation_id: 03-FEAT-scheduled-consultation
 type: FEAT
-status: draft
+status: done
 created_at: 2026-03-05
 affects:
   - Api/Controllers/ConsultationBookingsController.cs
   - Api/Controllers/ConsultationsController.cs
   - Api/Controllers/VideoCallController.cs
+  - Service/Implements/BookingService.cs
+  - Service/Implements/ConsultationService.cs
+  - Service/Interfaces/IBookingService.cs
+  - Service/Interfaces/IConsultationService.cs
   - Core/Domains/ConsultationBooking.cs
   - Core/Domains/Consultation.cs
+  - Core/Requests/Consultation/CreateConsultationBookingRequest.cs
+  - Core/Requests/Consultation/CreateConsultationReviewRequest.cs
+  - Core/Responses/Consultation/ConsultationBookingResponse.cs
+  - Repository/Migrations/*AddProblemDescriptionToConsultationBooking*
+  - Tests/Integration/ScheduledConsultationIntegrationTests.cs
+  - Tests/Unit/BookingServiceConcurrencyTests.cs
 ---
 
 # Plan: Scheduled Consultation Flow

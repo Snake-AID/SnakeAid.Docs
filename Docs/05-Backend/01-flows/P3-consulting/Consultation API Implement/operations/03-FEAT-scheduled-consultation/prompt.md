@@ -2,7 +2,7 @@
 doc_role: operation
 operation_id: 03-FEAT-scheduled-consultation
 generated_from: plan.md
-status: draft
+status: done
 created_at: 2026-03-05
 ---
 
@@ -18,8 +18,8 @@ Specific tasks:
 2. Implement `POST /api/v1/consultation-bookings`. Fetch the requested `ExpertTimeSlot`, verify it is `Available`, update its status to `Reserved`, and save. **Crucial**: Utilize the `Version` field to enforce Optimistic Concurrency. Return HTTP 409 if a conflict occurs.
 3. Implement `GET /api/v1/consultation-bookings/my-bookings` returning filtered history for the current caller.
 4. Ensure `POST /api/videocall/livekit-token/{consultationId}` securely returns a LiveKit token using the current user's identity and the established `RoomId`.
-5. Implement `POST /v1/consultations/{consultationId}/end` to finalize the status and clear related constraints.
-6. Implement `POST /v1/consultations/{consultationId}/reviews` inserting into `UserFeedback`.
+5. Implement `POST /api/v1/consultations/{consultationId}/end` to finalize the status and clear related constraints.
+6. Implement `POST /api/v1/consultations/{consultationId}/reviews` inserting into `UserFeedback`.
 
 ## Constraints
 

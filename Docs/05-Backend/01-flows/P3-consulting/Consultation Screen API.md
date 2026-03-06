@@ -3,13 +3,13 @@ doc_role: handoff
 module: consultation
 kind: api-mapping
 status: active
-last_updated: 2026-03-05
+last_updated: 2026-03-06
 owners: [backend-team, mobile-team]
 ---
 
 # Consultation API Mapping and Mobile Handoff
 
-## Backend Baseline (Operation 01)
+## Backend Baseline (Operation 01 + 03)
 
 ### Endpoints Ready
 
@@ -19,16 +19,39 @@ owners: [backend-team, mobile-team]
 - `GET /api/v1/experts/{expertId}`
 - `GET /api/v1/experts/{expertId}/reviews`
 - `GET /api/v1/experts/{expertId}/time-slots`
+- `POST /api/v1/consultation-bookings`
+- `GET /api/v1/consultation-bookings/my-bookings`
+- `POST /api/v1/consultations/{consultationId}/end`
+- `POST /api/v1/consultations/{consultationId}/reviews`
+- `POST /api/videocall/livekit-token/{consultationId}`
 
-### Planned (Not Ready in Operation 01)
+### Operation 03 (Scheduled Consultation)
 
-- Operation 03
+Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn và gửi đánh giá:
+
+- `POST /api/v1/consultation-bookings`
+- `GET /api/v1/consultation-bookings/my-bookings`
+- `POST /api/v1/consultations/{consultationId}/end`
+- `POST /api/v1/consultations/{consultationId}/reviews`
+- `POST /api/videocall/livekit-token/{consultationId}`
+
+### Planned (Not Ready in Operation 01-03)
+
 - Operation 04
 - Operation 05
 
 ## API Mapping by Screen
 
 ### Mapping theo màn hình (User Series)
+
+#### Screen: Consulting Homepage
+
+- Data source chính: `GET /api/v1/consultation-bookings/my-bookings`
+- Component dùng API:
+  - Section "Buổi đặt lịch của tôi"
+  - Card: Đang trong quá trình đặt (`Thanh toán ngay`)
+  - Card: Đã đặt, đến giờ (`Vào phòng ngay`)
+  - Booking status badge (`PendingPayment/Confirmed/Completed...`)
 
 #### Screen: Danh sách chuyên gia
 
@@ -61,15 +84,52 @@ owners: [backend-team, mobile-team]
   - Hiển thị thông tin expert trước khi chọn loại tư vấn
   - Hiển thị trạng thái slot để user quyết định đặt lịch
 - Ghi chú:
-  - API tạo tư vấn ngay/chốt booking chưa nằm trong Operation 01
+  - API tư vấn ngay (emergency) chưa nằm trong Operation 01-03
+  - API tạo booking đặt lịch nằm ở Screen "Tài liệu tư vấn"
 
-### Usecase: Đặt lịch tư vấn
+#### Screen: Đặt lịch tư vấn (chọn ngày/slot)
 
 - Data source:
   - `GET /api/v1/experts/{expertId}/time-slots`
 - Dùng cho:
   - Render danh sách ngày/slot khả dụng
-  - Cho phép user chọn khung giờ trước bước thanh toán
+  - Cho user chọn slot trước khi qua bước nhập tài liệu
+
+#### Screen: Tài liệu tư vấn
+
+- Data source:
+  - `POST /api/v1/consultation-bookings`
+- Component dùng API:
+  - Text input: Mô tả vấn đề (`problemDescription`)
+  - Text input: Câu hỏi cụ thể (`question`)
+  - CTA: Xác nhận đặt lịch
+
+#### Screen: Sảnh phòng chờ
+
+- Data source:
+  - `POST /api/videocall/livekit-token/{consultationId}`
+- Component dùng API:
+  - Nút `Join phòng`
+  - Lấy token vào phòng LiveKit cho đúng consultation
+  - Chặn truy cập nếu user không phải participant
+
+#### Screen: Trong phòng tư vấn
+
+- Data source:
+  - `POST /api/videocall/livekit-token/{consultationId}` (lấy token trước khi join room)
+  - `POST /api/v1/consultations/{consultationId}/end`
+- Component dùng API:
+  - Nút `Kết thúc` buổi tư vấn
+  - Các control mic/cam/chat là realtime UI, không gọi thêm REST endpoint trong Operation 03
+
+#### Screen: Hoàn thành
+
+- Data source:
+  - `POST /api/v1/consultations/{consultationId}/reviews`
+- Component dùng API:
+  - Star rating
+  - Text input nhận xét
+  - Nút gửi đánh giá
 
 ### Mapping theo màn hình (Expert Series)
 
@@ -82,7 +142,16 @@ owners: [backend-team, mobile-team]
   - Cập nhật hồ sơ tư vấn, phí tư vấn
   - Thiết lập lịch làm việc theo tuần để mở slot cho user đặt
 
-## Mobile Handoff Checklist (Operation 01)
+#### Screen: Sảnh phòng chờ / Trong phòng tư vấn
+
+- Data source:
+  - `POST /api/videocall/livekit-token/{consultationId}`
+  - `POST /api/v1/consultations/{consultationId}/end`
+- Component dùng API:
+  - Join room theo consultation
+  - Kết thúc ca tư vấn khi hoàn tất
+
+## Mobile Handoff Checklist (Operation 01-03)
 
 ### 1. Screen: Danh sách chuyên gia
 
@@ -155,15 +224,63 @@ owners: [backend-team, mobile-team]
   - `401/403` khi không phải Expert
 - Trạng thái: Ready
 
-### 7. Các màn hình chưa sẵn sàng API (Operation 01)
+### 7. Screen: Consulting Homepage (buổi đặt lịch của tôi)
 
-- Consulting Homepage (danh sách buổi tư vấn của tôi)
-- Chọn loại tư vấn: nhánh tạo tư vấn ngay / tạo booking
-- Tài liệu tư vấn
+- API: `GET /api/v1/consultation-bookings/my-bookings`
+- Request DTO: Không có body
+- Response DTO: `IEnumerable<ConsultationBookingResponse>`
+- Error cần handle:
+  - `401/403` khi chưa đăng nhập hoặc sai role
+- Trạng thái: Ready
+
+### 8. Screen: Tài liệu tư vấn (tạo booking đặt lịch)
+
+- API: `POST /api/v1/consultation-bookings`
+- Request DTO: `CreateConsultationBookingRequest`
+- Response DTO: `ConsultationBookingResponse`
+- Error cần handle:
+  - `400/422` payload không hợp lệ
+  - `404` expert/slot không tồn tại
+  - `409` slot đã bị user khác đặt trước (race condition)
+  - `401/403` khi chưa đăng nhập hoặc sai role
+- Trạng thái: Ready
+
+### 9. Screen: Sảnh phòng chờ / Trong phòng tư vấn (join room)
+
+- API: `POST /api/videocall/livekit-token/{consultationId}`
+- Request DTO: Không có body
+- Response DTO: `VideoTokenResponse` (bọc trong object `data` của API)
+- Error cần handle:
+  - `404` consultation không tồn tại
+  - `403` không phải participant của consultation
+  - `401` chưa đăng nhập
+- Trạng thái: Ready
+
+### 10. Screen: Trong phòng tư vấn (kết thúc buổi)
+
+- API: `POST /api/v1/consultations/{consultationId}/end`
+- Request DTO: Không có body
+- Response: `200 OK`
+- Error cần handle:
+  - `401/403` không có quyền
+  - `404` consultation không tồn tại
+- Trạng thái: Ready
+
+### 11. Screen: Hoàn thành (gửi đánh giá)
+
+- API: `POST /api/v1/consultations/{consultationId}/reviews`
+- Request DTO: `CreateConsultationReviewRequest`
+- Response DTO: `UserFeedbackResponse`
+- Error cần handle:
+  - `400/422` payload không hợp lệ
+  - `401/403` sai role hoặc không có quyền review consultation này
+  - `404` consultation không tồn tại
+- Trạng thái: Ready
+
+### 12. Các màn hình chưa sẵn sàng API (Operation 01-03)
+
+- Chọn loại tư vấn: nhánh tư vấn ngay (emergency)
 - Xác nhận thanh toán
-- Sảnh phòng chờ
-- Trong phòng tư vấn
 - Chat
-- Hoàn thành / gửi đánh giá
 - Các tư vấn khẩn cấp (expert inbox)
-- Trạng thái: Not Ready (đợi Operation 03/04/05)
+- Trạng thái: Not Ready (đợi Operation 04/05)

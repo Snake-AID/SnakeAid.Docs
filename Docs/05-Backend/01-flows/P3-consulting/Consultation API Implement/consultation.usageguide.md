@@ -3,7 +3,7 @@ doc_role: baseline
 module: consultation
 kind: flow
 status: active
-last_updated: 2026-03-05
+last_updated: 2026-03-06
 owners: [backend-team]
 ---
 
@@ -19,6 +19,14 @@ owners: [backend-team]
 - **Expert Profile**:      `GET  /api/v1/experts/{expertId}`
 - **Expert Reviews**:      `GET  /api/v1/experts/{expertId}/reviews`
 - **Available Time Slots**:`GET  /api/v1/experts/{expertId}/time-slots`
+
+### Scheduled Consultation
+
+- **Create Booking**: `POST /api/v1/consultation-bookings`
+- **My Bookings**: `GET /api/v1/consultation-bookings/my-bookings`
+- **End Consultation**: `POST /api/v1/consultations/{consultationId}/end`
+- **Create Consultation Review**: `POST /api/v1/consultations/{consultationId}/reviews`
+- **Generate LiveKit Token**: `POST /api/videocall/livekit-token/{consultationId}`
 
 ## Request/Response Examples
 
@@ -153,7 +161,33 @@ Returns only `FeedbackType = Consultation` reviews for the target expert.
 - Pagination: `pageNumber >= 1`
 - Pagination: `1 <= pageSize <= 100`
 
+## Scheduled Consultation Examples
+
+### Create Booking
+
+_Endpoint: `POST /api/v1/consultation-bookings`_
+
+```json
+{
+  "timeSlotId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "problemDescription": "Patient has progressive swelling after snakebite. Need consultation."
+}
+```
+
+### Create Consultation Review
+
+_Endpoint: `POST /api/v1/consultations/{consultationId}/reviews`_
+
+```json
+{
+  "rating": 5,
+  "comments": "Very helpful consultation."
+}
+```
+
 ## Error Notes
 
 - `POST /api/v1/experts/me/time-slots/bulk` returns `422` when `weekStartDate` is not UTC (`...Z`).
 - `POST /api/v1/experts/me/time-slots/bulk` returns `409` when a concurrent request inserts the same slot first.
+- `POST /api/v1/consultation-bookings` returns `409` when another request reserves the same slot first.
+- `POST /api/videocall/livekit-token/{consultationId}` returns `403` if caller is not a consultation participant.
