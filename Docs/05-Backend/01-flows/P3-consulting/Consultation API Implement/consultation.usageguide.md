@@ -28,11 +28,17 @@ owners: [backend-team]
 - **Create Consultation Review**: `POST /api/v1/consultations/{consultationId}/reviews`
 - **Generate LiveKit Token**: `POST /api/videocall/livekit-token/{consultationId}`
 
+### Emergency Consultation
+
+- **Create Emergency Request**: `POST /api/v1/consultations/emergency`
+- **Accept Emergency Request**: `POST /api/v1/consultations/emergency-requests/{requestId}/accept`
+- **Reject Emergency Request**: `POST /api/v1/consultations/emergency-requests/{requestId}/reject`
+
 ## Request/Response Examples
 
 ## Response Envelope (Code Culture)
 
-All successful API responses in Operation 01-03 are wrapped in `ApiResponse<T>`:
+All successful API responses are wrapped in `ApiResponse<T>`:
 
 ```json
 {
@@ -195,6 +201,11 @@ Returns only `FeedbackType = Consultation` reviews for the target expert.
 
 - Pagination: `pageNumber >= 1`
 - Pagination: `1 <= pageSize <= 100`
+- `GET /api/v1/experts` supports optional:
+  - `specialization` (substring filter)
+  - `isOnline` (`true` / `false`)
+  - `sortBy` (`isOnline` | `rating` | `consultationFee`)
+  - `sortOrder` (`asc` | `desc`)
 
 ## Scheduled Consultation Examples
 
@@ -220,6 +231,30 @@ _Endpoint: `POST /api/v1/consultations/{consultationId}/reviews`_
 }
 ```
 
+## Emergency Consultation Examples
+
+### Create Emergency Request
+
+_Endpoint: `POST /api/v1/consultations/emergency`_
+
+```json
+{
+  "expertId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+}
+```
+
+### Accept Emergency Request
+
+_Endpoint: `POST /api/v1/consultations/emergency-requests/{requestId}/accept`_
+
+No body.
+
+### Reject Emergency Request
+
+_Endpoint: `POST /api/v1/consultations/emergency-requests/{requestId}/reject`_
+
+No body.
+
 ## Error Notes
 
 - Error payloads are standardized by middleware (`ApiExceptionHandlerMiddleware`) with `ApiResponse<object>` shape.
@@ -227,3 +262,6 @@ _Endpoint: `POST /api/v1/consultations/{consultationId}/reviews`_
 - `POST /api/v1/experts/me/time-slots/bulk` returns `409` when a concurrent request inserts the same slot first.
 - `POST /api/v1/consultation-bookings` returns `409` when another request reserves the same slot first.
 - `POST /api/videocall/livekit-token/{consultationId}` returns `403` if caller is not a consultation participant.
+- `POST /api/v1/consultations/emergency` returns `409` when selected expert is offline or an active request already exists.
+- `POST /api/v1/consultations/emergency-requests/{requestId}/accept|reject` returns `403` when caller is not targeted expert.
+- `POST /api/v1/consultations/emergency-requests/{requestId}/accept|reject` returns `409` when request is no longer pending.

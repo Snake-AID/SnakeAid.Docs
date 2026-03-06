@@ -9,7 +9,7 @@ owners: [backend-team, mobile-team]
 
 # Consultation API Mapping and Mobile Handoff
 
-## Backend Ready (Operation 01 + 03)
+## Backend Ready (Operation 01 + 03 + 04)
 
 ### Operation 01 (Expert Directory & Availability)
 
@@ -37,9 +37,17 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - `POST /api/v1/consultations/{consultationId}/reviews`
 - `POST /api/videocall/livekit-token/{consultationId}`
 
-### Planned (Mobile Not Covered in Operation 01-03)
+### Operation 04 (Emergency Consultation + Presence)
 
-- Operation 04
+- `POST /api/v1/consultations/emergency`
+- `POST /api/v1/consultations/emergency-requests/{requestId}/accept`
+- `POST /api/v1/consultations/emergency-requests/{requestId}/reject`
+- SignalR hub endpoint: `/hubs/expert`
+  - Expert client method: `JoinAsExpert`
+  - Server push event: `EmergencyConsultationRequest`
+
+### Planned (Mobile Not Covered in Operation 01-04)
+
 - Operation 05
 
 ## Coverage Legend (Mobile Handoff)
@@ -48,7 +56,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - `Mobile Partial`: Backend đã có endpoint nhưng response/behavior chưa đủ cho toàn bộ component wireframe.
 - `Mobile Not Covered`: Backend chưa có endpoint cho component/use-case đó, nên mobile chưa thể build end-to-end.
 - Lưu ý: `Mobile Partial`/`Mobile Not Covered` trong tài liệu này là khoảng trống backend cho nhu cầu mobile handoff.
-- Lưu ý API contract: success response của Operation 01-03 dùng envelope `ApiResponse<T>` (`status_code`, `message`, `is_success`, `data`).
+- Lưu ý API contract: success response dùng envelope `ApiResponse<T>` (`status_code`, `message`, `is_success`, `data`).
 
 ## Operation 01 Coverage Audit (Wireframe)
 
@@ -99,6 +107,12 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 #### Screen: Danh sách chuyên gia
 
 - Data source chính: `GET /api/v1/experts`
+- Query phục vụ UI UX:
+  - `pageNumber`, `pageSize`
+  - `specialization`
+  - `isOnline`
+  - `sortBy` (`isOnline` | `rating` | `consultationFee`)
+  - `sortOrder` (`asc` | `desc`)
 - Dùng cho:
   - Họ tên
   - Chuyên ngành
@@ -127,8 +141,16 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Hiển thị thông tin expert trước khi chọn loại tư vấn
   - Hiển thị trạng thái slot để user quyết định đặt lịch
 - Ghi chú:
-  - API tư vấn ngay (emergency) chưa nằm trong Operation 01-03
-  - API tạo booking đặt lịch nằm ở Screen "Tài liệu tư vấn"
+  - CTA `Chọn Tư Vấn Ngay`: `POST /api/v1/consultations/emergency` với `expertId` user đã chọn
+  - CTA `Chọn Đặt Lịch`: đi flow đặt lịch ở Screen "Tài liệu tư vấn" (`POST /api/v1/consultation-bookings`)
+
+#### Screen: Tư vấn ngay (User tạo request khẩn cấp)
+
+- Data source:
+  - `POST /api/v1/consultations/emergency`
+- Component dùng API:
+  - Tạo emergency request theo expert đã chọn trước
+  - Nhận `requestId` để theo dõi trạng thái xử lý
 
 #### Screen: Đặt lịch tư vấn (chọn ngày/slot)
 
@@ -194,7 +216,20 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Join room theo consultation
   - Kết thúc ca tư vấn khi hoàn tất
 
-## Mobile Handoff Checklist (Operation 01-03)
+#### Screen: Inbox khẩn cấp (Expert)
+
+- Data source:
+  - SignalR `/hubs/expert`
+  - Client method: `JoinAsExpert`
+  - Event nhận request: `EmergencyConsultationRequest`
+  - Action endpoint:
+    - `POST /api/v1/consultations/emergency-requests/{requestId}/accept`
+    - `POST /api/v1/consultations/emergency-requests/{requestId}/reject`
+- Component dùng API:
+  - Hiển thị incoming emergency request realtime
+  - Expert accept/reject đúng request được push
+
+## Mobile Handoff Checklist (Operation 01-04)
 
 ### 1. Screen: Danh sách chuyên gia
 
@@ -202,7 +237,11 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - Query:
   - `pageNumber` (>= 1)
   - `pageSize` (1..100)
-- Request DTO: `PaginationRequest` (query params)
+- `specialization` (optional)
+- `isOnline` (optional)
+- `sortBy` (`isOnline` | `rating` | `consultationFee`) (optional)
+- `sortOrder` (`asc` | `desc`) (optional)
+- Request DTO: `ExpertDirectoryQueryRequest` (query params)
 - Response DTO: `ApiResponse<PagingResponse<ExpertProfileResponse>>`
 - Error cần handle:
   - `400` cho query không hợp lệ
@@ -320,13 +359,37 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `404` consultation không tồn tại
 - Trạng thái: Ready
 
-### 12. Các màn hình Mobile Not Covered (Operation 01-03)
+### 12. Screen: Chọn loại tư vấn - nhánh tư vấn ngay
 
-- Chọn loại tư vấn: nhánh tư vấn ngay (emergency)
+- API: `POST /api/v1/consultations/emergency`
+- Request DTO: `CreateEmergencyConsultationRequest`
+- Response DTO: `ApiResponse<EmergencyConsultationRequestResponse>`
+- Error cần handle:
+  - `401/403` chưa đăng nhập hoặc sai role
+  - `404` expert không tồn tại
+  - `409` expert offline hoặc đã có request pending cùng user-expert
+- Trạng thái: Ready
+
+### 13. Screen: Expert inbox khẩn cấp
+
+- Realtime:
+  - Hub endpoint: `/hubs/expert`
+  - Expert gọi `JoinAsExpert`
+  - Nhận event `EmergencyConsultationRequest`
+- Action API:
+  - `POST /api/v1/consultations/emergency-requests/{requestId}/accept`
+  - `POST /api/v1/consultations/emergency-requests/{requestId}/reject`
+- Error cần handle:
+  - `401/403` chưa đăng nhập hoặc sai role expert
+  - `404` request không tồn tại
+  - `409` request không còn pending
+- Trạng thái: Ready
+
+### 14. Các màn hình Mobile Not Covered (Operation 01-04)
+
 - Xác nhận thanh toán
 - Chat
-- Các tư vấn khẩn cấp (expert inbox)
-- Trạng thái: Mobile Not Covered (đợi Operation 04/05 backend APIs)
+- Trạng thái: Mobile Not Covered (đợi Operation 05 backend APIs)
 
 ## Mobile Build Guidance (Không phụ thuộc operation)
 
@@ -342,7 +405,5 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 ### Cần placeholder hoặc feature flag
 
-- Nhánh tư vấn ngay (emergency)
 - Xác nhận thanh toán/checkout đầy đủ
 - Chat API riêng cho consultation
-- Expert inbox khẩn cấp

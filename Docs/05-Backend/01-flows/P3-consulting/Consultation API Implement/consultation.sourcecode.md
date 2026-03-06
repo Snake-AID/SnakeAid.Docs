@@ -24,7 +24,7 @@ _Implemented in [ExpertController.cs](SnakeAid.Backend/SnakeAid.Api/Controllers/
 
 - `PUT /api/v1/experts/me/settings`: Update expert settings (Biography, ConsultationFee).
 - `POST /api/v1/experts/me/time-slots/bulk`: Setup weekly working hours (deduplicates overlapping/generated duplicates inside payload and DB-existing slots).
-- `GET /api/v1/experts`: Get list of active experts with pagination.
+- `GET /api/v1/experts`: Get list of active experts with pagination + optional filters/sorts (`specialization`, `isOnline`, `sortBy`, `sortOrder`).
 - `GET /api/v1/experts/{expertId}`: Get expert profile details.
 - `GET /api/v1/experts/{expertId}/reviews`: Get paginated **consultation** reviews for an expert.
 - `GET /api/v1/experts/{expertId}/time-slots`: Get available future time slots for an expert.
@@ -39,17 +39,30 @@ _Implemented in `ConsultationBookingsController`, `ConsultationsController`, `Bo
 - `POST /api/v1/consultations/{consultationId}/reviews`: Submit consultation review (user -> expert).
 - `POST /api/videocall/livekit-token/{consultationId}`: Generate LiveKit token only if caller is consultation participant (or admin), using persisted `RoomId`.
 
+### Emergency Consultation
+
+_Implemented in `ConsultationsController`, `EmergencyConsultationService`, `ExpertHub`, `SignalRExpertEmergencyNotificationService`_
+
+- `POST /api/v1/consultations/emergency`: User creates an immediate consultation request for a selected expert (`ExpertId` required).
+- `POST /api/v1/consultations/emergency-requests/{requestId}/accept`: Targeted expert accepts request, creates `Ongoing` emergency consultation.
+- `POST /api/v1/consultations/emergency-requests/{requestId}/reject`: Targeted expert rejects request.
+
 ## Hubs
 
-_None currently implemented._
+- `ExpertHub` (`/hubs/expert`): Expert presence lifecycle for consultation domain.
+  - `JoinAsExpert`: marks expert online and binds connection.
+  - `OnDisconnectedAsync`: marks expert offline and unbinds connection.
 
 ## Cross-Cutting Concerns
 
 - **Concurrency**: Optimistic concurrency via `Version` field on `ExpertTimeSlot` is used by booking flows, and a unique DB index on (`ExpertId`, `StartTime`, `EndTime`) prevents duplicate slot rows under concurrent bulk setup requests.
+- **Slot Paradox Guard**: On emergency accept, overlapping `ExpertTimeSlot` rows in the next 30-minute window are transitioned from `Available` to `Reserved` in the same transaction as consultation creation.
 - **Time Standard**: `POST /api/v1/experts/me/time-slots/bulk` requires `weekStartDate` in UTC (`...Z`). Generated `ExpertTimeSlot` timestamps are persisted in UTC.
 - **Authentication**: Custom roles required for Expert-facing vs User-facing endpoints. User contexts resolved via Claims.
-- **Response Contract (Culture)**: Operation 01-03 controllers return success payloads via `ApiResponseBuilder` (`ApiResponse<T>` envelope). Error responses are produced by throwing typed `ApiException` and handled centrally by `ApiExceptionHandlerMiddleware`.
+- **Presence-backed Availability**: `ExpertProfile.IsOnline` is exposed in expert list/profile and maintained by `ExpertHub` lifecycle.
+- **Response Contract (Culture)**: Controllers return success payloads via `ApiResponseBuilder` (`ApiResponse<T>` envelope). Error responses are produced by throwing typed `ApiException` and handled centrally by `ApiExceptionHandlerMiddleware`.
 - **Error Semantics**:
   - Non-UTC `weekStartDate` is rejected with `ValidationException` (HTTP `422`).
   - Concurrent duplicate slot insertions are rejected with `ConflictException` (HTTP `409`).
   - Concurrent slot reservation in `POST /api/v1/consultation-bookings` is translated to `ConflictException` (HTTP `409`).
+  - Emergency accept/reject on non-pending request is rejected with `ConflictException` (HTTP `409`).
