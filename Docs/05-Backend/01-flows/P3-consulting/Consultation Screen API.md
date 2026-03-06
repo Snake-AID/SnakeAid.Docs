@@ -120,9 +120,9 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 ## API Mapping by Screen
 
-### Mapping theo màn hình (User Series)
+### User Journey
 
-#### Screen: Consulting Homepage
+#### 1. Screen: Consulting Homepage
 
 - Data source chính: `GET /api/v1/consultation-bookings/my-bookings`
 - Component dùng API:
@@ -131,7 +131,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Card: Đã đặt, đến giờ (`Vào phòng ngay`)
   - Booking status badge (`PendingPayment/Confirmed/Completed...`)
 
-#### Screen: Danh sách chuyên gia
+#### 2. Screen: Danh sách chuyên gia
 
 - Data source chính: `GET /api/v1/experts`
 - Realtime source:
@@ -157,7 +157,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - SignalR dùng để cập nhật tức thời badge online, tránh polling liên tục.
   - `OnlineExpertsSnapshot` lấy từ SignalR connected memory (SignalR-first), không query DB presence.
 
-#### Screen: Thông tin profile chuyên gia
+#### 3. Screen: Thông tin profile chuyên gia
 
 - Data source chính:
   - `GET /api/v1/experts/{expertId}`
@@ -168,19 +168,22 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Danh sách review (chỉ review consultation)
   - Lịch trống khả dụng để đặt lịch
 
-#### Screen: Chọn loại tư vấn
+#### 4. Screen: Chọn loại tư vấn
 
 - Data source:
   - `GET /api/v1/experts/{expertId}` để hiển thị thông tin chuyên gia
   - `GET /api/v1/experts/{expertId}/time-slots` cho nhánh đặt lịch
 - Dùng cho:
   - Hiển thị thông tin expert trước khi chọn loại tư vấn
+  - Hiển thị trạng thái online/offline cho nhánh tư vấn ngay
   - Hiển thị trạng thái slot để user quyết định đặt lịch
-- Ghi chú:
-  - CTA `Chọn Tư Vấn Ngay`: `POST /api/v1/consultations/emergency` với `expertId` user đã chọn
-  - CTA `Chọn Đặt Lịch`: đi flow đặt lịch ở Screen "Tài liệu tư vấn" (`POST /api/v1/consultation-bookings`)
+- CTA:
+  - `Chọn Tư Vấn Ngay` -> `POST /api/v1/consultations/emergency`
+  - `Chọn Đặt Lịch` -> đi flow đặt lịch ở các màn hình bên dưới
 
-#### Screen: Tư vấn ngay (User tạo request khẩn cấp)
+#### 5. Usecase: Tư vấn ngay
+
+##### 5.1. Screen: Tư vấn ngay (User tạo request khẩn cấp)
 
 - Data source:
   - `POST /api/v1/consultations/emergency`
@@ -188,26 +191,18 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Tạo emergency request theo expert đã chọn trước
   - Nhận `requestId` để theo dõi trạng thái xử lý
   - Join SignalR request-room bằng `JoinEmergencyRequestRoom(requestId)` để nhận event `EmergencyRequestStatusChanged`
-  - Với trạng thái `Accepted`, dùng `consultationId`/`roomId` từ event để chuyển sang waiting-room/in-room
+  - Với trạng thái `Accepted`, dùng `consultationId`/`roomId` từ event để chuyển sang bước thanh toán hoặc waiting-room tùy mobile flow
+- Ghi chú:
+  - Slot paradox đã được xử lý backend khi expert accept.
 
-#### Screen: Đặt lịch tư vấn (chọn ngày/slot)
+##### 5.2. Screen: Xác nhận thanh toán
 
-- Data source:
-  - `GET /api/v1/experts/{expertId}/time-slots`
-- Dùng cho:
-  - Render danh sách ngày/slot khả dụng
-  - Cho user chọn slot trước khi qua bước nhập tài liệu
+- Trạng thái: Mobile Not Covered trong Operation 01-04
+- Ghi chú:
+  - Wireframe có bước thanh toán cho tư vấn ngay.
+  - Backend payment flow đầy đủ đang chờ Operation 05.
 
-#### Screen: Tài liệu tư vấn
-
-- Data source:
-  - `POST /api/v1/consultation-bookings`
-- Component dùng API:
-  - Text input: Mô tả vấn đề (`problemDescription`)
-  - Text input: Câu hỏi cụ thể (`question`)
-  - CTA: Xác nhận đặt lịch
-
-#### Screen: Sảnh phòng chờ
+##### 5.3. Screen: Sảnh phòng chờ
 
 - Data source:
   - `POST /api/videocall/livekit-token/{consultationId}`
@@ -216,16 +211,72 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Lấy token vào phòng LiveKit cho đúng consultation
   - Chặn truy cập nếu user không phải participant
 
-#### Screen: Trong phòng tư vấn
+##### 5.4. Screen: Trong phòng tư vấn
 
 - Data source:
   - `POST /api/videocall/livekit-token/{consultationId}` (lấy token trước khi join room)
   - `POST /api/v1/consultations/{consultationId}/end`
 - Component dùng API:
   - Nút `Kết thúc` buổi tư vấn
-  - Các control mic/cam/chat là realtime UI, không gọi thêm REST endpoint trong Operation 03
+  - Các control mic/cam là realtime UI
+  - Chat riêng chưa covered trong Operation 01-04
 
-#### Screen: Hoàn thành
+##### 5.5. Screen: Chat
+
+- Trạng thái: Mobile Not Covered trong Operation 01-04
+- Ghi chú:
+  - Chat API riêng cho consultation thuộc Operation 05.
+
+#### 6. Usecase: Đặt lịch tư vấn
+
+##### 6.1. Screen: Đặt lịch tư vấn (chọn ngày/slot)
+
+- Data source:
+  - `GET /api/v1/experts/{expertId}/time-slots`
+- Dùng cho:
+  - Render danh sách ngày/slot khả dụng
+  - Cho user chọn slot trước khi qua bước nhập tài liệu
+
+##### 6.2. Screen: Tài liệu tư vấn
+
+- Data source:
+  - `POST /api/v1/consultation-bookings`
+- Component dùng API:
+  - Text input: Mô tả vấn đề (`problemDescription`)
+  - Text input: Câu hỏi cụ thể (`question`)
+  - CTA: Xác nhận đặt lịch
+
+##### 6.3. Screen: Xác nhận thanh toán
+
+- Trạng thái: Mobile Not Covered trong Operation 01-04
+- Ghi chú:
+  - Wireframe có bước thanh toán cho đặt lịch.
+  - Booking backend đã có, nhưng payment flow đầy đủ vẫn chờ Operation 05.
+
+##### 6.4. Screen: Sảnh phòng chờ
+
+- Data source:
+  - `POST /api/videocall/livekit-token/{consultationId}`
+- Component dùng API:
+  - Nút `Join phòng`
+  - Lấy token vào phòng LiveKit cho đúng consultation
+  - Chặn truy cập nếu user không phải participant
+
+##### 6.5. Screen: Trong phòng tư vấn
+
+- Data source:
+  - `POST /api/videocall/livekit-token/{consultationId}` (lấy token trước khi join room)
+  - `POST /api/v1/consultations/{consultationId}/end`
+- Component dùng API:
+  - Nút `Kết thúc` buổi tư vấn
+  - Các control mic/cam là realtime UI
+  - Chat riêng chưa covered trong Operation 01-04
+
+##### 6.6. Screen: Chat
+
+- Trạng thái: Mobile Not Covered trong Operation 01-04
+
+#### 7. Screen: Hoàn thành
 
 - Data source:
   - `POST /api/v1/consultations/{consultationId}/reviews`
@@ -234,9 +285,9 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Text input nhận xét
   - Nút gửi đánh giá
 
-### Mapping theo màn hình (Expert Series)
+### Expert Journey
 
-#### Screen: Thiết đặt
+#### 1. Screen: Thiết đặt
 
 - Data source/API:
   - `PUT /api/v1/experts/me/settings`
@@ -245,16 +296,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Cập nhật hồ sơ tư vấn, phí tư vấn
   - Thiết lập lịch làm việc theo tuần để mở slot cho user đặt
 
-#### Screen: Sảnh phòng chờ / Trong phòng tư vấn
-
-- Data source:
-  - `POST /api/videocall/livekit-token/{consultationId}`
-  - `POST /api/v1/consultations/{consultationId}/end`
-- Component dùng API:
-  - Join room theo consultation
-  - Kết thúc ca tư vấn khi hoàn tất
-
-#### Screen: Inbox khẩn cấp (Expert)
+#### 2. Screen: Các tư vấn khẩn cấp
 
 - Data source:
   - SignalR `/hubs/expert`
@@ -266,6 +308,33 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - Component dùng API:
   - Hiển thị incoming emergency request realtime
   - Expert accept/reject đúng request được push
+
+#### 3. Screen: Sảnh phòng chờ
+
+- Data source:
+  - `POST /api/videocall/livekit-token/{consultationId}`
+- Component dùng API:
+  - Join room theo consultation
+
+#### 4. Screen: Trong phòng tư vấn
+
+- Data source:
+  - `POST /api/videocall/livekit-token/{consultationId}`
+  - `POST /api/v1/consultations/{consultationId}/end`
+- Component dùng API:
+  - Join room theo consultation
+  - Kết thúc ca tư vấn khi hoàn tất
+  - Chat riêng chưa covered trong Operation 01-04
+
+#### 5. Screen: Chat
+
+- Trạng thái: Mobile Not Covered trong Operation 01-04
+
+#### 6. Screen: Hoàn tất tư vấn
+
+- Trạng thái:
+  - Expert-side payment breakdown chưa covered trong Operation 01-04
+  - Kết thúc consultation bằng endpoint `POST /api/v1/consultations/{consultationId}/end` đã có
 
 ### Emergency Consultation State Transition (Operation 04)
 
@@ -297,7 +366,18 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 ## Mobile Handoff Checklist (Operation 01-04)
 
-### 1. Screen: Danh sách chuyên gia
+### User Journey Checklist
+
+### 1. Screen: Consulting Homepage
+
+- API: `GET /api/v1/consultation-bookings/my-bookings`
+- Request DTO: Không có body
+- Response DTO: `ApiResponse<IEnumerable<ConsultationBookingResponse>>`
+- Error cần handle:
+  - `401/403` khi chưa đăng nhập hoặc sai role
+- Trạng thái: Ready
+
+### 2. Screen: Danh sách chuyên gia
 
 - API: `GET /api/v1/experts`
 - Realtime:
@@ -317,7 +397,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `400` cho query không hợp lệ
 - Trạng thái: Ready
 
-### 2. Screen: Thông tin profile chuyên gia
+### 3. Screen: Thông tin profile chuyên gia
 
 - API: `GET /api/v1/experts/{expertId}`
 - Request DTO: Không có body
@@ -326,7 +406,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `404` khi expert không tồn tại
 - Trạng thái: Ready
 
-### 3. Screen: Review chuyên gia (tab/section trong profile)
+### 4. Screen: Review chuyên gia (tab/section trong profile)
 
 - API: `GET /api/v1/experts/{expertId}/reviews`
 - Query:
@@ -341,7 +421,33 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `404` khi expert không tồn tại
 - Trạng thái: Ready
 
-### 4. Screen: Chọn thời gian đặt lịch
+### 5. Screen: Chọn loại tư vấn
+
+- Data source:
+  - `GET /api/v1/experts/{expertId}`
+  - `GET /api/v1/experts/{expertId}/time-slots`
+- Trạng thái: Ready
+
+### 6. Usecase: Tư vấn ngay
+
+- API: `POST /api/v1/consultations/emergency`
+- Request DTO: `CreateEmergencyConsultationRequest`
+- Response DTO: `ApiResponse<EmergencyConsultationRequestResponse>`
+- Realtime:
+  - Hub endpoint: `/hubs/expert`
+  - Member method: `JoinEmergencyRequestRoom(requestId)`
+  - Event: `EmergencyRequestStatusChanged`
+- Error cần handle:
+  - `401/403` chưa đăng nhập hoặc sai role
+  - `404` expert không tồn tại
+  - `409` expert offline hoặc đã có request pending cùng user-expert
+- Ghi chú mobile:
+  - Response create request có `requestId`, `status`, `expiresAt`.
+  - Sau khi tạo request cần gọi `JoinEmergencyRequestRoom(requestId)` để nhận `EmergencyRequestStatusChanged`.
+  - Trường hợp timeout tự nhiên không có action expert: vẫn cần UX countdown theo `expiresAt`.
+- Trạng thái: Ready
+
+### 7. Screen: Chọn thời gian đặt lịch
 
 - API: `GET /api/v1/experts/{expertId}/time-slots`
 - Request DTO: Không có body
@@ -350,39 +456,6 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Slot trả về là slot khả dụng để đặt
 - Error cần handle:
   - `404` khi expert không tồn tại
-- Trạng thái: Ready
-
-### 5. Screen: Thiết đặt chuyên gia (cập nhật hồ sơ)
-
-- API: `PUT /api/v1/experts/me/settings`
-- Request DTO: `ExpertSettingsRequest`
-- Response: `200 OK` (payload theo implementation backend hiện tại)
-- Error cần handle:
-  - `401/403` khi không phải role Expert hoặc chưa đăng nhập
-  - `400/422` khi payload không hợp lệ
-- Trạng thái: Ready
-
-### 6. Screen: Thiết đặt chuyên gia (set lịch khả dụng tuần)
-
-- API: `POST /api/v1/experts/me/time-slots/bulk`
-- Request DTO: `BulkTimeSlotRequest`
-- Response: `200 OK` khi tạo slot thành công
-- Ghi chú nghiệp vụ:
-  - `weekStartDate` bắt buộc UTC (`...Z`)
-  - Hệ thống chia slot 30 phút
-- Error cần handle:
-  - `422` khi `weekStartDate` không phải UTC
-  - `409` khi race-condition tạo trùng slot
-  - `401/403` khi không phải Expert
-- Trạng thái: Ready
-
-### 7. Screen: Consulting Homepage (buổi đặt lịch của tôi)
-
-- API: `GET /api/v1/consultation-bookings/my-bookings`
-- Request DTO: Không có body
-- Response DTO: `ApiResponse<IEnumerable<ConsultationBookingResponse>>`
-- Error cần handle:
-  - `401/403` khi chưa đăng nhập hoặc sai role
 - Trạng thái: Ready
 
 ### 8. Screen: Tài liệu tư vấn (tạo booking đặt lịch)
@@ -397,7 +470,14 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `401/403` khi chưa đăng nhập hoặc sai role
 - Trạng thái: Ready
 
-### 9. Screen: Sảnh phòng chờ / Trong phòng tư vấn (join room)
+### 9. Screen: Xác nhận thanh toán
+
+- Trạng thái: Mobile Not Covered
+- Ghi chú:
+  - Cả nhánh tư vấn ngay và đặt lịch đều có bước payment trong wireframe.
+  - Operation 05 sẽ cover payment flow đầy đủ.
+
+### 10. Screen: Sảnh phòng chờ / Trong phòng tư vấn (join room)
 
 - API: `POST /api/videocall/livekit-token/{consultationId}`
 - Request DTO: Không có body
@@ -408,7 +488,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `401` chưa đăng nhập
 - Trạng thái: Ready
 
-### 10. Screen: Trong phòng tư vấn (kết thúc buổi)
+### 11. Screen: Trong phòng tư vấn (kết thúc buổi)
 
 - API: `POST /api/v1/consultations/{consultationId}/end`
 - Request DTO: Không có body
@@ -418,7 +498,13 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `404` consultation không tồn tại
 - Trạng thái: Ready
 
-### 11. Screen: Hoàn thành (gửi đánh giá)
+### 12. Screen: Chat
+
+- Trạng thái: Mobile Not Covered
+- Ghi chú:
+  - Chat API riêng cho consultation thuộc Operation 05.
+
+### 13. Screen: Hoàn thành (gửi đánh giá)
 
 - API: `POST /api/v1/consultations/{consultationId}/reviews`
 - Request DTO: `CreateConsultationReviewRequest`
@@ -429,22 +515,33 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `404` consultation không tồn tại
 - Trạng thái: Ready
 
-### 12. Screen: Chọn loại tư vấn - nhánh tư vấn ngay
+### Expert Journey Checklist
 
-- API: `POST /api/v1/consultations/emergency`
-- Request DTO: `CreateEmergencyConsultationRequest`
-- Response DTO: `ApiResponse<EmergencyConsultationRequestResponse>`
+### 14. Screen: Thiết đặt chuyên gia (cập nhật hồ sơ)
+
+- API: `PUT /api/v1/experts/me/settings`
+- Request DTO: `ExpertSettingsRequest`
+- Response: `200 OK` (payload theo implementation backend hiện tại)
 - Error cần handle:
-  - `401/403` chưa đăng nhập hoặc sai role
-  - `404` expert không tồn tại
-  - `409` expert offline hoặc đã có request pending cùng user-expert
-- Ghi chú mobile:
-  - Response create request có `requestId`, `status`, `expiresAt`.
-  - Sau khi tạo request cần gọi `JoinEmergencyRequestRoom(requestId)` để nhận `EmergencyRequestStatusChanged` cho nhánh accept/reject.
-  - Trường hợp timeout tự nhiên không có action expert: vẫn cần UX countdown theo `expiresAt`.
+  - `401/403` khi không phải role Expert hoặc chưa đăng nhập
+  - `400/422` khi payload không hợp lệ
 - Trạng thái: Ready
 
-### 13. Screen: Expert inbox khẩn cấp
+### 15. Screen: Thiết đặt chuyên gia (set lịch khả dụng tuần)
+
+- API: `POST /api/v1/experts/me/time-slots/bulk`
+- Request DTO: `BulkTimeSlotRequest`
+- Response: `200 OK` khi tạo slot thành công
+- Ghi chú nghiệp vụ:
+  - `weekStartDate` bắt buộc UTC (`...Z`)
+  - Hệ thống chia slot 30 phút
+- Error cần handle:
+  - `422` khi `weekStartDate` không phải UTC
+  - `409` khi race-condition tạo trùng slot
+  - `401/403` khi không phải Expert
+- Trạng thái: Ready
+
+### 16. Screen: Các tư vấn khẩn cấp
 
 - Realtime:
   - Hub endpoint: `/hubs/expert`
@@ -462,7 +559,35 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Sau `Accepted/Rejected/Expired` phải disable action button và sync trạng thái terminal
 - Trạng thái: Ready
 
-### 14. Các màn hình Mobile Not Covered (Operation 01-04)
+### 17. Screen: Sảnh phòng chờ / Trong phòng tư vấn (Expert join room)
+
+- API: `POST /api/videocall/livekit-token/{consultationId}`
+- Request DTO: Không có body
+- Response DTO: `ApiResponse<VideoTokenResponse>`
+- Error cần handle:
+  - `404` consultation không tồn tại
+  - `403` không phải participant của consultation
+  - `401` chưa đăng nhập
+- Trạng thái: Ready
+
+### 18. Screen: Trong phòng tư vấn (Expert kết thúc buổi)
+
+- API: `POST /api/v1/consultations/{consultationId}/end`
+- Request DTO: Không có body
+- Response DTO: `ApiResponse<object>` (message only)
+- Error cần handle:
+  - `401/403` không có quyền
+  - `404` consultation không tồn tại
+- Trạng thái: Ready
+
+### 19. Screen: Chat / Hoàn tất tư vấn (Expert)
+
+- Trạng thái: Mobile Not Covered một phần
+- Ghi chú:
+  - Chat riêng thuộc Operation 05
+  - Màn hình hoàn tất tư vấn phía expert chưa có payment breakdown đầy đủ trong Operation 01-04
+
+### 20. Các màn hình Mobile Not Covered (Operation 01-04)
 
 - Xác nhận thanh toán
 - Chat
