@@ -40,6 +40,32 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - Operation 04
 - Operation 05
 
+## Operation 01 Coverage Audit (Wireframe)
+
+### Covered (Operation 01 đủ để build màn hình)
+
+- `Screen: Danh sách chuyên gia`
+  - `GET /api/v1/experts` đã trả các field chính cho card list.
+- `Screen: Thiết đặt` (Expert Series)
+  - `PUT /api/v1/experts/me/settings` và `POST /api/v1/experts/me/time-slots/bulk` đã đủ cho cập nhật hồ sơ + set lịch.
+
+### Partial (Operation 01 có API nhưng chưa phủ hết component wireframe)
+
+- `Screen: Thông tin profile chuyên gia`
+  - Có: thông tin cơ bản, phí tư vấn, rating, review list, time slots.
+  - Thiếu field theo wireframe: thống kê `Ca tư vấn`, `Thời gian phản hồi`, `Tỉ lệ thành công`.
+  - `IsVerified` hiện tại đang trả cố định `true` từ service, chưa phản ánh trạng thái xác minh thực.
+- `Screen: Chọn loại tư vấn`
+  - Có dữ liệu cho nhánh đặt lịch (expert info + available slots).
+  - Chưa có API tạo yêu cầu tư vấn ngay (emergency branch).
+- `Usecase: Đặt lịch tư vấn`
+  - Operation 01 chỉ có phần đọc slot (`GET /experts/{id}/time-slots`).
+  - API chốt booking nằm ở Operation 03 (`POST /consultation-bookings`).
+
+### Not Covered (đúng theo scope Operation 01)
+
+- `Consulting Homepage`, `Sảnh phòng chờ`, `Trong phòng`, `Hoàn thành`, `Chat`, `Thanh toán`.
+
 ## API Mapping by Screen
 
 ### Mapping theo màn hình (User Series)
