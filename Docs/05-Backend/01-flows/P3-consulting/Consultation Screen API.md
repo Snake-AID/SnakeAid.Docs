@@ -48,6 +48,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - `Mobile Partial`: Backend đã có endpoint nhưng response/behavior chưa đủ cho toàn bộ component wireframe.
 - `Mobile Not Covered`: Backend chưa có endpoint cho component/use-case đó, nên mobile chưa thể build end-to-end.
 - Lưu ý: `Mobile Partial`/`Mobile Not Covered` trong tài liệu này là khoảng trống backend cho nhu cầu mobile handoff.
+- Lưu ý API contract: success response của Operation 01-03 dùng envelope `ApiResponse<T>` (`status_code`, `message`, `is_success`, `data`).
 
 ## Operation 01 Coverage Audit (Wireframe)
 
@@ -202,7 +203,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `pageNumber` (>= 1)
   - `pageSize` (1..100)
 - Request DTO: `PaginationRequest` (query params)
-- Response DTO: `PagingResponse<ExpertProfileResponse>`
+- Response DTO: `ApiResponse<PagingResponse<ExpertProfileResponse>>`
 - Error cần handle:
   - `400` cho query không hợp lệ
 - Trạng thái: Ready
@@ -211,7 +212,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 - API: `GET /api/v1/experts/{expertId}`
 - Request DTO: Không có body
-- Response DTO: `ExpertProfileResponse`
+- Response DTO: `ApiResponse<ExpertProfileResponse>`
 - Error cần handle:
   - `404` khi expert không tồn tại
 - Trạng thái: Ready
@@ -223,7 +224,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `pageNumber` (>= 1)
   - `pageSize` (1..100)
 - Request DTO: `PaginationRequest` (query params)
-- Response DTO: `PagingResponse<UserFeedbackResponse>`
+- Response DTO: `ApiResponse<PagingResponse<UserFeedbackResponse>>`
 - Ghi chú nghiệp vụ:
   - Chỉ trả `FeedbackType = Consultation`
 - Error cần handle:
@@ -235,7 +236,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 - API: `GET /api/v1/experts/{expertId}/time-slots`
 - Request DTO: Không có body
-- Response DTO: `IEnumerable<ExpertTimeSlotResponse>`
+- Response DTO: `ApiResponse<IEnumerable<ExpertTimeSlotResponse>>`
 - Ghi chú nghiệp vụ:
   - Slot trả về là slot khả dụng để đặt
 - Error cần handle:
@@ -270,7 +271,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 - API: `GET /api/v1/consultation-bookings/my-bookings`
 - Request DTO: Không có body
-- Response DTO: `IEnumerable<ConsultationBookingResponse>`
+- Response DTO: `ApiResponse<IEnumerable<ConsultationBookingResponse>>`
 - Error cần handle:
   - `401/403` khi chưa đăng nhập hoặc sai role
 - Trạng thái: Ready
@@ -279,7 +280,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 - API: `POST /api/v1/consultation-bookings`
 - Request DTO: `CreateConsultationBookingRequest`
-- Response DTO: `ConsultationBookingResponse`
+- Response DTO: `ApiResponse<ConsultationBookingResponse>`
 - Error cần handle:
   - `400/422` payload không hợp lệ
   - `404` expert/slot không tồn tại
@@ -291,7 +292,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 - API: `POST /api/videocall/livekit-token/{consultationId}`
 - Request DTO: Không có body
-- Response DTO: `VideoTokenResponse` (bọc trong object `data` của API)
+- Response DTO: `ApiResponse<VideoTokenResponse>`
 - Error cần handle:
   - `404` consultation không tồn tại
   - `403` không phải participant của consultation
@@ -302,7 +303,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 - API: `POST /api/v1/consultations/{consultationId}/end`
 - Request DTO: Không có body
-- Response: `200 OK`
+- Response DTO: `ApiResponse<object>` (message only)
 - Error cần handle:
   - `401/403` không có quyền
   - `404` consultation không tồn tại
@@ -312,7 +313,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 - API: `POST /api/v1/consultations/{consultationId}/reviews`
 - Request DTO: `CreateConsultationReviewRequest`
-- Response DTO: `UserFeedbackResponse`
+- Response DTO: `ApiResponse<UserFeedbackResponse>`
 - Error cần handle:
   - `400/422` payload không hợp lệ
   - `401/403` sai role hoặc không có quyền review consultation này

@@ -48,6 +48,7 @@ _None currently implemented._
 - **Concurrency**: Optimistic concurrency via `Version` field on `ExpertTimeSlot` is used by booking flows, and a unique DB index on (`ExpertId`, `StartTime`, `EndTime`) prevents duplicate slot rows under concurrent bulk setup requests.
 - **Time Standard**: `POST /api/v1/experts/me/time-slots/bulk` requires `weekStartDate` in UTC (`...Z`). Generated `ExpertTimeSlot` timestamps are persisted in UTC.
 - **Authentication**: Custom roles required for Expert-facing vs User-facing endpoints. User contexts resolved via Claims.
+- **Response Contract (Culture)**: Operation 01-03 controllers return success payloads via `ApiResponseBuilder` (`ApiResponse<T>` envelope). Error responses are produced by throwing typed `ApiException` and handled centrally by `ApiExceptionHandlerMiddleware`.
 - **Error Semantics**:
   - Non-UTC `weekStartDate` is rejected with `ValidationException` (HTTP `422`).
   - Concurrent duplicate slot insertions are rejected with `ConflictException` (HTTP `409`).
