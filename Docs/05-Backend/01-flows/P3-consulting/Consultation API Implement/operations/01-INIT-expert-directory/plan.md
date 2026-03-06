@@ -42,6 +42,23 @@ Implement the following REST endpoints:
 
 This creates the foundational functionality for the directory and expert scheduling.
 
+### Mobile Handoff Scope Note
+
+- `Build Now` within Operation 01:
+  - Expert directory list
+  - Basic expert profile
+  - Expert weekly availability setup
+- `Build With Placeholder` within Operation 01:
+  - Expert profile statistics blocks (`Ca tư vấn`, `Thời gian phản hồi`, `Tỉ lệ thành công`) are not provided yet.
+  - `IsVerified` semantics are not backed by a true verification source yet.
+  - Expert settings do not yet support separate pricing for `tư vấn ngay` and `đặt lịch`; only one `ConsultationFee` exists.
+- `Wait Backend` outside Operation 01 scope:
+  - Booking completion flow
+  - Payment confirmation
+  - Waiting room / in-room flow
+  - Chat
+  - Consultation completion screens
+
 ## 4. Impacted Components
 
 - **Controllers**: `ExpertsController`

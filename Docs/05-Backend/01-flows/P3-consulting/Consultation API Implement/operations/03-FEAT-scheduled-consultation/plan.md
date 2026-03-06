@@ -47,6 +47,22 @@ Implement the following:
 - `POST /api/v1/consultations/{consultationId}/end`: Mark consultation complete.
 - `POST /api/v1/consultations/{consultationId}/reviews`: Allow users to rate the consultation.
 
+### Mobile Handoff Scope Note
+
+- `Build Now` within Operation 03:
+  - Create booking
+  - My bookings
+  - Join video room via LiveKit token
+  - End consultation
+  - Submit review
+- `Build With Placeholder` within Operation 03:
+  - Booking objects can already surface statuses like `PendingPayment`, but a consultation-specific payment confirmation flow is not implemented in this operation.
+  - Video room core is available, but advanced in-room behavior beyond token-based room entry is not expanded here.
+- `Wait Backend` outside Operation 03 scope:
+  - Payment confirmation / checkout flow for consultation
+  - Consultation chat realtime flow
+  - Expert-side completion/payment breakdown screens
+
 ## 4. Impacted Components
 
 - **Controllers**: `ConsultationBookingsController`, `ConsultationsController`

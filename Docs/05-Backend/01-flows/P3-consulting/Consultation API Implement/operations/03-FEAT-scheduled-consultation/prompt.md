@@ -20,6 +20,10 @@ Specific tasks:
 4. Ensure `POST /api/videocall/livekit-token/{consultationId}` securely returns a LiveKit token using the current user's identity and the established `RoomId`.
 5. Implement `POST /api/v1/consultations/{consultationId}/end` to finalize the status and clear related constraints.
 6. Implement `POST /api/v1/consultations/{consultationId}/reviews` inserting into `UserFeedback`.
+7. Preserve scope boundaries in implementation notes:
+   - Do not expand this operation into consultation payment checkout APIs.
+   - Do not treat chat/in-room realtime feature set as covered by this operation.
+   - Mobile should treat payment confirmation and consultation chat as deferred backend work.
 
 ## Constraints
 

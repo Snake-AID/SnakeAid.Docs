@@ -21,6 +21,10 @@ Specific tasks:
 5. Implement `GET /{expertId}` to return a detailed profile.
 6. Implement `GET /{expertId}/reviews` fetching from the `UserFeedback` table.
 7. Implement `GET /{expertId}/time-slots` to return `Status == Available` and `StartTime > Now` slots for the given expert.
+8. Keep mobile handoff limitations explicit in implementation notes:
+   - Profile stats blocks are not covered in this operation.
+   - `IsVerified` may remain provisional if no true verification source exists yet.
+   - Expert settings still use one `ConsultationFee` only; do not introduce split pricing in Operation 01.
 
 ## Constraints
 
