@@ -9,9 +9,11 @@ owners: [backend-team, mobile-team]
 
 # Consultation API Mapping and Mobile Handoff
 
-## Backend Baseline (Operation 01 + 03)
+## Backend Ready (Operation 01 + 03)
 
-### Endpoints Ready
+### Operation 01 (Expert Directory & Availability)
+
+Operation 01 mở luồng cấu hình hồ sơ chuyên gia, thiết lập slot và tra cứu chuyên gia/slot):
 
 - `PUT /api/v1/experts/me/settings`
 - `POST /api/v1/experts/me/time-slots/bulk`
@@ -35,34 +37,48 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - `POST /api/v1/consultations/{consultationId}/reviews`
 - `POST /api/videocall/livekit-token/{consultationId}`
 
-### Planned (Not Ready in Operation 01-03)
+### Planned (Mobile Not Covered in Operation 01-03)
 
 - Operation 04
 - Operation 05
 
+## Coverage Legend (Mobile Handoff)
+
+- `Mobile Covered`: Backend đã có endpoint + dữ liệu đủ để mobile dựng đúng component trong wireframe.
+- `Mobile Partial`: Backend đã có endpoint nhưng response/behavior chưa đủ cho toàn bộ component wireframe.
+- `Mobile Not Covered`: Backend chưa có endpoint cho component/use-case đó, nên mobile chưa thể build end-to-end.
+- Lưu ý: `Mobile Partial`/`Mobile Not Covered` trong tài liệu này là khoảng trống backend cho nhu cầu mobile handoff.
+
 ## Operation 01 Coverage Audit (Wireframe)
 
-### Covered (Operation 01 đủ để build màn hình)
+### Operation 01 Scope Note
+
+- Chú thích chủ ngữ: phần audit này trả lời câu hỏi "Operation 01 cover cho mobile tới mức nào", không đánh giá chất lượng UI implementation phía mobile.
+
+### Mobile Covered (Operation 01 đủ để build màn hình)
 
 - `Screen: Danh sách chuyên gia`
   - `GET /api/v1/experts` đã trả các field chính cho card list.
 - `Screen: Thiết đặt` (Expert Series)
   - `PUT /api/v1/experts/me/settings` và `POST /api/v1/experts/me/time-slots/bulk` đã đủ cho cập nhật hồ sơ + set lịch.
 
-### Partial (Operation 01 có API nhưng chưa phủ hết component wireframe)
+### Mobile Partial (Operation 01 có API nhưng chưa phủ hết component wireframe)
 
 - `Screen: Thông tin profile chuyên gia`
   - Có: thông tin cơ bản, phí tư vấn, rating, review list, time slots.
   - Thiếu field theo wireframe: thống kê `Ca tư vấn`, `Thời gian phản hồi`, `Tỉ lệ thành công`.
   - `IsVerified` hiện tại đang trả cố định `true` từ service, chưa phản ánh trạng thái xác minh thực.
+  - Handoff note: Mobile có thể render profile bản cơ bản, nhưng các block thống kê + verified badge chuẩn nghiệp vụ cần backend bổ sung.
 - `Screen: Chọn loại tư vấn`
   - Có dữ liệu cho nhánh đặt lịch (expert info + available slots).
   - Chưa có API tạo yêu cầu tư vấn ngay (emergency branch).
+  - Handoff note: Chỉ mở nhánh đặt lịch, nhánh tư vấn ngay cần feature flag/placeholder.
 - `Usecase: Đặt lịch tư vấn`
   - Operation 01 chỉ có phần đọc slot (`GET /experts/{id}/time-slots`).
   - API chốt booking nằm ở Operation 03 (`POST /consultation-bookings`).
+  - Handoff note: Nếu scope chỉ Operation 01 thì flow đặt lịch chưa end-to-end.
 
-### Not Covered (đúng theo scope Operation 01)
+### Mobile Not Covered (đúng theo scope Operation 01)
 
 - `Consulting Homepage`, `Sảnh phòng chờ`, `Trong phòng`, `Hoàn thành`, `Chat`, `Thanh toán`.
 
@@ -303,10 +319,29 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `404` consultation không tồn tại
 - Trạng thái: Ready
 
-### 12. Các màn hình chưa sẵn sàng API (Operation 01-03)
+### 12. Các màn hình Mobile Not Covered (Operation 01-03)
 
 - Chọn loại tư vấn: nhánh tư vấn ngay (emergency)
 - Xác nhận thanh toán
 - Chat
 - Các tư vấn khẩn cấp (expert inbox)
-- Trạng thái: Not Ready (đợi Operation 04/05)
+- Trạng thái: Mobile Not Covered (đợi Operation 04/05 backend APIs)
+
+## Mobile Build Guidance (Không phụ thuộc operation)
+
+### Build được ngay
+
+- Danh sách chuyên gia
+- Profile chuyên gia bản cơ bản (không gồm thống kê nâng cao)
+- Chọn slot đặt lịch + gửi tài liệu + tạo booking
+- Homepage danh sách booking của user
+- Join phòng LiveKit
+- End consultation + gửi review
+- Thiết đặt chuyên gia (settings + bulk time slots)
+
+### Cần placeholder hoặc feature flag
+
+- Nhánh tư vấn ngay (emergency)
+- Xác nhận thanh toán/checkout đầy đủ
+- Chat API riêng cho consultation
+- Expert inbox khẩn cấp
