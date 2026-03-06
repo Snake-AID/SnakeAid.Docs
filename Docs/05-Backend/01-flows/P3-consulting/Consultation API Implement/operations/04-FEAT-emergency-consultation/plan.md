@@ -47,13 +47,17 @@ Implement the following:
 - `ExpertHub` at `/hubs/expert` handling:
   - `JoinAsExpert`, `OnDisconnectedAsync`, and expert presence updates (`IsOnline`).
   - `JoinAsMember` (role `User`) so member clients can subscribe to consultation presence updates.
+  - `JoinEmergencyRequestRoom(requestId)` (role `User`) to subscribe status updates of the request they created.
   - Presence events for member clients:
     - initial snapshot event `OnlineExpertsSnapshot`
     - delta event `ExpertPresenceChanged` when expert online status changes.
+  - Emergency status event for request room:
+    - `EmergencyRequestStatusChanged` (`Pending`/`Accepted`/`Rejected`/`Expired` with metadata)
   - Add hardcoded safety switch `EnablePresenceSelfHealing` (default `false`) to control whether Hub reconciles DB `ExpertProfile.IsOnline` from in-memory SignalR presence.
 - `POST /api/v1/consultations/emergency` to create a `ConsultationPingRequest` with explicit `ExpertId` chosen by user and push a directed realtime notification to that expert via `IHubContext`.
 - `POST /api/v1/consultations/emergency-requests/{requestId}/accept` to transition the request, create an `Ongoing` consultation, and fire a Domain Event.
 - `POST /api/v1/consultations/emergency-requests/{requestId}/reject`.
+- Push `EmergencyRequestStatusChanged` to the request room when state changes.
 - **Domain Logic**: Within the acceptance transaction, find any `ExpertTimeSlot` for that expert overlapping the next 30 minutes. If `Available`, update to `Reserved`.
 - **Operation-1 corrective scope folded into Operation 4**:
   - Extend `GET /api/v1/experts` query contract with optional fields `specialization`, `isOnline`, `sortBy`, `sortOrder`.
@@ -73,6 +77,7 @@ Implement the following:
 
 - Socket lifecycle and Database syncing: `OnDisconnectedAsync` might fire unexpectedly. Real-time drops must sync correctly to `ExpertProfile.IsOnline`.
 - Hub authorization must avoid privilege leakage: only experts can call `JoinAsExpert`; users can only subscribe via `JoinAsMember`.
+- Request room join must enforce ownership: only requester of that `requestId` can join `JoinEmergencyRequestRoom`.
 - Shared DB across environments can cause accidental cross-environment healing; `EnablePresenceSelfHealing` must stay `false` unless explicitly approved.
 - Racing conditions on concurrent emergency requests targeting the same expert.
 - Accept/Reject authorization must ensure only the targeted expert can respond to the request.
@@ -85,6 +90,7 @@ Implement the following:
 - Manual SignalR validation:
   - User joins `JoinAsMember` and receives `OnlineExpertsSnapshot`.
   - When an expert joins/disconnects, user receives `ExpertPresenceChanged` with matching `expertId` and `isOnline`.
+  - User joins `JoinEmergencyRequestRoom(requestId)` and receives `EmergencyRequestStatusChanged` after expert accept/reject.
 - Add/extend directory tests verifying:
   - `GET /api/v1/experts` filters by `isOnline` and `specialization`.
   - Sorting by `isOnline`, `rating`, `consultationFee` with deterministic tie-breakers.

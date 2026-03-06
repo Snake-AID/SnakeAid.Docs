@@ -17,8 +17,10 @@ Specific tasks:
 1. Implement `Api/Hubs/ExpertHub.cs`. Derive from standard SignalR `Hub`. Track connections in a ConcurrentDictionary for available experts. On connect/disconnect, update the `ExpertProfile.IsOnline` DB flag.
    - Extend hub role scope to allow both `Expert` and `User` connections.
    - Add `JoinAsMember` for users (member app clients) to subscribe expert presence.
+   - Add `JoinEmergencyRequestRoom(Guid requestId)` for users to subscribe status changes of their own emergency request.
    - On member join, send `OnlineExpertsSnapshot` from SignalR in-memory connected experts (SignalR-first snapshot).
    - On expert online/offline change, broadcast `ExpertPresenceChanged` to subscribed members.
+   - Add request-room event `EmergencyRequestStatusChanged` and publish from emergency service when request transitions state.
    - Add hardcoded switch `EnablePresenceSelfHealing` (default `false`) to control optional DB reconcile from SignalR memory.
 2. Implement `POST /api/v1/consultations/emergency` to create a `ConsultationPingRequest` with explicit selected `ExpertId` from user input, and send a directed notify via `IHubContext<ExpertHub>` to that expert only (no broadcast matching).
 3. Implement `POST /api/v1/consultations/emergency-requests/{requestId}/accept`. Ensure only the targeted expert can accept, then create the `Consultation` record as `Ongoing`.
@@ -41,6 +43,7 @@ Specific tasks:
 
 - Do not mix room chat logic into `ExpertHub`. This hub is strictly for global presence and routing emergency requests to the user-selected expert.
 - Do not let users invoke expert-only actions. Validate role at hub method level (`JoinAsExpert` expert-only, `JoinAsMember` user-only).
+- `JoinEmergencyRequestRoom` must verify caller is the request owner (`ConsultationPingRequest.RescuerId == callerId`).
 - Handle state drift on SignalR disconnects gracefully.
 - For environments sharing one DB, keep `EnablePresenceSelfHealing = false`.
 - This operation supersedes prior draft corrective notes for Op1; implementation should be executed from Operation 4 scope only.

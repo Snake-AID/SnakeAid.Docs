@@ -41,6 +41,7 @@ owners: [backend-team]
 - **Role-bound hub methods**:
   - `JoinAsMember` (role `User`)
   - `JoinAsExpert` (role `Expert`)
+  - `JoinEmergencyRequestRoom(requestId)` (role `User`, request owner only)
 
 ## Mobile Realtime Integration Notes
 
@@ -49,6 +50,9 @@ owners: [backend-team]
   - Invoke `JoinAsMember`.
   - Handle `OnlineExpertsSnapshot` to initialize online badges.
   - Handle `ExpertPresenceChanged` to apply realtime delta updates.
+- User flow (immediate consultation waiting):
+  - After `POST /api/v1/consultations/emergency` succeeds, invoke `JoinEmergencyRequestRoom(requestId)`.
+  - Handle `EmergencyRequestStatusChanged` to receive `Accepted/Rejected`.
 - Expert flow (expert availability/inbox screen):
   - Connect hub.
   - Invoke `JoinAsExpert`.
@@ -340,6 +344,24 @@ _Push to selected expert after user creates emergency request_
 }
 ```
 
+### SignalR Event: EmergencyRequestStatusChanged
+
+_Push to request room after expert accepts/rejects_
+
+```json
+{
+  "requestId": "d90d01f7-d9ff-45a2-88bf-a5eb8ce2f9be",
+  "requesterId": "2a6d6f8f-6468-4d6c-b628-9b0fa326f7a8",
+  "expertId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "status": "AcceptedByExpert",
+  "requestedAt": "2026-03-06T10:25:00Z",
+  "expiresAt": "2026-03-06T10:27:00Z",
+  "respondedAt": "2026-03-06T10:25:25Z",
+  "consultationId": "bfa25be0-10ae-4b9c-b923-2180703eeb7e",
+  "roomId": "consultation-bfa25be010ae4b9cb9232180703eeb7e"
+}
+```
+
 ## Error Notes
 
 - Error payloads are standardized by middleware (`ApiExceptionHandlerMiddleware`) with `ApiResponse<object>` shape.
@@ -351,5 +373,5 @@ _Push to selected expert after user creates emergency request_
 - `POST /api/v1/consultations/emergency-requests/{requestId}/accept|reject` returns `403` when caller is not targeted expert.
 - `POST /api/v1/consultations/emergency-requests/{requestId}/accept|reject` returns `409` when request is no longer pending.
 - Current limitation for mobile:
-  - Operation 04 chưa có event/endpoint riêng để user query realtime trạng thái request sau khi tạo (`Accepted/Rejected`) từ user side.
-  - User app nên dùng `expiresAt` để hiển thị pending countdown và timeout UX nhất quán.
+  - Operation 04 đã có push `Accepted/Rejected` qua `EmergencyRequestStatusChanged` nếu user join request room đúng cách.
+  - Trạng thái timeout tự nhiên (`Expired`) vẫn cần countdown cục bộ theo `expiresAt` trong mobile UX.
