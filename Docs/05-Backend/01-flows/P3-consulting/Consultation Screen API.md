@@ -72,16 +72,16 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `EmergencyConsultationRequest`: `{ requestId: Guid, requesterId: Guid, expertId: Guid, requestedAt: DateTime, expiresAt: DateTime }`
   - `EmergencyRequestStatusChanged`: `EmergencyConsultationRequestResponse` payload (`requestId`, `status`, `respondedAt`, `consultationId`, `roomId`, ...)
 
-### Planned (Mobile Not Covered in Operation 01-04)
+### Planned (Wait Backend in Operation 01-04)
 
 - Operation 05
 
-## Coverage Legend (Mobile Handoff)
+## Delivery Legend (Mobile Handoff)
 
-- `Mobile Covered`: Backend đã có endpoint + dữ liệu đủ để mobile dựng đúng component trong wireframe.
-- `Mobile Partial`: Backend đã có endpoint nhưng response/behavior chưa đủ cho toàn bộ component wireframe.
-- `Mobile Not Covered`: Backend chưa có endpoint cho component/use-case đó, nên mobile chưa thể build end-to-end.
-- Lưu ý: `Mobile Partial`/`Mobile Not Covered` trong tài liệu này là khoảng trống backend cho nhu cầu mobile handoff.
+- `Build Now`: Backend đã có endpoint + dữ liệu đủ để mobile dựng đúng component trong wireframe.
+- `Build With Placeholder`: Backend đã có endpoint nhưng response/behavior chưa đủ cho toàn bộ component wireframe.
+- `Wait Backend`: Backend chưa có endpoint cho component/use-case đó, nên mobile chưa thể build end-to-end.
+- Lưu ý: `Build With Placeholder`/`Wait Backend` trong tài liệu này là khoảng trống backend cho nhu cầu mobile handoff.
 - Lưu ý API contract: success response dùng envelope `ApiResponse<T>` (`status_code`, `message`, `is_success`, `data`).
 - Lưu ý presence semantics: realtime online/offline ưu tiên SignalR events (`OnlineExpertsSnapshot`, `ExpertPresenceChanged`); `ExpertProfile.IsOnline` trong DB là trạng thái eventual consistency.
 
@@ -91,14 +91,12 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 - Chú thích chủ ngữ: phần audit này trả lời câu hỏi "Operation 01 cover cho mobile tới mức nào", không đánh giá chất lượng UI implementation phía mobile.
 
-### Mobile Covered (Operation 01 đủ để build màn hình)
+### Build Now (Operation 01 đủ để build màn hình)
 
 - `Screen: Danh sách chuyên gia`
   - `GET /api/v1/experts` đã trả các field chính cho card list.
-- `Screen: Thiết đặt` (Expert Series)
-  - `PUT /api/v1/experts/me/settings` và `POST /api/v1/experts/me/time-slots/bulk` đã đủ cho cập nhật hồ sơ + set lịch.
 
-### Mobile Partial (Operation 01 có API nhưng chưa phủ hết component wireframe)
+### Build With Placeholder (Operation 01 có API nhưng chưa phủ hết component wireframe)
 
 - `Screen: Thông tin profile chuyên gia`
   - Có: thông tin cơ bản, phí tư vấn, rating, review list, time slots.
@@ -113,8 +111,11 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Operation 01 chỉ có phần đọc slot (`GET /experts/{id}/time-slots`).
   - API chốt booking nằm ở Operation 03 (`POST /consultation-bookings`).
   - Handoff note: Nếu scope chỉ Operation 01 thì flow đặt lịch chưa end-to-end.
+- `Screen: Thiết đặt` (Expert Series)
+  - Có API cập nhật hồ sơ và set lịch: `PUT /api/v1/experts/me/settings`, `POST /api/v1/experts/me/time-slots/bulk`.
+  - Thiếu tách riêng `giá tư vấn ngay` và `giá đặt lịch` theo wireframe; hiện backend chỉ có một `ConsultationFee`.
 
-### Mobile Not Covered (đúng theo scope Operation 01)
+### Wait Backend (đúng theo scope Operation 01)
 
 - `Consulting Homepage`, `Sảnh phòng chờ`, `Trong phòng`, `Hoàn thành`, `Chat`, `Thanh toán`.
 
@@ -197,7 +198,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 ##### 5.2. Screen: Xác nhận thanh toán
 
-- Trạng thái: Mobile Not Covered trong Operation 01-04
+- Trạng thái: Wait Backend trong Operation 01-04
 - Ghi chú:
   - Wireframe có bước thanh toán cho tư vấn ngay.
   - Backend payment flow đầy đủ đang chờ Operation 05.
@@ -223,7 +224,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 ##### 5.5. Screen: Chat
 
-- Trạng thái: Mobile Not Covered trong Operation 01-04
+- Trạng thái: Wait Backend trong Operation 01-04
 - Ghi chú:
   - Chat API riêng cho consultation thuộc Operation 05.
 
@@ -248,7 +249,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 ##### 6.3. Screen: Xác nhận thanh toán
 
-- Trạng thái: Mobile Not Covered trong Operation 01-04
+- Trạng thái: Wait Backend trong Operation 01-04
 - Ghi chú:
   - Wireframe có bước thanh toán cho đặt lịch.
   - Booking backend đã có, nhưng payment flow đầy đủ vẫn chờ Operation 05.
@@ -274,7 +275,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 ##### 6.6. Screen: Chat
 
-- Trạng thái: Mobile Not Covered trong Operation 01-04
+- Trạng thái: Wait Backend trong Operation 01-04
 
 #### 7. Screen: Hoàn thành
 
@@ -295,6 +296,8 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - Dùng cho:
   - Cập nhật hồ sơ tư vấn, phí tư vấn
   - Thiết lập lịch làm việc theo tuần để mở slot cho user đặt
+- Ghi chú:
+  - Wireframe có 2 mức giá (`tư vấn ngay` và `đặt lịch`), nhưng backend hiện chỉ có 1 field `ConsultationFee`.
 
 #### 2. Screen: Các tư vấn khẩn cấp
 
@@ -328,13 +331,14 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 #### 5. Screen: Chat
 
-- Trạng thái: Mobile Not Covered trong Operation 01-04
+- Trạng thái: Wait Backend trong Operation 01-04
 
 #### 6. Screen: Hoàn tất tư vấn
 
-- Trạng thái:
-  - Expert-side payment breakdown chưa covered trong Operation 01-04
+- Trạng thái: Build With Placeholder
+- Ghi chú:
   - Kết thúc consultation bằng endpoint `POST /api/v1/consultations/{consultationId}/end` đã có
+  - Expert-side payment breakdown chưa covered trong Operation 01-04
 
 ### Emergency Consultation State Transition (Operation 04)
 
@@ -472,7 +476,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 ### 9. Screen: Xác nhận thanh toán
 
-- Trạng thái: Mobile Not Covered
+- Trạng thái: Wait Backend
 - Ghi chú:
   - Cả nhánh tư vấn ngay và đặt lịch đều có bước payment trong wireframe.
   - Operation 05 sẽ cover payment flow đầy đủ.
@@ -500,7 +504,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 
 ### 12. Screen: Chat
 
-- Trạng thái: Mobile Not Covered
+- Trạng thái: Wait Backend
 - Ghi chú:
   - Chat API riêng cho consultation thuộc Operation 05.
 
@@ -525,7 +529,9 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - Error cần handle:
   - `401/403` khi không phải role Expert hoặc chưa đăng nhập
   - `400/422` khi payload không hợp lệ
-- Trạng thái: Ready
+- Ghi chú:
+  - Hiện chỉ có một field `ConsultationFee`, chưa tách riêng giá tư vấn ngay và giá đặt lịch theo wireframe.
+- Trạng thái: Build With Placeholder
 
 ### 15. Screen: Thiết đặt chuyên gia (set lịch khả dụng tuần)
 
@@ -539,7 +545,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `422` khi `weekStartDate` không phải UTC
   - `409` khi race-condition tạo trùng slot
   - `401/403` khi không phải Expert
-- Trạng thái: Ready
+- Trạng thái: Build Now
 
 ### 16. Screen: Các tư vấn khẩn cấp
 
@@ -580,18 +586,24 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `404` consultation không tồn tại
 - Trạng thái: Ready
 
-### 19. Screen: Chat / Hoàn tất tư vấn (Expert)
+### 19. Screen: Chat (Expert)
 
-- Trạng thái: Mobile Not Covered một phần
+- Trạng thái: Wait Backend
 - Ghi chú:
   - Chat riêng thuộc Operation 05
-  - Màn hình hoàn tất tư vấn phía expert chưa có payment breakdown đầy đủ trong Operation 01-04
 
-### 20. Các màn hình Mobile Not Covered (Operation 01-04)
+### 20. Screen: Hoàn tất tư vấn (Expert)
+
+- Trạng thái: Build With Placeholder
+- Ghi chú:
+  - Endpoint kết thúc consultation đã có
+  - Payment breakdown phía expert chưa đầy đủ trong Operation 01-04
+
+### 21. Các màn hình Wait Backend (Operation 01-04)
 
 - Xác nhận thanh toán
 - Chat
-- Trạng thái: Mobile Not Covered (đợi Operation 05 backend APIs)
+- Trạng thái: Wait Backend (đợi Operation 05 backend APIs)
 
 ## Mobile Build Guidance (Không phụ thuộc operation)
 
