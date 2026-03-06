@@ -49,6 +49,26 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - Presence delta event: `ExpertPresenceChanged`
   - Server push event: `EmergencyConsultationRequest`
 
+### SignalR Contract (Operation 04)
+
+- Auth:
+  - Hub dùng bearer token như API.
+  - `JoinAsExpert`: chỉ role `Expert`.
+  - `JoinAsMember`: chỉ role `User`.
+- Member (User app):
+  - Vào màn hình danh sách chuyên gia: connect hub, gọi `JoinAsMember`.
+  - Nhận snapshot `OnlineExpertsSnapshot` một lần sau khi join.
+  - Nhận delta `ExpertPresenceChanged` khi expert online/offline thay đổi.
+  - Khi reconnect phải gọi lại `JoinAsMember`.
+- Expert app:
+  - Vào trạng thái sẵn sàng nhận ca: connect hub, gọi `JoinAsExpert`.
+  - Nhận event `EmergencyConsultationRequest` cho request được user chọn đúng expert đó.
+  - Khi reconnect phải gọi lại `JoinAsExpert`.
+- Payload shape:
+  - `OnlineExpertsSnapshot`: `{ onlineExpertIds: Guid[], serverTimeUtc: DateTime }`
+  - `ExpertPresenceChanged`: `{ expertId: Guid, isOnline: bool, changedAtUtc: DateTime }`
+  - `EmergencyConsultationRequest`: `{ requestId: Guid, requesterId: Guid, expertId: Guid, requestedAt: DateTime, expiresAt: DateTime }`
+
 ### Planned (Mobile Not Covered in Operation 01-04)
 
 - Operation 05
@@ -164,6 +184,7 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
 - Component dùng API:
   - Tạo emergency request theo expert đã chọn trước
   - Nhận `requestId` để theo dõi trạng thái xử lý
+  - Lưu ý hiện tại: backend chưa có event push riêng cho user khi request chuyển `Accepted/Rejected`; mobile cần xử lý UX pending/timeout phù hợp theo `expiresAt`.
 
 #### Screen: Đặt lịch tư vấn (chọn ngày/slot)
 
@@ -413,6 +434,9 @@ Operation 03 mở luồng đặt lịch tư vấn, kết thúc buổi tư vấn 
   - `401/403` chưa đăng nhập hoặc sai role
   - `404` expert không tồn tại
   - `409` expert offline hoặc đã có request pending cùng user-expert
+- Ghi chú mobile:
+  - Response create request có `requestId`, `status`, `expiresAt`.
+  - Hiện tại chưa có endpoint query/push trạng thái request cho user sau khi tạo; cần UX pending + timeout cục bộ theo `expiresAt`.
 - Trạng thái: Ready
 
 ### 13. Screen: Expert inbox khẩn cấp
