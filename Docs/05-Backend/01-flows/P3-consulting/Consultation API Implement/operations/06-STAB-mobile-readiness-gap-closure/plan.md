@@ -42,6 +42,7 @@ Operation 05 already owns in-room features (chat, consultation-scoped signaling,
 - **Operation 03 gaps**
   - Scheduled consultation pre-payment flow is not implemented end-to-end for mobile.
   - Booking lifecycle surfaces `PendingPayment`, but there is no consultation-specific payment API contract for checkout, payment method selection, wallet balance usage, escrow creation, or payment status refresh.
+  - Expert-side scheduled consultation inbox/list endpoint is missing, so expert app cannot load confirmed scheduled consultations to know which room/session should be joined.
   - Expert-side completion/payment breakdown remains incomplete.
 - **Operation 04 gaps**
   - Emergency consultation flow now has request-room realtime for `Accepted/Rejected`, but expiry handling still depends on client-side countdown instead of a backend-driven terminal event.
@@ -73,6 +74,7 @@ Implement Operation 06 as a stabilization pass with the following scope:
     - query payment status
     - move funds into `SApay` escrow after payment success
   - Ensure scheduled bookings transition cleanly from `PendingPayment` to escrowed/confirmed states.
+  - Add expert-side scheduled consultation listing endpoint so expert clients can load their confirmed / completed bookings with enough information to enter the correct consultation room.
   - Extend consultation completion data so user/expert completion screens can render payment summary consistently.
   - Support escrow settlement to expert when consultation completes, where completion can be triggered by slot end or explicit finish API.
 
@@ -132,6 +134,9 @@ Implement Operation 06 as a stabilization pass with the following scope:
 - Integration tests for consultation payment lifecycle:
   - scheduled payment create -> payment success -> escrow created
   - emergency payment create -> payment success -> escrow created -> expert can act
+- Integration tests for expert scheduled inbox:
+  - expert can load own scheduled bookings
+  - response includes enough booking/session identity for room entry
 - Integration tests for emergency expiry push:
   - pending request transitions to `Expired`
   - requester receives `EmergencyRequestStatusChanged`

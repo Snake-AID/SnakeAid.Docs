@@ -28,21 +28,23 @@ Specific tasks:
    - support `SApay` balance payment
    - query payment status
    - move successful payment into `SApay` escrow
-5. Complete remaining Operation 03 gaps by extending completion payloads so user/expert completion screens can render payment summaries consistently.
-6. Complete remaining Operation 03 gaps by settling escrow to expert on consultation completion. Treat slot-end completion and explicit finish API as equally valid completion triggers and make settlement idempotent.
-7. Complete remaining Operation 04 gaps by adding emergency consultation payment APIs before expert action:
+5. Complete remaining Operation 03 gaps by adding an expert-side scheduled consultation listing endpoint so expert clients can load their confirmed/completed bookings and know which consultation room to enter.
+6. Complete remaining Operation 03 gaps by extending completion payloads so user/expert completion screens can render payment summaries consistently.
+7. Complete remaining Operation 03 gaps by settling escrow to expert on consultation completion. Treat slot-end completion and explicit finish API as equally valid completion triggers and make settlement idempotent.
+8. Complete remaining Operation 04 gaps by adding emergency consultation payment APIs before expert action:
    - create payment session / checkout
    - support payment method selection
    - support `SApay` balance payment
    - query payment status
    - move successful payment into `SApay` escrow
-8. Complete remaining Operation 04 gaps by adding backend-driven emergency expiry handling and publishing `Expired` through `EmergencyRequestStatusChanged` to the request room.
-9. Complete remaining Operation 04 gaps by refunding escrow immediately back to member `SApay` balance when emergency request is `Rejected` or `Expired`.
-10. Complete remaining Operation 04 gaps by settling escrow to expert only after emergency consultation completes.
-11. Add tests covering:
+9. Complete remaining Operation 04 gaps by adding backend-driven emergency expiry handling and publishing `Expired` through `EmergencyRequestStatusChanged` to the request room.
+10. Complete remaining Operation 04 gaps by refunding escrow immediately back to member `SApay` balance when emergency request is `Rejected` or `Expired`.
+11. Complete remaining Operation 04 gaps by settling escrow to expert only after emergency consultation completes.
+12. Add tests covering:
    - dual pricing behavior
    - expert stats mapping
    - scheduled payment to escrow lifecycle
+   - expert-side scheduled consultation list retrieval
    - emergency payment to escrow lifecycle
    - emergency expiry broadcast
    - refund on reject/expired

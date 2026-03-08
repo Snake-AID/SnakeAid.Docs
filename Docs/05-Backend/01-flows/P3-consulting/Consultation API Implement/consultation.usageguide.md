@@ -51,6 +51,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 - **Create Booking**: `POST /api/v1/consultation-bookings`
 - **Get My Bookings**: `GET /api/v1/consultation-bookings/my-bookings`
+- **Get Expert Scheduled Bookings**: `GET /api/v1/consultation-bookings/expert/my-bookings`
 - **Pay Scheduled Booking**: `POST /api/v1/consultation-payments/scheduled-bookings/{bookingId}`
 - **End Consultation**: `POST /api/v1/consultations/{consultationId}/end`
 - **Create Consultation Review**: `POST /api/v1/consultations/{consultationId}/reviews`
@@ -377,6 +378,41 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 }
 ```
 
+#### Step endpoint: Get Expert Scheduled Bookings
+
+`GET /api/v1/consultation-bookings/expert/my-bookings`
+
+**Response DTO**
+- `ApiResponse<IEnumerable<ConsultationBookingResponse>>`
+
+**Response sample**
+```json
+{
+  "status_code": 200,
+  "message": "Operation successful",
+  "is_success": true,
+  "data": [
+    {
+      "id": "7da8e6c6-6e18-4d25-8fb0-2e62784d49a0",
+      "userId": "2a6d6f8f-6468-4d6c-b628-9b0fa326f7a8",
+      "userName": "Alice Smith",
+      "expertId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "expertName": "Dr. John Doe",
+      "price": 150000,
+      "bookedAt": "2026-03-08T09:25:00Z",
+      "paymentDeadline": "2026-03-08T09:40:00Z",
+      "status": "Confirmed",
+      "problemDescription": "Patient has progressive swelling after snakebite. Need consultation.",
+      "timeSlotId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "slotStartTime": "2026-03-10T08:00:00Z",
+      "slotEndTime": "2026-03-10T08:30:00Z",
+      "consultationId": "bfa25be0-10ae-4b9c-b923-2180703eeb7e",
+      "roomId": "consultation-bfa25be010ae4b9cb9232180703eeb7e"
+    }
+  ]
+}
+```
+
 ### 4. Usecase: Tư vấn ngay
 
 #### Step endpoint: Create Emergency Request
@@ -651,7 +687,18 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 }
 ```
 
-### 7. Screen: Các tư vấn khẩn cấp
+### 7. Supporting Screen: Lịch tư vấn đã chốt của expert
+
+#### Endpoint: Get Expert Scheduled Bookings
+
+`GET /api/v1/consultation-bookings/expert/my-bookings`
+
+**Use**
+- load các scheduled booking đã chốt cho expert
+- lấy `consultationId` và `roomId` để expert vào đúng phòng khi tới giờ
+- đây là REST pull endpoint, chưa có SignalR inbox riêng cho scheduled consultation
+
+### 8. Screen: Các tư vấn khẩn cấp
 
 #### WS: Join as expert
 

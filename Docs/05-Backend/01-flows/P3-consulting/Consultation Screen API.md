@@ -49,6 +49,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 
 - **Create Booking**: `POST /api/v1/consultation-bookings`
 - **Get My Bookings**: `GET /api/v1/consultation-bookings/my-bookings`
+- **Get Expert Scheduled Bookings**: `GET /api/v1/consultation-bookings/expert/my-bookings`
 - **Pay Scheduled Booking**: `POST /api/v1/consultation-payments/scheduled-bookings/{bookingId}`
 - **End Consultation**: `POST /api/v1/consultations/{consultationId}/end`
 - **Create Consultation Review**: `POST /api/v1/consultations/{consultationId}/reviews`
@@ -312,7 +313,24 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 
 ## Expert Journey
 
-### 18. Screen: Thiết đặt
+### 18. Supporting Screen: Lịch tư vấn đã chốt của expert
+
+**Status**: `Build Now`
+
+**Khi expert mở danh sách ca scheduled đã chốt**
+- `GET /api/v1/consultation-bookings/expert/my-bookings`
+
+**Mục đích**
+- load các ca scheduled đã được member thanh toán thành công
+- lấy `consultationId` và `roomId` để expert biết ca nào sắp diễn ra và vào đúng phòng khi tới giờ
+
+**Lưu ý**
+- endpoint này là REST pull, chưa có realtime inbox cho scheduled consultation
+
+**Đi tiếp**
+- chọn ca đã đến giờ -> `Screen: Sảnh phòng chờ`
+
+### 19. Screen: Thiết đặt
 
 **Status**: `Build Now`
 
@@ -325,7 +343,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 **Mục đích**
 - cập nhật pricing, biography, weekly working slots
 
-### 19. Screen: Các tư vấn khẩn cấp
+### 20. Screen: Các tư vấn khẩn cấp
 
 **Status**: `Build Now`
 
@@ -342,7 +360,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 - accept thành công -> `Screen: Sảnh phòng chờ`
 - reject thành công -> ở lại inbox / chờ request khác
 
-### 20. Screen: Sảnh phòng chờ
+### 21. Screen: Sảnh phòng chờ
 
 **Status**: `Build Now`
 
@@ -352,7 +370,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 **Đi tiếp**
 - `Join phòng` -> `Screen: Trong phòng tư vấn`
 
-### 21. Screen: Trong phòng tư vấn
+### 22. Screen: Trong phòng tư vấn
 
 **Status**: `Build Now`
 
@@ -362,11 +380,11 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 **Đi tiếp**
 - end thành công -> `Screen: Hoàn tất tư vấn`
 
-### 22. Screen: Chat
+### 23. Screen: Chat
 
 **Status**: `Wait Backend`
 
-### 23. Screen: Hoàn tất tư vấn
+### 24. Screen: Hoàn tất tư vấn
 
 **Status**: `Build With Placeholder`
 
@@ -410,6 +428,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 - Sảnh phòng chờ
 - Trong phòng tư vấn
 - Thiết đặt expert
+- Lịch tư vấn đã chốt của expert
 - Các tư vấn khẩn cấp
 
 ### Build With Placeholder

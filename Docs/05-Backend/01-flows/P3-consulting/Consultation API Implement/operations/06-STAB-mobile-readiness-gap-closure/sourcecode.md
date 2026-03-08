@@ -40,6 +40,8 @@ Operation 05 remains the owner of in-room chat and consultation-scoped signaling
   - payment request contract for consultation payment APIs
 - `SnakeAid.Core/Responses/Consultation/ConsultationPaymentResponse.cs`
   - payment result contract for escrowed consultation flows
+- `SnakeAid.Core/Responses/Consultation/ConsultationBookingResponse.cs`
+  - now exposes `UserName` for expert-side scheduled booking cards
 
 ### Services
 
@@ -48,6 +50,7 @@ Operation 05 remains the owner of in-room chat and consultation-scoped signaling
   - maps profile statistics for mobile
 - `SnakeAid.Service/Implements/BookingService.cs`
   - adds scheduled auto-completion by slot end
+  - adds expert-side scheduled booking listing for confirmed/completed bookings
 - `SnakeAid.Service/Implements/ConsultationService.cs`
   - triggers escrow settlement on explicit consultation end
 - `SnakeAid.Service/Implements/EmergencyConsultationService.cs`
@@ -75,6 +78,8 @@ Operation 05 remains the owner of in-room chat and consultation-scoped signaling
 
 - `SnakeAid.Api/Controllers/ConsultationPaymentsController.cs`
   - new payment endpoints for consultation flows
+- `SnakeAid.Api/Controllers/ConsultationBookingsController.cs`
+  - adds `GET /api/v1/consultation-bookings/expert/my-bookings`
 - `SnakeAid.Api/Program.cs`
   - registers `ConsultationLifecycleBackgroundService`
 
@@ -88,6 +93,8 @@ Operation 05 remains the owner of in-room chat and consultation-scoped signaling
 - `SnakeAid.Tests/Integration/ConsultationPaymentIntegrationTests.cs`
   - new integration tests for escrow/refund/settlement
 - existing consultation integration/unit tests were updated to reflect the new constructors and state flow
+- `SnakeAid.Tests/Integration/ConsultationBookingsControllerIntegrationTests.cs`
+  - verifies expert can load scheduled bookings with `consultationId`, `roomId`, and `UserName`
 
 ## 3. Current State Machine
 
@@ -101,10 +108,13 @@ Operation 05 remains the owner of in-room chat and consultation-scoped signaling
    - credits system wallet (`SApay escrow`)
    - creates `TransactionType.ConsultationPayment`
    - moves booking to `BookingStatus.Confirmed`
-3. Completion trigger:
+3. Expert inbox visibility:
+   - expert loads scheduled consultations through `GET /api/v1/consultation-bookings/expert/my-bookings`
+   - endpoint currently returns only `Confirmed` and `Completed` bookings
+4. Completion trigger:
    - slot end via `ConsultationLifecycleBackgroundService`
    - or explicit `POST /api/v1/consultations/{consultationId}/end`
-4. Settlement:
+5. Settlement:
    - escrow transferred to expert
    - creates `TransactionType.ExpertPayout`
    - settlement is idempotent by checking existing payout transaction
@@ -140,6 +150,14 @@ Operation 05 remains the owner of in-room chat and consultation-scoped signaling
 
 - `POST /api/v1/consultation-payments/scheduled-bookings/{bookingId}`
 - `POST /api/v1/consultation-payments/emergency-requests/{requestId}`
+
+### Scheduled Expert Inbox Endpoint
+
+- `GET /api/v1/consultation-bookings/expert/my-bookings`
+  - returns scheduled bookings for the current expert
+  - current filter scope: `Confirmed` and `Completed`
+  - response now includes `UserName`, `consultationId`, `roomId`, and slot timing
+  - current implementation is REST pull only; no scheduled-consultation SignalR inbox was introduced in Operation 06
 
 Current request body:
 
@@ -280,6 +298,7 @@ There are several implementation limits that are important for reviewers and fut
   - scheduled consultation pre-payment with `WalletBalance`
   - escrow creation after payment
   - booking transition from `PendingPayment` to `Confirmed`
+  - expert-side scheduled booking list so expert app can discover room-entry candidates
   - consultation settlement to expert on completion
   - auto-completion by slot end
 - `Operation 04`

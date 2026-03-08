@@ -41,6 +41,7 @@ Toàn flow consultation hiện được hình thành từ các operation chính:
 - `ConsultationBookingsController`
   - create scheduled booking
   - get my bookings
+  - get expert scheduled bookings
 - `ConsultationsController`
   - create emergency request
   - accept/reject emergency request
@@ -95,6 +96,7 @@ Toàn flow consultation hiện được hình thành từ các operation chính:
 - scheduled consultation booking record
 - links user, expert, selected slot, price, booking status, consultation id
 - current booking flow starts at `PendingPayment`
+- current booking response used by mobile now also includes `UserName` so expert app can identify the member on scheduled consultation cards
 
 ### ConsultationPingRequest
 
@@ -160,6 +162,7 @@ Implemented in `ConsultationBookingsController`, `ConsultationsController`, `Boo
 
 - `POST /api/v1/consultation-bookings`
 - `GET /api/v1/consultation-bookings/my-bookings`
+- `GET /api/v1/consultation-bookings/expert/my-bookings`
 - `POST /api/v1/consultation-payments/scheduled-bookings/{bookingId}`
 - `POST /api/v1/consultations/{consultationId}/end`
 - `POST /api/v1/consultations/{consultationId}/reviews`
@@ -194,6 +197,10 @@ Implemented in `ConsultationsController`, `EmergencyConsultationService`, `Consu
 - booking starts at `PendingPayment`
 - user pays via `POST /api/v1/consultation-payments/scheduled-bookings/{bookingId}`
 - payment success moves money into system escrow and booking becomes `Confirmed`
+- expert loads own scheduled consultations through `GET /api/v1/consultation-bookings/expert/my-bookings`
+  - current endpoint returns `Confirmed` and `Completed` bookings
+  - response includes `consultationId`, `roomId`, slot window, and `UserName`
+  - current discovery model is REST pull; there is still no scheduled-consultation SignalR inbox
 - at consultation time, participant gets room token via `POST /api/videocall/livekit-token/{consultationId}`
 - consultation ends either:
   - explicitly via `POST /api/v1/consultations/{consultationId}/end`
