@@ -52,6 +52,7 @@ This module is not just a video-call function. It is a full business flow coveri
    - `ConsultationHub` handles in-room realtime features for an active consultation.
 9. **Emergency Request Room**: After creating an emergency request, the requester joins a request-specific SignalR group (`consultation:emergency:request:{requestId}`) to receive terminal status updates in real time.
 10. **MVP Rule for Verification**: `IsVerified` is not a completed MVP business capability yet and should not be treated as a finalized trust signal until a later operation formalizes it.
+11. **Multi-Replica Lifecycle Rule**: Background lifecycle work for consultation is a distributed systems concern, not just an in-process timer. If multiple API replicas run against the same write database, only one replica may execute lifecycle sweep work at a time and financial side effects must be protected against duplicate execution.
 
 ## Scope
 
@@ -77,3 +78,11 @@ This module is not just a video-call function. It is a full business flow coveri
 - `Operation 04`: emergency consultation and presence foundation.
 - `Operation 05`: in-room features.
 - `Operation 06`: stabilization pass to close remaining mobile-readiness gaps inside Operations 01, 03, and 04.
+
+## Operational Note
+
+The current consultation implementation includes a multi-replica safety patch:
+- `ConsultationLifecycleBackgroundService` uses a shared PostgreSQL advisory lock so not every API replica runs the lifecycle sweep at the same time.
+- payout, refund, and settlement paths also use aggregate-scoped transaction locks to reduce duplicate financial side effects.
+
+This note matters because consultation is not only a UX flow. It also includes timed business transitions and escrow movement, which become unsafe if every horizontally scaled API instance executes the same background work independently.

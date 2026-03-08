@@ -87,3 +87,18 @@ When standardizing an existing operation:
 
 - If a change improves consistency with `ApiResponseBuilder + ApiException middleware`, prefer it.
 - If consistency conflicts with published client contract, document it and phase migration explicitly.
+
+## 11) Multi-Replica Background Job Rule
+
+- Any background job that changes domain state or moves money must be treated as a distributed coordination problem when multiple API replicas can run at the same time.
+- Do not assume `IHostedService` is singleton at deployment level. It is singleton only inside one process.
+- If the application can scale horizontally, lifecycle jobs must use one of these patterns:
+  - a dedicated single worker deployment
+  - a centralized scheduler (`Hangfire`, `Quartz`, queue worker)
+  - a distributed lock on the shared write database or shared infrastructure
+- Idempotency checks alone are not enough when two replicas can read the same eligible rows before either commit completes.
+- For financial side effects such as payout, refund, or escrow settlement:
+  - coordinate execution across replicas
+  - keep state transition and money movement inside one DB transaction when possible
+  - use row-level/pessimistic locking, concurrency tokens, or transaction-scoped distributed locking on the same aggregate
+- If a hot patch is needed before a larger redesign, prefer a database-backed distributed lock that matches the current write topology and document that it is an interim operational safeguard, not the final scheduling architecture.

@@ -80,6 +80,7 @@ Toàn flow consultation hiện được hình thành từ các operation chính:
 - `ConsultationLifecycleBackgroundService`
   - expire timed-out emergency requests
   - auto-complete scheduled consultations whose slot has ended
+  - in multi-replica deployment, a PostgreSQL session advisory lock is used so only one API replica runs a lifecycle sweep at a time
 
 ## Core Domain Model
 
@@ -290,6 +291,32 @@ Implemented in `ConsultationsController`, `EmergencyConsultationService`, `Consu
 
 - slot creation and slot booking are protected against duplication/race conditions
 - emergency accept reserves overlapping slots in the 30-minute emergency window
+- consultation lifecycle jobs are coordinated across API replicas through a shared PostgreSQL advisory lock
+- payment/refund/settlement critical sections now also take transaction-scoped advisory locks keyed by booking id, request id, or consultation id to reduce double-execution races in multi-replica deployments
+
+### Multi-Replica Lifecycle Coordination
+
+The consultation module now assumes that multiple API replicas may run at the same time against one shared write database.
+
+Before the current hot patch, every replica would start its own `ConsultationLifecycleBackgroundService`, which created race windows for:
+- `ExpireEmergencyRequestsAsync`
+- `AutoCompleteElapsedScheduledConsultationsAsync`
+- escrow refund flows
+- escrow settlement flows
+
+Current mitigation in code:
+- one global PostgreSQL session advisory lock for the lifecycle worker loop
+- one transaction-scoped advisory lock per critical aggregate during:
+  - scheduled booking payment
+  - emergency request payment
+  - emergency refund
+  - consultation settlement
+
+This is a pragmatic safeguard for the current topology:
+- many API replicas
+- one shared PostgreSQL writer
+
+It should not be mistaken for a final scheduler architecture. If consultation lifecycle throughput or operational complexity grows, the preferred evolution is a dedicated worker or centralized scheduler.
 
 ### Time Standard
 
@@ -316,6 +343,7 @@ The full consultation flow currently still contains some hardcoded or temporary-
 - system escrow wallet id is hardcoded in current payment implementation
 - consultation payment method currently only supports `WalletBalance`
 - `IsVerified` remains deferred for MVP
+- current distributed coordination for lifecycle jobs depends on PostgreSQL advisory locks and therefore assumes consultation write paths run on the shared writer database, not on read replicas
 
 ## Current Limits of the Whole Flow
 
