@@ -149,39 +149,39 @@ Consultation-specific money movement currently uses:
 
 Implemented in `ExpertController` + `ExpertService`.
 
-- `PUT /api/v1/experts/me/settings`
-- `POST /api/v1/experts/me/time-slots/bulk`
-- `GET /api/v1/experts`
-- `GET /api/v1/experts/{expertId}`
-- `GET /api/v1/experts/{expertId}/reviews`
-- `GET /api/v1/experts/{expertId}/time-slots`
+- `PUT /api/experts/me/settings`
+- `POST /api/experts/me/time-slots/bulk`
+- `GET /api/experts`
+- `GET /api/experts/{expertId}`
+- `GET /api/experts/{expertId}/reviews`
+- `GET /api/experts/{expertId}/time-slots`
 
 ### Scheduled Consultation
 
 Implemented in `ConsultationBookingsController`, `ConsultationsController`, `BookingService`, `ConsultationService`, `ConsultationPaymentService`.
 
-- `POST /api/v1/consultation-bookings`
-- `GET /api/v1/consultation-bookings/my-bookings`
-- `GET /api/v1/consultation-bookings/expert/my-bookings`
-- `POST /api/v1/consultation-payments/scheduled-bookings/{bookingId}`
-- `POST /api/v1/consultations/{consultationId}/end`
-- `POST /api/v1/consultations/{consultationId}/reviews`
+- `POST /api/consultation-bookings`
+- `GET /api/users/me/consultation-bookings`
+- `GET /api/experts/me/consultation-bookings`
+- `POST /api/consultation-bookings/{bookingId}/payments`
+- `POST /api/consultations/{consultationId}/end`
+- `POST /api/consultations/{consultationId}/reviews`
 - `POST /api/videocall/livekit-token/{consultationId}`
 
 ### Emergency Consultation
 
 Implemented in `ConsultationsController`, `EmergencyConsultationService`, `ConsultationPaymentService`, `ExpertHub`, `SignalRExpertEmergencyNotificationService`.
 
-- `POST /api/v1/consultations/emergency`
-- `POST /api/v1/consultation-payments/emergency-requests/{requestId}`
-- `POST /api/v1/consultations/emergency-requests/{requestId}/accept`
-- `POST /api/v1/consultations/emergency-requests/{requestId}/reject`
+- `POST /api/consultations/emergency-requests`
+- `POST /api/consultations/emergency-requests/{requestId}/payments`
+- `POST /api/consultations/emergency-requests/{requestId}/accept`
+- `POST /api/consultations/emergency-requests/{requestId}/reject`
 
 ## Current End-to-End Flow in Code
 
 ### 1. Expert Directory / Profile Flow
 
-- mobile loads expert directory through `GET /api/v1/experts`
+- mobile loads expert directory through `GET /api/experts`
 - user presence-aware UI is enhanced by `ExpertHub`:
   - `JoinAsMember`
   - `OnlineExpertsSnapshot`
@@ -193,27 +193,27 @@ Implemented in `ConsultationsController`, `EmergencyConsultationService`, `Consu
 
 ### 2. Scheduled Consultation Flow
 
-- user creates booking via `POST /api/v1/consultation-bookings`
+- user creates booking via `POST /api/consultation-bookings`
 - booking starts at `PendingPayment`
-- user pays via `POST /api/v1/consultation-payments/scheduled-bookings/{bookingId}`
+- user pays via `POST /api/consultation-bookings/{bookingId}/payments`
 - payment success moves money into system escrow and booking becomes `Confirmed`
-- expert loads own scheduled consultations through `GET /api/v1/consultation-bookings/expert/my-bookings`
+- expert loads own scheduled consultations through `GET /api/experts/me/consultation-bookings`
   - current endpoint returns `Confirmed` and `Completed` bookings
   - response includes `consultationId`, `roomId`, slot window, and `UserName`
   - current discovery model is REST pull; there is still no scheduled-consultation SignalR inbox
 - at consultation time, participant gets room token via `POST /api/videocall/livekit-token/{consultationId}`
 - consultation ends either:
-  - explicitly via `POST /api/v1/consultations/{consultationId}/end`
+  - explicitly via `POST /api/consultations/{consultationId}/end`
   - or implicitly by background auto-completion after slot end
 - when consultation completes, escrow settles to expert
-- user can submit review via `POST /api/v1/consultations/{consultationId}/reviews`
+- user can submit review via `POST /api/consultations/{consultationId}/reviews`
 
 ### 3. Emergency Consultation Flow
 
-- user creates request via `POST /api/v1/consultations/emergency`
+- user creates request via `POST /api/consultations/emergency-requests`
 - request starts at `PendingPayment`
 - user joins request room via `JoinEmergencyRequestRoom(requestId)`
-- user pays via `POST /api/v1/consultation-payments/emergency-requests/{requestId}`
+- user pays via `POST /api/consultations/emergency-requests/{requestId}/payments`
 - payment success:
   - moves money into system escrow
   - sets request to `PendingExpertResponse`
@@ -349,3 +349,5 @@ Example:
 - if Operation 05 adds chat hub + consultation message APIs:
   - update `consultation.sourcecode.md` to reflect the whole module now includes chat
   - update `operations/05.../sourcecode.md` to explain exactly how that operation implemented chat
+
+

@@ -40,29 +40,29 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 ### Expert Directory & Availability
 
-- **Update Settings**: `PUT /api/v1/experts/me/settings`
-- **Setup Weekly Hours**: `POST /api/v1/experts/me/time-slots/bulk`
-- **List Experts**: `GET /api/v1/experts`
-- **Get Expert Profile**: `GET /api/v1/experts/{expertId}`
-- **Get Expert Reviews**: `GET /api/v1/experts/{expertId}/reviews`
-- **Get Available Time Slots**: `GET /api/v1/experts/{expertId}/time-slots`
+- **Update Settings**: `PUT /api/experts/me/settings`
+- **Setup Weekly Hours**: `POST /api/experts/me/time-slots/bulk`
+- **List Experts**: `GET /api/experts`
+- **Get Expert Profile**: `GET /api/experts/{expertId}`
+- **Get Expert Reviews**: `GET /api/experts/{expertId}/reviews`
+- **Get Available Time Slots**: `GET /api/experts/{expertId}/time-slots`
 
 ### Scheduled Consultation
 
-- **Create Booking**: `POST /api/v1/consultation-bookings`
-- **Get My Bookings**: `GET /api/v1/consultation-bookings/my-bookings`
-- **Get Expert Scheduled Bookings**: `GET /api/v1/consultation-bookings/expert/my-bookings`
-- **Pay Scheduled Booking**: `POST /api/v1/consultation-payments/scheduled-bookings/{bookingId}`
-- **End Consultation**: `POST /api/v1/consultations/{consultationId}/end`
-- **Create Consultation Review**: `POST /api/v1/consultations/{consultationId}/reviews`
+- **Create Booking**: `POST /api/consultation-bookings`
+- **Get My Bookings**: `GET /api/users/me/consultation-bookings`
+- **Get Expert Scheduled Bookings**: `GET /api/experts/me/consultation-bookings`
+- **Pay Scheduled Booking**: `POST /api/consultation-bookings/{bookingId}/payments`
+- **End Consultation**: `POST /api/consultations/{consultationId}/end`
+- **Create Consultation Review**: `POST /api/consultations/{consultationId}/reviews`
 - **Generate LiveKit Token**: `POST /api/videocall/livekit-token/{consultationId}`
 
 ### Emergency Consultation
 
-- **Create Emergency Request**: `POST /api/v1/consultations/emergency`
-- **Pay Emergency Request**: `POST /api/v1/consultation-payments/emergency-requests/{requestId}`
-- **Accept Emergency Request**: `POST /api/v1/consultations/emergency-requests/{requestId}/accept`
-- **Reject Emergency Request**: `POST /api/v1/consultations/emergency-requests/{requestId}/reject`
+- **Create Emergency Request**: `POST /api/consultations/emergency-requests`
+- **Pay Emergency Request**: `POST /api/consultations/emergency-requests/{requestId}/payments`
+- **Accept Emergency Request**: `POST /api/consultations/emergency-requests/{requestId}/accept`
+- **Reject Emergency Request**: `POST /api/consultations/emergency-requests/{requestId}/reject`
 
 ### SignalR Presence and Emergency Realtime
 
@@ -84,7 +84,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Endpoint: List Experts
 
-`GET /api/v1/experts`
+`GET /api/experts`
 
 **Query params**
 - `pageNumber >= 1`
@@ -164,7 +164,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Endpoint: Get Expert Profile
 
-`GET /api/v1/experts/{expertId}`
+`GET /api/experts/{expertId}`
 
 **Response DTO**
 - `ApiResponse<ExpertProfileResponse>`
@@ -197,7 +197,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Endpoint: Get Expert Reviews
 
-`GET /api/v1/experts/{expertId}/reviews?pageNumber=1&pageSize=10`
+`GET /api/experts/{expertId}/reviews?pageNumber=1&pageSize=10`
 
 **Response DTO**
 - `ApiResponse<PagingResponse<UserFeedbackResponse>>`
@@ -238,7 +238,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Endpoint: Get Available Time Slots
 
-`GET /api/v1/experts/{expertId}/time-slots`
+`GET /api/experts/{expertId}/time-slots`
 
 **Response DTO**
 - `ApiResponse<IEnumerable<ExpertTimeSlotResponse>>`
@@ -265,7 +265,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Step endpoint: Create Booking
 
-`POST /api/v1/consultation-bookings`
+`POST /api/consultation-bookings`
 
 **Request DTO**
 - `CreateConsultationBookingRequest`
@@ -308,7 +308,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Step endpoint: Pay Scheduled Booking
 
-`POST /api/v1/consultation-payments/scheduled-bookings/{bookingId}`
+`POST /api/consultation-bookings/{bookingId}/payments`
 
 **Request DTO**
 - `ProcessConsultationPaymentRequest`
@@ -346,7 +346,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Step endpoint: Get My Bookings
 
-`GET /api/v1/consultation-bookings/my-bookings`
+`GET /api/users/me/consultation-bookings`
 
 **Response DTO**
 - `ApiResponse<IEnumerable<ConsultationBookingResponse>>`
@@ -380,7 +380,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Step endpoint: Get Expert Scheduled Bookings
 
-`GET /api/v1/consultation-bookings/expert/my-bookings`
+`GET /api/experts/me/consultation-bookings`
 
 **Response DTO**
 - `ApiResponse<IEnumerable<ConsultationBookingResponse>>`
@@ -417,7 +417,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Step endpoint: Create Emergency Request
 
-`POST /api/v1/consultations/emergency`
+`POST /api/consultations/emergency-requests`
 
 **Request DTO**
 - `CreateEmergencyConsultationRequest`
@@ -462,7 +462,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Step endpoint: Pay Emergency Request
 
-`POST /api/v1/consultation-payments/emergency-requests/{requestId}`
+`POST /api/consultations/emergency-requests/{requestId}/payments`
 
 **Request DTO**
 - `ProcessConsultationPaymentRequest`
@@ -551,7 +551,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Endpoint: End Consultation
 
-`POST /api/v1/consultations/{consultationId}/end`
+`POST /api/consultations/{consultationId}/end`
 
 **Request body**
 - không có body
@@ -571,7 +571,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Endpoint: Create Review
 
-`POST /api/v1/consultations/{consultationId}/reviews`
+`POST /api/consultations/{consultationId}/reviews`
 
 **Request DTO**
 - `CreateConsultationReviewRequest`
@@ -617,7 +617,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Endpoint: Update Settings
 
-`PUT /api/v1/experts/me/settings`
+`PUT /api/experts/me/settings`
 
 **Request DTO**
 - `ExpertSettingsRequest`
@@ -647,7 +647,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Endpoint: Setup Weekly Hours
 
-`POST /api/v1/experts/me/time-slots/bulk`
+`POST /api/experts/me/time-slots/bulk`
 
 **Request DTO**
 - `BulkTimeSlotRequest`
@@ -691,7 +691,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Endpoint: Get Expert Scheduled Bookings
 
-`GET /api/v1/consultation-bookings/expert/my-bookings`
+`GET /api/experts/me/consultation-bookings`
 
 **Use**
 - load các scheduled booking đã chốt cho expert
@@ -721,7 +721,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Endpoint: Accept Emergency Request
 
-`POST /api/v1/consultations/emergency-requests/{requestId}/accept`
+`POST /api/consultations/emergency-requests/{requestId}/accept`
 
 **Request body**
 - không có body
@@ -751,7 +751,7 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 #### Endpoint: Reject Emergency Request
 
-`POST /api/v1/consultations/emergency-requests/{requestId}/reject`
+`POST /api/consultations/emergency-requests/{requestId}/reject`
 
 **Request body**
 - không có body
@@ -781,21 +781,21 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 ## Error Notes
 
-- `POST /api/v1/experts/me/time-slots/bulk`
+- `POST /api/experts/me/time-slots/bulk`
   - `422` when `weekStartDate` is not UTC
   - `409` when concurrent slot creation collides
-- `POST /api/v1/consultation-bookings`
+- `POST /api/consultation-bookings`
   - `409` when another request reserves the same slot first
-- `POST /api/v1/consultation-payments/scheduled-bookings/{bookingId}`
+- `POST /api/consultation-bookings/{bookingId}/payments`
   - `409` when booking already paid or not in `PendingPayment`
   - `409` when wallet balance is insufficient
-- `POST /api/v1/consultation-payments/emergency-requests/{requestId}`
+- `POST /api/consultations/emergency-requests/{requestId}/payments`
   - `409` when request already paid or not in `PendingPayment`
   - `409` when expert offline at payment time
   - `409` when wallet balance is insufficient
 - `POST /api/videocall/livekit-token/{consultationId}`
   - `403` if caller is not a consultation participant
-- `POST /api/v1/consultations/emergency-requests/{requestId}/accept|reject`
+- `POST /api/consultations/emergency-requests/{requestId}/accept|reject`
   - `403` when caller is not targeted expert
   - `409` when request no longer pending
 
@@ -806,4 +806,6 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 - `IsVerified` chưa có semantics nghiệp vụ hoàn chỉnh.
 - Chat consultation vẫn thuộc Operation 5.
 - Completion/payment summary screen chưa có contract chuyên biệt đầy đủ cho mobile.
+
+
 

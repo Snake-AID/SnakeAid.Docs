@@ -79,7 +79,7 @@ Operation 05 remains the owner of in-room chat and consultation-scoped signaling
 - `SnakeAid.Api/Controllers/ConsultationPaymentsController.cs`
   - new payment endpoints for consultation flows
 - `SnakeAid.Api/Controllers/ConsultationBookingsController.cs`
-  - adds `GET /api/v1/consultation-bookings/expert/my-bookings`
+  - adds `GET /api/experts/me/consultation-bookings`
 - `SnakeAid.Api/Program.cs`
   - registers `ConsultationLifecycleBackgroundService`
 
@@ -100,20 +100,20 @@ Operation 05 remains the owner of in-room chat and consultation-scoped signaling
 
 ### Scheduled Consultation Money Flow
 
-1. `POST /api/v1/consultation-bookings`
+1. `POST /api/consultation-bookings`
    - creates booking with `BookingStatus.PendingPayment`
-2. `POST /api/v1/consultation-payments/scheduled-bookings/{bookingId}`
+2. `POST /api/consultation-bookings/{bookingId}/payments`
    - accepts `WalletBalance`
    - debits member wallet
    - credits system wallet (`SApay escrow`)
    - creates `TransactionType.ConsultationPayment`
    - moves booking to `BookingStatus.Confirmed`
 3. Expert inbox visibility:
-   - expert loads scheduled consultations through `GET /api/v1/consultation-bookings/expert/my-bookings`
+   - expert loads scheduled consultations through `GET /api/experts/me/consultation-bookings`
    - endpoint currently returns only `Confirmed` and `Completed` bookings
 4. Completion trigger:
    - slot end via `ConsultationLifecycleBackgroundService`
-   - or explicit `POST /api/v1/consultations/{consultationId}/end`
+   - or explicit `POST /api/consultations/{consultationId}/end`
 5. Settlement:
    - escrow transferred to expert
    - creates `TransactionType.ExpertPayout`
@@ -121,11 +121,11 @@ Operation 05 remains the owner of in-room chat and consultation-scoped signaling
 
 ### Emergency Consultation Money Flow
 
-1. `POST /api/v1/consultations/emergency`
+1. `POST /api/consultations/emergency-requests`
    - creates `ConsultationPingRequest`
    - initial state = `PendingPayment`
    - no realtime push to expert yet
-2. `POST /api/v1/consultation-payments/emergency-requests/{requestId}`
+2. `POST /api/consultations/emergency-requests/{requestId}/payments`
    - accepts `WalletBalance`
    - debits member wallet
    - credits system wallet (`SApay escrow`)
@@ -148,12 +148,12 @@ Operation 05 remains the owner of in-room chat and consultation-scoped signaling
 
 ### Consultation Payment Endpoints
 
-- `POST /api/v1/consultation-payments/scheduled-bookings/{bookingId}`
-- `POST /api/v1/consultation-payments/emergency-requests/{requestId}`
+- `POST /api/consultation-bookings/{bookingId}/payments`
+- `POST /api/consultations/emergency-requests/{requestId}/payments`
 
 ### Scheduled Expert Inbox Endpoint
 
-- `GET /api/v1/consultation-bookings/expert/my-bookings`
+- `GET /api/experts/me/consultation-bookings`
   - returns scheduled bookings for the current expert
   - current filter scope: `Confirmed` and `Completed`
   - response now includes `UserName`, `consultationId`, `roomId`, and slot timing
@@ -182,7 +182,7 @@ Current response shape:
 
 ## 5. Expert Profile Contract After Operation 06
 
-`GET /api/v1/experts` and `GET /api/v1/experts/{id}` now surface enough mobile-facing pricing/stat fields for Operation 01 closure:
+`GET /api/experts` and `GET /api/experts/{id}` now surface enough mobile-facing pricing/stat fields for Operation 01 closure:
 
 - `ConsultationFee`
   - still kept for backward compatibility
@@ -344,3 +344,5 @@ If reviewing Operation 06 code, the highest-risk files are:
 5. `ConsultationService.cs`
 
 These files own the core escrow, refund, expiry, and settlement behavior.
+
+
