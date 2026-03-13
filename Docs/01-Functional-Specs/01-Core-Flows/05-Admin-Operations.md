@@ -62,13 +62,13 @@
 1. Admin mở Dashboard **"Giám sát Real-time"**.
 2. Bản đồ hiển thị trạng thái:
    - 🔴 Ca rắn cắn đang xử lý
-   - 🟡 Yêu cầu cứu hộ đang chờ
+   - 🟡 Yêu cầu cứu hộ đang chờ Rescuer nhận
    - 🟢 Ca đã hoàn thành trong ngày
    - 🔵 Vị trí Rescuer đang online
    - ⚫ Vị trí Expert đang online
 3. Admin có thể click vào điểm để xem chi tiết, theo dõi vị trí Rescuer và trạng thái nhiệm vụ.
 4. Xem biểu đồ nhiệt (Heat Map) — phân bố sự cố theo thời gian và loài.
-5. Nếu phát hiện bất thường: gửi cảnh báo cộng đồng hoặc can thiệp vận hành (ưu tiên ca khẩn cấp).
+5. Nếu phát hiện bất thường hoặc yêu cầu chờ quá lâu: gửi cảnh báo cộng đồng hoặc can thiệp vận hành (ưu tiên ca khẩn cấp).
 6. Xuất báo cáo cuối ngày: tổng số ca, thời gian phản hồi trung bình, tỷ lệ hoàn thành, doanh thu.
 
 

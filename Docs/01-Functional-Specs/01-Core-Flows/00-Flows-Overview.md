@@ -20,8 +20,9 @@
   - Thanh toán
 
 ### RESCUER
-- **[2] Nhận cảnh báo**
-  - Chấp nhận yêu cầu
+- **[2] Xem danh sách yêu cầu cứu hộ**
+  - Xem các yêu cầu theo khu vực
+  - Chủ động nhận yêu cầu
   - Di chuyển & chia sẻ vị trí
   - Bắt rắn
   - Báo cáo & cập nhật hệ thống
@@ -51,7 +52,7 @@
 | Tình huống | Patient | Rescuer | Expert | Admin | AI System |
 |------------|---------|---------|--------|-------|-----------|
 | Rắn cắn khẩn cấp | Kích hoạt | - | (Nếu cần) | Giám sát | Nhận diện + Đánh giá |
-| Cứu hộ rắn | Yêu cầu | Thực hiện | (Hỗ trợ) | Giám sát | Nhận diện sơ bộ |
+| Cứu hộ rắn | Tạo yêu cầu | Tự nhận và thực hiện | (Hỗ trợ) | Giám sát | Nhận diện sơ bộ |
 | Tư vấn từ xa | Yêu cầu | - | Tư vấn | Giám sát | - |
 | Cập nhật database | - | Góp ảnh | Xác minh | Quản lý | Học từ dữ liệu mới |
 | Cảnh báo cộng đồng | Nhận | Nhận | - | Gửi | Phân tích xu hướng |
@@ -66,7 +67,7 @@
 | Nhận diện rắn bằng AI | < 5 giây | Tùy chất lượng ảnh |
 | Đánh giá mức độ nghiêm trọng | < 3 giây | AI xử lý |
 | Tìm cơ sở điều trị gần nhất | < 2 giây | Truy vấn database |
-| Tìm Rescuer phù hợp | < 30 giây | Tối đa 2 phút |
+| Hiển thị yêu cầu cho Rescuer theo khu vực | < 10 giây | Tùy trạng thái online và khu vực |
 | Rescuer di chuyển đến hiện trường | 10-30 phút | Tùy khoảng cách |
 | Bắt rắn | 5-20 phút | Tùy loài và tình huống |
 | Tư vấn chuyên gia | 15-30 phút | Tùy độ phức tạp |

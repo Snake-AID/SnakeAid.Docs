@@ -28,29 +28,28 @@
 
 ---
 
-## 2.2 Giai đoạn kết nối với đội cứu hộ (Matching)
+## 2.2 Giai đoạn hiển thị yêu cầu cho đội cứu hộ
 
-**Flow 2.2 — Phân công đội cứu hộ**
+**Flow 2.2 — Rescuer tự nhận yêu cầu cứu hộ**
 
 1. Hệ thống nhận yêu cầu cứu hộ từ Patient.
 2. Hệ thống xác định:
    - Vị trí GPS của yêu cầu
    - Mức độ khẩn cấp
    - Loại rắn (từ AI)
-3. Tìm kiếm Snake Rescuer phù hợp:
-   - Đang online trong bán kính **5 km**
-   - Có kinh nghiệm với loài rắn này
-   - Đánh giá tốt từ khách hàng trước
-   - Sắp xếp theo: Khoảng cách → Rating → Thời gian phản hồi
-4. Gửi thông báo đến top 3 Snake Rescuer:
-   - Thông tin vị trí
-   - Ảnh rắn và kết quả AI
-   - Mức phí đề xuất
-   - Thời gian chấp nhận: **2 phút**
-5. Kịch bản:
-   - **Nếu có Rescuer chấp nhận trong 2 phút** → Chuyển sang **Flow 2.3**.
-   - **Nếu không có** → Mở rộng bán kính lên **10 km**, gửi đến top 5 và tăng phí đề xuất 20%.
-   - **Nếu vẫn không có sau 5 phút** → Mở rộng bán kính lên **15 km**. Nếu vẫn không tìm thấy → Thông báo cho Patient: "Không tìm thấy đội cứu hộ" và đề xuất gọi trung tâm kiểm soát động vật hoặc 115.
+3. Hệ thống lọc và hiển thị yêu cầu cho các Snake Rescuer phù hợp theo khu vực:
+   - Chỉ hiển thị cho Rescuer đang online trong khu vực gần hiện trường
+   - Hiển thị thông tin vị trí, ảnh rắn, kết quả AI, mức độ khẩn cấp và phí cứu hộ niêm yết
+   - Sắp xếp danh sách theo khoảng cách và thời gian tạo yêu cầu
+4. Snake Rescuer chủ động mở danh sách yêu cầu cứu hộ và chọn job muốn nhận.
+5. Cơ chế giữ job:
+   - Rescuer nào nhấn nhận trước sẽ giữ job
+   - Ngay sau đó hệ thống khóa yêu cầu để các Rescuer khác không thể nhận cùng lúc
+   - Patient được thông báo ngay khi đã có Rescuer nhận thành công
+6. Kịch bản:
+   - **Nếu có Rescuer nhận job** → Chuyển sang **Flow 2.3**.
+   - **Nếu chưa có ai nhận** → Yêu cầu tiếp tục hiển thị trong danh sách theo khu vực.
+   - **Nếu quá thời gian chờ mà vẫn không có ai nhận** → Hệ thống tự động chuyển yêu cầu thành cảnh báo cộng đồng và thông báo cho Patient.
 
 ---
 
@@ -58,7 +57,7 @@
 
 **Flow 2.3 — Quá trình cứu hộ rắn**
 
-1. Snake Rescuer chấp nhận yêu cầu.
+1. Snake Rescuer mở danh sách yêu cầu và nhận thành công một job.
 2. Hệ thống tự động:
    - Thông báo cho Patient: "Đã tìm thấy đội cứu hộ"
    - Hiển thị thông tin Rescuer (tên, ảnh, rating, SĐT)

@@ -45,10 +45,7 @@
 1. Người dùng nhấn nút **SOS**.
 2. Hệ thống tự động:
    - Lấy vị trí GPS hiện tại.
-   - Gọi trực tiếp đến đường dây nóng cấp cứu **115**.
-   - Gửi tin nhắn SMS chứa tọa độ GPS đến **115**.
 3. Hệ thống chia sẻ vị trí real-time:
-   - Gửi link theo dõi vị trí cho đội cấp cứu.
    - Kích hoạt chế độ theo dõi liên tục.
 4. Hệ thống gửi thông tin bổ sung cho đội cấp cứu:
    - Kết quả nhận diện rắn (nếu có).
@@ -56,10 +53,7 @@
    - Triệu chứng đã ghi nhận.
    - Mức độ nghiêm trọng do AI đánh giá.
 5. Hiển thị màn hình chờ cấp cứu:
-   - Timer đếm thời gian.
-   - Nút **"Hủy cuộc gọi"** (nếu tình hình thay đổi).
    - Tiếp tục hiển thị hướng dẫn sơ cứu.
-6. Đồng thời gửi thông báo cho người thân (nếu đã cấu hình trong hồ sơ).
 
 ---
 
