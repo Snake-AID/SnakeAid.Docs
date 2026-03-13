@@ -16,7 +16,7 @@
 **Ví dụ:**
 ```mermaid
 graph LR
-    Patient[Patient trả 500,000 đ] --> Platform
+    Member[Member trả 500,000 đ] --> Platform
     Platform -->|85% - 425,000 đ| Rescuer
     Platform -->|10% - 50,000 đ| Revenue[Platform Revenue]
     Platform -->|5% - 25,000 đ| Fund[QUỸ BẢO HIỂM]

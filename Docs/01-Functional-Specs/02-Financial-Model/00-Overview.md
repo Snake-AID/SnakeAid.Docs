@@ -8,10 +8,10 @@
 
 ## 📌 TỔNG QUAN 4 LUỒNG TIỀN
 
-1.  **Patient → Rescuer** (Cứu hộ rắn)
-2.  **Patient → Expert** (Tư vấn trực tiếp)
+1.  **Member → Rescuer** (Cứu hộ rắn)
+2.  **Member → Expert** (Tư vấn trực tiếp)
 3.  **Rescuer → Expert** (Hỗ trợ khẩn cấp)
-4.  **Patient → Expert** (Tư vấn SOS - Optional)
+4.  **Member → Expert** (Tư vấn SOS - Optional)
 
 ---
 
@@ -62,7 +62,7 @@ Mỗi luồng tiền phục vụ cho một **tình huống cụ thể** của ng
     *   ✅ Cần **tư vấn ngay lập tức** (1-2 phút)
     *   ✅ Expert hướng dẫn qua video call
     *   ✅ Rescuer **chia sẻ phí** với Expert (mất 50K nhưng tiết kiệm 1.5h)
-    *   💰 **Patient không trả thêm tiền**
+    *   💰 **Member không trả thêm tiền**
 
 > [!TIP]
 > **Tại sao Rescuer phải trả chứ không phải Platform?**
@@ -81,10 +81,10 @@ Mỗi luồng tiền phục vụ cho một **tình huống cụ thể** của ng
 *   **Kịch bản:** Bị rắn cắn → Bấm SOS → Chọn gọi Expert (optional) → Trả 500K → Expert kết nối trong 1-2 phút → Tư vấn sơ cứu & đánh giá
 *   **Đặc điểm:**
     *   ✅ Tình huống **KHẨN CẤP** - bị rắn cắn
-    *   ✅ **Optional** - Patient tự chọn (có thể không dùng)
+    *   ✅ **Optional** - Member tự chọn (có thể không dùng)
     *   ✅ Phản hồi **1-2 phút** (ưu tiên cao nhất)
     *   ✅ Expert tư vấn sơ cứu + đánh giá + đưa phương án
-    *   ✅ Giúp Patient **yên tâm** trong lúc chờ cấp cứu
+    *   ✅ Giúp Member **yên tâm** trong lúc chờ cấp cứu
     *   💰 **Giá:** Cao hơn (500K vs 300K) do tính khẩn cấp
 
 > [!NOTE]
@@ -100,13 +100,13 @@ Mỗi luồng tiền phục vụ cho một **tình huống cụ thể** của ng
 
 | Tiêu chí | Luồng 1: Cứu hộ | Luồng 2: Tư vấn | Luồng 3: Hỗ trợ Rescuer | Luồng 4: SOS |
 | :--- | :--- | :--- | :--- | :--- |
-| **Ai gọi?** | Patient | Patient | Rescuer | Patient |
+| **Ai gọi?** | Member | Member | Rescuer | Member |
 | **Ai phục vụ?** | Rescuer | Expert | Expert | Expert |
 | **Tình huống** | Có rắn cần bắt | Tư vấn từ xa | Rescuer gặp khó | Bị rắn cắn |
 | **Độ khẩn cấp** | Bình thường | Không gấp | Khẩn cấp | **CỰC KHẨN** |
 | **Phản hồi** | 10-30 phút | 5-15 phút | 1-2 phút | 1-2 phút |
-| **Giá** | 500K-8M | 150K-900K | 500K (Patient) | 500K |
-| **Ai trả?** | Patient | Patient | Patient (qua Rescuer) | Patient |
+| **Giá** | 500K-8M | 150K-900K | 500K (Member) | 500K |
+| **Ai trả?** | Member | Member | Member (qua Rescuer) | Member |
 | **Thanh toán** | 2 lần (30%+70%) | 100% trước | Tự động chia | 100% trước |
 
 ---
@@ -115,7 +115,7 @@ Mỗi luồng tiền phục vụ cho một **tình huống cụ thể** của ng
 
 ```mermaid
 graph TD
-    P[PATIENT<br>(Người dùng)]
+    P[MEMBER<br>(Người dùng)]
     R[RESCUER<br>(Thợ bắt rắn)]
     E[EXPERT<br>(Chuyên gia)]
 
@@ -129,8 +129,8 @@ graph TD
 ```
 
 **Giải thích:**
-*   **Patient → Rescuer:** Bắt rắn tại chỗ
-*   **Patient → Expert:** Tư vấn từ xa (thường) hoặc SOS (khẩn cấp)
+*   **Member → Rescuer:** Bắt rắn tại chỗ
+*   **Member → Expert:** Tư vấn từ xa (thường) hoặc SOS (khẩn cấp)
 *   **Rescuer → Expert:** Hỗ trợ khi đang làm việc
 
 ---
@@ -151,7 +151,7 @@ graph TD
 
 > [!EXAMPLE]
 > **Ví dụ đơn 500K:**
-> *   **Patient trả:** 500,000 đ
+> *   **Member trả:** 500,000 đ
 >     *   150,000 đ (30% cọc trước)
 >     *   350,000 đ (70% sau hoàn thành)
 > *   **Phân chia:**
@@ -176,7 +176,7 @@ graph TD
 
 > [!EXAMPLE]
 > **Ví dụ gói 300K:**
-> 1.  Patient trả: **300,000 đ** (100% trước)
+> 1.  Member trả: **300,000 đ** (100% trước)
 > 2.  Vào **ESCROW** (giữ tạm)
 > 3.  Expert tư vấn 30 phút
 > 4.  **Phân chia:**
@@ -187,7 +187,7 @@ graph TD
 
 ## 💰 LUỒNG 3: HỖ TRỢ KHẨN CẤP (Rescuer ↔ Expert)
 
-**Giá:** 500,000 đ (Patient trả cho Rescuer)
+**Giá:** 500,000 đ (Member trả cho Rescuer)
 
 **Phân chia:**
 *   🔧 Rescuer: **75%** (375K) ← *giảm từ 85%*
@@ -197,7 +197,7 @@ graph TD
 
 **Đặc điểm:**
 *   ✅ **Rescuer chia sẻ 10%** phí cứu hộ cho Expert
-*   ✅ Patient **KHÔNG trả thêm** tiền
+*   ✅ Member **KHÔNG trả thêm** tiền
 *   ✅ Rescuer mất 50K nhưng tiết kiệm 1.5h → kiếm lại 350K từ ca khác
 
 > [!TIP]
@@ -209,7 +209,7 @@ graph TD
 
 > [!EXAMPLE]
 > **Ví dụ:**
-> *   Patient trả: **500,000 đ** (như bình thường)
+> *   Member trả: **500,000 đ** (như bình thường)
 > *   Rescuer gọi Expert hỗ trợ
 > *   **Phân chia:**
 >     - Rescuer: 375,000 đ (75%) ← *mất 50K*
@@ -228,7 +228,7 @@ graph TD
 *   🏢 Platform: **10%** (50K)
 
 **Đặc điểm:**
-*   ✅ **OPTIONAL** - Patient tự quyết định khi đang SOS
+*   ✅ **OPTIONAL** - Member tự quyết định khi đang SOS
 *   ✅ Phản hồi **1-2 phút** (nhanh gấp 5 lần)
 *   ✅ **Ưu tiên cao nhất** trong hệ thống
 *   ✅ Thanh toán **100% TRƯỚC** → Vào ESCROW
@@ -236,7 +236,7 @@ graph TD
 
 > [!EXAMPLE]
 > **Tình huống sử dụng:**
-> 1.  Patient bị rắn cắn → Bấm SOS
+> 1.  Member bị rắn cắn → Bấm SOS
 > 2.  Chọn "Gọi Expert ngay" (optional)
 > 3.  Thanh toán 500K → **ESCROW**
 > 4.  Expert kết nối trong 1-2 phút
@@ -298,9 +298,9 @@ graph TD
 
 **4 luồng tiền được thiết kế để:**
 1.  ✅ **Công bằng** - Phân chia hợp lý cho tất cả các bên
-2.  ✅ **Minh bạch** - Patient biết rõ giá trước khi đặt
+2.  ✅ **Minh bạch** - Member biết rõ giá trước khi đặt
 3.  ✅ **An toàn** - ESCROW + Bảo hiểm bảo vệ người dùng
-4.  ✅ **Linh hoạt** - Nhiều lựa chọn cho Patient
+4.  ✅ **Linh hoạt** - Nhiều lựa chọn cho Member
 
 **Thu nhập ước tính:**
 *   🔧 Rescuer: **12-20M/tháng** (1-2 đơn/ngày)

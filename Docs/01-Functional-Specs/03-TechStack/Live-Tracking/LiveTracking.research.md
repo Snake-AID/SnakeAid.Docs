@@ -8,7 +8,7 @@ Tài liệu này tổng hợp toàn bộ quyết định kỹ thuật và cách 
 
 ### 1.1 Các vai trò
 
-* **Patient**: báo SOS, theo dõi rescuer đang tới, xem route/ETA, nhận thông báo trạng thái.
+* **Member**: báo SOS, theo dõi rescuer đang tới, xem route/ETA, nhận thông báo trạng thái.
 * **Rescuer**: nhận “cuốc” cứu hộ, chấp nhận/từ chối, chia sẻ vị trí realtime, điều hướng tới hiện trường.
 * **Admin**: giám sát các rescue đang diễn ra, xem phân bố ca rắn theo vùng, heatmap.
 
@@ -91,7 +91,7 @@ Trong khung `ASP.NET Web API`, tách theo nghiệp vụ:
 
 1. **SOS / Incident Service**
 
-   * Tạo incident khi patient báo SOS.
+   * Tạo incident khi member báo SOS.
    * Tạo rescue_session.
 
 2. **Dispatch / Matching Service**
@@ -138,7 +138,7 @@ Mục tiêu: tìm rescuer phù hợp, bật popup nhận cuốc, fallback push.
 
 **Trình tự**
 
-1. Patient gọi REST `CreateSOS`.
+1. Member gọi REST `CreateSOS`.
 2. `SOS Service` ghi Postgres: incident + session.
 3. `Dispatch Service` query Redis GEO (radius tăng dần).
 4. `Offer Service` tạo offer pending (Postgres).
@@ -153,7 +153,7 @@ Mục tiêu: tìm rescuer phù hợp, bật popup nhận cuốc, fallback push.
 
 ### 5.2 Flow B – Live Tracking trong session
 
-Mục tiêu: rescuer stream location realtime, patient/admin xem map.
+Mục tiêu: rescuer stream location realtime, member/admin xem map.
 
 **Trình tự**
 
@@ -163,7 +163,7 @@ Mục tiêu: rescuer stream location realtime, patient/admin xem map.
    * `last-known`
    * `presence TTL`
 3. Hub broadcast `LocationUpdated` tới group `session:{id}`.
-4. Patient/Admin mở map:
+4. Member/Admin mở map:
 
    * REST snapshot trước.
    * join SignalR group để nhận stream.
@@ -193,11 +193,11 @@ Nguyên tắc:
 ### 7.1 DBML schema (tối thiểu cho LLT)
 
 ```dbml
-Enum user_role { PATIENT RESCUER EXPERT ADMIN }
+Enum user_role { MEMBER RESCUER EXPERT ADMIN }
 Enum incident_status { CREATED DISPATCHING RESCUER_ASSIGNED IN_PROGRESS COMPLETED CANCELLED EXPIRED }
 Enum session_status { PENDING OFFERING ACCEPTED EN_ROUTE ARRIVED COMPLETED CANCELLED EXPIRED }
 Enum offer_status { PENDING ACKED ACCEPTED REJECTED EXPIRED CANCELLED }
-Enum location_role { PATIENT RESCUER }
+Enum location_role { MEMBER RESCUER }
 Enum location_source { GPS NETWORK MANUAL }
 
 Table users {
@@ -448,7 +448,7 @@ Các kỹ thuật đã được bàn:
 
 ```mermaid
 graph TD
-    Patient["Flutter Patient"]
+    Member["Flutter Member"]
     Rescuer["Flutter Rescuer"]
     Admin["Admin"]
 
@@ -468,7 +468,7 @@ graph TD
     FCM["FCM (Firebase Cloud Messaging)"]
     ClientApps["Push -> Client Apps"]
 
-    Patient -- REST --> Backend
+    Member -- REST --> Backend
     Rescuer -- REST --> Backend
     Admin -- REST --> Backend
 

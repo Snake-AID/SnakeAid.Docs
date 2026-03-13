@@ -128,7 +128,7 @@ Chi tiết tính giá:
 │ 3. Phụ thu trong nhà                 :   150,000 đ    │
 │ 4. Phụ thu ban đêm (21h)             :   200,000 đ    │
 │                                        ───────────      │
-│ TỔNG CỘNG (Patient trả):              : 1,895,000 đ    │
+│ TỔNG CỘNG (Member trả):              : 1,895,000 đ    │
 │                                                        │
 │ Phân chia:                                             │
 │ - Rescuer nhận (85%):                 : 1,610,750 đ    │
@@ -149,7 +149,7 @@ Chi tiết tính giá:
 │ 4. Phụ thu khẩn cấp (gọi ngay)       :   500,000 đ    │
 │ 5. Phụ thu cần 2 Rescuer             : 1,500,000 đ    │
 │                                        ────────────     │
-│ TỔNG CỘNG (Patient trả):              : 8,700,000 đ    │
+│ TỔNG CỘNG (Member trả):              : 8,700,000 đ    │
 │                                                        │
 │ Phân chia (cho 2 Rescuer):                            │
 │ - Rescuer 1 (42.5%):                  : 3,697,500 đ    │
@@ -224,7 +224,7 @@ Chi tiết tính giá:
 
 ### 4.1. Tư vấn từ xa (Video Call)
 
-| Gói Dịch Vụ | Thời Gian | Giá Patient Trả | Expert Nhận (90%) | Platform (10%) |
+| Gói Dịch Vụ | Thời Gian | Giá Member Trả | Expert Nhận (90%) | Platform (10%) |
 | :--- | :--- | :--- | :--- | :--- |
 | **Cơ Bản** | 15 phút | **150,000 đ** | **135,000 đ** | **15,000 đ** |
 | **Tiêu Chuẩn** | 30 phút | **300,000 đ** | **270,000 đ** | **30,000 đ** |
@@ -241,12 +241,12 @@ Chi tiết tính giá:
 
 > [!IMPORTANT]
 > **Đặc điểm dịch vụ SOS:**
-> *   ✅ **Optional:** Patient tự chọn.
+> *   ✅ **Optional:** Member tự chọn.
 > *   ⚡ **Phản hồi nhanh:** 1-2 phút.
 > *   🚨 **Ưu tiên cao nhất.**
 > *   💰 **Giá:** 500,000 đ (Cao hơn do tính khẩn cấp).
 
-| Gói Dịch Vụ | Thời Gian | Giá Patient Trả | Expert Nhận (90%) | Platform (10%) | Nội Dung |
+| Gói Dịch Vụ | Thời Gian | Giá Member Trả | Expert Nhận (90%) | Platform (10%) | Nội Dung |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **SOS Khẩn Cấp** | 5-10 phút | **500,000 đ** | **450,000 đ** | **50,000 đ** | Tư vấn sơ cứu ngay lập tức |
 
@@ -254,7 +254,7 @@ Chi tiết tính giá:
 
 **✅ PHƯƠNG ÁN CHÍNH THỨC: Rescuer Chia Sẻ Phí (Phương án 2)**
 
-| Thời Gian | Rescuer Trả Expert | Rescuer Giữ Lại | Tổng Phí Patient | Ghi Chú |
+| Thời Gian | Rescuer Trả Expert | Rescuer Giữ Lại | Tổng Phí Member | Ghi Chú |
 | :--- | :--- | :--- | :--- | :--- |
 | **15 phút** | **50,000 đ** (10%) | **375,000 đ** (75%) | **500,000 đ** | Tư vấn nhanh |
 | **30 phút** | **100,000 đ** (20%) | **325,000 đ** (65%) | **500,000 đ** | Tình huống phức tạp |
@@ -277,14 +277,14 @@ Chi tiết tính giá:
 
 | Vai Trò | Phí Đăng Ký | Chu Kỳ | Quyền Lợi |
 | :--- | :--- | :--- | :--- |
-| **Patient** | **MIỄN PHÍ** | - | Gọi cứu hộ không giới hạn |
+| **Member** | **MIỄN PHÍ** | - | Gọi cứu hộ không giới hạn |
 | **Rescuer** | **500,000 đ** | 1 lần | Xác minh danh tính, chứng chỉ, bộ dụng cụ |
 | **Expert** | **1,000,000 đ** | 1 lần | Xác minh bằng cấp chuyên môn |
 | **Admin** | **N/A** | - | Nhân viên công ty |
 
 ### 5.2. Hoa hồng nền tảng
 
-| Dịch Vụ | Patient Trả | Phân Chia |
+| Dịch Vụ | Member Trả | Phân Chia |
 | :--- | :--- | :--- |
 | **Cứu Hộ** | 500,000 đ | Rescuer: 85% - Platform: 10% - Quỹ BH: 5% |
 | **Tư Vấn Expert** | 300,000 đ | Expert: 90% - Platform: 10% |

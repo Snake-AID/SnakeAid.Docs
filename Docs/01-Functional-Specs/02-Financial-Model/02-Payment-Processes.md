@@ -2,7 +2,7 @@
 
 **Phiên bản:** 1.0
 **Ngày tạo:** 14/12/2025
-**Mục đích:** Làm rõ luồng tiền giữa các bên: Patient, Rescuer, Expert, và Platform
+**Mục đích:** Làm rõ luồng tiền giữa các bên: Member, Rescuer, Expert, và Platform
 
 ---
 
@@ -10,10 +10,10 @@
 
 Hệ thống SnakeAid có **4 luồng thanh toán chính**:
 
-1.  **Patient → Platform → Rescuer** (Dịch vụ cứu hộ rắn)
-2.  **Patient → Platform → Expert** (Tư vấn chuyên gia trực tiếp)
+1.  **Member → Platform → Rescuer** (Dịch vụ cứu hộ rắn)
+2.  **Member → Platform → Expert** (Tư vấn chuyên gia trực tiếp)
 3.  **Platform → Expert** hoặc **Rescuer → Expert** (Hỗ trợ khẩn cấp cho Rescuer)
-4.  **Patient → Platform → Expert** (Tư vấn khẩn cấp qua SOS - Optional)
+4.  **Member → Platform → Expert** (Tư vấn khẩn cấp qua SOS - Optional)
 
 ---
 
@@ -21,23 +21,23 @@ Hệ thống SnakeAid có **4 luồng thanh toán chính**:
 
 ### 1. LUỒNG TIỀN: DỊCH VỤ CỨU HỘ RẮN
 
-**Kịch bản:** Patient phát hiện rắn trong nhà → Yêu cầu đội cứu hộ đến bắt rắn → Rescuer thực hiện → Thanh toán
+**Kịch bản:** Member phát hiện rắn trong nhà → Yêu cầu đội cứu hộ đến bắt rắn → Rescuer thực hiện → Thanh toán
 
 #### 1.1. Quy trình thanh toán
 
 ```mermaid
 sequenceDiagram
-    participant Patient
+    participant Member
     participant Platform
     participant Rescuer
     participant Insurance as Quỹ Bảo Hiểm
 
-    Patient->>Platform: 1. Yêu cầu cứu hộ
-    Patient->>Platform: 2. CỌC TRƯỚC 150,000 VNĐ (Vào Escrow)
+    Member->>Platform: 1. Yêu cầu cứu hộ
+    Member->>Platform: 2. CỌC TRƯỚC 150,000 VNĐ (Vào Escrow)
     Platform->>Rescuer: 3. Gửi yêu cầu (Hiển thị "Đã cọc 150K")
     Rescuer->>Platform: 4. Chấp nhận yêu cầu
     Rescuer->>Platform: 5. Hoàn thành nhiệm vụ
-    Patient->>Platform: 6. TRẢ SỐ DƯ (Tổng - 150K) (Ví dụ: 425K)
+    Member->>Platform: 6. TRẢ SỐ DƯ (Tổng - 150K) (Ví dụ: 425K)
     
     Note over Platform: 7. Tính tổng: 150K + 425K = 575K
     
@@ -45,7 +45,7 @@ sequenceDiagram
     Platform->>Platform: 10% (57.5K)
     Platform->>Insurance: 5% (28.5K)
     
-    Platform->>Patient: 8. Gửi hóa đơn
+    Platform->>Member: 8. Gửi hóa đơn
     Platform->>Rescuer: 9. Thông báo nhận tiền
 ```
 
@@ -73,44 +73,44 @@ sequenceDiagram
 2.  **Khách bùng:** "Rắn chạy rồi, không trả tiền".
 3.  **Hủy ngang:** Hủy khi Rescuer đang đi.
 
-**Giải pháp:** Cọc Fixed 150K bảo vệ Rescuer (bù chi phí xăng xe/thời gian) nhưng đủ nhỏ để Patient không ngại đặt.
+**Giải pháp:** Cọc Fixed 150K bảo vệ Rescuer (bù chi phí xăng xe/thời gian) nhưng đủ nhỏ để Member không ngại đặt.
 </details>
 
 **Xử lý các tình huống cọc:**
 
 | Tình huống | Xử lý tiền cọc (150K) | Số dư (425K) |
 | :--- | :--- | :--- |
-| **Hoàn thành** | Tính vào tổng | Patient trả thêm |
-| **Patient hủy SAU khi nhận** | Rescuer nhận 100% | Không trả |
-| **Patient hủy TRƯỚC khi nhận** | Hoàn 100% Patient | Không trả |
-| **Rescuer không đến** | Hoàn 100% Patient + Phạt Rescuer | Không trả |
+| **Hoàn thành** | Tính vào tổng | Member trả thêm |
+| **Member hủy SAU khi nhận** | Rescuer nhận 100% | Không trả |
+| **Member hủy TRƯỚC khi nhận** | Hoàn 100% Member | Không trả |
+| **Rescuer không đến** | Hoàn 100% Member + Phạt Rescuer | Không trả |
 | **Rắn tự chạy mất** | Chia đôi (75K mỗi bên) | Không trả |
 
 ---
 
 ### 2. LUỒNG TIỀN: TƯ VẤN CHUYÊN GIA
 
-**Kịch bản:** Patient đặt lịch tư vấn → Thanh toán trước → Expert tư vấn
+**Kịch bản:** Member đặt lịch tư vấn → Thanh toán trước → Expert tư vấn
 
 #### 2.1. Quy trình thanh toán (THANH TOÁN TRƯỚC)
 
 ```mermaid
 sequenceDiagram
-    participant Patient
+    participant Member
     participant Platform
     participant Expert
 
-    Patient->>Platform: 1. Đặt lịch tư vấn
-    Patient->>Platform: 2. THANH TOÁN 100% (300K) -> Escrow
+    Member->>Platform: 1. Đặt lịch tư vấn
+    Member->>Platform: 2. THANH TOÁN 100% (300K) -> Escrow
     Platform->>Expert: 3. Gửi yêu cầu (Hiển thị "Đã thanh toán")
     Expert->>Platform: 4. Chấp nhận
-    Expert-->>Patient: 5. Video Call tư vấn
-    Patient->>Platform: 6. Xác nhận hoàn thành
+    Expert-->>Member: 5. Video Call tư vấn
+    Member->>Platform: 6. Xác nhận hoàn thành
     
     Platform->>Expert: 90% (270K)
     Platform->>Platform: 10% (30K)
     
-    Platform->>Patient: 7. Gửi hóa đơn
+    Platform->>Member: 7. Gửi hóa đơn
     Platform->>Expert: 8. Thông báo nhận tiền
 ```
 
@@ -144,7 +144,7 @@ sequenceDiagram
     Expert-->>Rescuer: 3. Tư vấn Video Call
     Rescuer->>Platform: 4. Hoàn thành nhiệm vụ
     
-    Note over Platform: Phân chia 500K từ Patient:
+    Note over Platform: Phân chia 500K từ Member:
     Platform->>Rescuer: 75% (375K)
     Platform->>Expert: 10% (50K) [Từ phần Rescuer]
     Platform->>Platform: 10% (50K)
@@ -163,21 +163,21 @@ sequenceDiagram
 
 ### 4. LUỒNG TIỀN: TƯ VẤN KHẨN CẤP SOS (OPTIONAL)
 
-**Kịch bản:** Patient bị rắn cắn → Gọi SOS → Chọn thêm Expert hỗ trợ
+**Kịch bản:** Member bị rắn cắn → Gọi SOS → Chọn thêm Expert hỗ trợ
 
 #### 4.1. Quy trình
 
 ```mermaid
 sequenceDiagram
-    participant Patient
+    participant Member
     participant Platform
     participant Expert
 
-    Patient->>Platform: 1. Bấm SOS
-    Patient->>Platform: 2. Chọn "Gọi Expert ngay" (Optional)
-    Patient->>Platform: 3. Thanh toán 500K -> Escrow
+    Member->>Platform: 1. Bấm SOS
+    Member->>Platform: 2. Chọn "Gọi Expert ngay" (Optional)
+    Member->>Platform: 3. Thanh toán 500K -> Escrow
     Platform->>Expert: 4. Kết nối khẩn cấp (1-2 phút)
-    Expert-->>Patient: 5. Hướng dẫn sơ cứu
+    Expert-->>Member: 5. Hướng dẫn sơ cứu
     
     Note over Platform: Sau khi hoàn thành:
     Platform->>Expert: 90% (450K)
