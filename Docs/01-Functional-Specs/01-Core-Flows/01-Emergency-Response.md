@@ -2,7 +2,19 @@
 
 ---
 
-## 1.1 Giai đoạn phát hiện và xử lý ban đầu (Patient)
+> [!IMPORTANT]
+> Changed Requirement
+>
+> [Current]
+> The system only supports initial rescue handling. Medical treatment is not a core business scope, and antivenom management is no longer a strategic module.
+>
+> [Legacy]
+> Earlier flow versions included stronger in-system treatment-facility and antivenom-oriented support.
+>
+> [Migration Impact]
+> Preserve legacy treatment-related requirements for backend migration, but do not treat them as the target product scope.
+
+## 1.1 Giai đoạn phát hiện và xử lý ban đầu (Member)
 
 **Flow 1.1 — Khi người dùng bị rắn cắn**
 
@@ -42,6 +54,18 @@
 
 **Flow 1.2 — Kích hoạt SOS và gọi cấp cứu**
 
+> [!IMPORTANT]
+> Changed Requirement
+>
+> [Current]
+> A rescue request should be understood as entering the center-operated rescue flow, where Operator is expected to receive and process the request first.
+>
+> [Legacy]
+> Older flow versions implied a more direct emergency-call pattern and less explicit center-side operational handling.
+>
+> [Migration Impact]
+> Backend SOS handling should be reviewed to ensure it can create incidents for operator verification and assignment.
+
 1. Người dùng nhấn nút **SOS**.
 2. Hệ thống tự động:
    - Lấy vị trí GPS hiện tại.
@@ -60,6 +84,18 @@
 ## 1.3 Giai đoạn tìm cơ sở điều trị gần nhất
 
 **Flow 1.3 — Định vị bệnh viện có huyết thanh**
+
+> [!WARNING]
+> Changed Requirement
+>
+> [Current]
+> Hospital routing and antivenom management are no longer part of the strategic core scope. If retained, this flow should be treated as legacy or external-reference-only support.
+>
+> [Legacy]
+> The previous requirement set modeled treatment-facility discovery and antivenom availability as active system features.
+>
+> [Migration Impact]
+> Do not delete backend capability blindly. Mark treatment-facility logic as legacy and assess deprecation or externalization path first.
 
 1. Người dùng chọn **"Tìm bệnh viện gần nhất"**.
 2. Hệ thống lấy vị trí GPS hiện tại.

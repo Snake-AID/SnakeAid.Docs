@@ -2,11 +2,23 @@
 
 ---
 
+> [!NOTE]
+> Changed Requirement
+>
+> [Current]
+> This file is less impacted than rescue dispatch flows. Community alerts remain relevant, especially when center operations decide a situation should be broadcast more widely.
+>
+> [Legacy]
+> Previous iterations sometimes used community alerting as a more direct fallback from member-side rescue handling patterns.
+>
+> [Migration Impact]
+> Keep alerting loosely coupled from dispatch so rescue workflow changes do not silently break public warning flows.
+
 ## 5.1 Tra cứu thông tin rắn
 
 **Flow 5.1 — Người dùng tìm hiểu về rắn**
 
-1. Patient mở phần **"Kiến thức về rắn"**.
+1. Member mở phần **"Kiến thức về rắn"**.
 2. Xem nội dung giáo dục:
    - Bài viết: "10 loài rắn độc thường gặp ở Việt Nam"
    - Video: "Cách phòng tránh rắn cắn khi vào rừng"
@@ -25,17 +37,24 @@
 
 **Flow 5.2 — Hệ thống cảnh báo chủ động**
 
+> [!NOTE]
+> [Current]
+> Community alerting should be triggered by operational or administrative decision, not assumed as the default substitute for every unassigned rescue request.
+>
+> [Legacy]
+> Earlier flow revisions temporarily used community alerting as an automatic fallback when no rescuer accepted a request.
+
 1. Admin phát hiện khu vực có nhiều sự cố rắn độc.
 2. Admin tạo cảnh báo cộng đồng:
    - Tiêu đề, nội dung mô tả và phạm vi trên bản đồ.
 3. Hệ thống gửi thông báo push:
-   - Đến Patient trong khu vực, ưu tiên người có GPS trong vùng nguy hiểm.
-4. Patient nhận cảnh báo:
+   - Đến Member trong khu vực, ưu tiên người có GPS trong vùng nguy hiểm.
+4. Member nhận cảnh báo:
    - Notification → xem chi tiết cảnh báo và bản đồ vùng nguy hiểm → đọc hướng dẫn phòng tránh.
 5. Cảnh báo theo mùa:
    - Mùa mưa: "Rắn thường vào nhà tránh lũ".
    - Mùa khô: "Rắn hay ra ruộng tìm nước".
    - Đầu hè: "Mùa sinh sản, rắn dễ tấn công".
-6. Lưu lịch sử cảnh báo: Patient có thể xem lại cảnh báo cũ và theo dõi tình hình khu vực.
+6. Lưu lịch sử cảnh báo: Member có thể xem lại cảnh báo cũ và theo dõi tình hình khu vực.
 
 ---

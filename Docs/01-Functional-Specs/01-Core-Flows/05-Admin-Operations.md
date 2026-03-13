@@ -1,6 +1,18 @@
-# 4. Luồng chính: Quản trị hệ thống (Admin)
+# 4. Luồng chính: Quản trị và điều phối hệ thống (Admin / Manager / Operator)
 
 ---
+
+> [!IMPORTANT]
+> Changed Requirement
+>
+> [Current]
+> Operational handling is now split: `Operator` handles frontline rescue verification and assignment, while `Admin / Manager` focuses on governance, configuration, reporting, and oversight.
+>
+> [Legacy]
+> Older requirements grouped more operational behavior under Admin and also kept treatment-facility / antivenom management in active scope.
+>
+> [Migration Impact]
+> This file is a major backend-migration reference. Separate dispatch responsibilities, managerial controls, and deprecated medical-support modules carefully.
 
 ## 4.1 Quản lý database loài rắn
 
@@ -29,7 +41,7 @@
 8. Hệ thống tự động:
    - Đồng bộ dữ liệu mới với AI Model
    - Retrain mô hình nhận diện nếu cần
-   - Cập nhật cho ứng dụng Patient / Rescuer / Expert
+   - Cập nhật cho ứng dụng Member / Rescuer / Expert
 9. Admin kiểm tra kết quả: test nhận diện bằng ảnh mẫu và xem độ chính xác.
 
 
@@ -37,6 +49,18 @@
 ## 4.2 Quản lý cơ sở điều trị
 
 **Flow 4.2 — Cập nhật thông tin bệnh viện**
+
+> [!WARNING]
+> Changed Requirement
+>
+> [Current]
+> Treatment-facility and antivenom management are no longer core strategic scope.
+>
+> [Legacy]
+> The previous requirement set treated hospital and antivenom data as a maintained module.
+>
+> [Migration Impact]
+> Preserve existing backend structures for migration analysis, but mark this domain as legacy unless a reduced reference-only use case is retained.
 
 1. Admin truy cập **"Quản lý Cơ sở Điều trị"**.
 2. Chọn **[Thêm mới]** hoặc **[Chỉnh sửa]**.
@@ -51,7 +75,7 @@
 5. Cấu hình thời gian hoạt động: giờ mở/đóng, 24/7, lịch nghỉ lễ.
 6. Phân loại cơ sở: tuyến trung ương / tỉnh / trạm y tế / phòng khám tư.
 7. Lưu vào database.
-8. Hệ thống tự động đồng bộ với ứng dụng Patient (bản đồ & thông tin cập nhật ngay lập tức).
+8. Hệ thống tự động đồng bộ với ứng dụng Member (bản đồ & thông tin cập nhật ngay lập tức).
 
 
 
@@ -59,14 +83,27 @@
 
 **Flow 4.3 — Theo dõi hệ thống trên bản đồ**
 
-1. Admin mở Dashboard **"Giám sát Real-time"**.
+> [!IMPORTANT]
+> Changed Requirement
+>
+> [Current]
+> Operator must be able to verify requests, monitor online rescuers, check shift coverage, assign missions, and track mission execution on the map.
+>
+> [Legacy]
+> Older flow versions focused more on generic map monitoring and less on explicit operator-led dispatch control.
+>
+> [Migration Impact]
+> Backend needs online-presence, shift, operator assignment, rescue ping, and mission-monitoring support.
+
+1. Operator hoặc Manager mở Dashboard **"Giám sát Real-time"**.
 2. Bản đồ hiển thị trạng thái:
-   - 🔴 Ca rắn cắn đang xử lý
-   - 🟡 Yêu cầu cứu hộ đang chờ Rescuer nhận
+   - 🔴 Ca rắn cắn / cứu hộ đang xử lý
+   - 🟡 Yêu cầu đang ở trạng thái VERIFY hoặc chờ assign
+   - 🟠 RESCUE PING REQUEST đang chờ Rescuer phản hồi
    - 🟢 Ca đã hoàn thành trong ngày
    - 🔵 Vị trí Rescuer đang online
    - ⚫ Vị trí Expert đang online
-3. Admin có thể click vào điểm để xem chi tiết, theo dõi vị trí Rescuer và trạng thái nhiệm vụ.
+3. Operator có thể click vào điểm để xem chi tiết, theo dõi vị trí Rescuer, trạng thái nhiệm vụ, và tình trạng ca trực.
 4. Xem biểu đồ nhiệt (Heat Map) — phân bố sự cố theo thời gian và loài.
 5. Nếu phát hiện bất thường hoặc yêu cầu chờ quá lâu: gửi cảnh báo cộng đồng hoặc can thiệp vận hành (ưu tiên ca khẩn cấp).
 6. Xuất báo cáo cuối ngày: tổng số ca, thời gian phản hồi trung bình, tỷ lệ hoàn thành, doanh thu.
@@ -76,6 +113,18 @@
 ## 4.4 Quản lý tài chính
 
 **Flow 4.4 — Báo cáo và phân chia doanh thu**
+
+> [!IMPORTANT]
+> Changed Requirement
+>
+> [Current]
+> The system currently serves a single rescue center, and incident cost is calculated from the rescue center to the incident location.
+>
+> [Legacy]
+> Previous pricing assumptions were broader and less explicitly anchored to a single-center operating model.
+>
+> [Migration Impact]
+> Review pricing rules, dispatch distance calculation, and financial reporting assumptions in backend services.
 
 1. Admin truy cập **"Quản lý Tài chính"**.
 2. Thiết lập phí dịch vụ: phí cứu hộ, phí tư vấn, % hoa hồng nền tảng, % chia cho Rescuer, % quỹ bảo hiểm.

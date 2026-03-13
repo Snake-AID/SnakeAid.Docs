@@ -2,11 +2,23 @@
 
 ---
 
-## 3.1 Giai đoạn yêu cầu tư vấn (Patient)
+> [!IMPORTANT]
+> Changed Requirement
+>
+> [Current]
+> Expert consultation remains in scope, and external snake experts may participate in the system for professional support.
+>
+> [Legacy]
+> Older requirements described experts more as tightly embedded platform actors without explicitly highlighting external participation.
+>
+> [Migration Impact]
+> Review expert identity, onboarding, availability, and ownership boundaries in backend design.
+
+## 3.1 Giai đoạn yêu cầu tư vấn (Member)
 
 **Flow 3.1 — Đặt lịch tư vấn với chuyên gia**
 
-1. Patient truy cập **"Tư vấn chuyên gia"**.
+1. Member truy cập **"Tư vấn chuyên gia"**.
 2. Xem danh sách Snake Expert:
    - Hiển thị: Tên, Chuyên môn, Rating, Phí tư vấn
    - Lọc theo: Chuyên ngành (Rắn độc Việt Nam / Rắn ngoại lai / Điều trị nọc độc)
@@ -32,6 +44,13 @@
 
 **Flow 3.2 — Tư vấn khẩn cấp cho Rescuer**
 
+> [!NOTE]
+> [Current]
+> This support flow still exists, but it now operates inside a center-dispatched rescue mission rather than a more direct or loosely assigned rescue model.
+>
+> [Legacy]
+> Earlier rescue flows assumed Rescuer could enter this path from self-picked or system-matched jobs.
+
 1. Rescuer tại hiện trường gặp khó khăn nhận diện rắn.
 2. Trong app Rescuer chọn **"Yêu cầu hỗ trợ chuyên gia"**.
 3. Chụp ảnh/video rắn real-time.
@@ -45,16 +64,16 @@
 
 ## 3.3 Giai đoạn tư vấn trực tuyến
 
-**Flow 3.3 — Buổi tư vấn giữa Patient và Expert**
+**Flow 3.3 — Buổi tư vấn giữa Member và Expert**
 
 1. Đến giờ hẹn, cả hai nhận thông báo.
 2. Bắt đầu phiên tư vấn — Chat text hoặc Video call.
-3. Expert xem thông tin Patient đã gửi: ảnh, mô tả, câu hỏi.
+3. Expert xem thông tin Member đã gửi: ảnh, mô tả, câu hỏi.
 4. Expert tư vấn, đưa khuyến nghị, có thể yêu cầu thêm thông tin.
 5. Expert có thể: cập nhật hướng dẫn sơ cứu, cung cấp thông tin liều lượng huyết thanh hoặc khuyến nghị đến bệnh viện.
 6. Kết thúc buổi tư vấn: Expert đánh dấu "Hoàn thành" và thời gian tư vấn được ghi nhận.
 7. Hệ thống xử lý thanh toán: chuyển tiền từ escrow sang Expert, trừ phí nền tảng 10%, xuất hóa đơn.
-8. Patient đánh giá Expert (1–5 sao + nhận xét).
-9. Lưu lịch sử tư vấn và báo cáo cho Patient / Expert / Admin.
+8. Member đánh giá Expert (1–5 sao + nhận xét).
+9. Lưu lịch sử tư vấn và báo cáo cho Member / Expert / Admin.
 
 ---
