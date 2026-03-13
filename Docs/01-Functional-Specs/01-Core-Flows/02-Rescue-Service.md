@@ -9,22 +9,22 @@
 1. Người dùng phát hiện rắn (chưa bị cắn).
 2. Mở ứng dụng → Chọn **"Báo cáo phát hiện rắn"**.
 3. Chụp ảnh rắn (có thể nhiều góc độ).
-4. Hệ thống tự động lấy vị trí GPS (`FE-18`).
+4. Hệ thống tự động lấy vị trí GPS.
 5. Người dùng bổ sung thông tin:
    - Vị trí cụ thể (trong nhà / ngoài trời / vườn...)
    - Kích thước ước tính
    - Mô tả hành vi rắn
    - Mức độ khẩn cấp (rắn trong nhà / khu vực đông người)
 6. AI phân tích ảnh và đưa ra nhận định sơ bộ:
-   - Loài rắn có thể (`FE-12`)
-   - Độc tính (`FE-13`)
+   - Loài rắn có thể
+   - Độc tính
    - Mức độ nguy hiểm
 7. Hiển thị 2 lựa chọn:
    - **[A]** Yêu cầu đội cứu hộ đến bắt rắn (có phí).
    - **[B]** Chỉ cảnh báo cộng đồng (miễn phí).
 8. Hành động:
    - **Nếu [A]** → Chuyển sang **Flow 2.2**.
-   - **Nếu [B]** → Gửi cảnh báo (`FE-20`) → Kết thúc.
+   - **Nếu [B]** → Gửi cảnh báo → Kết thúc.
 
 ---
 
@@ -42,7 +42,7 @@
    - Có kinh nghiệm với loài rắn này
    - Đánh giá tốt từ khách hàng trước
    - Sắp xếp theo: Khoảng cách → Rating → Thời gian phản hồi
-4. Gửi thông báo đến top 3 Snake Rescuer (`FE-01`):
+4. Gửi thông báo đến top 3 Snake Rescuer:
    - Thông tin vị trí
    - Ảnh rắn và kết quả AI
    - Mức phí đề xuất
@@ -58,27 +58,27 @@
 
 **Flow 2.3 — Quá trình cứu hộ rắn**
 
-1. Snake Rescuer chấp nhận yêu cầu (`FE-06`).
+1. Snake Rescuer chấp nhận yêu cầu.
 2. Hệ thống tự động:
    - Thông báo cho Patient: "Đã tìm thấy đội cứu hộ"
    - Hiển thị thông tin Rescuer (tên, ảnh, rating, SĐT)
    - Kích hoạt chia sẻ vị trí real-time
 3. Rescuer chuẩn bị:
-   - Xem lại ảnh rắn & kết quả AI (`FE-21`)
-   - Đọc hướng dẫn an toàn (FE-09 / FE-10)
-   - Chuẩn bị thiết bị (FE-23)
-   - Nếu cần → Liên hệ Expert (`FE-12`) → Chuyển sang **Flow 3.2**
+   - Xem lại ảnh rắn và kết quả AI
+   - Đọc hướng dẫn an toàn
+   - Chuẩn bị thiết bị
+   - Nếu cần → Liên hệ Expert → Chuyển sang **Flow 3.2**
 4. Rescuer di chuyển:
-   - Cập nhật trạng thái "Đang trên đường" (`FE-07`)
-   - Bật chia sẻ vị trí real-time (`FE-18`)
-5. Patient theo dõi trên bản đồ (`FE-24` / `FE-25` / `FE-26`).
-6. Rescuer đến nơi → cập nhật "Đã đến" (`FE-20`).
-7. Thực hiện bắt rắn → cập nhật "Đang xử lý" (`FE-07`).
+   - Cập nhật trạng thái "Đang trên đường"
+   - Bật chia sẻ vị trí real-time
+5. Patient theo dõi trên bản đồ.
+6. Rescuer đến nơi → cập nhật "Đã đến".
+7. Thực hiện bắt rắn → cập nhật "Đang xử lý".
 8. Sau khi bắt xong:
-   - Chụp ảnh rắn đã bắt (`FE-16`)
+   - Chụp ảnh rắn đã bắt
    - Xác nhận loài rắn
-   - Cập nhật trạng thái "Hoàn thành" (`FE-07`)
-9. Lưu thông tin vào database (`FE-15`) và cập nhật database Admin.
+   - Cập nhật trạng thái "Hoàn thành"
+9. Lưu thông tin vào database và cập nhật database Admin.
 10. Thanh toán & đánh giá → Chuyển sang **Flow 2.4**.
 
 ---
@@ -89,15 +89,15 @@
 
 1. Rescuer đánh dấu "Hoàn thành nhiệm vụ".
 2. Hệ thống gửi thông báo đến Patient: "Cứu hộ hoàn tất. Vui lòng thanh toán và đánh giá."
-3. Patient xác nhận & thanh toán (`FE-28`):
+3. Patient xác nhận và thanh toán:
    - Hiển thị hóa đơn: Phí cứu hộ + Phí nền tảng (10%)
    - Phương thức: Momo / VNPay / ZaloPay / Thẻ
 4. Sau khi thanh toán thành công → Patient đánh giá Rescuer (1–5 sao + nhận xét).
 5. Hệ thống phân chia thanh toán:
-   - 85% → Tài khoản Rescuer (`FE-26`)
+   - 85% → Tài khoản Rescuer
    - 10% → Phí nền tảng
    - 5% → Quỹ bảo hiểm
-6. Rescuer nhận thông báo & cập nhật rating (`FE-27`).
-7. Lưu lịch sử giao dịch và báo cáo cho Patient / Rescuer / Admin (`FE-30` / `FE-25` / `FE-33`).
+6. Rescuer nhận thông báo và cập nhật rating.
+7. Lưu lịch sử giao dịch và báo cáo cho Patient / Rescuer / Admin.
 
 ---

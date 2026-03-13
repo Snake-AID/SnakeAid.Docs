@@ -13,34 +13,34 @@
 ### PATIENT
 - **[1] Bị rắn cắn**
   - Sơ cứu
-  - Nhận diện AI (`FE-12`, `FE-13`)
-  - Gọi SOS (`FE-04`)
-  - Tìm bệnh viện (`FE-06`)
+  - Nhận diện AI
+  - Gọi SOS
+  - Tìm bệnh viện
   - Yêu cầu cứu hộ
-  - Thanh toán (`FE-28`)
+  - Thanh toán
 
 ### RESCUER
 - **[2] Nhận cảnh báo**
-  - Chấp nhận yêu cầu (`FE-06`)
-  - Di chuyển & chia sẻ vị trí (`FE-18`)
+  - Chấp nhận yêu cầu
+  - Di chuyển & chia sẻ vị trí
   - Bắt rắn
-  - Báo cáo & cập nhật hệ thống (`FE-15`)
-  - Nhận thanh toán (`FE-26`)
+  - Báo cáo & cập nhật hệ thống
+  - Nhận thanh toán
 
 ### EXPERT
 - **[3] Xác minh**
-  - Tư vấn (chat / video) (`FE-10`, `FE-11`)
+  - Tư vấn (chat / video)
   - Cập nhật database loài rắn
-  - Nhận thanh toán (`FE-14`)
+  - Nhận thanh toán
 
 ### ADMIN
 - **Vai trò chính (giám sát & quản lý):**
   - Quản lý User
   - Quản lý Database Rắn
   - Quản lý Bệnh viện
-  - Giám sát Real-time (`FE-26`, `FE-27`, `FE-28`)
-  - Gửi Cảnh báo Cộng đồng (`FE-22`, `FE-24`, `FE-25`)
-  - Quản lý Tài chính & báo cáo (`FE-30`, `FE-31`, `FE-33`)
+  - Giám sát Real-time
+  - Gửi Cảnh báo Cộng đồng
+  - Quản lý Tài chính & báo cáo
 
 > **Ghi chú:** Các hoạt động của Patient / Rescuer / Expert đều được ghi nhận và/hoặc chuyển tiếp về Admin để giám sát, cập nhật DB hoặc kích hoạt các hành động tiếp theo.
 
