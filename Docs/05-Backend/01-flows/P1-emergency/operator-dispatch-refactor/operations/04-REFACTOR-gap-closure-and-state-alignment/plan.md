@@ -2,7 +2,7 @@
 doc_role: operation
 operation_id: 04-REFACTOR-gap-closure-and-state-alignment
 type: REFACTOR
-status: draft
+status: partial
 created_at: 2026-03-14
 affects:
   - SnakeAid.Service/Implements/SnakebiteIncidentService.cs
@@ -17,21 +17,30 @@ affects:
 
 - Core operator dispatch exists
 - Realtime and shift snapshots exist
-- Several target behaviors remain incomplete
+- Sprint work has already landed part of the gap-closure slice
+- Several target behaviors still remain incomplete
 
 ## 2. Gap Analysis
 
-- false alarm flow not fully wired
 - redispatch endpoint absent
 - operator disconnect recovery absent
 - pending escalation background worker absent
 - current state naming still diverges from target design
+- false alarm and no-answer paths exist, but the broader recovery/state-alignment story is still incomplete
 
 ## 3. To-Be Design
 
 - close parity gaps against the refactor target state
 - normalize state language and transition semantics
 - harden operational recovery paths
+
+Sprint trace from commit analysis:
+
+- `0c478d61aa8cfbb9c3eb76a809ff793450b71590`
+- `e410b263e9b10224d7f39c9914093396fc01e5ea`
+- `be5f4af9fb40cc8b156ccadca29445ec53765a7c`
+- `db1d8f603cd538e39354074b36d5d7952cf293f0`
+- `792526d90e78b3da0c5f16bbf2148d95f8f3620f`
 
 ## 4. Impacted Components
 
@@ -48,6 +57,7 @@ affects:
 
 ## 6. Validation Plan
 
+- verify false alarm and no-answer endpoints remain wired to service + realtime notifications
 - verify false alarm end-to-end
 - verify redispatch flow
 - verify operator disconnect release semantics

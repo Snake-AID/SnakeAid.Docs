@@ -3,7 +3,7 @@ doc_role: baseline
 module: operator-dispatch-refactor
 kind: flow
 status: active
-last_updated: 2026-03-14
+last_updated: 2026-03-15
 owners: [backend-team]
 ---
 
@@ -119,7 +119,54 @@ Current note:
 - `PATCH /api/shifts/assignments/{assignmentId}/checkout`
 - `GET /api/shifts/assignments?date=YYYY-MM-DD`
 
-## 7. Rescuer realtime methods
+## 7. Mark incident as false alarm
+
+### Endpoint
+
+- Method: `POST`
+- URL: `/api/incidents/{incidentId}/false-alarm`
+
+### Request body
+
+```json
+{
+  "reason": "string (optional)"
+}
+```
+
+### Current behavior
+
+- caller must be the handling operator
+- Marks the incident with status `FalseAlarm`
+- Appends optional reason into `OperatorNotes`
+- Triggers real-time notification to operator dashboard via `NotifyIncidentFalseAlarmAsync`
+- Keeps the case out of the dispatch queue
+
+## 8. Report incident no answer
+
+### Endpoint
+
+- Method: `POST`
+- URL: `/api/incidents/{incidentId}/no-answer`
+
+### Request body
+
+```json
+{
+  "continueCalling": true,
+  "note": "string (optional)"
+}
+```
+
+### Current behavior
+
+- caller must be the handling operator
+- Stores optional note in `OperatorNotes`
+- If `continueCalling = true`, keeps the incident in `OperatorContacting`
+- If `continueCalling = false`, releases the incident back to `Pending` and clears `HandlingOperatorId`
+- Triggers real-time notification to operator dashboard via `NotifyIncidentNoAnswerAsync`
+
+## 9. Rescuer realtime methods
 
 Current SignalR hub:
 
@@ -134,18 +181,22 @@ Current SignalR hub:
 - `JoinAsOperator(operatorId?)`
 - `LeaveAsOperator()`
 
-## 8. Operator-facing realtime events currently used
+## 10. Operator-facing realtime events currently used
 
 - `IncidentLocationUpdated`
 - `IncidentClaimed`
+- `IncidentFalseAlarm`
+- `IncidentNoAnswer`
 - `DispatchRequested`
 - `RescuerAccepted`
 - `RescuerDeclined`
+- `IncidentCancelled`
+- `RescuerAborted`
 - `RescuerOnlineStatus`
 - `RescuerIdleLocationUpdated`
 - `OperatorOnlineStatus`
 
-## 9. Current contract caveats
+## 11. Current contract caveats
 
 ### State naming caveat
 
@@ -154,6 +205,14 @@ Current code path practically uses:
 
 - `Verified` for confirmed-and-waiting
 - `Assigned` after rescuer acceptance
+
+The current `SnakebiteIncidentStatus` enum also includes `FalseAlarm`, `Finished`, `Cancelled`, and `NoRescuerFound`.
+There is no dedicated `NoAnswer` incident status in the current code.
+
+### No-answer caveat
+
+`no-answer` is implemented as an operator action and notification path.
+It does not currently create a dedicated incident status; it loops the case back to `OperatorContacting` or releases it to `Pending`.
 
 ### Operator realtime caveat
 
@@ -164,7 +223,14 @@ Operator realtime is currently multiplexed through the shared operator group use
 
 The following are not yet stable external contracts in this module:
 
-- false alarm endpoint
 - redispatch endpoint
 - operator disconnect recovery flow
 - escalation flow for stale pending incidents
+
+### Companion auth caveat
+
+The same sprint also introduced a role-aware login endpoint:
+
+- `POST /api/auth/login/v2`
+
+This is a companion auth contract for operator-facing clients, but it is cross-cutting and not part of the incident command surface itself.

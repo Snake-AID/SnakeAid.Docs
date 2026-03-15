@@ -31,6 +31,13 @@ affects:
 - Broadcast incident and rescuer dispatch events to operators
 - Expose on-duty rescuer snapshot API
 - Introduce shift CRUD and assignment lifecycle APIs
+- Support operator dashboard actions and migration planning toward dedicated `OperatorHub`
+
+Sprint trace from commit analysis:
+
+- `c00db438177d3f7a56f04b387a11e9e93bf4b00b`
+- `db1d8f603cd538e39354074b36d5d7952cf293f0`
+- `792526d90e78b3da0c5f16bbf2148d95f8f3620f`
 
 ## 4. Impacted Components
 
@@ -49,3 +56,4 @@ affects:
 - verify `GET /api/rescuers/on-duty`
 - verify shift CRUD and assignment endpoints
 - verify operator realtime events for claim, dispatch, rescuer accept/decline, and presence
+- verify sprint-added operator events such as false alarm, no answer, cancel, and rescuer abort are represented in the notification contract

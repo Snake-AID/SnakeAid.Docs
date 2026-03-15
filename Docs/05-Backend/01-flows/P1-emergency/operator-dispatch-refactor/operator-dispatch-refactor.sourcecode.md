@@ -3,7 +3,7 @@ doc_role: baseline
 module: operator-dispatch-refactor
 kind: flow
 status: active
-last_updated: 2026-03-14
+last_updated: 2026-03-15
 owners: [backend-team]
 ---
 
@@ -74,6 +74,12 @@ The code is operator-oriented, but the public route name still reflects an older
 - `POST /api/incidents/{incidentId}/claim`
 - `POST /api/incidents/{incidentId}/confirm`
 - `POST /api/incidents/{incidentId}/dispatch`
+- `POST /api/incidents/{incidentId}/false-alarm`
+- `POST /api/incidents/{incidentId}/no-answer`
+
+### Companion authentication
+
+- `POST /api/auth/login/v2`
 
 ### Snapshot / availability
 
@@ -108,13 +114,20 @@ Currently implemented as states in the domain model, with the following states a
 - `OperatorContacting`
 - `Verified`
 - `Assigned`
-
-Also present in the enum but not yet fully established as active operator-dispatch runtime states:
-
 - `FalseAlarm`
 - `Cancelled`
 - `Finished`
+
+Also present in the enum but not yet fully established as active operator-dispatch runtime states:
+
 - `NoRescuerFound`
+
+Current enum shape after sprint cleanup:
+
+- `EnRoute` is no longer part of `SnakebiteIncidentStatus`
+- `FalseAlarm` is a real incident status in the current model
+- `NoAnswer` is not a `SnakebiteIncidentStatus` in the current codebase
+- no-answer is currently modeled as an operator action that keeps the case in `OperatorContacting` or releases it to `Pending`
 
 Important note:
 
@@ -195,12 +208,13 @@ Current limitation:
 The backend currently enforces these main rules:
 
 - only a pending incident can be claimed
-- only the handling operator can confirm or dispatch
+- only the handling operator can confirm, dispatch, mark false alarm, or report no answer
 - rescuer must be online to be dispatched
 - rescuer must be available to be dispatched
 - rescuer must be on duty for the target date / shift window
 - accepting a dispatch creates a mission and marks the rescuer unavailable
 - declining a dispatch returns the incident to `Verified`
+- no-answer with `continueCalling = false` releases the incident back to `Pending`
 
 ## Realtime implementation status
 
@@ -216,9 +230,13 @@ Implemented operator-facing events include:
 
 - `IncidentLocationUpdated`
 - `IncidentClaimed`
+- `IncidentFalseAlarm`
+- `IncidentNoAnswer`
 - `DispatchRequested`
 - `RescuerDispatched`
+- `IncidentCancelled`
 - `RescuerDeclined`
+- `RescuerAborted`
 - `RescuerAccepted`
 - `RescuerOnlineStatus`
 - `OperatorOnlineStatus`
@@ -234,12 +252,23 @@ Important note:
 
 The following items are still not fully implemented as production truth:
 
-- dedicated false-alarm command flow and API surface
 - explicit redispatch API
 - operator disconnect release / reclaim flow
 - background escalation for stale `Pending` incidents
 - final operator workload policy enforcement using `CurrentCaseCount` and `MaxConcurrentCases`
 - dedicated `OperatorHub` separation
+- finalized incident state alignment with target terminology from planning docs
+
+## Sprint notes from commit analysis
+
+The sprint analysis for this module also captured:
+
+- role-aware login via `/api/auth/login/v2`
+- request DTOs for false-alarm and no-answer actions
+- operator dashboard action wiring for false alarm / no answer / cancel
+- migration planning from shared `RescuerHub` operator group to dedicated `OperatorHub`
+
+Those are part of this module's refactor history even when they are cross-cutting or not yet the final steady-state architecture.
 
 ## Runtime Interaction Flows
 

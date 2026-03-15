@@ -31,6 +31,12 @@ affects:
 - Use dispatch request records for rescuer acknowledgement
 - Create mission only after rescuer accepts
 
+Sprint trace from commit analysis:
+
+- `0c478d61aa8cfbb9c3eb76a809ff793450b71590`
+- `e410b263e9b10224d7f39c9914093396fc01e5ea`
+- `db1d8f603cd538e39354074b36d5d7952cf293f0`
+
 References:
 
 - `analysis/01-architecture-decision.md`
@@ -55,3 +61,4 @@ References:
 - verify claim / confirm / dispatch endpoints exist
 - verify accept creates mission
 - verify decline returns incident to redispatch-ready state
+- verify the current enum / transition model still reflects the operator-first flow after sprint cleanup

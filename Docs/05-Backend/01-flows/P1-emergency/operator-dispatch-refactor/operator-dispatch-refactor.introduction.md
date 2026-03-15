@@ -3,7 +3,7 @@ doc_role: baseline
 module: operator-dispatch-refactor
 kind: flow
 status: active
-last_updated: 2026-03-14
+last_updated: 2026-03-15
 owners: [backend-team]
 ---
 
@@ -47,18 +47,20 @@ Current estimate:
 What already exists:
 
 - operator claim / confirm / dispatch APIs
+- operator false-alarm and no-answer APIs
 - rescuer accept / decline dispatch flow
 - `OperatorProfile`, `WorkShift`, `ShiftAssignment`
 - `IncidentCallLog` schema/model scaffold
 - operator realtime group and rescuer on-duty snapshot APIs
 - shift CRUD and check-in / check-out APIs
+- companion role-aware login endpoint for operator-facing clients
 
 What is still incomplete:
 
-- full false-alarm flow
 - redispatch endpoint and operator-driven reassignment flow
 - operator disconnect release logic
 - pending-incident escalation background worker
+- dedicated `OperatorHub` separation
 - final state-machine alignment with the target design
 
 ## Refactor operations and current completion
@@ -70,7 +72,22 @@ This flow records the refactor as explicit operations so the module can show bot
 | `01-INIT-operator-dispatch-refactor` | Bootstrap the dedicated flow docs and preserve the new narrative separately from legacy emergency docs | `done` |
 | `02-REFACTOR-core-operator-dispatch` | Move emergency intake to operator claim / confirm / dispatch with rescuer accept-or-decline before mission creation | `done` |
 | `03-REFACTOR-operator-realtime-and-duty-snapshot` | Add operator-facing realtime and shift-aware rescuer snapshot support | `done` |
-| `04-REFACTOR-gap-closure-and-state-alignment` | Close remaining gaps such as false alarm, redispatch, recovery paths, and state alignment | `draft` |
+| `04-REFACTOR-gap-closure-and-state-alignment` | Close remaining gaps such as false alarm, redispatch, recovery paths, and state alignment | `partial` |
+
+## Sprint provenance
+
+This module's operation history is informed by the sprint analysis at `SnakeAid.Backend/docs/commit-analysis-operator-dispatch.md`.
+
+That sprint added or documented:
+
+- role-aware login for operator-facing clients
+- false-alarm and no-answer handling
+- expanded operator realtime notifications
+- operator dashboard action wiring
+- migration planning toward dedicated `OperatorHub`
+
+Baseline files still describe current code truth first.
+Operations carry the sprint-history context when implementation is only partially complete.
 
 ## Boundaries
 
