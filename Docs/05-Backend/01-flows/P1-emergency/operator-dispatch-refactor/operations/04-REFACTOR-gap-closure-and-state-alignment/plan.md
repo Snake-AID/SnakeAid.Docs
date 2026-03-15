@@ -27,6 +27,9 @@ affects:
 - pending escalation background worker absent
 - current state naming still diverges from target design
 - false alarm and no-answer paths exist, but the broader recovery/state-alignment story is still incomplete
+- rescuer who already `Declined` a dispatch can still be reconsidered unless exclusion policy is made explicit
+- rescuer who already aborted a mission can still appear as a candidate unless redispatch filtering is made explicit
+- operator web UI does not yet have a guaranteed server-backed rule for excluding prior `abort` / `deny` rescuers from candidate selection
 
 ## 3. To-Be Design
 
@@ -54,6 +57,9 @@ Sprint trace from commit analysis:
 - production behavior already depends on `Verified` and `Assigned`
 - renaming or remapping states may impact clients and docs together
 - recovery automation must not accidentally steal active incidents
+- excluding prior rescuers too aggressively may block legitimate manual reassignment when operator intentionally wants to retry
+- filtering only in web UI is insufficient; the server must enforce the same redispatch rule
+- abort and deny need distinct business semantics if the team wants different retry behavior later
 
 ## 6. Validation Plan
 
@@ -62,3 +68,32 @@ Sprint trace from commit analysis:
 - verify redispatch flow
 - verify operator disconnect release semantics
 - verify escalation behavior for stale pending incidents
+- verify a rescuer who already declined the current incident cannot be redispatched unintentionally
+- verify a rescuer who aborted the current incident cannot be redispatched unintentionally
+- verify operator candidate snapshot or dispatch validation excludes the above rescuers consistently
+- verify web UI candidate selection and backend dispatch validation enforce the same rule
+
+## 7. Implementation Prep
+
+Recommended implementation slices:
+
+1. Define the redispatch exclusion rule
+   - decide whether `Declined` and `MissionAborted` both mean "exclude rescuer for this incident"
+   - decide whether operator override is allowed
+
+2. Enforce the rule in backend dispatch validation
+   - reject dispatch when the rescuer has already declined the same incident
+   - reject dispatch when the rescuer has already aborted the same incident
+
+3. Surface the rule in candidate queries
+   - exclude prior `Declined` rescuers from snapshot / candidate lists
+   - exclude prior aborted rescuers from snapshot / candidate lists
+
+4. Sync operator UI behavior
+   - make dropdown / map candidate list reflect the same backend exclusion rule
+   - show clear reason why a rescuer is not selectable
+
+5. Add regression coverage
+   - decline then redispatch same rescuer
+   - abort then redispatch same rescuer
+   - operator tries to bypass UI and call dispatch API directly
