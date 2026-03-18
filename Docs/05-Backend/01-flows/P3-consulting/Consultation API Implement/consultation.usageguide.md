@@ -3,7 +3,7 @@ doc_role: baseline
 module: consultation
 kind: flow
 status: active
-last_updated: 2026-03-08
+last_updated: 2026-03-18
 owners: [backend-team]
 ---
 
@@ -77,6 +77,20 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
   - `ExpertPresenceChanged`
   - `EmergencyConsultationRequest`
   - `EmergencyRequestStatusChanged`
+
+### In-Room Consultation Features
+
+- **Search Snake Species**: `GET /api/v1/snakes/search?q={query}`
+
+### SignalR Consultation Chat
+
+- **Hub Endpoint**: `/hubs/consultation`
+- **Methods** (both Caller and Callee):
+  - `ReceiveMessage(string content, string? attachmentUrl)`
+  - `Signal(string eventType, string payload)`
+- **Server Events**:
+  - `MessageReceived`
+  - `SignalReceived`
 
 ## User Journey Endpoint Contracts
 
@@ -778,6 +792,101 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
   }
 }
 ```
+
+### 9. In-Room Consultation Features
+
+#### Endpoint: Search Snake Species
+
+`GET /api/v1/snakes/search?q={query}`
+
+**Query Parameters**
+
+- `q` (string, required): Search query for snake species by scientific name, common name, or alternative names
+
+**Response DTO**
+
+- `ApiResponse<List<SearchSnakeSpeciesResponse>>`
+
+**Response Sample**
+
+```json
+{
+  "status_code": 200,
+  "message": "Operation successful",
+  "is_success": true,
+  "data": [
+    {
+      "id": 1,
+      "scientificName": "Naja naja",
+      "commonName": "Indian Cobra",
+      "imageUrl": "https://cloudinary.com/snakeaid/...",
+      "isVenomous": true,
+      "primaryVenomType": "Neurotoxic",
+      "venoms": [
+        {
+          "venomType": "Neurotoxic",
+          "description": "Affects nervous system"
+        }
+      ],
+      "antivenoms": [
+        {
+          "antivenomName": "Anti-Cobra Venom",
+          "manufacturer": "Serum Institute",
+          "effectiveness": "Highly effective"
+        }
+      ]
+    }
+  ]
+}
+```
+
+#### SignalR Consultation Chat
+
+**Hub Endpoint**: `/hubs/consultation`
+
+**Connection Requirements**
+
+- Query parameter: `?consultationId={guid}`
+- User must be either Caller or Callee of the consultation
+- Automatic authorization check on connect
+
+**Client Methods**
+
+- `ReceiveMessage(string content, string? attachmentUrl)`
+  - Send text message or image attachment
+  - `attachmentUrl` should be pre-uploaded via `POST /api/media/upload-image` with domain "chat-media"
+  - Rate limit: 10 messages per minute per user
+
+- `Signal(string eventType, string payload)`
+  - Send UI state signals (typing indicators, mic/camera status)
+  - Not persisted to database
+
+**Server Events**
+
+- `MessageReceived`
+  - Payload: `ChatMessage` object
+  - Sample:
+  ```json
+  {
+    "id": 123,
+    "consultationId": "bfa25be0-10ae-4b9c-b923-2180703eeb7e",
+    "senderId": "2a6d6f8f-6468-4d6c-b628-9b0fa326f7a8",
+    "content": "Hello, can you help?",
+    "attachmentUrl": null,
+    "sentAt": "2026-03-18T10:00:00Z",
+    "senderName": "Alice Smith"
+  }
+  ```
+
+- `SignalReceived`
+  - Payload: `eventType` (string), `payload` (string)
+  - Sample:
+  ```json
+  {
+    "eventType": "typing",
+    "payload": "true"
+  }
+  ```
 
 ## Error Notes
 

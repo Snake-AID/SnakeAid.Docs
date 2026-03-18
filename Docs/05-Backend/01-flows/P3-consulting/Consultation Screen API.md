@@ -3,7 +3,7 @@ doc_role: handoff
 module: consultation
 kind: api-mapping
 status: active
-last_updated: 2026-03-08
+last_updated: 2026-03-18
 owners: [backend-team, mobile-team]
 ---
 
@@ -18,7 +18,8 @@ Tài liệu này chỉ trả lời 4 câu hỏi cho mobile dev:
 - màn hình đó hiện `Build Now`, `Build With Placeholder`, hay `Wait Backend`
 
 Payload chi tiết của từng endpoint xem tại:
-- [consultation.usageguide.md](D:\SourceCode\Snake_AID\SnakeAid.Docs\Docs\05-Backend\01-flows\P3-consulting\Consultation%20API%20Implement\consultation.usageguide.md)
+- [consultation.usageguide.md](D:\SourceCode\Snake_AID\SnakeAid.Docs\Docs\05-Backend\01-flows\P3-consulting\Consultation%20API%20Implement\consultation.usageguide.md) (toàn diện tất cả operations)
+- [consultation.operation5.usageguide.md](D:\SourceCode\Snake_AID\SnakeAid.Docs\Docs\05-Backend\01-flows\P3-consulting\Consultation%20API%20Implement\consultation.operation5.usageguide.md) (chỉ operation 5 - tối ưu context window)
 
 ## Delivery Legend
 
@@ -62,6 +63,10 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 - **Accept Emergency Request**: `POST /api/consultations/emergency-requests/{requestId}/accept`
 - **Reject Emergency Request**: `POST /api/consultations/emergency-requests/{requestId}/reject`
 
+### In-Room Features
+
+- **Search Snake Species**: `GET /api/v1/snakes/search?q={query}`
+
 ### SignalR
 
 - **Hub**: `/hubs/expert`
@@ -75,6 +80,14 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
   - `ExpertPresenceChanged`
   - `EmergencyConsultationRequest`
   - `EmergencyRequestStatusChanged`
+
+- **Hub**: `/hubs/consultation`
+- **Methods** (both Caller and Callee):
+  - `ReceiveMessage(string content, string? attachmentUrl)`
+  - `Signal(string eventType, string payload)`
+- **Events**:
+  - `MessageReceived`
+  - `SignalReceived`
 
 ## User Journey
 
@@ -211,10 +224,25 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 
 ### 9. Screen: Chat
 
-**Status**: `Wait Backend`
+**Status**: `Build Now`
 
-**Lưu ý**
-- chat consultation thuộc Operation 5
+**Khi vào màn hình chat**
+- connect `/hubs/consultation`
+- invoke `OnConnectedAsync` (automatic authorization check)
+- listen `MessageReceived`, `SignalReceived`
+
+**Khi user gửi tin nhắn**
+- upload image trước nếu có: `POST /api/media/upload-image` (domain: "chat-media")
+- invoke `ReceiveMessage(string content, string? attachmentUrl)`
+
+**Mục đích**
+- chat realtime với expert trong consultation room
+- gửi hình ảnh qua attachmentUrl
+- rate limit: 10 messages/minute per user
+
+**Đi tiếp**
+- chat flow chạy song song với video call
+- user có thể gửi signal UI như typing indicator qua `Signal`
 
 ### 10. Screen: Hoàn thành
 
@@ -382,7 +410,29 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 
 ### 23. Screen: Chat
 
-**Status**: `Wait Backend`
+**Status**: `Build Now`
+
+**Khi vào màn hình chat**
+- connect `/hubs/consultation`
+- invoke `OnConnectedAsync` (automatic authorization check)
+- listen `MessageReceived`, `SignalReceived`
+
+**Khi expert gửi tin nhắn**
+- upload image trước nếu có: `POST /api/media/upload-image` (domain: "chat-media")
+- invoke `ReceiveMessage(string content, string? attachmentUrl)`
+
+**Khi expert tìm kiếm snake species**
+- `GET /api/v1/snakes/search?q={query}`
+
+**Mục đích**
+- chat realtime với user trong consultation room
+- gửi hình ảnh qua attachmentUrl
+- search thông tin về snake species với venom/antivenom data
+- rate limit: 10 messages/minute per user
+
+**Đi tiếp**
+- chat flow chạy song song với video call
+- expert có thể gửi signal UI như typing indicator qua `Signal`
 
 ### 24. Screen: Hoàn tất tư vấn
 
@@ -404,6 +454,10 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
   - `JoinAsMember`
 - tạo emergency request thành công:
   - `JoinEmergencyRequestRoom(requestId)`
+- vào phòng tư vấn (cả scheduled và emergency):
+  - connect `/hubs/consultation`
+  - automatic `OnConnectedAsync` authorization
+  - listen `MessageReceived`, `SignalReceived`
 - khi reconnect:
   - invoke lại join methods
 
@@ -412,6 +466,10 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 - vào trạng thái sẵn sàng:
   - connect hub
   - `JoinAsExpert`
+- vào phòng tư vấn (cả scheduled và emergency):
+  - connect `/hubs/consultation`
+  - automatic `OnConnectedAsync` authorization
+  - listen `MessageReceived`, `SignalReceived`
 - khi reconnect:
   - invoke lại `JoinAsExpert`
 
@@ -427,6 +485,8 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 - Tài liệu tư vấn / create booking
 - Sảnh phòng chờ
 - Trong phòng tư vấn
+- Chat (User)
+- Chat (Expert)
 - Thiết đặt expert
 - Lịch tư vấn đã chốt của expert
 - Các tư vấn khẩn cấp
@@ -441,7 +501,5 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 
 ### Wait Backend
 
-- Chat (User)
-- Chat (Expert)
 
 
