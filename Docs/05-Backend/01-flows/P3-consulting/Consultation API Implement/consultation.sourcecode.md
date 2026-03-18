@@ -3,7 +3,7 @@ doc_role: baseline
 module: consultation
 kind: flow
 status: active
-last_updated: 2026-03-08
+last_updated: 2026-03-18
 owners: [backend-team]
 ---
 
@@ -27,7 +27,7 @@ Toàn flow consultation hiện được hình thành từ các operation chính:
 - `Operation 01`: expert directory, expert profile, weekly time slots, expert settings
 - `Operation 03`: scheduled consultation booking, waiting room, video room, end consultation, review
 - `Operation 04`: expert presence, emergency consultation request, emergency request room, accept/reject realtime flow
-- `Operation 05`: consultation chat và in-room signaling nâng cao, hiện vẫn chưa hoàn tất
+- `Operation 05`: consultation chat và in-room signaling nâng cao, đã hoàn tất
 - `Operation 06`: stabilization pass để đóng các gap của Operations 01, 03, 04
 
 ## High-Level Architecture
@@ -74,6 +74,11 @@ Toàn flow consultation hiện được hình thành từ các operation chính:
   - member presence subscription
   - expert presence registration
   - emergency request room subscription
+- `ConsultationHub` (`/hubs/consultation`)
+  - consultation room chat messaging
+  - image attachment support
+  - UI state signaling (volatile)
+  - consultation participant authorization
 
 ### Background Automation
 
@@ -169,6 +174,14 @@ Implemented in `ConsultationBookingsController`, `ConsultationsController`, `Boo
 - `POST /api/consultations/{consultationId}/reviews`
 - `POST /api/videocall/livekit-token/{consultationId}`
 
+### Snake Species Search
+
+Implemented in `SnakesController` + `SnakeSpeciesService`.
+
+- `GET /api/v1/snakes/search?q={query}`
+  - search across scientific name, common name, and alternative names
+  - returns venom and antivenom information for expert reference
+
 ### Emergency Consultation
 
 Implemented in `ConsultationsController`, `EmergencyConsultationService`, `ConsultationPaymentService`, `ExpertHub`, `SignalRExpertEmergencyNotificationService`.
@@ -255,12 +268,31 @@ Implemented in `ConsultationsController`, `EmergencyConsultationService`, `Consu
 - `JoinEmergencyRequestRoom(requestId)`
 - owner-only group join for request-specific status updates
 
+### ConsultationHub Responsibilities
+
+`ConsultationHub` provides real-time communication within consultation rooms:
+
+1. Consultation room access control
+- `OnConnectedAsync`: Validates user is Caller or Callee, joins consultation group
+- Throws `HubException` for unauthorized access
+
+2. Text messaging with attachments
+- `ReceiveMessage(string content, string? attachmentUrl)`: Saves to DB, broadcasts to group
+- Rate limited to 10 messages/minute per user
+- Supports image attachments via Cloudinary URLs
+
+3. Volatile UI signaling
+- `Signal(string eventType, string payload)`: Broadcasts UI state without persistence
+- Used for real-time interface updates (typing indicators, etc.)
+
 ### Current Events
 
 - `OnlineExpertsSnapshot`
 - `ExpertPresenceChanged`
 - `EmergencyConsultationRequest`
 - `EmergencyRequestStatusChanged`
+- `MessageReceived` (consultation chat messages)
+- `SignalReceived` (volatile UI state signals)
 
 ## Current Money Lifecycle
 
@@ -352,8 +384,6 @@ These limits apply to the current consultation module overall, not just Operatio
 - consultation `PayOS` / external gateway path is not implemented yet
 - consultation payment status query endpoint is not implemented yet
 - consultation completion/payment summary contract is still incomplete for full mobile UI
-- in-room consultation chat is not implemented yet
-- advanced in-room signaling and expert side tools remain in Operation 05 scope
 - expert no-show / dispute handling is not implemented in MVP
 
 ## Verification Snapshot
@@ -362,6 +392,7 @@ Current module-level reality after the latest implementation state:
 
 - backend solution builds successfully
 - targeted consultation test suite passes
+- Operation 5 in-room features fully implemented (chat, signaling, snake search)
 - current truth for Operation 06-specific implementation details is documented separately in:
   - `operations/06-STAB-mobile-readiness-gap-closure/sourcecode.md`
 
