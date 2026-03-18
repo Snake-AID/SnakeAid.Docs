@@ -21,6 +21,9 @@ Payload chi tiết của từng endpoint xem tại:
 - [consultation.usageguide.md](D:\SourceCode\Snake_AID\SnakeAid.Docs\Docs\05-Backend\01-flows\P3-consulting\Consultation%20API%20Implement\consultation.usageguide.md) (toàn diện tất cả operations)
 - [consultation.operation5.usageguide.md](D:\SourceCode\Snake_AID\SnakeAid.Docs\Docs\05-Backend\01-flows\P3-consulting\Consultation%20API%20Implement\consultation.operation5.usageguide.md) (chỉ operation 5 - tối ưu context window)
 
+Screen flow chi tiết cho từng operation:
+- [consultation.operation5.screen-api.md](D:\SourceCode\Snake_AID\SnakeAid.Docs\Docs\05-Backend\01-flows\P3-consulting\Consultation%20API%20Implement\consultation.operation5.screen-api.md) (chỉ operation 5 - tối ưu context window)
+
 ## Delivery Legend
 
 - `Build Now`: Backend đã đủ để mobile đi end-to-end cho bước đó.
