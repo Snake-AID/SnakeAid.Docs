@@ -47,28 +47,67 @@ Note: The `RefundTransactionAsync` method exists in the service but is not expos
 - `SnakeAid.Service/Interfaces/IPayOsClient.cs`
 - `SnakeAid.Service/Services/PayOs/PayOsClient.cs`
 
-This is the cleanest part of the layer. It is close to a low-level provider wrapper:
-- create payment link
-- query payment link
-- cancel payment link
-- verify webhook
+This is the low-level provider client that directly interfaces with the PayOS SDK.
 
-Target terminology for future refactor:
-- `IPayOsClient` / `PayOsClient` = low-level provider client
-- `IPayOsProvider` / `PayOsProvider` = PayOS-specific but domain-neutral provider façade
+### Provider Layer (NEW)
+
+- `SnakeAid.Service/Interfaces/IPayOsProvider.cs`
+- `SnakeAid.Service/Services/PayOs/PayOsProvider.cs`
+
+This is the domain-neutral provider façade that wraps the low-level client:
+- `CreatePaymentLinkAsync()` - creates payment links with domain-neutral parameters
+- `CancelPaymentLinkAsync()` - cancels payment links
+- `GetPaymentLinkInformationAsync()` - retrieves payment link status
+- `VerifyWebhook()` - verifies and parses webhook payloads
+
+**Key Characteristics:**
+- No snake-catching business logic
+- Domain-neutral request/response contracts
+- Reusable across different business domains (consultation, wallet top-up, etc.)
+- Handles PayOS-specific concerns only
+
+### Payment Context Contracts (NEW)
+
+- `SnakeAid.Core/Domains/PaymentReferenceType.cs` - Enum for payment reference types (SnakeCatching, Consultation, WalletTopup)
+- `SnakeAid.Core/Domains/PaymentContext.cs` - Generic payment context for all domains
+- `SnakeAid.Core/Domains/PaymentResult.cs` - Generic payment result for all domains
+- `SnakeAid.Service/Interfaces/IPaymentOrchestrator.cs` - Generic payment orchestrator interface
+- `SnakeAid.Service/Implements/PaymentOrchestrator.cs` - Generic payment orchestrator implementation
+- `SnakeAid.Core/Mappings/PaymentContextMapper.cs` - Mapping utilities between domain-specific and generic contracts
+
+**Purpose**: Eliminate DTO duplication across domains. All payment domains (snake catching, consultation, wallet top-up) can now use the same shared payment contracts.
 
 ### Orchestration Service
 
 - `SnakeAid.Service/Interfaces/IPayOsPaymentService.cs`
 - `SnakeAid.Service/Services/PayOs/PayOsPaymentService.cs`
 
-This service is **not provider-only**. It contains:
-- snake-catching request validation
-- snake-catching status validation
-- system wallet accounting
-- webhook confirmation
-- rescuer payout logic
-- refund logic
+This service has been migrated to use `IPayOsProvider` for all gateway operations while preserving domain-specific business logic:
+- ✅ **Migrated**: Uses `IPayOsProvider.CreatePaymentLinkAsync()` instead of direct `IPayOsClient` calls
+- ✅ **Migrated**: Uses `IPayOsProvider.CancelPaymentLinkAsync()` for payment cancellation
+- ✅ **Migrated**: Uses `IPayOsProvider.VerifyWebhook()` for webhook processing
+- ✅ **Migrated**: Uses `IPayOsProvider.GetPaymentLinkInformationAsync()` for payment status checks
+
+**Domain Logic Preserved**:
+- Snake-catching request validation
+- Snake-catching status validation
+- System wallet accounting
+- Webhook confirmation and business rule application
+- Rescuer payout logic
+- Refund logic
+
+### Snake Catching Orchestrator (Primary Implementation)
+
+- `SnakeAid.Service/Implements/SnakeCatchingPaymentOrchestrator.cs`
+
+**Primary implementation** of `IPaymentOrchestrator` that handles snake catching payments. Contains all snake-catching business logic while using the domain-neutral `IPayOsProvider` for gateway operations.
+
+**Key Features:**
+- Implements complete snake-catching payment orchestration
+- Uses `IPayOsProvider` directly (not delegated through `IPayOsPaymentService`)
+- Handles payment creation, webhook processing, and manual confirmation
+- Manages wallet operations, rescuer payouts, and commission calculations
+- Preserves all existing business behavior and API compatibility
 
 ### PayOS DTOs
 
@@ -86,43 +125,51 @@ Responses:
 - `SnakeAid.Core/Responses/PayOS/TransferToRescuerResponse.cs`
 - `SnakeAid.Core/Responses/PayOS/RefundTransactionResponse.cs`
 
-## Tight-Coupling Evidence in Code
+## Architecture After Refactoring
 
-### Interface-Level Coupling
+### Provider Layer Separation
 
-`IPayOsPaymentService` is coupled to snake catching by contract:
-- `CreatePaymentLinkAsync(CreateSnakeCatchingPaymentRequest ...)`
-- `TransferToRescuerAsync(TransferToRescuerRequest ...)`
+**✅ RESOLVED:** The refactoring has successfully extracted a domain-neutral `PayOsProvider` layer.
 
-This means consumers cannot call PayOS through a reusable `PayOsProvider` contract.
+**New Architecture:**
+```
+PayOsController → PayOsPaymentService → PayOsProvider → PayOsClient
+                                      ↓
+                               Domain Business Logic
+                                   (Snake Catching)
+```
 
-### DTO-Level Coupling
+### Interface-Level Separation
 
-`CreateSnakeCatchingPaymentRequest` contains:
-- `SnakeCatchingRequestId`
-- `TransactionType` defaulting to `CatchingPayment`
+- `IPayOsProvider` = Domain-neutral provider façade
+  - `CreatePaymentLinkAsync(PayOsCreatePaymentRequest)`
+  - `CancelPaymentLinkAsync(long, string?)`
+  - `GetPaymentLinkInformationAsync(long)`
+  - `VerifyWebhook(string)`
 
-`SnakeCatchingPaymentResponse` returns:
-- `SnakeCatchingRequestId`
+- `IPayOsPaymentService` = Domain-specific orchestration
+  - `CreatePaymentLinkAsync(CreateSnakeCatchingPaymentRequest)`
+  - `TransferToRescuerAsync(TransferToRescuerRequest)`
+  - Contains snake-catching business logic
 
-This hardcodes snake-catching semantics into the PayOS layer contract.
+### DTO-Level Separation
 
-### Service-Level Coupling
+**Provider DTOs (Domain-Neutral):**
+- `PayOsCreatePaymentRequest` - generic payment creation
+- `PayOsPaymentLinkResult` - generic payment result
 
-`PayOsPaymentService` directly performs:
-- `SnakeCatchingRequest` lookup
-- catching request status validation
-- status update to `RequestStatus.Paid`
-- payout transfer to rescuer
-- platform commission calculation
+**Service DTOs (Domain-Specific):**
+- `CreateSnakeCatchingPaymentRequest` - snake catching payment
+- `SnakeCatchingPaymentResponse` - snake catching payment response
 
-This is domain orchestration, not just provider orchestration.
+### Service-Level Separation
+
+- `PayOsProvider`: Pure PayOS gateway operations
+- `PayOsPaymentService`: Snake catching business orchestration + provider usage
 
 ### Controller-Level Coupling
 
-Swagger descriptions in `PayOsController` explicitly describe snake-catching payment behavior.
-
-The endpoint `transfer-to-rescuer` is also domain-specific and would not belong in a reusable `PayOsProvider` façade.
+The controller still exposes snake-catching specific endpoints, but now delegates to the separated layers appropriately.
 
 ## Payment Persistence Model
 
@@ -217,21 +264,49 @@ As a result, the module boundary currently mixes:
 - payment session orchestration
 - domain settlement
 
-## Current Limits
+## Current Status After Refactoring
 
-- No `PayOsProvider` façade exists yet.
-- No consultation-facing PayOS integration exists.
-- No wallet top-up-facing PayOS integration exists.
-- Reusing current PayOS service for another domain would require:
-  - DTO duplication
-  - service duplication
-  - or contract corruption
+### ✅ Completed: Provider Layer Extraction
 
-## Current Truth Summary
+**Operation 02-REFACTOR-extract-provider-core: DONE**
 
-The PayOS layer is currently:
-- technically reusable at the `IPayOsClient` level
-- not reusable at the `IPayOsPaymentService` level
-- strongly coupled to snake-catching workflow and terminology
+The PayOS layer now has proper architectural separation:
+- **Provider Layer**: `IPayOsProvider` / `PayOsProvider` - domain-neutral gateway operations
+- **Service Layer**: `IPayOsPaymentService` / `PayOsPaymentService` - snake-catching business orchestration
 
-This is the main architectural risk that future operations in this module are intended to address.
+### ✅ Completed: Payment Context Contracts
+
+**Operation 03-REFACTOR-extract-payment-context-contract: DONE**
+
+Shared payment contracts implemented:
+- **PaymentReferenceType**: Enum for different payment domains (SnakeCatching, Consultation, WalletTopup)
+- **PaymentContext**: Generic payment context with common fields (referenceId, amount, actors, etc.)
+- **PaymentResult**: Generic payment result for all domains
+- **IPaymentOrchestrator**: Generic payment orchestrator interface
+- **PaymentContextMapper**: Utilities for mapping between domain-specific and generic contracts
+
+### ✅ Completed: Snake Catching Migration
+
+**Operation 04-REFACTOR-migrate-snake-catching-to-provider: DONE**
+
+Snake catching payment flow successfully migrated:
+- ✅ **PayOsPaymentService**: Now uses `IPayOsProvider` for all gateway operations
+- ✅ **Removed Direct Dependencies**: No longer directly calls `IPayOsClient`
+- ✅ **Business Logic Preserved**: All snake-catching validation, wallet operations, and payout logic intact
+- ✅ **API Compatibility**: Existing controller endpoints work unchanged
+- ✅ **SnakeCatchingPaymentOrchestrator**: Optional adapter layer for future generic orchestration
+
+### Remaining Opportunities
+
+- **Consultation Integration**: Can now reuse `PayOsProvider` + `PaymentContext` for consultation payments
+- **Wallet Top-up Integration**: Can reuse `PayOsProvider` + `PaymentContext` for wallet funding
+- **Future Domains**: Any payment use case can leverage the shared contracts and provider abstraction
+
+### Current Truth Summary
+
+The PayOS layer is now:
+- ✅ **Reusable at the `IPayOsProvider` level** - domain-neutral gateway operations
+- ✅ **Properly separated at the `IPayOsPaymentService` level** - contains snake-catching business logic but uses reusable provider
+- ✅ **Architecturally sound** - provider concerns separated from business concerns
+
+The main architectural risk has been resolved. Future payment integrations can reuse the `PayOsProvider` without duplicating gateway logic.

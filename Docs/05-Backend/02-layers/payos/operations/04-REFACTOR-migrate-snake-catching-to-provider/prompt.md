@@ -2,7 +2,7 @@
 doc_role: operation
 operation_id: 04-REFACTOR-migrate-snake-catching-to-provider
 generated_from: plan.md
-status: draft
+status: done
 created_at: 2026-03-09
 ---
 

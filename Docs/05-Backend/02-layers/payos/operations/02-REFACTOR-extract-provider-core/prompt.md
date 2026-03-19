@@ -2,7 +2,7 @@
 doc_role: operation
 operation_id: 02-REFACTOR-extract-provider-core
 generated_from: plan.md
-status: draft
+status: done
 created_at: 2026-03-09
 ---
 
