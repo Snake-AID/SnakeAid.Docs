@@ -3,7 +3,7 @@ doc_role: baseline
 module: payos
 kind: layer
 status: active
-last_updated: 2026-03-09
+last_updated: 2026-03-19
 owners: [backend-team]
 ---
 
@@ -39,6 +39,8 @@ Public endpoints:
 - `GET /api/v1/PayOs/cancel`
 - `POST /api/v1/PayOs/webhook`
 - `POST /api/v1/PayOs/transfer-to-rescuer`
+
+Note: The `RefundTransactionAsync` method exists in the service but is not exposed as a public API endpoint. It is used internally by business logic (e.g., in `SnakeCatchingMissionService` for refunding failed missions).
 
 ### Provider Client
 

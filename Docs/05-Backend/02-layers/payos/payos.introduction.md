@@ -3,7 +3,7 @@ doc_role: baseline
 module: payos
 kind: layer
 status: active
-last_updated: 2026-03-09
+last_updated: 2026-03-19
 owners: [backend-team]
 ---
 
@@ -28,7 +28,7 @@ In current code, the PayOS layer does not yet behave like a reusable `PayOsProvi
 - Confirm PayOS payment manually or by order code.
 - Process PayOS webhook callbacks.
 - Transfer paid snake-catching funds from system wallet to rescuer wallet.
-- Refund from system wallet back to a receiver wallet.
+- Refund from system wallet back to a receiver wallet (implemented internally, not exposed via public API).
 
 ## Current Consumers
 
