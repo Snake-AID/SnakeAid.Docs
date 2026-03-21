@@ -82,7 +82,10 @@ Responsibilities:
 
 - pay scheduled consultation booking
 - pay emergency consultation request
-- move money to escrow
+- create PayOS payment intent for consultation
+- confirm consultation payment manually
+- process consultation PayOS webhook
+- move money to escrow only after verified PayOS success
 - refund emergency escrow
 - expire emergency request and trigger refund
 - settle escrow to expert
@@ -149,13 +152,17 @@ graph TD
 ```mermaid
 graph LR
     A[PayOsController] --> B[ISnakeCatchingPaymentService]
-    B --> C[SnakeCatchingPaymentService]
-    C --> D[IPaymentGateway]
-    D --> E[PayOsGateway]
-    C --> F[IUnitOfWork]
-    F --> G[(PostgreSQL)]
-    E --> H[PayOS SDK]
-    H --> I[PayOS Platform]
+    A --> C[IConsultationPaymentService]
+    B --> D[SnakeCatchingPaymentService]
+    C --> E[ConsultationPaymentService]
+    D --> F[IPaymentGateway]
+    E --> F
+    F --> G[PayOsGateway]
+    D --> H[IUnitOfWork]
+    E --> H
+    H --> I[(PostgreSQL)]
+    G --> J[PayOS SDK]
+    J --> K[PayOS Platform]
 ```
 
 ### Snake-Catching Internal Dependency Graph

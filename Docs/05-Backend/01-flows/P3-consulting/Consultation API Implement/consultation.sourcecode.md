@@ -373,7 +373,7 @@ The full consultation flow currently still contains some hardcoded or temporary-
 - emergency request TTL is hardcoded to `2 minutes`
 - consultation lifecycle background polling interval is hardcoded to `30 seconds`
 - system escrow wallet id is hardcoded in current payment implementation
-- consultation payment method currently only supports `WalletBalance`
+- consultation payment currently supports `WalletBalance` and `PayOs`
 - `IsVerified` remains deferred for MVP
 - current distributed coordination for lifecycle jobs depends on PostgreSQL advisory locks and therefore assumes consultation write paths run on the shared writer database, not on read replicas
 
@@ -381,7 +381,7 @@ The full consultation flow currently still contains some hardcoded or temporary-
 
 These limits apply to the current consultation module overall, not just Operation 06:
 
-- consultation `PayOS` / external gateway path is not implemented yet
+- consultation `PayOS` path now exists as an additional payment option beside wallet
 - consultation payment status query endpoint is not implemented yet
 - consultation completion/payment summary contract is still incomplete for full mobile UI
 - expert no-show / dispute handling is not implemented in MVP
@@ -408,5 +408,4 @@ Example:
 - if Operation 05 adds chat hub + consultation message APIs:
   - update `consultation.sourcecode.md` to reflect the whole module now includes chat
   - update `operations/05.../sourcecode.md` to explain exactly how that operation implemented chat
-
 
