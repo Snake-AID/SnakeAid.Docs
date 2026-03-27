@@ -8,70 +8,94 @@ last_updated: 2026-03-28
 owners: [backend-team, mobile-team]
 ---
 
-# Consultation Roadmap Tasks — Usage Guide
+# Consultation Roadmap Tasks — Hướng dẫn tích hợp
 
-## Scope
+## LƯU Ý CHUYỂN ĐỔI (Mobile dev đọc đây trước)
 
-Tai lieu nay mo ta ket qua cua 6 task trong consultation roadmap. Danh cho mobile dev tich hop.
+Màn hình "Cuộc họp hiện tại" và "Lịch sử cuộc họp" hiện đang gọi `GET /api/users/me/consultation-bookings`.
 
-## Task Overview
+Endpoint đó CHỈ trả scheduled bookings. Emergency consultations KHÔNG xuất hiện.
 
-| # | Task | Ket qua | Doc tham chieu |
-|---|------|---------|----------------|
-| 1 | PayOS cho consultation | DA IMPLEMENT | `consultation.payment.md` |
-| 2 | Lock schedule time khi emergency | DA IMPLEMENT | Giai thich ben duoi |
-| 3 | Topup tien vao vi | ENDPOINT MOI | Section 1 ben duoi |
-| 4 | Cuoc hop hien tai + lich su bao gom emergency | ENDPOINT MOI | Section 2 ben duoi |
-| 5 | Get consultation feedback | ENDPOINT MOI | Section 3 ben duoi |
+Chuyển sang endpoint mới: `GET /api/users/me/consultations`
 
----
+| | Endpoint cũ | Endpoint mới |
+|---|------------|-------------|
+| URL | `/api/users/me/consultation-bookings` | `/api/users/me/consultations` |
+| Scheduled | Có | Có |
+| Emergency | KHÔNG | Có |
+| Lọc theo trạng thái | Không | `?status=Ongoing` hoặc `?status=Completed` |
+| Lọc theo loại | Không | `?type=Scheduled` hoặc `?type=Emergency` |
+| Phân trang | Không | `?pageNumber=1&pageSize=10` |
+| Response shape | `ConsultationBookingResponse` | `MyConsultationResponse` (xem Mục 2) |
 
-## Task 1: PayOS cho consultation (da implement)
+Endpoint cũ vẫn hoạt động, không bị break. Nhưng nếu mobile muốn hiện emergency thì PHẢI dùng endpoint mới.
 
-Consultation payment da ho tro 2 phuong thuc: `WalletBalance` va `PayOs`.
-
-Chi tiet contract, request/response, error catalog, webhook/return handling: xem `consultation.payment.md`.
-
----
-
-## Task 2: Lock schedule time khi co emergency request (da implement)
-
-Khi expert accept mot emergency consultation, backend tu dong reserve cac `ExpertTimeSlot` chong lan trong 30 phut tiep theo. Dieu nay ngan user khac book slot cua expert do trong khi emergency dang dien ra.
-
-Logic: trong transaction accept, backend query tat ca slot cua expert co `Status = Available` va overlap voi window `[now, now + 30min]`, chuyen sang `Reserved`.
-
-Mobile khong can lam gi dac biet — day la backend-side protection. Neu user co gang book slot da bi reserve, se nhan `409 Conflict`.
+Giữ endpoint cũ cho màn hình "Booking của tôi" (bao gồm cả booking chưa thanh toán, chưa có consultation).
 
 ---
 
-## Endpoints moi
+## Phạm vi
 
-| Endpoint | Muc dich |
+Tài liệu này mô tả kết quả của 6 task trong consultation roadmap. Dành cho mobile dev tích hợp.
+
+## Tổng quan các task
+
+| # | Task | Kết quả | Tài liệu tham chiếu |
+|---|------|---------|----------------------|
+| 1 | PayOS cho consultation | ĐÃ IMPLEMENT | `consultation.payment.md` |
+| 2 | Khóa slot khi có emergency request | ĐÃ IMPLEMENT | Giải thích bên dưới |
+| 3 | Nạp tiền vào ví | ENDPOINT MỚI | Mục 1 bên dưới |
+| 4 | Cuộc họp hiện tại + lịch sử bao gồm emergency | ENDPOINT MỚI | Mục 2 bên dưới |
+| 5 | Xem đánh giá consultation | ENDPOINT MỚI | Mục 3 bên dưới |
+
+---
+
+## Task 1: PayOS cho consultation (đã implement)
+
+Consultation payment đã hỗ trợ 2 phương thức: `WalletBalance` và `PayOs`.
+
+Chi tiết contract, request/response, error catalog, webhook/return handling: xem `consultation.payment.md`.
+
+---
+
+## Task 2: Khóa slot khi có emergency request (đã implement)
+
+Khi expert chấp nhận một emergency consultation, backend tự động reserve các `ExpertTimeSlot` chồng lấn trong 30 phút tiếp theo. Điều này ngăn user khác book slot của expert đó trong khi emergency đang diễn ra.
+
+Logic: trong transaction accept, backend query tất cả slot của expert có `Status = Available` và overlap với window `[now, now + 30min]`, chuyển sang `Reserved`.
+
+Mobile không cần làm gì đặc biệt — đây là backend-side protection. Nếu user cố gắng book slot đã bị reserve, sẽ nhận `409 Conflict`.
+
+---
+
+## Các endpoint mới
+
+| Endpoint | Mục đích |
 |----------|---------|
-| `POST /api/wallet/topup` | Nap tien vao vi qua PayOS |
-| `GET /api/consultations/{id}/reviews` | Xem review cua consultation |
-| `GET /api/users/me/consultations` | Lich su consultation (scheduled + emergency) |
+| `POST /api/wallet/topup` | Nạp tiền vào ví qua PayOS |
+| `GET /api/users/me/consultations` | Lịch sử consultation (scheduled + emergency) |
+| `GET /api/consultations/{id}/reviews` | Xem đánh giá của consultation |
 
 ---
 
-## 1. `POST /api/wallet/topup`
+## Mục 1: `POST /api/wallet/topup`
 
-Tao PayOS payment link de user nap tien vao vi he thong.
+Tạo PayOS payment link để user nạp tiền vào ví hệ thống.
 
-**Auth**: Bearer JWT, role `User`
+**Xác thực**: Bearer JWT, role `User`
 
 **Request**:
 ```json
 {
   "amount": 100000,
-  "description": "Nap tien vi"
+  "description": "Nạp tiền ví"
 }
 ```
 
-| Field | Type | Required | Constraints |
-|-------|------|----------|-------------|
-| amount | decimal | Yes | 1,000 - 10,000,000 VND |
-| description | string | No | Max 200 chars |
+| Trường | Kiểu | Bắt buộc | Ràng buộc |
+|--------|------|----------|-----------|
+| amount | decimal | Có | 1,000 - 10,000,000 VND |
+| description | string | Không | Tối đa 200 ký tự |
 
 **Response** (`200 OK`):
 ```json
@@ -94,34 +118,34 @@ Tao PayOS payment link de user nap tien vao vi he thong.
 }
 ```
 
-**Mobile flow**:
-1. Goi `POST /api/wallet/topup`
-2. Lay `checkoutUrl` tu response
-3. Mo browser/webview
-4. Sau khi user thanh toan, PayOS webhook tu dong credit wallet
-5. Neu can fallback: refresh wallet balance qua `GET /api/wallet/me`
+**Luồng mobile**:
+1. Gọi `POST /api/wallet/topup`
+2. Lấy `checkoutUrl` từ response
+3. Mở browser/webview
+4. Sau khi user thanh toán, PayOS webhook tự động cộng tiền vào ví
+5. Nếu cần fallback: refresh số dư ví qua `GET /api/wallet/me`
 
-**Errors**:
-- `400`: amount <= 0 hoac > 10,000,000
-- `400`: da co pending top-up transaction chua hoan thanh
-- `404`: wallet chua ton tai cho user
+**Lỗi**:
+- `400`: số tiền <= 0 hoặc > 10,000,000
+- `400`: đã có pending top-up transaction chưa hoàn thành
+- `404`: ví chưa tồn tại cho user
 
 ---
 
-## 2. `GET /api/users/me/consultations`
+## Mục 2: `GET /api/users/me/consultations`
 
-Tra tat ca consultations cua user (ca scheduled va emergency), co filter va pagination.
+Trả tất cả consultations của user (cả scheduled và emergency), có lọc và phân trang.
 
-**Auth**: Bearer JWT, role `User`
+**Xác thực**: Bearer JWT, role `User`
 
 **Query params**:
 
-| Param | Type | Required | Values | Default |
-|-------|------|----------|--------|---------|
-| status | string | No | `Ongoing`, `Completed` | all |
-| type | string | No | `Scheduled`, `Emergency` | all |
-| pageNumber | int | No | >= 1 | 1 |
-| pageSize | int | No | 1-100 | 10 |
+| Tham số | Kiểu | Bắt buộc | Giá trị | Mặc định |
+|---------|------|----------|---------|----------|
+| status | string | Không | `Ongoing`, `Completed` | tất cả |
+| type | string | Không | `Scheduled`, `Emergency` | tất cả |
+| pageNumber | int | Không | >= 1 | 1 |
+| pageSize | int | Không | 1-100 | 10 |
 
 **Ví dụ gọi**:
 - Cuộc họp hiện tại: `GET /api/users/me/consultations?status=Ongoing`
@@ -178,36 +202,36 @@ Tra tat ca consultations cua user (ca scheduled va emergency), co filter va pagi
 }
 ```
 
-**Response fields**:
+**Giải thích các trường**:
 
-| Field | Type | Notes |
-|-------|------|-------|
-| type | string | `Scheduled` hoac `Emergency` |
-| status | string | `Ongoing` hoac `Completed` |
-| price | decimal? | Co cho scheduled, null cho emergency |
-| problemDescription | string? | Co cho scheduled, null cho emergency |
-| bookingId | guid? | Co cho scheduled, null cho emergency |
-| slotStartTime/slotEndTime | datetime? | Co cho scheduled, null cho emergency |
-| emergencyRequestId | guid? | Co cho emergency, null cho scheduled |
+| Trường | Kiểu | Ghi chú |
+|--------|------|---------|
+| type | string | `Scheduled` hoặc `Emergency` |
+| status | string | `Ongoing` hoặc `Completed` |
+| price | decimal? | Có cho scheduled, null cho emergency |
+| problemDescription | string? | Có cho scheduled, null cho emergency |
+| bookingId | guid? | Có cho scheduled, null cho emergency |
+| slotStartTime/slotEndTime | datetime? | Có cho scheduled, null cho emergency |
+| emergencyRequestId | guid? | Có cho emergency, null cho scheduled |
 
-**Luu y cho mobile**:
-- Endpoint nay KHONG thay the `GET /api/users/me/consultation-bookings` (endpoint cu van hoat dong)
-- Endpoint cu chi tra scheduled bookings (ke ca chua co consultation, vi du `PendingPayment`)
-- Endpoint moi chi tra consultations da duoc tao (da co `consultationId`)
-- Dung endpoint moi cho man hinh "cuoc hop hien tai" va "lich su cuoc hop"
-- Dung endpoint cu cho man hinh "booking cua toi" (bao gom ca booking chua thanh toan)
+**Lưu ý cho mobile**:
+- Endpoint này KHÔNG thay thế `GET /api/users/me/consultation-bookings` (endpoint cũ vẫn hoạt động)
+- Endpoint cũ chỉ trả scheduled bookings (kể cả chưa có consultation, ví dụ `PendingPayment`)
+- Endpoint mới chỉ trả consultations đã được tạo (đã có `consultationId`)
+- Dùng endpoint mới cho màn hình "cuộc họp hiện tại" và "lịch sử cuộc họp"
+- Dùng endpoint cũ cho màn hình "booking của tôi" (bao gồm cả booking chưa thanh toán)
 
 ---
 
-## 3. `GET /api/consultations/{consultationId}/reviews`
+## Mục 3: `GET /api/consultations/{consultationId}/reviews`
 
-Lay review cua mot consultation cu the. Chi participant (caller hoac callee) moi xem duoc.
+Lấy đánh giá của một consultation cụ thể. Chỉ participant (caller hoặc callee) mới xem được.
 
-**Auth**: Bearer JWT
+**Xác thực**: Bearer JWT
 
 **Path params**: `consultationId` (guid)
 
-**Response khi co review** (`200 OK`):
+**Response khi có đánh giá** (`200 OK`):
 ```json
 {
   "status_code": 200,
@@ -230,7 +254,7 @@ Lay review cua mot consultation cu the. Chi participant (caller hoac callee) moi
 }
 ```
 
-**Response khi chua co review** (`200 OK`):
+**Response khi chưa có đánh giá** (`200 OK`):
 ```json
 {
   "status_code": 200,
@@ -240,12 +264,12 @@ Lay review cua mot consultation cu the. Chi participant (caller hoac callee) moi
 }
 ```
 
-**Errors**:
-- `404`: consultation khong ton tai
-- `403`: user khong phai participant cua consultation
+**Lỗi**:
+- `404`: consultation không tồn tại
+- `403`: user không phải participant của consultation
 
-**Luu y cho mobile**:
-- Endpoint nay tra review cho 1 consultation cu the, khong phai list
-- Dung de hien thi review tren man hinh ket thuc consultation hoac lich su
-- Ca user (caller) va expert (callee) deu xem duoc
-- `updatedAverageRating` va `updatedRatingCount` tra 0 vi day la read endpoint, khong phai create
+**Lưu ý cho mobile**:
+- Endpoint này trả đánh giá cho 1 consultation cụ thể, không phải danh sách
+- Dùng để hiển thị đánh giá trên màn hình kết thúc consultation hoặc lịch sử
+- Cả user (caller) và expert (callee) đều xem được
+- `updatedAverageRating` và `updatedRatingCount` trả 0 vì đây là read endpoint, không phải create
