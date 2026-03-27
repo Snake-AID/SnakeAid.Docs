@@ -2,410 +2,104 @@
 doc_role: baseline
 module: consultation
 kind: flow
+doc_type: sourcecode
 status: active
-last_updated: 2026-03-18
+last_updated: 2026-03-28
 owners: [backend-team]
 ---
 
-# Consultation Module Source Code
+# Consultation Module — Source Code Overview
 
-## Mục tiêu tài liệu
+## Muc tieu
 
-Tài liệu này mô tả hiện trạng source code của **toàn bộ consultation flow**.
+Mo ta hien trang kien truc source code cua consultation module. Khong lap lai business rules (xem consultation.introduction.md) hay API payloads (xem consultation.usageguide.*.md).
 
-Phân vai với tài liệu operation-specific:
-- `consultation.sourcecode.md`
-  - mô tả toàn module consultation ở mức tổng quan hiện tại
-  - bao phủ các operation đã và đang shape flow consultation
-- `operations/*/sourcecode.md`
-  - mô tả source code trong phạm vi một operation cụ thể
-  - ví dụ `Operation 06` chỉ nói phần gap-closure của Operations 01, 03, 04
+## Architecture
 
-## Consultation Flow Scope
+### Controllers
 
-Toàn flow consultation hiện được hình thành từ các operation chính:
-- `Operation 01 (expert-directory)`: expert directory, expert profile, weekly time slots, expert settings, test coverage
-- `Operation 02 (scheduled-consultation)`: scheduled consultation booking, waiting room, video room, end consultation, review
-- `Operation 03 (emergency-consultation)`: expert presence, emergency consultation request, emergency request room, accept/reject realtime flow, directory filter/sort
-- `Operation 04 (in-room-features)`: consultation chat và in-room signaling, đã hoàn tất
-- `Operation 05 (payment-and-stabilization)`: payment orchestration (WalletBalance + PayOS), dual pricing, profile stats, escrow lifecycle, background automation
+- ExpertController: expert settings, bulk time slots, directory/profile/reviews/time-slots
+- ConsultationBookingsController: create booking, my bookings, expert scheduled inbox
+- ConsultationsController: emergency request, accept/reject, end consultation, review
+- ConsultationPaymentsController: scheduled + emergency payment
+- VideoCallController: LiveKit token generation
 
-## High-Level Architecture
+### Services
 
-### Main REST Controllers
+- ExpertService: directory, profile mapping, settings, slot generation
+- BookingService: create booking, booking history, slot-end auto-complete
+- ConsultationService: end consultation, review, settlement trigger
+- EmergencyConsultationService: create/accept/reject emergency request
+- ConsultationPaymentService: payment orchestration, escrow, refund, settlement
+- SignalRExpertEmergencyNotificationService: expert connection map, directed push
 
-- `ExpertController`
-  - expert settings
-  - bulk time slots
-  - expert directory/profile/reviews/time slots
-- `ConsultationBookingsController`
-  - create scheduled booking
-  - get my bookings
-  - get expert scheduled bookings
-- `ConsultationsController`
-  - create emergency request
-  - accept/reject emergency request
-  - end consultation
-  - create consultation review
-- `ConsultationPaymentsController`
-  - scheduled booking payment
-  - emergency request payment
-- `VideoCallController`
-  - generate LiveKit token for consultation room
+### Hubs
 
-### Main Services
+- ExpertHub (/hubs/expert): presence, emergency routing, request room
+- ConsultationHub (/hubs/consultation): chat, image attachments, UI signaling
 
-- `ExpertService`
-  - expert directory, profile mapping, settings update, slot generation
-- `BookingService`
-  - create scheduled booking, booking history, slot-end auto-complete path
-- `ConsultationService`
-  - end consultation, review handling, settlement trigger on explicit completion
-- `EmergencyConsultationService`
-  - create emergency request, accept/reject emergency request
-- `ConsultationPaymentService`
-  - pre-payment, escrow movement, refund, expert settlement
-- `SignalRExpertEmergencyNotificationService`
-  - expert connection map, directed push, request-room push
+### Background
 
-### Realtime Layer
+- ConsultationLifecycleBackgroundService: expire emergency requests, auto-complete scheduled consultations (30s polling, PostgreSQL advisory lock for multi-replica)
 
-- `ExpertHub` (`/hubs/expert`)
-  - member presence subscription
-  - expert presence registration
-  - emergency request room subscription
-- `ConsultationHub` (`/hubs/consultation`)
-  - consultation room chat messaging
-  - image attachment support
-  - UI state signaling (volatile)
-  - consultation participant authorization
+## Domain Model
 
-### Background Automation
+| Entity | Role |
+|--------|------|
+| Consultation | Core session record (caller/callee, room, status, type) |
+| ConsultationBooking | Scheduled booking (user, expert, slot, price, status) |
+| ConsultationPingRequest | Emergency request (state machine: PendingPayment, PendingExpertResponse, Accepted/Declined/Expired) |
+| ExpertProfile | Expert metadata (fees, stats, IsOnline) |
+| ExpertTimeSlot | 30-min discrete slot (optimistic concurrency + unique constraint) |
+| ChatMessage | In-room chat message (content, attachmentUrl, senderId) |
+| Wallet / Transaction | Reused wallet infrastructure for consultation money movement |
 
-- `ConsultationLifecycleBackgroundService`
-  - expire timed-out emergency requests
-  - auto-complete scheduled consultations whose slot has ended
-  - in multi-replica deployment, a PostgreSQL session advisory lock is used so only one API replica runs a lifecycle sweep at a time
+### Transaction Types
 
-## Core Domain Model
-
-### Consultation
-
-`Consultation`
-- core consultation session record
-- stores caller/callee, room id, start/end time, status, type
-- used by both scheduled and emergency consultation
-
-### ConsultationBooking
-
-`ConsultationBooking`
-- scheduled consultation booking record
-- links user, expert, selected slot, price, booking status, consultation id
-- current booking flow starts at `PendingPayment`
-- current booking response used by mobile now also includes `UserName` so expert app can identify the member on scheduled consultation cards
-
-### ConsultationPingRequest
-
-`ConsultationPingRequest`
-- emergency consultation request record
-- current emergency state machine:
-  - `PendingPayment`
-  - `PendingExpertResponse`
-  - `AcceptedByExpert`
-  - `DeclinedByExpert`
-  - `RescuerCancelled`
-  - `Expired`
-- request no longer goes directly to expert at create-time; payment happens first
-
-### ExpertProfile
-
-`ExpertProfile`
-- stores expert metadata for directory/profile screens
-- current pricing-related fields:
-  - `ConsultationFee` (backward compatibility)
-  - `EmergencyConsultationFee`
-- profile response now also exposes:
-  - `ScheduledConsultationFee`
-  - `EmergencyConsultationFee`
-  - `TotalConsultations`
-  - `AverageResponseTimeMinutes`
-  - `SuccessRate`
-
-### ExpertTimeSlot
-
-`ExpertTimeSlot`
-- discrete 30-minute slot for scheduled booking
-- protected by optimistic concurrency + unique DB constraint semantics in booking/slot generation flow
-
-### Wallet / Transaction
-
-Consultation payment currently reuses wallet infrastructure already present in the codebase:
-- `Wallet`
-- `Transaction`
-
-Consultation-specific money movement currently uses:
-- `TransactionType.ConsultationPayment`
-- `TransactionType.ConsultationRefund`
-- `TransactionType.ExpertPayout`
-- plus internal mirror records with existing wallet transaction types
-
-## Public API Surface
-
-### Expert Directory & Availability
-
-Implemented in `ExpertController` + `ExpertService`.
-
-- `PUT /api/experts/me/settings`
-- `POST /api/experts/me/time-slots/bulk`
-- `GET /api/experts`
-- `GET /api/experts/{expertId}`
-- `GET /api/experts/{expertId}/reviews`
-- `GET /api/experts/{expertId}/time-slots`
-
-### Scheduled Consultation
-
-Implemented in `ConsultationBookingsController`, `ConsultationsController`, `BookingService`, `ConsultationService`, `ConsultationPaymentService`.
-
-- `POST /api/consultation-bookings`
-- `GET /api/users/me/consultation-bookings`
-- `GET /api/experts/me/consultation-bookings`
-- `POST /api/consultation-bookings/{bookingId}/payments`
-- `POST /api/consultations/{consultationId}/end`
-- `POST /api/consultations/{consultationId}/reviews`
-- `POST /api/videocall/livekit-token/{consultationId}`
-
-### Snake Species Search
-
-Implemented in `SnakesController` + `SnakeSpeciesService`.
-
-- `GET /api/v1/snakes/search?q={query}`
-  - search across scientific name, common name, and alternative names
-  - returns venom and antivenom information for expert reference
-
-### Emergency Consultation
-
-Implemented in `ConsultationsController`, `EmergencyConsultationService`, `ConsultationPaymentService`, `ExpertHub`, `SignalRExpertEmergencyNotificationService`.
-
-- `POST /api/consultations/emergency-requests`
-- `POST /api/consultations/emergency-requests/{requestId}/payments`
-- `POST /api/consultations/emergency-requests/{requestId}/accept`
-- `POST /api/consultations/emergency-requests/{requestId}/reject`
-
-## Current End-to-End Flow in Code
-
-### 1. Expert Directory / Profile Flow
-
-- mobile loads expert directory through `GET /api/experts`
-- user presence-aware UI is enhanced by `ExpertHub`:
-  - `JoinAsMember`
-  - `OnlineExpertsSnapshot`
-  - `ExpertPresenceChanged`
-- profile screen reads:
-  - expert profile
-  - review list
-  - available time slots
-
-### 2. Scheduled Consultation Flow
-
-- user creates booking via `POST /api/consultation-bookings`
-- booking starts at `PendingPayment`
-- user pays via `POST /api/consultation-bookings/{bookingId}/payments`
-- payment success moves money into system escrow and booking becomes `Confirmed`
-- expert loads own scheduled consultations through `GET /api/experts/me/consultation-bookings`
-  - current endpoint returns `Confirmed` and `Completed` bookings
-  - response includes `consultationId`, `roomId`, slot window, and `UserName`
-  - current discovery model is REST pull; there is still no scheduled-consultation SignalR inbox
-- at consultation time, participant gets room token via `POST /api/videocall/livekit-token/{consultationId}`
-- consultation ends either:
-  - explicitly via `POST /api/consultations/{consultationId}/end`
-  - or implicitly by background auto-completion after slot end
-- when consultation completes, escrow settles to expert
-- user can submit review via `POST /api/consultations/{consultationId}/reviews`
-
-### 3. Emergency Consultation Flow
-
-- user creates request via `POST /api/consultations/emergency-requests`
-- request starts at `PendingPayment`
-- user joins request room via `JoinEmergencyRequestRoom(requestId)`
-- user pays via `POST /api/consultations/emergency-requests/{requestId}/payments`
-- payment success:
-  - moves money into system escrow
-  - sets request to `PendingExpertResponse`
-  - sets `ExpiresAt`
-  - pushes `EmergencyConsultationRequest` to selected expert
-- expert is connected through `JoinAsExpert`
-- expert accepts or rejects via REST API
-- if accepted:
-  - consultation is created
-  - request becomes `AcceptedByExpert`
-  - requester receives `EmergencyRequestStatusChanged`
-- if rejected:
-  - request becomes `DeclinedByExpert`
-  - escrow refunds to member
-- if expert does not respond before TTL:
-  - background worker marks request `Expired`
-  - escrow refunds to member
-- after accepted consultation completes, escrow settles to expert
-
-## SignalR Contract in Current Code
-
-### ExpertHub Responsibilities
-
-`ExpertHub` currently owns 3 concerns:
-
-1. Expert presence registration
-- `JoinAsExpert`
-- binds connection to expert id
-- updates `ExpertProfile.IsOnline`
-- broadcasts `ExpertPresenceChanged`
-
-2. Member presence subscription
-- `JoinAsMember`
-- joins common member group
-- returns `OnlineExpertsSnapshot`
-
-3. Emergency request room subscription
-- `JoinEmergencyRequestRoom(requestId)`
-- owner-only group join for request-specific status updates
-
-### ConsultationHub Responsibilities
-
-`ConsultationHub` provides real-time communication within consultation rooms:
-
-1. Consultation room access control
-- `OnConnectedAsync`: Validates user is Caller or Callee, joins consultation group
-- Throws `HubException` for unauthorized access
-
-2. Text messaging with attachments
-- `ReceiveMessage(string content, string? attachmentUrl)`: Saves to DB, broadcasts to group
-- Rate limited to 10 messages/minute per user
-- Supports image attachments via Cloudinary URLs
-
-3. Volatile UI signaling
-- `Signal(string eventType, string payload)`: Broadcasts UI state without persistence
-- Used for real-time interface updates (typing indicators, etc.)
-
-### Current Events
-
-- `OnlineExpertsSnapshot`
-- `ExpertPresenceChanged`
-- `EmergencyConsultationRequest`
-- `EmergencyRequestStatusChanged`
-- `MessageReceived` (consultation chat messages)
-- `SignalReceived` (volatile UI state signals)
-
-## Current Money Lifecycle
-
-### Scheduled Consultation
-
-- `PendingPayment`
-- payment success -> `Escrowed`
-- consultation complete -> `SettledToExpert`
-
-### Emergency Consultation
-
-- `PendingPayment`
-- payment success -> escrow + `PendingExpertResponse`
-- `DeclinedByExpert` -> refund to member wallet
-- `Expired` -> refund to member wallet
-- `AcceptedByExpert` -> escrow remains locked
-- consultation complete -> settle to expert
-
-### Important Business Rule Reflected in Code
-
-- payment is required before consultation proceeds
-- emergency request is only pushed to expert after payment success
-- payout to expert does not happen on accept; it happens on consultation completion
+- ConsultationPayment: member to system escrow
+- ConsultationRefund: system escrow to member
+- ExpertPayout: system escrow to expert
 
 ## Cross-Cutting Concerns
 
 ### Concurrency and Slot Integrity
 
-- slot creation and slot booking are protected against duplication/race conditions
-- emergency accept reserves overlapping slots in the 30-minute emergency window
-- consultation lifecycle jobs are coordinated across API replicas through a shared PostgreSQL advisory lock
-- payment/refund/settlement critical sections now also take transaction-scoped advisory locks keyed by booking id, request id, or consultation id to reduce double-execution races in multi-replica deployments
+- Slot booking: optimistic concurrency via Version field
+- Slot generation: unique composite index (ExpertId, StartTime, EndTime)
+- Emergency accept: reserve overlapping slots (Slot Paradox)
 
-### Multi-Replica Lifecycle Coordination
+### Multi-Replica Safety
 
-The consultation module now assumes that multiple API replicas may run at the same time against one shared write database.
+- Lifecycle worker: global PostgreSQL session advisory lock
+- Payment/refund/settlement: transaction-scoped advisory lock per aggregate
+- Topology: many API replicas, one shared PostgreSQL writer
 
-Before the current hot patch, every replica would start its own `ConsultationLifecycleBackgroundService`, which created race windows for:
-- `ExpireEmergencyRequestsAsync`
-- `AutoCompleteElapsedScheduledConsultationsAsync`
-- escrow refund flows
-- escrow settlement flows
+### Presence
 
-Current mitigation in code:
-- one global PostgreSQL session advisory lock for the lifecycle worker loop
-- one transaction-scoped advisory lock per critical aggregate during:
-  - scheduled booking payment
-  - emergency request payment
-  - emergency refund
-  - consultation settlement
+- SignalR-first: ExpertProfile.IsOnline as eventual consistency
+- EnablePresenceSelfHealing hardcoded false
 
-This is a pragmatic safeguard for the current topology:
-- many API replicas
-- one shared PostgreSQL writer
+### Response Contract
 
-It should not be mistaken for a final scheduler architecture. If consultation lifecycle throughput or operational complexity grows, the preferred evolution is a dedicated worker or centralized scheduler.
+- Success: ApiResponse<T> via ApiResponseBuilder
+- Errors: typed exceptions + centralized middleware
 
-### Time Standard
+## Hardcoded Values
 
-- weekly slot generation requires UTC `weekStartDate`
-- consultation slot times are persisted and compared in UTC
+- Emergency TTL: 2 minutes
+- Lifecycle polling: 30 seconds
+- System escrow wallet id: hardcoded
+- Payment methods: WalletBalance, PayOs
+- IsVerified: deferred from MVP
 
-### Presence Strategy
+## Current Limits
 
-- realtime online/offline decisions are SignalR-first
-- `ExpertProfile.IsOnline` is maintained as eventual consistency state
-- presence self-healing is guarded by hardcoded switch `EnablePresenceSelfHealing = false`
+- Payment status query endpoint: not implemented
+- Completion/payment summary: incomplete for mobile
+- Expert no-show / dispute: not in MVP
+- Lifecycle coordination: PostgreSQL advisory locks (not a final scheduler)
 
-### Response / Error Contract
+## Relationship with Operation Docs
 
-- success responses use `ApiResponse<T>` through `ApiResponseBuilder`
-- error handling uses typed exceptions and centralized middleware
-
-## Hardcoded / Temporary Implementation Points
-
-The full consultation flow currently still contains some hardcoded or temporary-by-design implementation decisions:
-
-- emergency request TTL is hardcoded to `2 minutes`
-- consultation lifecycle background polling interval is hardcoded to `30 seconds`
-- system escrow wallet id is hardcoded in current payment implementation
-- consultation payment currently supports `WalletBalance` and `PayOs`
-- `IsVerified` remains deferred for MVP
-- current distributed coordination for lifecycle jobs depends on PostgreSQL advisory locks and therefore assumes consultation write paths run on the shared writer database, not on read replicas
-
-## Current Limits of the Whole Flow
-
-These limits apply to the current consultation module overall, not just Operation 06:
-
-- consultation `PayOS` path now exists as an additional payment option beside wallet
-- consultation payment status query endpoint is not implemented yet
-- consultation completion/payment summary contract is still incomplete for full mobile UI
-- expert no-show / dispute handling is not implemented in MVP
-
-## Verification Snapshot
-
-Current module-level reality after the latest implementation state:
-
-- backend solution builds successfully
-- targeted consultation test suite passes
-- Operation 04 in-room features fully implemented (chat, signaling, snake search)
-- Operation 05 payment and stabilization details documented in:
-  - `operations/05-payment-and-stabilization/plan.md`
-
-## Relationship with Operation-Specific SourceCode Docs
-
-This file should stay at **module scope**.
-
-Rule to maintain docs consistency:
-- update `consultation.sourcecode.md` when the overall consultation architecture or current module flow changes
-- update `operations/*/plan.md` when an individual operation introduces or refines implementation in its own scope
-
-Example:
-- if Operation 04 adds chat hub + consultation message APIs:
-  - update `consultation.sourcecode.md` to reflect the whole module now includes chat
-  - update `operations/04-in-room-features/plan.md` to explain exactly how that operation implemented chat
-
+- Update this file when overall consultation architecture changes
+- Update operations/*/plan.md when an individual operation refines its own scope
