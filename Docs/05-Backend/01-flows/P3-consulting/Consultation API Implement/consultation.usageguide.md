@@ -91,3 +91,11 @@ Tất cả REST success response đều dùng `ApiResponse<T>`:
 - `PayOS` đã tích hợp cho consultation
 - `IsVerified` chưa có semantics nghiệp vụ hoàn chỉnh
 - Completion/payment summary screen chưa có contract đầy đủ cho mobile
+
+## New Endpoints (Roadmap Tasks) → `consultation.usageguide.roadmap-tasks.md`
+
+| Endpoint | Method |
+|----------|--------|
+| `POST /api/wallet/topup` | Wallet top-up via PayOS |
+| `GET /api/users/me/consultations` | Unified consultation history (scheduled + emergency) |
+| `GET /api/consultations/{id}/reviews` | Get consultation review |
