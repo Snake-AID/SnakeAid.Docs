@@ -2,8 +2,9 @@
 doc_role: baseline
 module: payos
 kind: layer
+doc_type: usageguide
 status: active
-last_updated: 2026-03-09
+last_updated: 2026-03-28
 owners: [backend-team]
 ---
 
@@ -11,27 +12,22 @@ owners: [backend-team]
 
 ## Purpose
 
-This document describes the **current external contract** of the PayOS layer.
-
-Important current limitation:
-- these contracts are currently snake-catching-specific
-- they should not be mistaken for a reusable `PayOsProvider` contract
+Mo ta external contract cua PayOS layer. Layer nay phuc vu 3 domain: snake catching, consultation, wallet top-up.
 
 ## Authentication
 
-- `POST /api/v1/PayOs/webhook` and PayOS return/cancel URLs are anonymous
-- all other PayOS endpoints require authenticated access
+- `POST /api/v1/PayOs/webhook`: anonymous (PayOS callback)
+- `GET /api/v1/PayOs/return`: anonymous (browser return)
+- `GET /api/v1/PayOs/cancel`: anonymous (browser cancel)
+- Tat ca endpoint khac: require authenticated access (Bearer JWT)
 
-## Public Endpoints
+## Snake Catching Endpoints
 
-### 1. Create Payment Link
+### `POST /api/v1/PayOs/snakecatching/paylink/create`
 
-`POST /api/v1/PayOs/create-payment-link`
+Tao payment link cho snake catching request.
 
-Current request DTO:
-- `CreateSnakeCatchingPaymentRequest`
-
-Example request:
+**Request**:
 ```json
 {
   "snakeCatchingRequestId": "11111111-2222-3333-4444-555555555555",
@@ -41,11 +37,9 @@ Example request:
 }
 ```
 
-Example response shape:
+**Response**:
 ```json
 {
-  "success": true,
-  "message": "PayOS payment link created successfully",
   "data": {
     "transactionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
     "snakeCatchingRequestId": "11111111-2222-3333-4444-555555555555",
@@ -54,109 +48,80 @@ Example response shape:
     "checkoutUrl": "https://pay.payos.vn/web/...",
     "orderCode": 1741499999123,
     "paymentLinkId": "plink_xxx",
-    "expiresAt": null,
-    "provider": "PayOS",
-    "gatewayRawResponse": {
-      "orderCode": 1741499999123,
-      "paymentLinkId": "plink_xxx",
-      "checkoutUrl": "https://pay.payos.vn/web/...",
-      "amount": 150000,
-      "status": "PENDING",
-      "currency": "VND"
-    }
+    "provider": "PayOS"
   }
 }
 ```
 
-### 2. Cancel Payment Link
+### `POST /api/v1/PayOs/snakecatching/paylink/cancel/{orderCode}`
 
-`POST /api/v1/PayOs/cancel-payment-link/{orderCode}`
+Huy payment link.
 
-Example request:
-```json
-{
-  "cancellationReason": "User cancelled checkout"
-}
-```
+**Request**: `{ "cancellationReason": "User cancelled checkout" }`
 
-### 3. Confirm Payment
+### `POST /api/v1/PayOs/confirm-payment`
 
-`POST /api/v1/PayOs/confirm-payment`
+Manual confirm payment (snake catching).
 
-Example request:
-```json
-{
-  "transactionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
-}
-```
+**Request**: `{ "transactionId": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee" }`
 
-### 4. Return URL
+### `POST /api/v1/PayOs/transfer-to-rescuer`
 
-`GET /api/v1/PayOs/return`
+Chuyen tien tu system wallet sang rescuer wallet sau khi hoan thanh.
 
-Current purpose:
-- browser return endpoint after PayOS portal
-- auto-confirms payment when status is successful
+**Request**: `{ "snakeCatchingRequestId": "11111111-2222-3333-4444-555555555555" }`
 
-### 5. Cancel URL
+## Consultation Payment Endpoints
 
-`GET /api/v1/PayOs/cancel`
+Consultation payment su dung PayOS thong qua `ConsultationPaymentService`, khong di qua `PayOsController`.
 
-Current purpose:
-- browser cancel endpoint after user cancels on PayOS portal
+Chi tiet contract xem: `05-Backend/01-flows/P3-consulting/Consultation API Implement/consultation.payment.md`
 
-### 6. Webhook
+Endpoints:
+- `POST /api/consultation-bookings/{bookingId}/payments` (paymentMethod: "PayOs")
+- `POST /api/consultations/emergency-requests/{requestId}/payments` (paymentMethod: "PayOs")
+- `POST /api/consultation-payments/confirm-payment`
 
-`POST /api/v1/PayOs/webhook`
+## Wallet Top-up Endpoints
 
-Current purpose:
-- receive asynchronous PayOS webhook
-- update transaction external reference
-- credit system wallet
-- update snake-catching request state
+Wallet top-up su dung PayOS thong qua `WalletTopupService`.
 
-### 7. Transfer To Rescuer
+(Endpoint contract chua co usageguide rieng — can bo sung khi mobile integrate.)
 
-`POST /api/v1/PayOs/transfer-to-rescuer`
+## Shared Callback Endpoints
 
-Current request DTO:
-- `TransferToRescuerRequest`
+### `GET /api/v1/PayOs/return`
 
-Example request:
-```json
-{
-  "snakeCatchingRequestId": "11111111-2222-3333-4444-555555555555"
-}
-```
+Browser return sau khi user thanh toan tren PayOS portal. Backend tu auto-confirm neu status = PAID.
 
-## Consumer Warning
+Tra ve HTML, khong phai JSON.
 
-Current PayOS contracts should only be used by:
-- snake-catching payment flow
-- snake-catching rescuer settlement flow
+### `GET /api/v1/PayOs/cancel`
 
-Do not reuse current DTOs for:
-- consultation payment
-- wallet top-up
-- future generic payment flows
+Browser cancel khi user huy tren PayOS portal.
 
-Reason:
-- current request/response contracts encode snake-catching identifiers and business semantics directly.
+### `POST /api/v1/PayOs/webhook`
 
-## Current Reuse Boundary
+PayOS webhook callback. Backend tu detect order code thuoc domain nao (snake-catching, consultation, wallet top-up) va route xu ly tuong ung.
 
-Safe to reuse:
-- `IPayOsClient` behavior conceptually
-- gateway transport logic
+Anonymous endpoint — khong can JWT.
 
-Unsafe to reuse without refactor:
-- `IPayOsPaymentService`
-- `CreateSnakeCatchingPaymentRequest`
-- `SnakeCatchingPaymentResponse`
-- `TransferToRescuer*`
-- webhook orchestration as-is
+## Gateway Interface
 
-Target future boundary:
-- `IPayOsClient` = low-level PayOS API wrapper
-- `IPayOsProvider` = reusable PayOS façade for multiple business domains
-- domain services = snake catching / consultation / wallet top-up orchestration
+`IPaymentGateway` expose 4 methods:
+
+| Method | Purpose |
+|--------|---------|
+| `CreatePaymentLinkAsync` | Tao payment link tren PayOS |
+| `CancelPaymentLinkAsync` | Huy payment link |
+| `GetPaymentLinkInformationAsync` | Lay thong tin payment link |
+| `VerifyWebhook` | Verify webhook payload tu PayOS |
+
+Domain services goi gateway thong qua interface nay. Khong co them abstraction layer.
+
+## Error Patterns
+
+- `409 CONFLICT`: payment da ton tai, request khong con o trang thai cho thanh toan
+- `404 NOT_FOUND`: transaction hoac request khong ton tai
+- `400 VALIDATION_ERROR`: payment method khong hop le
+- `500 INTERNAL_SERVER_ERROR`: PayOS SDK error hoac unexpected failure

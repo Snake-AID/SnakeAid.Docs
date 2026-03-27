@@ -3,7 +3,7 @@ doc_role: baseline
 module: payos
 kind: layer
 status: active
-last_updated: 2026-03-19
+last_updated: 2026-03-28
 owners: [backend-team]
 ---
 
@@ -11,68 +11,64 @@ owners: [backend-team]
 
 ## Domain Context
 
-The `payos` layer is the current external payment-gateway integration used by `SnakeAid.Backend`.
+PayOS layer la external payment-gateway integration cua SnakeAid.Backend. Sau refactor, layer nay da duoc tach thanh:
 
-In theory, this layer should play the role of a provider integration:
-- create checkout links
-- receive asynchronous gateway callbacks
-- confirm payment status
-- cancel payment links
+- **Gateway adapter** (`IPaymentGateway` / `PayOsGateway`): reusable, domain-neutral
+- **Domain payment services**: moi domain tu own business rules cua minh
 
-In current code, the PayOS layer does not yet behave like a reusable `PayOsProvider` for multiple business domains. It is materially coupled to the `snake catching` domain and currently exposes snake-catching-specific contracts and behaviors.
+## Current Architecture
 
-## Current Scope
+```
+Domain Services          Gateway
++--------------------------+     +------------------+
+| SnakeCatchingPaymentSvc  | --> | IPaymentGateway  |
+| ConsultationPaymentSvc   | --> |   PayOsGateway   |
+| WalletTopupService       | --> |                  |
++--------------------------+     +------------------+
+```
 
-- Create PayOS payment link for snake catching payments.
-- Cancel PayOS payment link.
-- Confirm PayOS payment manually or by order code.
-- Process PayOS webhook callbacks.
-- Transfer paid snake-catching funds from system wallet to rescuer wallet.
-- Refund from system wallet back to a receiver wallet (implemented internally, not exposed via public API).
+Nguyen tac:
+- Business rules nam trong domain service
+- PayOS SDK integration nam trong gateway
+- Khong co them Client/Provider/Orchestrator abstraction
 
 ## Current Consumers
 
-The current PayOS layer is used by:
-- snake catching request payment flow
-- snake catching mission settlement / rescuer payout flow
-
-The current PayOS layer is **not yet** a reusable `PayOsProvider` for:
-- consultation payment
-- wallet top-up
-- other future business domains
+| Domain | Service | Status |
+|--------|---------|--------|
+| Snake Catching | `SnakeCatchingPaymentService` | Production |
+| Consultation | `ConsultationPaymentService` | Production (WalletBalance + PayOS) |
+| Wallet Top-up | `WalletTopupService` | Production |
 
 ## Core Invariants
 
-1. The gateway provider is PayOS.
-2. Payment records are persisted in the shared `Transaction` table.
-3. `ReferenceId` is currently interpreted using snake-catching business semantics.
-4. Order-code extraction depends on a string pattern embedded in transaction description.
-5. The current integration mixes:
-   - provider concerns
-   - wallet movement concerns
-   - snake-catching business rules
+1. Gateway provider: PayOS
+2. Payment records: shared `Transaction` table
+3. Domain services own escrow/refund/settlement logic
+4. Gateway chi lam: create link, cancel link, verify webhook, fetch status
+5. Moi domain service tu quyet dinh khi nao move money, refund, settle
 
-## Architectural Reality
+## Reusable vs Domain-Specific
 
-Current implementation should be understood as:
-- `PayOsClient + snake-catching-specific PayOsPaymentService`
+### Reusable (shared infrastructure)
 
-not as:
-- `PayOsClient + PayOsProvider + DomainService`
+- `IPaymentGateway` / `PayOsGateway`
+- PayOS gateway models (`PayOsCreatePaymentRequest`, `PayOsPaymentLinkResult`, `PayOsLinkInformation`, `PayOsWebhookData`)
 
-This distinction matters because future reuse for consultation or wallet top-up would otherwise push the team toward DTO duplication or forced misuse of snake-catching contracts.
+### Domain-specific (khong reuse cross-domain)
+
+- `SnakeCatchingPaymentService` + snake-catching DTOs
+- `ConsultationPaymentService` + consultation DTOs
+- `WalletTopupService` + wallet top-up DTOs
 
 ## Out of Scope
 
-This layer currently does not provide:
-- `PayOsProvider` as a domain-neutral provider façade
-- consultation PayOS orchestration
-- wallet top-up orchestration
+- Multi-provider support (VNPay, etc.) — chua implement
+- Generic payment orchestrator — intentionally removed
+- Payment status query endpoint cho consultation — chua implement
 
-## Why This Module Matters
+## Architectural Risks
 
-Payment provider integrations are cross-domain infrastructure. If the provider layer is allowed to stay coupled to one business domain, later domains tend to either:
-- duplicate the provider integration
-- or corrupt the existing contract by stuffing unrelated domain meaning into old DTOs
-
-The `payos` module therefore needs to be treated as shared backend infrastructure rather than a snake-catching-only convenience wrapper.
+1. `PayOsController` van la gateway-named nhung expose snake-catching business endpoints
+2. Wallet top-up settlement logic van partially coupled voi snake-catching payment handling qua shared transaction interpretation
+3. Shared payment models van PayOS-shaped, future VNPay work co the can contract cleanup
