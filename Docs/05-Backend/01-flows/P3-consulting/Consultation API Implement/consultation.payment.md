@@ -1,7 +1,7 @@
 ---
 doc_role: operation-specific
 module: consultation.payment
-operation: 08-FEAT-consultation-payos-option
+operation: 05-payment-and-stabilization
 kind: flow
 doc_type: usageguide
 status: active

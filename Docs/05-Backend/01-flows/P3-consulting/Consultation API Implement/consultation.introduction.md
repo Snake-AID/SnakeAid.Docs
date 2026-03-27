@@ -73,11 +73,11 @@ This module is not just a video-call function. It is a full business flow coveri
 
 ## Relationship Between Operations
 
-- `Operation 01`: expert directory and availability foundation.
-- `Operation 03`: scheduled consultation foundation.
-- `Operation 04`: emergency consultation and presence foundation.
-- `Operation 05`: in-room features.
-- `Operation 06`: stabilization pass to close remaining mobile-readiness gaps inside Operations 01, 03, and 04.
+- `Operation 01 (expert-directory)`: expert directory, availability, settings, profile, test coverage.
+- `Operation 02 (scheduled-consultation)`: scheduled consultation booking, payment, completion, review.
+- `Operation 03 (emergency-consultation)`: emergency consultation, ExpertHub presence, directory filter/sort, Slot Paradox.
+- `Operation 04 (in-room-features)`: ConsultationHub chat, image attachments, UI signaling, snake species search.
+- `Operation 05 (payment-and-stabilization)`: payment orchestration (WalletBalance + PayOS), dual pricing, profile stats, escrow lifecycle, background automation, multi-replica safety.
 
 ## Operational Note
 

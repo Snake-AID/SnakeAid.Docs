@@ -910,10 +910,9 @@ Không dùng tên rút gọn như `Accepted`, `Rejected`, `Pending` trong state 
 
 ## Current MVP Limits
 
-- Consultation payment method hiện chỉ có `WalletBalance`.
-- `PayOS` chưa cắm cho consultation.
+- `PayOS` đã được tích hợp cho consultation.
 - `IsVerified` chưa có semantics nghiệp vụ hoàn chỉnh.
-- Chat consultation vẫn thuộc Operation 5.
+- Chat consultation thuộc Operation 04.
 - Completion/payment summary screen chưa có contract chuyên biệt đầy đủ cho mobile.
 
 

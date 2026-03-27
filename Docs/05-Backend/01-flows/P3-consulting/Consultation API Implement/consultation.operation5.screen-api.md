@@ -1,7 +1,7 @@
 ---
 doc_role: operation-specific
 module: consultation
-operation: 05-FEAT-in-room-features
+operation: 04-in-room-features
 kind: screen-api
 status: active
 last_updated: 2026-03-18

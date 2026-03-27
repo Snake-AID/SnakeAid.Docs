@@ -24,11 +24,11 @@ Phân vai với tài liệu operation-specific:
 ## Consultation Flow Scope
 
 Toàn flow consultation hiện được hình thành từ các operation chính:
-- `Operation 01`: expert directory, expert profile, weekly time slots, expert settings
-- `Operation 03`: scheduled consultation booking, waiting room, video room, end consultation, review
-- `Operation 04`: expert presence, emergency consultation request, emergency request room, accept/reject realtime flow
-- `Operation 05`: consultation chat và in-room signaling nâng cao, đã hoàn tất
-- `Operation 06`: stabilization pass để đóng các gap của Operations 01, 03, 04
+- `Operation 01 (expert-directory)`: expert directory, expert profile, weekly time slots, expert settings, test coverage
+- `Operation 02 (scheduled-consultation)`: scheduled consultation booking, waiting room, video room, end consultation, review
+- `Operation 03 (emergency-consultation)`: expert presence, emergency consultation request, emergency request room, accept/reject realtime flow, directory filter/sort
+- `Operation 04 (in-room-features)`: consultation chat và in-room signaling, đã hoàn tất
+- `Operation 05 (payment-and-stabilization)`: payment orchestration (WalletBalance + PayOS), dual pricing, profile stats, escrow lifecycle, background automation
 
 ## High-Level Architecture
 
@@ -392,9 +392,9 @@ Current module-level reality after the latest implementation state:
 
 - backend solution builds successfully
 - targeted consultation test suite passes
-- Operation 5 in-room features fully implemented (chat, signaling, snake search)
-- current truth for Operation 06-specific implementation details is documented separately in:
-  - `operations/06-STAB-mobile-readiness-gap-closure/sourcecode.md`
+- Operation 04 in-room features fully implemented (chat, signaling, snake search)
+- Operation 05 payment and stabilization details documented in:
+  - `operations/05-payment-and-stabilization/plan.md`
 
 ## Relationship with Operation-Specific SourceCode Docs
 
@@ -402,10 +402,10 @@ This file should stay at **module scope**.
 
 Rule to maintain docs consistency:
 - update `consultation.sourcecode.md` when the overall consultation architecture or current module flow changes
-- update `operations/*/sourcecode.md` when an individual operation introduces or refines implementation in its own scope
+- update `operations/*/plan.md` when an individual operation introduces or refines implementation in its own scope
 
 Example:
-- if Operation 05 adds chat hub + consultation message APIs:
+- if Operation 04 adds chat hub + consultation message APIs:
   - update `consultation.sourcecode.md` to reflect the whole module now includes chat
-  - update `operations/05.../sourcecode.md` to explain exactly how that operation implemented chat
+  - update `operations/04-in-room-features/plan.md` to explain exactly how that operation implemented chat
 
