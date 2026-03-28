@@ -84,7 +84,7 @@ Dùng `secureUrl` làm `attachmentUrl` trong `ReceiveMessage`.
 
 ## Snake Species Search
 
-### `GET /api/v1/snakes/search?q={query}`
+### `GET /api/snake-species/search?q={query}`
 
 Expert side-panel: search theo scientific name, common name, alternative names.
 

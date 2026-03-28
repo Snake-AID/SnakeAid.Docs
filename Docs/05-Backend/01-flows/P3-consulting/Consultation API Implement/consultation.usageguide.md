@@ -75,7 +75,7 @@ Tất cả REST success response đều dùng `ApiResponse<T>`:
 |----------|--------|
 | `/hubs/consultation` — `ReceiveMessage` | Chat message |
 | `/hubs/consultation` — `Signal` | UI signaling |
-| `GET /api/v1/snakes/search?q={query}` | Snake species search |
+| `GET /api/snake-species/search?q={query}` | Snake species search |
 | `POST /api/media/upload-image` | Chat media upload |
 
 ### Payment → `consultation.payment.md`

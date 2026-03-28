@@ -68,7 +68,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 
 ### In-Room Features
 
-- **Search Snake Species**: `GET /api/v1/snakes/search?q={query}`
+- **Search Snake Species**: `GET /api/snake-species/search?q={query}`
 
 ### SignalR
 
@@ -425,7 +425,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 - invoke `ReceiveMessage(string content, string? attachmentUrl)`
 
 **Khi expert tìm kiếm snake species**
-- `GET /api/v1/snakes/search?q={query}`
+- `GET /api/snake-species/search?q={query}`
 
 **Mục đích**
 - chat realtime với user trong consultation room

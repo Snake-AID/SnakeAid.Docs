@@ -106,7 +106,7 @@ Based on the `Consultation Wireframe.md` and the Multi-Agent Design Review, here
 
 ### 2.3. Consultation Tools
 
-**`GET /api/v1/snakes/search`**
+**`GET /api/snake-species/search`**
 
 - **Purpose**: "Tra cứu rắn" side-screen.
 - **Entity Graph**: `SnakeSpecies` (Include `SpeciesVenom`, `SpeciesAntivenom`).

@@ -8,7 +8,7 @@ implemented_at: 2026-03-18
 merged_from: [05-FEAT-in-room-features]
 affects:
   - Api/Hubs/ConsultationHub.cs
-  - Api/Controllers/SnakesController.cs
+  - Api/Controllers/SnakeSpeciesController.cs
   - Core/Domains/ChatMessage.cs
 ---
 
@@ -35,7 +35,7 @@ Implement tính năng trong phòng tư vấn: real-time chat, image attachments,
 
 ### Snake Species Search
 
-- `GET /api/v1/snakes/search?q={query}` — search theo scientific name, common name, alternative names
+- `GET /api/snake-species/search?q={query}` — search theo scientific name, common name, alternative names
 - Trả venom types + antivenom data cho expert side-panel
 
 ### Constraints
