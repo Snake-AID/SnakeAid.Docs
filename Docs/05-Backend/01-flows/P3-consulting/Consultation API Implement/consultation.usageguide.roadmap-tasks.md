@@ -12,7 +12,7 @@ owners: [backend-team, mobile-team]
 
 ## LƯU Ý CHUYỂN ĐỔI (Mobile dev đọc đây trước)
 
-Màn hình "Cuộc họp hiện tại" và "Lịch sử cuộc họp" hiện đang gọi `GET /api/users/me/consultation-bookings`.
+Màn hình "Cuộc họp hiện tại" và "Lịch sử cuộc họp" hiện đang gọi `GET /api/users/me/consultations/scheduled`.
 
 Endpoint đó CHỈ trả scheduled bookings. Emergency consultations KHÔNG xuất hiện.
 
@@ -20,7 +20,7 @@ Chuyển sang endpoint mới: `GET /api/users/me/consultations`
 
 | | Endpoint cũ | Endpoint mới |
 |---|------------|-------------|
-| URL | `/api/users/me/consultation-bookings` | `/api/users/me/consultations` |
+| URL | `/api/users/me/consultations/scheduled` | `/api/users/me/consultations` |
 | Scheduled | Có | Có |
 | Emergency | KHÔNG | Có |
 | Lọc theo trạng thái | Không | `?status=Ongoing` hoặc `?status=Completed` |
@@ -31,6 +31,8 @@ Chuyển sang endpoint mới: `GET /api/users/me/consultations`
 Endpoint cũ vẫn hoạt động, không bị break. Nhưng nếu mobile muốn hiện emergency thì PHẢI dùng endpoint mới.
 
 Giữ endpoint cũ cho màn hình "Booking của tôi" (bao gồm cả booking chưa thanh toán, chưa có consultation).
+
+Endpoint cũ: `GET /api/users/me/consultations/scheduled`
 
 ---
 
@@ -215,7 +217,7 @@ Trả tất cả consultations của user (cả scheduled và emergency), có l�
 | emergencyRequestId | guid? | Có cho emergency, null cho scheduled |
 
 **Lưu ý cho mobile**:
-- Endpoint này KHÔNG thay thế `GET /api/users/me/consultation-bookings` (endpoint cũ vẫn hoạt động)
+- Endpoint này KHÔNG thay thế `GET /api/users/me/consultations/scheduled` (endpoint cũ vẫn hoạt động)
 - Endpoint cũ chỉ trả scheduled bookings (kể cả chưa có consultation, ví dụ `PendingPayment`)
 - Endpoint mới chỉ trả consultations đã được tạo (đã có `consultationId`)
 - Dùng endpoint mới cho màn hình "cuộc họp hiện tại" và "lịch sử cuộc họp"

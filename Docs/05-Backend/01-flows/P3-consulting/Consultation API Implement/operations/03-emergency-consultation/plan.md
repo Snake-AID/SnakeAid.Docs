@@ -35,10 +35,10 @@ Implement luồng tư vấn ngay: user chọn expert online → thanh toán → 
 
 ### REST Endpoints
 
-- `POST /api/consultations/emergency-requests` — tạo request, bắt đầu ở `PendingPayment`
-- `POST /api/consultations/emergency-requests/{requestId}/payments` — thanh toán, chuyển `PendingExpertResponse`, push request sang expert
-- `POST /api/consultations/emergency-requests/{requestId}/accept` — expert accept, tạo consultation, reserve overlapping slots (Slot Paradox)
-- `POST /api/consultations/emergency-requests/{requestId}/reject` — expert reject, refund escrow
+- `POST /api/consultations/instant` — tạo request, bắt đầu ở `PendingPayment`
+- `POST /api/consultations/instant/{requestId}/payments` — thanh toán, chuyển `PendingExpertResponse`, push request sang expert
+- `POST /api/consultations/instant/{requestId}/accept` — expert accept, tạo consultation, reserve overlapping slots (Slot Paradox)
+- `POST /api/consultations/instant/{requestId}/reject` — expert reject, refund escrow
 
 ### Directory Filter/Sort (corrective scope từ Op 01)
 

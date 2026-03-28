@@ -16,7 +16,7 @@ owners: [backend-team, mobile-team]
 
 ## User Flow
 
-### `POST /api/consultation-bookings`
+### `POST /api/consultations/scheduled`
 
 Tạo booking từ available time slot.
 
@@ -51,7 +51,7 @@ Tạo booking từ available time slot.
 }
 ```
 
-### `POST /api/consultation-bookings/{bookingId}/payments`
+### `POST /api/consultations/scheduled/{bookingId}/payments`
 
 Thanh toán booking. Chi tiết payment contract xem `consultation.payment.md`.
 
@@ -59,13 +59,13 @@ Thanh toán booking. Chi tiết payment contract xem `consultation.payment.md`.
 
 Sau payment success: booking chuyển `Confirmed`, `consultationId` và `roomId` được gán.
 
-### `GET /api/users/me/consultation-bookings`
+### `GET /api/users/me/consultations/scheduled`
 
 Lịch sử booking của user hiện tại.
 
 **Response**: `ApiResponse<IEnumerable<ConsultationBookingResponse>>` — cùng shape như create response, nhưng `status` có thể là `Confirmed` hoặc `Completed`.
 
-### `POST /api/videocall/livekit-token/{consultationId}`
+### `POST /api/consultations/{consultationId}/video-token`
 
 Lấy LiveKit token để vào phòng video. Chỉ Caller/Callee mới được cấp.
 
@@ -117,7 +117,7 @@ Kết thúc consultation. Không có body. Triggers escrow settlement to expert.
 
 ## Expert Flow
 
-### `GET /api/experts/me/consultation-bookings`
+### `GET /api/experts/me/consultations/scheduled`
 
 Expert xem scheduled bookings đã chốt. Trả `Confirmed` + `Completed`.
 
@@ -134,6 +134,6 @@ Hiện tại là REST pull, chưa có SignalR inbox cho scheduled consultation.
 
 ## Error Notes
 
-- `POST /api/consultation-bookings`: `409` nếu slot đã bị book bởi request khác (optimistic concurrency)
+- `POST /api/consultations/scheduled`: `409` nếu slot đã bị book bởi request khác (optimistic concurrency)
 - `POST .../payments`: `409` nếu booking đã paid hoặc không còn `PendingPayment`
-- `POST /api/videocall/livekit-token/{id}`: `403` nếu không phải participant
+- `POST /api/consultations/{id}/video-token`: `403` nếu không phải participant

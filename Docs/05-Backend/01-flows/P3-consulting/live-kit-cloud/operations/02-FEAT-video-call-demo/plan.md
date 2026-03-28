@@ -33,7 +33,7 @@ affects:
 | ---------------- | --------------------------------------------------------------------------------- |
 | Controller       | `VideoCallController` (renamed from `LiveKitController`)                          |
 | Route prefix     | `api/videocall`                                                                   |
-| Endpoint 1       | `POST api/videocall/livekit-token/{consultationId}` [Authorize] — unchanged logic |
+| Endpoint 1       | `POST api/consultations/{consultationId}/video-token` [Authorize] — consultation video token |
 | Endpoint 2       | `POST api/videocall/livekit-webhook` [AllowAnonymous] — unchanged logic           |
 | Endpoint 3 (NEW) | `POST api/videocall/livekit-token/demo/{roomname}` [Authorize] — dev/test only    |
 

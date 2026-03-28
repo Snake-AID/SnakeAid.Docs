@@ -14,7 +14,7 @@ This log captures the simulated structured review (Primary Designer, Skeptic, Co
 
 ## 1. Primary Designer Proposal
 
-- **Proposal**: Create RESTful endpoints grouped by `/api/v1/consultations`, `/api/v1/experts`, and `/api/v1/consultation-bookings`. Manage presence and chat via SignalR Hubs. Delegate video token generation to existing LiveKit integration.
+- **Proposal**: Create RESTful endpoints grouped by `/api/consultations`, `/api/experts`, and `/api/consultations/scheduled`. Manage presence and chat via SignalR Hubs. Delegate video token generation to existing LiveKit integration.
 
 ## 2. Reviewer Objections & Feedback
 

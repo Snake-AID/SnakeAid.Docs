@@ -51,20 +51,20 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 
 ### Scheduled Consultation
 
-- **Create Booking**: `POST /api/consultation-bookings`
-- **Get My Bookings**: `GET /api/users/me/consultation-bookings`
-- **Get Expert Scheduled Bookings**: `GET /api/experts/me/consultation-bookings`
-- **Pay Scheduled Booking**: `POST /api/consultation-bookings/{bookingId}/payments`
+- **Create Booking**: `POST /api/consultations/scheduled`
+- **Get My Bookings**: `GET /api/users/me/consultations/scheduled`
+- **Get Expert Scheduled Bookings**: `GET /api/experts/me/consultations/scheduled`
+- **Pay Scheduled Booking**: `POST /api/consultations/scheduled/{bookingId}/payments`
 - **End Consultation**: `POST /api/consultations/{consultationId}/end`
 - **Create Consultation Review**: `POST /api/consultations/{consultationId}/reviews`
-- **Generate LiveKit Token**: `POST /api/videocall/livekit-token/{consultationId}`
+- **Generate LiveKit Token**: `POST /api/consultations/{consultationId}/video-token`
 
 ### Emergency Consultation
 
-- **Create Emergency Request**: `POST /api/consultations/emergency-requests`
-- **Pay Emergency Request**: `POST /api/consultations/emergency-requests/{requestId}/payments`
-- **Accept Emergency Request**: `POST /api/consultations/emergency-requests/{requestId}/accept`
-- **Reject Emergency Request**: `POST /api/consultations/emergency-requests/{requestId}/reject`
+- **Create Emergency Request**: `POST /api/consultations/instant`
+- **Pay Emergency Request**: `POST /api/consultations/instant/{requestId}/payments`
+- **Accept Emergency Request**: `POST /api/consultations/instant/{requestId}/accept`
+- **Reject Emergency Request**: `POST /api/consultations/instant/{requestId}/reject`
 
 ### In-Room Features
 
@@ -99,7 +99,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 **Status**: `Build Now`
 
 **Khi mở màn hình**
-- `GET /api/users/me/consultation-bookings`
+- `GET /api/users/me/consultations/scheduled`
 
 **Mục đích**
 - render các booking của user
@@ -168,7 +168,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 **Status**: `Build Now`
 
 **Khi user bấm gửi yêu cầu**
-- `POST /api/consultations/emergency-requests`
+- `POST /api/consultations/instant`
 - sau khi create thành công -> invoke `JoinEmergencyRequestRoom(requestId)`
 
 **Mục đích**
@@ -183,7 +183,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 **Status**: `Build With Placeholder`
 
 **Khi user bấm thanh toán**
-- `POST /api/consultations/emergency-requests/{requestId}/payments`
+- `POST /api/consultations/instant/{requestId}/payments`
 
 **WS cần nghe sau payment**
 - `EmergencyRequestStatusChanged`
@@ -204,7 +204,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 **Status**: `Build Now`
 
 **Khi vào màn hình**
-- `POST /api/videocall/livekit-token/{consultationId}`
+- `POST /api/consultations/{consultationId}/video-token`
 
 **Mục đích**
 - lấy token để vào LiveKit room
@@ -280,7 +280,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 **Status**: `Build Now`
 
 **Khi user bấm xác nhận đặt lịch**
-- `POST /api/consultation-bookings`
+- `POST /api/consultations/scheduled`
 
 **Mục đích**
 - tạo booking ở trạng thái `PendingPayment`
@@ -293,7 +293,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 **Status**: `Build With Placeholder`
 
 **Khi user bấm thanh toán**
-- `POST /api/consultation-bookings/{bookingId}/payments`
+- `POST /api/consultations/scheduled/{bookingId}/payments`
 
 **Mục đích**
 - payment thành công -> booking `Confirmed`
@@ -310,7 +310,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 **Status**: `Build Now`
 
 **Khi vào màn hình**
-- `POST /api/videocall/livekit-token/{consultationId}`
+- `POST /api/consultations/{consultationId}/video-token`
 
 **Đi tiếp**
 - `Join phòng` -> `Screen: Trong phòng tư vấn`
@@ -349,7 +349,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 **Status**: `Build Now`
 
 **Khi expert mở danh sách ca scheduled đã chốt**
-- `GET /api/experts/me/consultation-bookings`
+- `GET /api/experts/me/consultations/scheduled`
 
 **Mục đích**
 - load các ca scheduled đã được member thanh toán thành công
@@ -384,8 +384,8 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 - listen `EmergencyConsultationRequest`
 
 **Khi expert thao tác**
-- `POST /api/consultations/emergency-requests/{requestId}/accept`
-- `POST /api/consultations/emergency-requests/{requestId}/reject`
+- `POST /api/consultations/instant/{requestId}/accept`
+- `POST /api/consultations/instant/{requestId}/reject`
 
 **Đi tiếp**
 - accept thành công -> `Screen: Sảnh phòng chờ`
@@ -396,7 +396,7 @@ Không tự rút gọn thành `Accepted`, `Rejected`, `Declined`, `Pending` tron
 **Status**: `Build Now`
 
 **Khi vào màn hình**
-- `POST /api/videocall/livekit-token/{consultationId}`
+- `POST /api/consultations/{consultationId}/video-token`
 
 **Đi tiếp**
 - `Join phòng` -> `Screen: Trong phòng tư vấn`

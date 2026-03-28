@@ -27,11 +27,11 @@ Implement luồng đặt lịch tư vấn: user chọn slot → tạo booking �
 
 ### REST Endpoints
 
-- `POST /api/consultation-bookings` — tạo booking, optimistic concurrency trên `ExpertTimeSlot.Version`
-- `GET /api/users/me/consultation-bookings` — lịch sử booking của user
-- `GET /api/experts/me/consultation-bookings` — expert xem scheduled bookings (Confirmed + Completed)
-- `POST /api/consultation-bookings/{bookingId}/payments` — thanh toán booking
-- `POST /api/videocall/livekit-token/{consultationId}` — lấy LiveKit token cho phòng tư vấn
+- `POST /api/consultations/scheduled` — tạo booking, optimistic concurrency trên `ExpertTimeSlot.Version`
+- `GET /api/users/me/consultations/scheduled` — lịch sử booking của user
+- `GET /api/experts/me/consultations/scheduled` — expert xem scheduled bookings (Confirmed + Completed)
+- `POST /api/consultations/scheduled/{bookingId}/payments` — thanh toán booking
+- `POST /api/consultations/{consultationId}/video-token` — lấy LiveKit token cho phòng tư vấn
 - `POST /api/consultations/{consultationId}/end` — kết thúc consultation
 - `POST /api/consultations/{consultationId}/reviews` — đánh giá
 
@@ -53,6 +53,6 @@ Implement luồng đặt lịch tư vấn: user chọn slot → tạo booking �
 
 ### Expert Inbox
 
-- `GET /api/experts/me/consultation-bookings` trả `Confirmed` + `Completed` bookings
+- `GET /api/experts/me/consultations/scheduled` trả `Confirmed` + `Completed` bookings
 - Response có `consultationId`, `roomId`, `UserName`, slot timing
 - Hiện tại là REST pull, chưa có SignalR inbox cho scheduled consultation

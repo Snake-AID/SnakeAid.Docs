@@ -23,7 +23,7 @@ last_updated: 2026-03-28
 
 ### Task 3+4: Unified Consultation History (includes emergency)
 
-**Problem**: `GET /api/users/me/consultation-bookings` chi tra scheduled bookings. User khong thay emergency consultations trong "cuoc hop hien tai" va "lich su".
+**Problem**: `GET /api/users/me/consultations/scheduled` chi tra scheduled bookings. User khong thay emergency consultations trong "cuoc hop hien tai" va "lich su".
 
 **Solution**: Tao endpoint moi tra unified consultation list (ca scheduled va emergency) hoac mo rong endpoint hien tai.
 

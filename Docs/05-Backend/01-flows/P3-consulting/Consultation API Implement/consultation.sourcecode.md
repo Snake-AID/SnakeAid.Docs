@@ -19,10 +19,10 @@ Mo ta hien trang kien truc source code cua consultation module. Khong lap lai bu
 ### Controllers
 
 - ExpertController: expert settings, bulk time slots, directory/profile/reviews/time-slots
-- ConsultationBookingsController: create booking, my bookings, expert scheduled inbox
-- ConsultationsController: emergency request, accept/reject, end consultation, review
-- ConsultationPaymentsController: scheduled + emergency payment
-- VideoCallController: LiveKit token generation
+- ConsultationBookingsController: create booking, my bookings, expert scheduled inbox (route: api/consultations/scheduled)
+- ConsultationsController: instant request, accept/reject, end consultation, review (route: api/consultations)
+- ConsultationPaymentsController: scheduled + instant payment (route: api/consultations/payments)
+- VideoCallController: LiveKit token generation, video-token endpoint under api/consultations/{id}/video-token
 
 ### Services
 

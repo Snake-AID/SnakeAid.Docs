@@ -14,7 +14,7 @@ Based on the `Consultation Wireframe.md` and the Multi-Agent Design Review, here
 
 ### 1.1. Consultation Homepage & General
 
-**`GET /api/v1/consultation-bookings/my-bookings`**
+**`GET /api/consultations/scheduled`**
 
 - **Purpose**: Get current/upcoming and past bookings.
 - **Entity Graph**: `Account` (Caller) -> `ConsultationBooking` (Include `Expert`, `ExpertProfile`, `TimeSlot`).
@@ -45,7 +45,7 @@ Based on the `Consultation Wireframe.md` and the Multi-Agent Design Review, here
 - **Purpose**: Get available slots for booking.
 - **Entity Graph**: `ExpertTimeSlot` where `Status == Available` and `StartTime > Now`.
 
-**`POST /api/v1/consultation-bookings`**
+**`POST /api/consultations/scheduled`**
 
 - **Purpose**: Book a scheduled consultation.
 - **Request Payload**: `ExpertId`, `TimeSlotId`, `ProblemDescription` (Note: DB schema update required for note).
@@ -91,7 +91,7 @@ Based on the `Consultation Wireframe.md` and the Multi-Agent Design Review, here
 
 ### 2.2. Emergency Requests
 
-**`POST /api/v1/consultations/emergency-requests/{requestId}/accept`**
+**`POST /api/consultations/instant/{requestId}/accept`**
 
 - **Purpose**: Expert accepts incoming emergency ping.
 - **Entity Graph**:
@@ -99,7 +99,7 @@ Based on the `Consultation Wireframe.md` and the Multi-Agent Design Review, here
   - Create `Consultation` (Status -> Ongoing).
   - _Slot Paradox Handling_: Trigger domain event to mark overlapping `ExpertTimeSlot` as `Reserved`.
 
-**`POST /api/v1/consultations/emergency-requests/{requestId}/reject`**
+**`POST /api/consultations/instant/{requestId}/reject`**
 
 - **Purpose**: Reject the ping.
 - **Entity Graph**: Update `ConsultationPingRequest`.

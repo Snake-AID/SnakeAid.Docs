@@ -18,7 +18,7 @@ External contract for consumers (Flutter mobile, admin portal, integration tests
 ### 1. Generate Video Token (Consultation)
 
 ```
-POST /api/videocall/livekit-token/{consultationId}
+POST /api/consultations/{consultationId}/video-token
 Authorization: Bearer <user-jwt>
 ```
 
@@ -179,6 +179,6 @@ LiveKit keys must be configured in `appsettings.json` or Doppler:
 
 To connect from Flutter:
 
-1. Call `POST /api/videocall/livekit-token/demo/{roomname}` with Bearer token
+1. Call `POST /api/videocall/livekit-token/demo/{roomname}` with Bearer token (demo) or `POST /api/consultations/{consultationId}/video-token` (production)
 2. Extract `token` and `wsUrl` from response
 3. Use `livekit_client` package: `Room.connect(wsUrl, token)`

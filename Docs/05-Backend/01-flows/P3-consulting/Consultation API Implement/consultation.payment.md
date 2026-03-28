@@ -112,11 +112,11 @@ Response error:
    - PayOS có thể gọi `webhook`
    - browser của user sẽ đi qua `return`
 6. Backend sẽ tự động cố gắng confirm payment.
-7. Nếu mobile cần fallback chủ động, gọi `POST /api/consultation-payments/confirm-payment` với `transactionId`.
+7. Nếu mobile cần fallback chủ động, gọi `POST /api/consultations/payments/confirm` với `transactionId`.
 
 ## Endpoints
 
-### `POST /api/consultation-bookings/{bookingId}/payments`
+### `POST /api/consultations/scheduled/{bookingId}/payments`
 
 **Description**: Thanh toán cho scheduled consultation booking.
 
@@ -215,7 +215,7 @@ Payment mới ở trạng thái chờ thanh toán:
 }
 ```
 
-### `POST /api/consultations/emergency-requests/{requestId}/payments`
+### `POST /api/consultations/instant/{requestId}/payments`
 
 **Description**: Thanh toán cho emergency consultation request.
 
@@ -298,7 +298,7 @@ Payment mới ở trạng thái chờ thanh toán:
 }
 ```
 
-### `POST /api/consultation-payments/confirm-payment`
+### `POST /api/consultations/payments/confirm`
 
 **Description**: Manual fallback để mobile tự confirm consultation PayOS payment khi chưa thấy state được đồng bộ.
 
@@ -467,7 +467,7 @@ Payment mới ở trạng thái chờ thanh toán:
 
 - Sau khi đóng webview hoặc browser, mobile nên refresh consultation state
 - Nếu UI vẫn chưa thấy payment thành công, gọi:
-  - `POST /api/consultation-payments/confirm-payment`
+  - `POST /api/consultations/payments/confirm`
 - Dùng `transactionId` đã nhận từ response `Pending`
 
 ## Examples
@@ -475,7 +475,7 @@ Payment mới ở trạng thái chờ thanh toán:
 ### Example 1: Scheduled booking thanh toán bằng wallet
 
 ```bash
-curl -X POST "https://api.example.com/api/consultation-bookings/8ff2b7ea-321e-4a55-b0f9-29914bc804f3/payments" \
+curl -X POST "https://api.example.com/api/consultations/scheduled/8ff2b7ea-321e-4a55-b0f9-29914bc804f3/payments" \
   -H "Authorization: Bearer {{TOKEN}}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -491,7 +491,7 @@ Mobile expectation:
 ### Example 2: Emergency request thanh toán bằng PayOS
 
 ```bash
-curl -X POST "https://api.example.com/api/consultations/emergency-requests/22593c11-d276-4cf5-beb3-5b2b3cb5e4b7/payments" \
+curl -X POST "https://api.example.com/api/consultations/instant/22593c11-d276-4cf5-beb3-5b2b3cb5e4b7/payments" \
   -H "Authorization: Bearer {{TOKEN}}" \
   -H "Content-Type: application/json" \
   -d '{
@@ -509,7 +509,7 @@ Mobile expectation:
 ### Example 3: Manual confirm consultation PayOS payment
 
 ```bash
-curl -X POST "https://api.example.com/api/consultation-payments/confirm-payment" \
+curl -X POST "https://api.example.com/api/consultations/payments/confirm" \
   -H "Authorization: Bearer {{TOKEN}}" \
   -H "Content-Type: application/json" \
   -d '{

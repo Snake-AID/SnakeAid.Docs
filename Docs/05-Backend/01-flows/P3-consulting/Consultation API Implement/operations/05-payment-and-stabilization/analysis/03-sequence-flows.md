@@ -24,7 +24,7 @@ sequenceDiagram
     participant Pay as ConsultationPaymentService
     participant DB as PostgreSQL
 
-    User->>API: POST /api/consultation-bookings/{bookingId}/payments
+    User->>API: POST /api/consultations/scheduled/{bookingId}/payments
     API->>Pay: PayScheduledBookingAsync(userId, bookingId, request)
     Pay->>Pay: EnsureWalletPaymentMethod()
     Pay->>DB: Load ConsultationBooking
@@ -51,7 +51,7 @@ sequenceDiagram
     participant Notify as IExpertEmergencyNotificationService
     participant DB as PostgreSQL
 
-    User->>API: POST /api/consultations/emergency-requests/{requestId}/payments
+    User->>API: POST /api/consultations/instant/{requestId}/payments
     API->>Pay: PayEmergencyRequestAsync(userId, requestId, request)
     Pay->>Pay: EnsureWalletPaymentMethod()
     Pay->>DB: Load ConsultationPingRequest

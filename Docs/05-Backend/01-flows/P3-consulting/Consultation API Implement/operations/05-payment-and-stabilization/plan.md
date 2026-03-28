@@ -36,8 +36,8 @@ affects:
 
 ### Consultation Payment — WalletBalance
 
-- `POST /api/consultation-bookings/{bookingId}/payments` — scheduled booking payment
-- `POST /api/consultations/emergency-requests/{requestId}/payments` — emergency payment
+- `POST /api/consultations/scheduled/{bookingId}/payments` — scheduled booking payment
+- `POST /api/consultations/instant/{requestId}/payments` — emergency payment
 - Payment method: `WalletBalance` hoặc `PayOs`
 - Wallet path: debit member → credit system escrow → immediate `Escrowed`
 
@@ -72,7 +72,7 @@ PayOS là thêm một lựa chọn thanh toán bên cạnh WalletBalance. Không
 2. Backend tạo payment intent, trả `checkoutUrl`, `orderCode`, `paymentLinkId`
 3. Response `status: "Pending"` (chưa escrow)
 4. User thanh toán qua PayOS checkout
-5. Confirm qua: webhook (`POST /api/v1/PayOs/webhook`) hoặc return (`GET /api/v1/PayOs/return`) hoặc manual confirm (`POST /api/consultation-payments/confirm-payment`)
+5. Confirm qua: webhook (`POST /api/v1/PayOs/webhook`) hoặc return (`GET /api/v1/PayOs/return`) hoặc manual confirm (`POST /api/consultations/payments/confirm`)
 6. Sau confirm success → materialize escrow → advance consultation state
 
 ### Wallet vs PayOS

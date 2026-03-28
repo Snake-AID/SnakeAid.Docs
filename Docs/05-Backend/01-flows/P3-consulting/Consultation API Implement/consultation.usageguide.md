@@ -50,11 +50,11 @@ Tất cả REST success response đều dùng `ApiResponse<T>`:
 
 | Endpoint | Method |
 |----------|--------|
-| `POST /api/consultation-bookings` | Create booking |
-| `GET /api/users/me/consultation-bookings` | My bookings |
-| `GET /api/experts/me/consultation-bookings` | Expert scheduled inbox |
-| `POST /api/consultation-bookings/{bookingId}/payments` | Pay booking |
-| `POST /api/videocall/livekit-token/{consultationId}` | Get video token |
+| `POST /api/consultations/scheduled` | Create booking |
+| `GET /api/users/me/consultations/scheduled` | My bookings |
+| `GET /api/experts/me/consultations/scheduled` | Expert scheduled inbox |
+| `POST /api/consultations/scheduled/{bookingId}/payments` | Pay booking |
+| `POST /api/consultations/{consultationId}/video-token` | Get video token |
 | `POST /api/consultations/{consultationId}/end` | End consultation |
 | `POST /api/consultations/{consultationId}/reviews` | Submit review |
 
@@ -62,10 +62,10 @@ Tất cả REST success response đều dùng `ApiResponse<T>`:
 
 | Endpoint | Method |
 |----------|--------|
-| `POST /api/consultations/emergency-requests` | Create request |
-| `POST /api/consultations/emergency-requests/{requestId}/payments` | Pay request |
-| `POST /api/consultations/emergency-requests/{requestId}/accept` | Expert accept |
-| `POST /api/consultations/emergency-requests/{requestId}/reject` | Expert reject |
+| `POST /api/consultations/instant` | Create request |
+| `POST /api/consultations/instant/{requestId}/payments` | Pay request |
+| `POST /api/consultations/instant/{requestId}/accept` | Expert accept |
+| `POST /api/consultations/instant/{requestId}/reject` | Expert reject |
 | `/hubs/expert` — `JoinAsExpert` | Expert presence |
 | `/hubs/expert` — `JoinEmergencyRequestRoom` | Request status room |
 
@@ -82,9 +82,9 @@ Tất cả REST success response đều dùng `ApiResponse<T>`:
 
 | Endpoint | Method |
 |----------|--------|
-| `POST /api/consultation-bookings/{bookingId}/payments` | Scheduled payment (Wallet/PayOS) |
-| `POST /api/consultations/emergency-requests/{requestId}/payments` | Emergency payment (Wallet/PayOS) |
-| `POST /api/consultation-payments/confirm-payment` | Manual PayOS confirm |
+| `POST /api/consultations/scheduled/{bookingId}/payments` | Scheduled payment (Wallet/PayOS) |
+| `POST /api/consultations/instant/{requestId}/payments` | Emergency payment (Wallet/PayOS) |
+| `POST /api/consultations/payments/confirm` | Manual PayOS confirm |
 
 ## Current MVP Limits
 

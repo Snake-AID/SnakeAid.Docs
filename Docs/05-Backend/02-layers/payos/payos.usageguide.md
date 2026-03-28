@@ -78,9 +78,9 @@ Consultation payment su dung PayOS thong qua `ConsultationPaymentService`, khong
 Chi tiet contract xem: `05-Backend/01-flows/P3-consulting/Consultation API Implement/consultation.payment.md`
 
 Endpoints:
-- `POST /api/consultation-bookings/{bookingId}/payments` (paymentMethod: "PayOs")
-- `POST /api/consultations/emergency-requests/{requestId}/payments` (paymentMethod: "PayOs")
-- `POST /api/consultation-payments/confirm-payment`
+- `POST /api/consultations/scheduled/{bookingId}/payments` (paymentMethod: "PayOs")
+- `POST /api/consultations/instant/{requestId}/payments` (paymentMethod: "PayOs")
+- `POST /api/consultations/payments/confirm`
 
 ## Wallet Top-up Endpoints
 

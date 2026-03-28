@@ -16,7 +16,7 @@ Tư vấn ngay: create request → pay → expert accept/reject → video room. 
 
 ## User Flow
 
-### Step 1: `POST /api/consultations/emergency-requests`
+### Step 1: `POST /api/consultations/instant`
 
 Tạo emergency request cho expert đang online.
 
@@ -50,7 +50,7 @@ JoinEmergencyRequestRoom(requestId)
 
 Để nhận `EmergencyRequestStatusChanged` cho request vừa tạo.
 
-### Step 3: `POST /api/consultations/emergency-requests/{requestId}/payments`
+### Step 3: `POST /api/consultations/instant/{requestId}/payments`
 
 Thanh toán request. Chi tiết payment contract xem `consultation.payment.md`.
 
@@ -101,7 +101,7 @@ Expert connect `/hubs/expert` → gọi `JoinAsExpert` → nhận `EmergencyCons
 }
 ```
 
-### `POST /api/consultations/emergency-requests/{requestId}/accept`
+### `POST /api/consultations/instant/{requestId}/accept`
 
 Không có body. Chỉ targeted expert mới gọi được.
 
@@ -109,7 +109,7 @@ Không có body. Chỉ targeted expert mới gọi được.
 
 Side effects: tạo consultation `Ongoing`, reserve overlapping `ExpertTimeSlot` trong 30 phút (Slot Paradox).
 
-### `POST /api/consultations/emergency-requests/{requestId}/reject`
+### `POST /api/consultations/instant/{requestId}/reject`
 
 Không có body. Chỉ targeted expert mới gọi được.
 
