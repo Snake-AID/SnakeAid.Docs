@@ -86,24 +86,51 @@ Dùng `secureUrl` làm `attachmentUrl` trong `ReceiveMessage`.
 
 ### `GET /api/snake-species/search?q={query}`
 
-Expert side-panel: search theo scientific name, common name, alternative names.
+Expert side-panel: search theo scientific name, common name, alternative names. Dùng PostgreSQL `ILIKE` cho case-insensitive matching.
 
 **Response**: `ApiResponse<List<SearchSnakeSpeciesResponse>>`
 
 ```json
 {
   "data": [{
-    "id": 1,
-    "scientificName": "Naja naja",
-    "commonName": "Indian Cobra",
-    "imageUrl": "https://cloudinary.com/snakeaid/...",
+    "id": 3,
+    "scientificName": "Ophiophagus hannah",
+    "commonName": "Rắn Hổ Mang Chúa",
+    "imageUrl": "https://vietnamsnakes.com/storage/snakes/species/55/...",
+    "galleryUrls": ["https://cloudinary.com/snakeaid/gallery1.jpg"],
     "isVenomous": true,
     "primaryVenomType": "Neurotoxic",
-    "venoms": [{ "venomType": "Neurotoxic", "description": "Affects nervous system" }],
-    "antivenoms": [{ "antivenomName": "Anti-Cobra Venom", "manufacturer": "Serum Institute", "effectiveness": "Highly effective" }]
+    "riskLevel": 10.0,
+    "identification": {
+      "physicalTraits": ["Kích thước khổng lồ (4-6m)", "Phình mang hẹp dài"],
+      "behaviors": ["Chủ động tấn công nếu bị kích động"],
+      "habitat": "Rừng rậm, nương rẫy, gần nguồn nước"
+    },
+    "venoms": [
+      { "venomType": "Độc thần kinh", "description": "Nọc độc ảnh hưởng đến hệ thần kinh, gây tê liệt và suy hô hấp." }
+    ],
+    "antivenoms": [
+      { "antivenomName": "Anti-Cobra Venom", "manufacturer": "Serum Institute", "effectiveness": "Highly effective" }
+    ],
+    "firstAid": {
+      "mode": "Append",
+      "doItems": ["Băng ép ngay vết cắn", "Gọi cấp cứu 115"],
+      "dontItems": ["Không rạch vết thương", "Không hút nọc"]
+    },
+    "tags": ["Miền Nam", "Rừng rậm", "Cực độc"]
   }]
 }
 ```
+
+**Giải thích các trường mới**:
+
+| Trường | Kiểu | Ghi chú |
+|--------|------|---------|
+| galleryUrls | string[] | Ảnh bổ sung từ LibraryMedia (có thể rỗng) |
+| riskLevel | float | 0-10, mức độ nguy hiểm |
+| identification | object? | Đặc điểm nhận dạng (physicalTraits, behaviors, habitat) |
+| firstAid | object? | Hướng dẫn sơ cứu (doItems, dontItems) |
+| tags | string[] | Filter tags từ FilterSnakeMapping (vùng miền, đặc điểm) |
 
 ## Mobile Integration Pattern
 

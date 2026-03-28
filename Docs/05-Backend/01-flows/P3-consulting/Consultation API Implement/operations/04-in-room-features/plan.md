@@ -35,8 +35,8 @@ Implement tính năng trong phòng tư vấn: real-time chat, image attachments,
 
 ### Snake Species Search
 
-- `GET /api/snake-species/search?q={query}` — search theo scientific name, common name, alternative names
-- Trả venom types + antivenom data cho expert side-panel
+- `GET /api/snake-species/search?q={query}` — search theo scientific name, common name, alternative names (PostgreSQL ILIKE)
+- Trả venom types, antivenom data, identification (đặc điểm nhận dạng), firstAid (sơ cứu), gallery, riskLevel, tags cho expert side-panel
 
 ### Constraints
 
