@@ -4,7 +4,7 @@ module: consultation.in-room
 kind: flow
 doc_type: usageguide
 status: active
-last_updated: 2026-03-28
+last_updated: 2026-03-30
 owners: [backend-team, mobile-team]
 ---
 
@@ -60,6 +60,19 @@ Gửi UI state signals (typing, mic/cam status). Volatile — không lưu DB.
 ```json
 { "eventType": "typing", "payload": "true" }
 ```
+
+#### `RoomExpiring`
+
+Gửi từ backend khi consultation hết giờ (scheduled: slot hết giờ, emergency: hết 30 phút). Gửi TRƯỚC KHI xóa phòng LiveKit.
+
+```json
+{
+  "ConsultationId": "bfa25be0-...",
+  "Reason": "slot_elapsed"
+}
+```
+
+Mobile nên hiển thị thông báo "Phòng sắp đóng" rồi navigate về màn hình kết thúc. Chi tiết: xem `consultation.usageguide.expert-history.md` Mục 2.
 
 ## Image Upload
 
@@ -143,6 +156,10 @@ const conn = new signalR.HubConnectionBuilder()
 // Listen
 conn.on('MessageReceived', (msg) => { /* display */ });
 conn.on('SignalReceived', (type, payload) => { /* handle */ });
+conn.on('RoomExpiring', (data) => {
+  // data.ConsultationId, data.Reason
+  // Show "Room closing" notification, then navigate to end screen
+});
 
 // Send text
 await conn.invoke('ReceiveMessage', content, null);

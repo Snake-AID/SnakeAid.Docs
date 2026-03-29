@@ -4,7 +4,7 @@ module: consultation.emergency
 kind: flow
 doc_type: usageguide
 status: active
-last_updated: 2026-03-28
+last_updated: 2026-03-30
 owners: [backend-team, mobile-team]
 ---
 
@@ -130,6 +130,16 @@ PendingPayment → (payment) → PendingExpertResponse → AcceptedByExpert → 
 - Payment success → escrow vào system wallet
 - Reject/Expired → refund escrow → member wallet
 - Consultation complete → settle escrow → expert wallet
+
+## Room Expiry (auto-complete khi hết 30 phút)
+
+Emergency consultation có thời lượng cố định 30 phút (tính từ `StartTime`). Khi hết giờ, backend tự động:
+1. Gửi signal `RoomExpiring` qua ConsultationHub (payload: `{ "ConsultationId": guid, "Reason": "slot_elapsed" }`)
+2. Xóa phòng LiveKit → kick tất cả participant
+3. Cập nhật status `Completed`, `EndTime = DateTime.UtcNow`
+4. Settlement escrow → expert
+
+Mobile nên listen event `RoomExpiring` trên `/hubs/consultation` để hiển thị thông báo trước khi phòng bị đóng. Chi tiết: xem `consultation.usageguide.expert-history.md` Mục 2.
 
 ## Error Notes
 

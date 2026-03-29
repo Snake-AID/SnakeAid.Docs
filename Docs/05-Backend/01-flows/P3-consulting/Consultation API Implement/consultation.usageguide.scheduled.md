@@ -4,7 +4,7 @@ module: consultation.scheduled
 kind: flow
 doc_type: usageguide
 status: active
-last_updated: 2026-03-28
+last_updated: 2026-03-30
 owners: [backend-team, mobile-team]
 ---
 
@@ -131,6 +131,16 @@ Hiện tại là REST pull, chưa có SignalR inbox cho scheduled consultation.
 2. Payment success → escrow → `Confirmed`
 3. Consultation complete (explicit end hoặc slot hết giờ) → settle to expert
 4. Auto-complete: background service sweep mỗi 30s
+
+## Room Expiry (auto-complete khi slot hết giờ)
+
+Khi slot hết giờ (`TimeSlot.EndTime <= UtcNow`), backend tự động:
+1. Gửi signal `RoomExpiring` qua ConsultationHub (payload: `{ "ConsultationId": guid, "Reason": "slot_elapsed" }`)
+2. Xóa phòng LiveKit → kick tất cả participant
+3. Cập nhật status `Completed`, `EndTime = SlotEndTime`
+4. Settlement escrow → expert
+
+Mobile nên listen event `RoomExpiring` trên `/hubs/consultation` để hiển thị thông báo trước khi phòng bị đóng. Chi tiết: xem `consultation.usageguide.expert-history.md` Mục 2.
 
 ## Error Notes
 

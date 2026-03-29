@@ -4,7 +4,7 @@ module: consultation
 kind: flow
 doc_type: index
 status: active
-last_updated: 2026-03-28
+last_updated: 2026-03-30
 owners: [backend-team, mobile-team]
 ---
 
@@ -75,8 +75,16 @@ Tất cả REST success response đều dùng `ApiResponse<T>`:
 |----------|--------|
 | `/hubs/consultation` — `ReceiveMessage` | Chat message |
 | `/hubs/consultation` — `Signal` | UI signaling |
+| `/hubs/consultation` — `RoomExpiring` event | Room expiry notification |
 | `GET /api/snake-species/search?q={query}` | Snake species search |
 | `POST /api/media/upload-image` | Chat media upload |
+
+### Expert History & Room Expiry → `consultation.usageguide.expert-history.md`
+
+| Endpoint | Method |
+|----------|--------|
+| `GET /api/experts/me/consultations` | Expert consultation history (scheduled + emergency) |
+| `/hubs/consultation` — `RoomExpiring` event | Auto room expiry signal |
 
 ### Payment → `consultation.payment.md`
 
@@ -99,3 +107,4 @@ Tất cả REST success response đều dùng `ApiResponse<T>`:
 | `POST /api/wallet/topup` | Wallet top-up via PayOS |
 | `GET /api/users/me/consultations` | Unified consultation history (scheduled + emergency) |
 | `GET /api/consultations/{id}/reviews` | Get consultation review |
+| `GET /api/experts/me/consultations` | Expert consultation history (scheduled + emergency) |
