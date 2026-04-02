@@ -108,7 +108,9 @@ Decision summary:
 
 Status: Not started
 
-- [ ] Replace mock bank directory with real source
+- [ ] Replace mock `BankDirectoryService` data with real `VietQRHelper` bank directory integration
+- [ ] Add caching strategy for bank directory lookup
+- [ ] Review whether withdrawal create contract should expose richer bank metadata beyond `bin` + `name`
 - [ ] Add withdrawal notification flow
 - [ ] Add dedicated audit trail beyond the current withdrawal fields
 - [ ] Add stable public error codes for FE/mobile
@@ -136,6 +138,30 @@ Status: Not started
 - [ ] Update `wallet-withdrawal.implementation.md` for Phase 4 production guardrails
 - [ ] Update this backlog after Phase 4 completion
 
+### Phase 5. Migration Consolidation
+
+Status: Not started
+
+Goal: only after the withdrawal flow is fully stabilized, collapse fragmented withdrawal migrations into a single clean breaking migration path.
+
+- [ ] Freeze withdrawal schema changes before consolidation starts
+- [ ] Identify the nearest migration baseline not related to withdrawal flow
+- [ ] Inventory all withdrawal-related migrations currently layered on top of that baseline
+- [ ] Verify no production data depends on withdrawal-specific schema introduced by those mini migrations
+- [ ] Prepare rollback notes for local and production databases back to the non-withdrawal baseline
+- [ ] Revert database state to the chosen baseline before rewriting source migration history
+- [ ] Remove fragmented withdrawal migrations from source
+- [ ] Generate one consolidated withdrawal migration from the finalized model
+- [ ] Verify upgrade path on a clean database: baseline -> consolidated migration
+- [ ] Verify upgrade path on an existing reverted database: baseline -> consolidated migration
+- [ ] Update `wallet-withdrawal.implementation.md` with the final migration strategy
+- [ ] Update this backlog after Phase 5 completion
+
+Breaking-change note:
+- This phase intentionally rewrites the withdrawal migration path
+- It must only happen after feature work is complete, otherwise new schema churn will fragment the path again
+- Database execution remains manual; backend only prepares the plan, source changes, and validation steps
+
 ## Parking Lot
 
 These are known issues but not on the immediate critical path:
@@ -150,3 +176,4 @@ These are known issues but not on the immediate critical path:
 - [x] Phase 2. Domain Finalization
 - [ ] Phase 3. Operational Hardening
 - [ ] Phase 4. Production Guardrails
+- [ ] Phase 5. Migration Consolidation
