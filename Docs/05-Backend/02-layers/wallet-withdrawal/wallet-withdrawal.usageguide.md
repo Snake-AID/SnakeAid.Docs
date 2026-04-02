@@ -7,330 +7,124 @@ status: active
 last_updated: 2026-04-02
 api_version: v1
 owners: [backend-team]
+verification_status: code-verified
 ---
 
 # Wallet Withdrawal API
 
 ## Overview
 
-The Wallet Withdrawal API enables users to withdraw funds from their SnakeAid wallet to Vietnamese bank accounts. The system supports QR code generation for VietQR-compatible transfers and provides a complete workflow from request creation through admin approval to completion.
-
-### Key Capabilities
-- Create withdrawal requests with bank account details
-- Generate VietQR codes for easy mobile banking transfers
-- Admin approval and processing workflow
-- Secure bank account masking and validation
-- Real-time withdrawal status tracking
-
-### Prerequisites
-- Valid JWT authentication token
-- Sufficient wallet balance
-- Vietnamese bank account (8-20 digits)
-- Admin role required for approval operations
-
----
-
-## Business Context
-
-### When to Use Wallet Withdrawals
-
-Users withdraw funds from their SnakeAid wallet when they want to:
-- **Convert earned rewards to cash**: After accumulating points from platform activities (purchases, referrals, promotions)
-- **Access liquidity**: Need immediate cash access for personal expenses or reinvestment
-- **Bank integration**: Move funds to traditional banking for higher interest rates or financial planning
-- **Emergency funds**: Quick access to earned money during financial needs
-
-### Business Value
-
-The withdrawal system enables:
-- **User retention**: Allows users to realize value from earned rewards
-- **Trust building**: Transparent, secure fund management builds platform credibility
-- **Revenue optimization**: Balances reward distribution with platform sustainability
-- **Regulatory compliance**: Proper KYC and AML checks for financial operations
-
-### User Journey Overview
-
-```
-Earn Rewards → Accumulate in Wallet → Request Withdrawal → Admin Review → Approval → QR Generation → Bank Transfer → Completion
-```
-
-**Typical Timeline**: 5-15 minutes for approval, 1-2 business days for bank settlement.
-
----
-
-## Decision Trees
-
-### Admin Approval Decision Tree
-
-When reviewing a withdrawal request, admins should consider:
-
-```
-Is withdrawal amount ≤ wallet balance?
-├── YES → Is bank account format valid?
-│   ├── YES → Is account verified/recently used?
-│   │   ├── YES → APPROVE (generate QR)
-│   │   └── NO → Check user history
-│   │       ├── Good history → APPROVE
-│   │       └── Suspicious activity → REJECT (risk assessment)
-│   └── NO → REJECT (invalid format)
-└── NO → REJECT (insufficient balance)
-```
-
-### Status Transition Logic
-
-```
-Pending → Approved (admin approval, QR generated)
-    ↓
-Pending → Rejected (admin rejection, user cancellation)
-    ↓
-Approved → Completed (successful bank transfer)
-Approved → Failed (transfer failure, system error)
-```
-
-### Rejection Scenarios
-
-**Automatic Rejection:**
-- Insufficient wallet balance
-- Invalid bank account format
-- Daily withdrawal limit exceeded (5 requests/hour)
-
-**Manual Rejection:**
-- Suspicious account activity
-- Unverified bank account
-- Regulatory compliance issues
-- User request cancellation
-
----
-
-## Business Rules
-
-### Withdrawal Policies
-
-**Amount Limits:**
-- Minimum: 10,000 VND per withdrawal
-- Maximum: 50,000,000 VND per withdrawal
-- Daily user limit: No specific daily limit (rate limited at 5 requests/hour)
-
-**Frequency Limits:**
-- User withdrawal requests: 5 per hour
-- Admin processing: 100 operations per hour
-
-**Bank Account Requirements:**
-- Must be Vietnamese bank account (8-20 digits)
-- Must be from supported banks (see Bank Directory)
-- Account must be in user's name (KYC verification may be required)
-
-### Approval Workflow
-
-**Automatic Processing:**
-- Balance verification
-- Account format validation
-- Rate limit checking
-
-**Manual Admin Review:**
-- Suspicious activity detection
-- Large amount verification (>5,000,000 VND)
-- New user verification (first withdrawal)
-- Account change verification
-
-**Approval Timeline:**
-- Standard requests: Within 15 minutes during business hours
-- Large amounts: May require additional verification (up to 24 hours)
-- Weekend requests: Processed next business day
-
-### Security Policies
-
-**Data Protection:**
-- Bank accounts encrypted at rest
-- Responses show masked account numbers (****XXXX)
-- Admin access logged and audited
-
-**Fraud Prevention:**
-- Rate limiting prevents abuse
-- Suspicious pattern detection
-- Manual review for high-risk requests
-
-**Compliance:**
-- Vietnamese banking regulations
-- Anti-money laundering checks
-- Transaction reporting requirements
-
-### Completion Requirements
-
-**Successful Transfer:**
-- QR code scanned by banking app
-- Funds transferred within 2 business days
-- Confirmation received from bank
-
-**Failure Handling:**
-- Automatic retry for network issues
-- Manual intervention for bank errors
-- User notification for all status changes
-
----
-
-## User Experience Workflows
-
-### Complete User Withdrawal Flow
-
-**Bước 1: Kiểm tra số dư ví**
-- Gọi `GET /api/wallet/balance` để lấy số dư hiện tại
-- Validate: Số dư phải ≥ 10,000 VND và ≥ số tiền muốn rút
-- Nếu không đủ: Hiển thị thông báo lỗi và dừng flow
-
-**Bước 2: Chọn ngân hàng và nhập thông tin tài khoản**
-- Gọi `GET /api/wallet/banks` để lấy danh sách ngân hàng hỗ trợ
-- User chọn ngân hàng từ dropdown và nhập số tài khoản (8-20 chữ số)
-- Validate format: Số tài khoản Việt Nam hợp lệ
-
-**Bước 3: Tạo yêu cầu rút tiền**
-- Gọi `POST /api/withdrawals/create` với thông tin:
-  - amount: Số tiền rút (10,000 - 50,000,000 VND)
-  - bankAccount: Số tài khoản (8-20 chữ số)
-  - bankName: Tên ngân hàng đầy đủ
-  - bankBin: Mã BIN 6 chữ số
-- Response trả về withdrawal ID và status "Pending"
-
-**Bước 4: Theo dõi trạng thái yêu cầu**
-- Gọi `GET /api/withdrawals/me` để lấy danh sách rút tiền
-- Hoặc `GET /api/withdrawals/{id}` để lấy chi tiết cụ thể
-- Poll mỗi 30 giây cho đến khi status thay đổi
-- Khi status = "Approved": Hiển thị QR code để user scan
-
-**Bước 5: Hoàn tất chuyển khoản ngân hàng**
-- User mở app ngân hàng và scan QR VietQR
-- Ngân hàng xử lý chuyển khoản (1-2 ngày làm việc)
-- Hệ thống nhận confirmation và cập nhật status thành "Completed"
-
-### Admin Processing Workflow
-
-**Bước 1: Xem xét yêu cầu đang chờ xử lý**
-- Gọi `GET /api/admin/withdrawals/pending` để lấy danh sách rút tiền chờ duyệt
-- Review từng request: kiểm tra số dư, format tài khoản, lịch sử user
-- Ưu tiên xử lý theo thời gian tạo request
-
-**Bước 2: Duyệt hoặc từ chối yêu cầu**
-- **Duyệt**: Gọi `POST /api/admin/withdrawals/{id}/approve`
-  - Hệ thống tự động tạo QR VietQR
-  - Status chuyển thành "Approved"
-- **Từ chối**: Gọi `POST /api/admin/withdrawals/{id}/reject` với lý do
-  - Status chuyển thành "Rejected"
-
-**Bước 3: Giám sát hoàn tất**
-- Theo dõi status chuyển thành "Completed" sau khi user scan QR
-- Xử lý các trường hợp thất bại: gọi `POST /api/admin/withdrawals/{id}/fail`
-- Nhận thông báo cho các transfer thất bại để can thiệp thủ công
-
----
-
-## Integration Patterns
-
-### Mobile App Flow (Flutter)
-
-**1. Khởi tạo rút tiền:**
-- Load danh sách ngân hàng: `GET /api/wallet/banks`
-- Hiển thị dropdown chọn ngân hàng
-- Nhập số tài khoản và số tiền
-
-**2. Xử lý tạo yêu cầu:**
-- Validate input trước khi gọi API
-- Call `POST /api/withdrawals/create`
-- Xử lý response: Thành công → chuyển màn hình tracking, Thất bại → hiển thị lỗi
-
-**3. Theo dõi trạng thái:**
-- Tự động poll `GET /api/withdrawals/{id}` mỗi 30 giây
-- Khi status = "Approved" → hiển thị QR code
-- Khi status = "Completed" → cập nhật UI và thông báo user
-
-**4. Xử lý lỗi:**
-- Network error: Retry với exponential backoff
-- Rate limit: Hiển thị countdown timer
-- Business error: Validate và hiển thị message cụ thể
-
-### Webhook Integration
-
-**Status Update Webhook:**
-```json
-{
-  "event": "withdrawal.status_changed",
-  "withdrawalId": "550e8400-e29b-41d4-a716-446655440000",
-  "oldStatus": "Pending",
-  "newStatus": "Approved",
-  "timestamp": "2026-04-02T12:45:00Z",
-  "qrCode": {
-    "payload": "00020101021138550010A0000007270125000697045601139704005802VN5412345678905802VN6304XXXX",
-    "imageBase64": "iVBORw0KGgoAAAANSUhEUgAA..."
-  }
-}
-```
-
-**Business Logic cho Webhook:**
-- Nhận event "withdrawal.status_changed"
-- Parse withdrawalId và newStatus
-- Nếu status = "Approved": Gửi QR code đến user qua push notification/email
-- Nếu status = "Completed": Cập nhật balance cache, gửi confirmation
-- Nếu status = "Failed": Thông báo user và cung cấp support contact
-
-### Best Practices
-
-**Quy trình nghiệp vụ:**
-- Luôn kiểm tra số dư trước khi cho phép user tạo yêu cầu rút tiền
-- Validate format tài khoản ngân hàng trước khi submit
-- Hiển thị progress indicator trong suốt flow rút tiền
-- Thông báo user ngay khi status thay đổi
-
-**Xử lý lỗi:**
-- Rate limit exceeded: Hiển thị thời gian chờ và retry tự động
-- Network error: Retry 3 lần với backoff, sau đó hiển thị error message
-- Business error: Parse error code và hiển thị message phù hợp cho user
-
-**Bảo mật:**
-- Không lưu trữ đầy đủ số tài khoản trong device
-- Sử dụng HTTPS cho tất cả API calls
-- Validate input ở cả client và server side
-
-**Trải nghiệm người dùng:**
-- Cache danh sách ngân hàng để load nhanh
-- Poll status mỗi 30 giây, không quá thường để tránh rate limit
-- Hiển thị QR code ngay khi được duyệt, hướng dẫn user cách scan
-
----
+Flow withdrawal hiện tại trong code hỗ trợ:
+- User tạo yêu cầu rút tiền từ ví
+- User xem danh sách và chi tiết withdrawal của chính mình
+- User hủy withdrawal khi còn `Pending`
+- Admin xem toàn bộ withdrawal hoặc chỉ `Pending`
+- Admin `approve`, `reject`, `complete`, `fail`
+- QR VietQR được sinh khi admin `approve`
+- Số dư ví chỉ bị trừ khi admin `complete`
 
 ---
 
 ## Authentication & Authorization
 
 ### User Operations
-- **Method**: JWT Bearer Token
-- **Header**: `Authorization: Bearer {token}`
-- **Required Roles**: Any authenticated user
+- JWT Bearer token bắt buộc
+- Bất kỳ user đã đăng nhập đều gọi được user endpoints
 
 ### Admin Operations
-- **Method**: JWT Bearer Token
-- **Header**: `Authorization: Bearer {token}`
-- **Required Roles**: Admin
+- JWT Bearer token bắt buộc
+- Bắt buộc role `Admin`
 
 ---
 
-## Endpoints
+## Actual Status Lifecycle
 
-### User Endpoints
+Các trạng thái có trong code:
+- `Pending`
+- `Approved`
+- `Rejected`
+- `Completed`
+- `Failed`
 
-#### `POST /api/withdrawals/create`
+Các transition đã được code support:
+- `Pending -> Approved`
+- `Pending -> Rejected`
+- `Pending -> Cancel` được lưu thành `Rejected` với reason `Cancelled by user`
+- `Approved -> Rejected`
+- `Approved -> Completed`
+- `Approved -> Failed`
 
-**Description**: Creates a new withdrawal request from the user's wallet to a bank account.
+Lưu ý:
+- `ProcessedAt` được set khi cancel / approve / reject / complete / fail
 
-**Authentication**: Required
+---
 
-**Required Permissions**: Authenticated user
+## Business Rules
 
-**Request Headers**:
-| Header | Type | Required | Description |
-|--------|------|----------|-------------|
-| Authorization | string | Yes | Bearer {token} |
-| Content-Type | string | Yes | application/json |
+### Create Withdrawal
+- Validate request model:
+  - `amount`: `10000` đến `50000000`
+  - `bankAccount`: `8-20` chữ số
+  - `bankName`: bắt buộc, tối đa `100` ký tự
+  - `bankBin`: bắt buộc, đúng `6` chữ số
+- Service kiểm tra số dư ví hiện tại phải đủ để tạo request
+- Khi tạo request:
+  - withdrawal được tạo với trạng thái `Pending`
+  - chưa trừ tiền khỏi ví
+  - chưa sinh QR
 
-**Request Body**:
+### Approve
+- Chỉ approve được withdrawal đang `Pending`
+- Khi approve:
+  - sinh `VietQrPayload`
+  - sinh `VietQrImageBase64`
+  - set status `Approved`
+
+### Complete
+- Chỉ complete được withdrawal đang `Approved`
+- Khi complete:
+  - trừ tiền khỏi `Wallet.Balance`
+  - tạo `Transaction` với `TransactionType = WalletWithdraw`
+  - set status `Completed`
+
+### Cancel
+- User chỉ cancel được withdrawal của chính mình
+- Chỉ cancel được withdrawal đang `Pending`
+- Cancel được lưu thành:
+  - `Status = Rejected`
+  - `RejectionReason = "Cancelled by user"`
+
+### Reject / Fail
+- `Reject`: admin reject được trạng thái `Pending` hoặc `Approved`
+- `Fail`: admin fail được trạng thái `Approved`
+
+---
+
+## User Workflow
+
+### 1. Lấy ví hiện tại
+
+Endpoint thực tế để lấy ví là:
+- `GET /api/wallet/me`
+
+Lưu ý:
+- Codebase hiện tại không có `GET /api/wallet/balance`
+
+### 2. Lấy danh sách ngân hàng
+
+Endpoint:
+- `GET /api/wallet/banks`
+
+Lưu ý:
+- Controller trả về `ApiResponse` wrapper, không phải raw array
+- Dữ liệu ngân hàng hiện tại là mock data cache trong service
+
+### 3. Tạo yêu cầu rút tiền
+
+Endpoint:
+- `POST /api/withdrawals/create`
+
+Request body:
 ```json
 {
   "amount": 50000,
@@ -340,416 +134,495 @@ Approved → Failed (transfer failure, system error)
 }
 ```
 
-**Request Body Schema**:
-| Field | Type | Required | Constraints | Description |
-|-------|------|----------|-------------|-------------|
-| amount | decimal | Yes | 10000-50000000 | Withdrawal amount in VND |
-| bankAccount | string | Yes | 8-20 digits | Vietnamese bank account number |
-| bankName | string | Yes | max 100 chars | Full bank name |
-| bankBin | string | Yes | 6 digits | Bank BIN code |
+Response:
+- trả về object withdrawal
+- `bankAccount` bị mask ở user endpoints
+- status ban đầu là `Pending`
 
-**Success Response** (200 OK):
+### 4. Xem withdrawal của chính mình
+
+Endpoints:
+- `GET /api/withdrawals/me`
+- `GET /api/withdrawals/{id}`
+
+Authorization rule:
+- User chỉ xem được withdrawal có `UserId` là của chính mình
+
+### 5. Hủy withdrawal
+
+Endpoint:
+- `POST /api/withdrawals/{id}/cancel`
+
+Điều kiện:
+- chỉ owner mới hủy được
+- chỉ hủy được khi đang `Pending`
+
+---
+
+## API Contracts
+
+Phần này giữ lại contract để frontend/mobile có thể tích hợp API.
+
+### Common Authentication Header
+
+```http
+Authorization: Bearer {token}
+```
+
+### Wrapper Response Convention
+
+Một số endpoint trong module wallet dùng `ApiResponse<T>` wrapper:
+
 ```json
 {
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "status_code": 200,
+  "message": "Operation successful",
+  "is_success": true,
+  "data": {},
+  "error": null
+}
+```
+
+Lưu ý:
+- `GET /api/wallet/me` dùng wrapper
+- `GET /api/wallet/banks` dùng wrapper
+- nhóm `/api/withdrawals/*` và `/api/admin/withdrawals/*` hiện trả object / array trực tiếp, không bọc `ApiResponse<T>`
+
+### 1. `GET /api/wallet/me`
+
+Mục đích:
+- Lấy ví hiện tại của user để đọc số dư trước khi tạo withdrawal
+
+Authentication:
+- Required
+
+Success response:
+```json
+{
+  "status_code": 200,
+  "message": "Wallet retrieved successfully",
+  "is_success": true,
+  "data": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa7",
+    "balance": 150000,
+    "createdAt": "2026-04-02T12:00:00Z",
+    "updatedAt": "2026-04-02T12:30:00Z"
+  },
+  "error": null
+}
+```
+
+### 2. `GET /api/wallet/banks`
+
+Mục đích:
+- Lấy danh sách ngân hàng hỗ trợ hiển thị cho user
+
+Authentication:
+- Required
+
+Success response:
+```json
+{
+  "status_code": 200,
+  "message": "Bank directory retrieved successfully",
+  "is_success": true,
+  "data": [
+    {
+      "bin": "970400",
+      "name": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
+      "vietQrStatus": "TransferSupported"
+    },
+    {
+      "bin": "970405",
+      "name": "Ngân hàng TMCP Quốc Tế (VIB)",
+      "vietQrStatus": "TransferSupported"
+    }
+  ],
+  "error": null
+}
+```
+
+Ghi chú:
+- Dữ liệu hiện tại là mock data từ `BankDirectoryService`
+
+### 3. `POST /api/withdrawals/create`
+
+Mục đích:
+- Tạo yêu cầu rút tiền
+
+Authentication:
+- Required
+
+Request body:
+```json
+{
   "amount": 50000,
-  "bankAccount": "****67890",
+  "bankAccount": "1234567890",
+  "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
+  "bankBin": "970400"
+}
+```
+
+Request constraints:
+- `amount`: `10000` đến `50000000`
+- `bankAccount`: `8-20` chữ số
+- `bankName`: tối đa `100` ký tự
+- `bankBin`: đúng `6` chữ số
+
+Success response:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "userId": "550e8400-e29b-41d4-a716-446655440001",
+  "amount": 50000,
+  "bankAccount": "******7890",
   "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
   "status": "Pending",
+  "processedAt": null,
+  "rejectionReason": null,
+  "vietQrPayload": null,
+  "vietQrImageBase64": null,
   "createdAt": "2026-04-02T12:30:00Z"
 }
 ```
 
-**Error Responses**: See Error Catalog section.
+Lưu ý:
+- User response có mask `bankAccount`
+- QR fields sẽ là `null` khi mới tạo
 
-#### `GET /api/withdrawals/me`
+### 4. `GET /api/withdrawals/me`
 
-**Description**: Retrieves all withdrawal requests for the authenticated user.
+Mục đích:
+- Lấy toàn bộ withdrawal của user hiện tại
 
-**Authentication**: Required
+Authentication:
+- Required
 
-**Required Permissions**: Authenticated user
-
-**Request Headers**:
-| Header | Type | Required | Description |
-|--------|------|----------|-------------|
-| Authorization | string | Yes | Bearer {token} |
-
-**Query Parameters**: None
-
-**Success Response** (200 OK):
+Success response:
 ```json
 [
   {
-    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "userId": "550e8400-e29b-41d4-a716-446655440001",
     "amount": 50000,
-    "bankAccount": "****67890",
+    "bankAccount": "******7890",
     "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
     "status": "Pending",
+    "processedAt": null,
+    "rejectionReason": null,
+    "vietQrPayload": null,
+    "vietQrImageBase64": null,
     "createdAt": "2026-04-02T12:30:00Z"
   }
 ]
 ```
 
-#### `GET /api/withdrawals/{id}`
+### 5. `GET /api/withdrawals/{id}`
 
-**Description**: Retrieves details of a specific withdrawal request.
+Mục đích:
+- Lấy chi tiết một withdrawal cụ thể của chính user
 
-**Authentication**: Required
+Authentication:
+- Required
 
-**Required Permissions**: Owner of the withdrawal
+Authorization:
+- Chỉ owner mới xem được
 
-**Request Headers**:
-| Header | Type | Required | Description |
-|--------|------|----------|-------------|
-| Authorization | string | Yes | Bearer {token} |
-
-**Path Parameters**:
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| id | string | Yes | Withdrawal request UUID |
-
-**Success Response** (200 OK):
+Success response sau khi approve:
 ```json
 {
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "userId": "550e8400-e29b-41d4-a716-446655440001",
   "amount": 50000,
-  "bankAccount": "****67890",
+  "bankAccount": "******7890",
   "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
   "status": "Approved",
-  "vietQrPayload": "00020101021138550010A0000007270125000697045601139704005802VN5412345678905802VN6304XXXX",
+  "processedAt": "2026-04-02T12:45:00Z",
+  "rejectionReason": null,
+  "vietQrPayload": "00020101021138550010A0000007270125000697045601139704005802VN1234567890540650000.005802VN6304XXXX",
   "vietQrImageBase64": "iVBORw0KGgoAAAANSUhEUgAA...",
-  "createdAt": "2026-04-02T12:30:00Z",
-  "processedAt": "2026-04-02T12:45:00Z"
+  "createdAt": "2026-04-02T12:30:00Z"
 }
 ```
 
-#### `POST /api/withdrawals/{id}/cancel`
+### 6. `POST /api/withdrawals/{id}/cancel`
 
-**Description**: Cancels a pending withdrawal request.
+Mục đích:
+- User hủy withdrawal của chính mình
 
-**Authentication**: Required
+Authentication:
+- Required
 
-**Required Permissions**: Owner of the withdrawal
-
-**Request Headers**:
-| Header | Type | Required | Description |
-|--------|------|----------|-------------|
-| Authorization | string | Yes | Bearer {token} |
-
-**Path Parameters**:
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| id | string | Yes | Withdrawal request UUID |
-
-**Success Response** (200 OK):
+Success response:
 ```json
 {
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "userId": "550e8400-e29b-41d4-a716-446655440001",
   "amount": 50000,
-  "bankAccount": "****67890",
+  "bankAccount": "******7890",
   "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
   "status": "Rejected",
+  "processedAt": "2026-04-02T12:35:00Z",
   "rejectionReason": "Cancelled by user",
-  "createdAt": "2026-04-02T12:30:00Z",
-  "processedAt": "2026-04-02T12:35:00Z"
+  "vietQrPayload": null,
+  "vietQrImageBase64": null,
+  "createdAt": "2026-04-02T12:30:00Z"
 }
 ```
 
-### Bank Directory Endpoint
+### 7. `GET /api/admin/withdrawals`
 
-#### `GET /api/wallet/banks`
+Mục đích:
+- Admin lấy toàn bộ withdrawal
 
-**Description**: Retrieves list of supported banks for withdrawal operations.
+Authentication:
+- Required
 
-**Authentication**: Required
+Authorization:
+- Role `Admin`
 
-**Required Permissions**: Authenticated user
-
-**Request Headers**:
-| Header | Type | Required | Description |
-|--------|------|----------|-------------|
-| Authorization | string | Yes | Bearer {token} |
-
-**Success Response** (200 OK):
+Success response:
 ```json
 [
   {
-    "bin": "970400",
-    "name": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-    "vietQrStatus": "TransferSupported"
-  },
-  {
-    "bin": "970405",
-    "name": "Ngân hàng TMCP Quốc Tế (VIB)",
-    "vietQrStatus": "TransferSupported"
-  }
-]
-```
-
-### Admin Endpoints
-
-#### `GET /api/admin/withdrawals`
-
-**Description**: Retrieves all withdrawal requests for admin management.
-
-**Authentication**: Required
-
-**Required Permissions**: Admin role
-
-**Request Headers**:
-| Header | Type | Required | Description |
-|--------|------|----------|-------------|
-| Authorization | string | Yes | Bearer {token} |
-
-**Success Response** (200 OK):
-```json
-[
-  {
-    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-    "userId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "userId": "550e8400-e29b-41d4-a716-446655440001",
     "amount": 50000,
     "bankAccount": "1234567890",
     "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
     "status": "Pending",
+    "processedAt": null,
+    "rejectionReason": null,
+    "vietQrPayload": null,
+    "vietQrImageBase64": null,
     "createdAt": "2026-04-02T12:30:00Z"
   }
 ]
 ```
 
-#### `GET /api/admin/withdrawals/pending`
+Lưu ý:
+- Admin response hiện không mask `bankAccount`
 
-**Description**: Retrieves only pending withdrawal requests for admin processing.
+### 8. `GET /api/admin/withdrawals/pending`
 
-**Authentication**: Required
+Mục đích:
+- Admin lấy danh sách withdrawal đang `Pending`
 
-**Required Permissions**: Admin role
+Authentication:
+- Required
 
-**Request Headers**:
-| Header | Type | Required | Description |
-|--------|------|----------|-------------|
-| Authorization | string | Yes | Bearer {token} |
+Authorization:
+- Role `Admin`
 
-#### `POST /api/admin/withdrawals/{id}/approve`
+Success response:
+- cùng shape với `GET /api/admin/withdrawals`
 
-**Description**: Approves a pending withdrawal request and generates QR code.
+### 9. `POST /api/admin/withdrawals/{id}/approve`
 
-**Authentication**: Required
+Mục đích:
+- Approve withdrawal và generate QR
 
-**Required Permissions**: Admin role
+Authentication:
+- Required
 
-**Path Parameters**:
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| id | string | Yes | Withdrawal request UUID |
+Authorization:
+- Role `Admin`
 
-#### `POST /api/admin/withdrawals/{id}/reject`
+Success response:
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "userId": "550e8400-e29b-41d4-a716-446655440001",
+  "amount": 50000,
+  "bankAccount": "1234567890",
+  "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
+  "status": "Approved",
+  "processedAt": "2026-04-02T12:45:00Z",
+  "rejectionReason": null,
+  "vietQrPayload": "00020101021138550010A0000007270125000697045601139704005802VN1234567890540650000.005802VN6304XXXX",
+  "vietQrImageBase64": "iVBORw0KGgoAAAANSUhEUgAA...",
+  "createdAt": "2026-04-02T12:30:00Z"
+}
+```
 
-**Description**: Rejects a withdrawal request with reason.
+### 10. `POST /api/admin/withdrawals/{id}/reject`
 
-**Authentication**: Required
-
-**Required Permissions**: Admin role
-
-**Request Body**:
+Request body:
 ```json
 {
   "reason": "Invalid bank account"
 }
 ```
 
-#### `POST /api/admin/withdrawals/{id}/complete`
+Success response:
+- cùng shape `WithdrawalResponse`
+- `status = "Rejected"`
+- `rejectionReason` chứa giá trị từ request
 
-**Description**: Marks an approved withdrawal as completed and deducts wallet balance.
+### 11. `POST /api/admin/withdrawals/{id}/complete`
 
-**Authentication**: Required
+Mục đích:
+- Đánh dấu hoàn tất withdrawal
+- Đây là bước trừ tiền khỏi ví
 
-**Required Permissions**: Admin role
+Success response:
+- cùng shape `WithdrawalResponse`
+- `status = "Completed"`
 
-#### `POST /api/admin/withdrawals/{id}/fail`
+### 12. `POST /api/admin/withdrawals/{id}/fail`
 
-**Description**: Marks a withdrawal as failed with reason.
-
-**Authentication**: Required
-
-**Required Permissions**: Admin role
-
-**Request Body**:
+Request body:
 ```json
 {
   "reason": "Bank transfer failed"
 }
 ```
 
+Success response:
+- cùng shape `WithdrawalResponse`
+- `status = "Failed"`
+- `rejectionReason` chứa giá trị từ request
+
 ---
 
-## Data Models
+## Admin Workflow
+
+### 1. Xem danh sách withdrawal
+
+Endpoints:
+- `GET /api/admin/withdrawals`
+- `GET /api/admin/withdrawals/pending`
+
+### 2. Duyệt / từ chối / hoàn tất / fail
+
+Endpoints:
+- `POST /api/admin/withdrawals/{id}/approve`
+- `POST /api/admin/withdrawals/{id}/reject`
+- `POST /api/admin/withdrawals/{id}/complete`
+- `POST /api/admin/withdrawals/{id}/fail`
+
+Request body cho reject:
+```json
+{
+  "reason": "Invalid bank account"
+}
+```
+
+Request body cho fail:
+```json
+{
+  "reason": "Bank transfer failed"
+}
+```
+
+Lưu ý:
+- Codebase hiện tại không có endpoint `GET /api/admin/withdrawals/{id}`
+
+---
+
+## Data Model Snapshot
 
 ### CreateWithdrawalRequest
-| Field | Type | Required | Constraints | Description |
-|-------|------|----------|-------------|-------------|
-| amount | decimal | Yes | 10000-50000000 | Withdrawal amount in VND |
-| bankAccount | string | Yes | 8-20 digits | Vietnamese bank account number |
-| bankName | string | Yes | max 100 chars | Full bank name |
-| bankBin | string | Yes | 6 digits | Bank BIN code |
+| Field | Type | Required | Constraints |
+|-------|------|----------|-------------|
+| amount | decimal | Yes | 10000-50000000 |
+| bankAccount | string | Yes | 8-20 digits |
+| bankName | string | Yes | max 100 chars |
+| bankBin | string | Yes | 6 digits |
 
 ### WithdrawalResponse
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| id | string | Yes | Withdrawal request UUID |
-| userId | string | Yes | User UUID |
-| amount | decimal | Yes | Withdrawal amount |
-| bankAccount | string | Yes | Masked bank account (****XXXX) |
-| bankName | string | Yes | Full bank name |
-| status | string | Yes | Pending/Approved/Rejected/Completed/Failed |
-| rejectionReason | string | No | Reason for rejection/failure |
-| vietQrPayload | string | No | VietQR payload string |
-| vietQrImageBase64 | string | No | Base64 encoded QR code image |
-| createdAt | datetime | Yes | ISO 8601 format |
-| processedAt | datetime | No | Processing timestamp |
+| Field | Type | Description |
+|-------|------|-------------|
+| id | Guid | Withdrawal ID |
+| userId | Guid | Owner user ID |
+| amount | decimal | Withdrawal amount |
+| bankAccount | string | User endpoints mask số tài khoản |
+| bankName | string | Bank name |
+| status | enum | `Pending/Approved/Rejected/Completed/Failed` |
+| processedAt | datetime? | Thời điểm xử lý |
+| rejectionReason | string? | Lý do reject/fail/cancel |
+| vietQrPayload | string? | QR payload sau khi approve |
+| vietQrImageBase64 | string? | Base64 QR image sau khi approve |
+| createdAt | datetime | Thời điểm tạo |
 
 ### BankDirectoryResponse
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| bin | string | Yes | Bank BIN code |
-| name | string | Yes | Full bank name |
-| vietQrStatus | string | Yes | TransferSupported/ReceiveOnly/NotSupported |
+| Field | Type | Description |
+|-------|------|-------------|
+| bin | string | Bank BIN |
+| name | string | Bank name |
+| vietQrStatus | enum | `TransferSupported/ReceiveOnly/NotSupported` |
 
-### RejectWithdrawalRequest
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| reason | string | Yes | Rejection reason |
+### WalletResponse
+| Field | Type | Description |
+|-------|------|-------------|
+| id | Guid | Wallet ID |
+| userId | Guid | Owner user ID |
+| balance | decimal | Current balance |
+| createdAt | datetime | Created timestamp |
+| updatedAt | datetime? | Updated timestamp |
 
-### FailWithdrawalRequest
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| reason | string | Yes | Failure reason |
-
----
-
-## Error Catalog
-
-| Status Code | Error Code | Message | Description | Resolution |
-|-------------|------------|---------|-------------|------------|
-| 400 | INVALID_INPUT | Invalid request format | Request validation failed | Check field constraints |
-| 400 | INSUFFICIENT_BALANCE | Insufficient wallet balance | User doesn't have enough funds | Top up wallet or reduce amount |
-| 400 | INVALID_BANK_ACCOUNT | Invalid bank account format | Account doesn't match Vietnamese format | Use 8-20 digit account number |
-| 401 | UNAUTHORIZED | Authentication required | Missing or invalid JWT token | Provide valid Bearer token |
-| 403 | FORBIDDEN | Insufficient permissions | User lacks required role | Contact admin for access |
-| 403 | ACCESS_DENIED | Not authorized for this withdrawal | User doesn't own the withdrawal | Use correct withdrawal ID |
-| 404 | NOT_FOUND | Withdrawal not found | Requested withdrawal doesn't exist | Verify withdrawal ID |
-| 409 | INVALID_STATUS | Cannot perform action on withdrawal | Withdrawal is in wrong status | Check current status |
-| 500 | INTERNAL_ERROR | Internal server error | Unexpected server error | Contact support |
+### ApiResponse<T>
+| Field | Type | Description |
+|-------|------|-------------|
+| status_code | int | HTTP-like status code in body |
+| message | string | Human-readable message |
+| is_success | bool | Success flag |
+| data | T | Payload |
+| error | object? | Error detail when failed |
 
 ---
 
-## Examples
+## Important Implementation Notes
 
-### Example: Create Withdrawal Request
+### 1. `bankBin` hiện chưa đi hết flow
 
-**Request**:
-```bash
-curl -X POST https://api.snakeaid.com/api/withdrawals/create \
-  -H "Authorization: Bearer {{TOKEN}}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "amount": 100000,
-    "bankAccount": "1234567890",
-    "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-    "bankBin": "970400"
-  }'
-```
+Mặc dù request bắt buộc có `bankBin`, implementation hiện tại:
+- không lưu `bankBin` vào entity `WalletWithdraw`
+- khi approve lại hardcode bank BIN là `970400`
 
-**Response**:
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "userId": "550e8400-e29b-41d4-a716-446655440001",
-  "amount": 100000,
-  "bankAccount": "****67890",
-  "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-  "status": "Pending",
-  "createdAt": "2026-04-02T12:30:00Z"
-}
-```
+Vì vậy tài liệu này không khẳng định QR luôn được sinh theo đúng `bankBin` mà client gửi lên.
 
-### Example: Admin Approve Withdrawal
+### 2. User response và admin response khác nhau về masking
 
-**Request**:
-```bash
-curl -X POST https://api.snakeaid.com/api/admin/withdrawals/550e8400-e29b-41d4-a716-446655440000/approve \
-  -H "Authorization: Bearer {{ADMIN_TOKEN}}"
-```
+- User endpoints mask `bankAccount`
+- Admin endpoints hiện trả raw `bankAccount`
 
-**Response**:
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "userId": "550e8400-e29b-41d4-a716-446655440001",
-  "amount": 100000,
-  "bankAccount": "1234567890",
-  "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-  "status": "Approved",
-  "vietQrPayload": "00020101021138550010A0000007270125000697045601139704005802VN5412345678905802VN6304XXXX",
-  "vietQrImageBase64": "iVBORw0KGgoAAAANSUhEUgAA...",
-  "createdAt": "2026-04-02T12:30:00Z",
-  "processedAt": "2026-04-02T12:45:00Z"
-}
-```
+### 3. Số dư chỉ bị trừ ở bước `complete`
 
-### Example: Complete Withdrawal
-
-**Request**:
-```bash
-curl -X POST https://api.snakeaid.com/api/admin/withdrawals/550e8400-e29b-41d4-a716-446655440000/complete \
-  -H "Authorization: Bearer {{ADMIN_TOKEN}}"
-```
-
-**Response**:
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "userId": "550e8400-e29b-41d4-a716-446655440001",
-  "amount": 100000,
-  "bankAccount": "1234567890",
-  "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-  "status": "Completed",
-  "vietQrPayload": "00020101021138550010A0000007270125000697045601139704005802VN5412345678905802VN6304XXXX",
-  "vietQrImageBase64": "iVBORw0KGgoAAAANSUhEUgAA...",
-  "createdAt": "2026-04-02T12:30:00Z",
-  "processedAt": "2026-04-02T13:00:00Z"
-}
-```
+Điểm này rất quan trọng:
+- `create`: chưa trừ tiền
+- `approve`: chưa trừ tiền
+- `complete`: mới trừ tiền và tạo transaction
 
 ---
 
-## Rate Limiting
+## Verified Endpoint List
 
-The withdrawal API implements rate limiting to prevent abuse:
+### User
+- `GET /api/wallet/me`
+- `GET /api/wallet/banks`
+- `POST /api/withdrawals/create`
+- `GET /api/withdrawals/me`
+- `GET /api/withdrawals/{id}`
+- `POST /api/withdrawals/{id}/cancel`
 
-- **User withdrawals**: Maximum 5 requests per hour
-- **Admin operations**: Maximum 100 requests per hour
-
-Rate limit headers are included in responses:
-```
-X-RateLimit-Limit: 5
-X-RateLimit-Remaining: 4
-X-RateLimit-Reset: 1640995200
-```
-
-When rate limit is exceeded, returns 429 Too Many Requests.
+### Admin
+- `GET /api/admin/withdrawals`
+- `GET /api/admin/withdrawals/pending`
+- `POST /api/admin/withdrawals/{id}/approve`
+- `POST /api/admin/withdrawals/{id}/reject`
+- `POST /api/admin/withdrawals/{id}/complete`
+- `POST /api/admin/withdrawals/{id}/fail`
 
 ---
 
 ## Changelog
 
-### v1.0.0 (2026-04-02)
-- Initial release of wallet withdrawal API
-- VietQR code generation
-- Admin approval workflow
-- Bank account validation and masking
-- Complete withdrawal lifecycle management
+### 2026-04-02
+- Removed all undocumented / unverified business claims
+- Corrected wallet balance endpoint to `GET /api/wallet/me`
+- Corrected bank directory response behavior to `ApiResponse` wrapper
+- Documented actual status transitions from code
+- Documented actual deduction timing at `complete`
+- Documented current `bankBin` implementation gap
