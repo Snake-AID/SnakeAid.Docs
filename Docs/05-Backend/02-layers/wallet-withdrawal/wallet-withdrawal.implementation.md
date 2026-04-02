@@ -94,13 +94,12 @@ public class WalletWithdraw : BaseEntity
     [Key] public Guid Id { get; set; }
     [Required] public Guid UserId { get; set; }
     [Required] public Guid WalletId { get; set; }
-    [Required] [Range(50000, 5000000)] public decimal Amount { get; set; }
+    [Required] [Range(10000, 50000000)] public decimal Amount { get; set; }
 
     // Bank account info
-    [Required] [MaxLength(20)] public string BankAccountNumber { get; set; }
+    [Required] [MaxLength(20)] public string BankAccount { get; set; }
     [Required] [MaxLength(100)] public string BankName { get; set; }
-    [MaxLength(100)] public string? AccountHolderName { get; set; }
-    [MaxLength(10)] public string? BankBin { get; set; } // Bank bin for VietQR (e.g., "970418" for BIDV)
+    [Required] [MaxLength(6)] public string BankBin { get; set; }
 
     [Required] public WalletWithdrawStatus Status { get; set; } = Pending;
     public DateTime? ProcessedAt { get; set; }
@@ -109,7 +108,6 @@ public class WalletWithdraw : BaseEntity
     [MaxLength(500)] public string? AdminNotes { get; set; }
 
     // VietQR support (inspired by EzyFix template)
-    public bool RenderQrEnabled { get; set; } = false;
     [MaxLength(1000)] public string? VietQrPayload { get; set; }
     public string? VietQrImageBase64 { get; set; } // Base64 encoded QR image for mobile banking apps
 
@@ -193,7 +191,7 @@ public class WithdrawalAuditLog
 - `POST /api/withdrawals/create` - CreateWithdrawalRequest
 - `GET /api/withdrawals/me` - Get user withdrawal history
 - `GET /api/withdrawals/{id}` - Get withdrawal details
-- `DELETE /api/withdrawals/{id}/cancel` - Cancel pending withdrawal
+- `POST /api/withdrawals/{id}/cancel` - Cancel pending withdrawal
 
 #### Bank Directory Endpoints (prefix: `/api/wallet`)
 - `GET /api/wallet/banks` - Get supported banks list
@@ -247,7 +245,7 @@ public class WithdrawalAuditLog
 POST   /api/withdrawals/create           - Tạo withdrawal request
 GET    /api/withdrawals/me               - List user's withdrawal history
 GET    /api/withdrawals/{id}             - Chi tiết withdrawal
-DELETE /api/withdrawals/{id}/cancel      - Hủy withdrawal (chỉ khi Pending)
+POST   /api/withdrawals/{id}/cancel      - Hủy withdrawal (chỉ khi Pending)
 ```
 
 #### Bank Directory Endpoints (`/api/wallet`)
@@ -271,10 +269,10 @@ POST   /api/admin/withdrawals/{id}/fail    - Mark as failed nếu transfer lỗi
 ```csharp
 public class CreateWithdrawalRequest
 {
-    [Required] [Range(50000, 5000000)] public decimal Amount { get; set; }
-    [Required] [MaxLength(20)] public string BankAccountNumber { get; set; }
+    [Required] [Range(10000, 50000000)] public decimal Amount { get; set; }
+    [Required] [MaxLength(20)] public string BankAccount { get; set; }
     [Required] [MaxLength(100)] public string BankName { get; set; }
-    [MaxLength(100)] public string? AccountHolderName { get; set; }
+    [Required] [MaxLength(6)] public string BankBin { get; set; }
 }
 ```
 
@@ -283,18 +281,15 @@ public class CreateWithdrawalRequest
 public class WithdrawalResponse
 {
     public Guid Id { get; set; }
+    public Guid UserId { get; set; }
     public decimal Amount { get; set; }
-    public string BankAccountNumber { get; set; }
+    public string BankAccount { get; set; }
     public string BankName { get; set; }
-    public string? AccountHolderName { get; set; }
     public string? BankBin { get; set; }
     public WalletWithdrawStatus Status { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? ProcessedAt { get; set; }
     public string? RejectionReason { get; set; }
-
-    // VietQR support (for admin view)
-    public bool RenderQrEnabled { get; set; }
     public string? VietQrPayload { get; set; }
     public string? VietQrImageBase64 { get; set; }
 }

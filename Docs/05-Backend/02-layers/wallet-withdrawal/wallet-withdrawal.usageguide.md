@@ -119,7 +119,7 @@ Một số endpoint trong module wallet dùng `ApiResponse<T>` wrapper:
 Lưu ý:
 - `GET /api/wallet/me` dùng wrapper
 - `GET /api/wallet/banks` dùng wrapper
-- nhóm `/api/withdrawals/*` hiện trả object / array trực tiếp, không bọc `ApiResponse<T>`
+- nhóm `/api/withdrawals/*` và `/api/admin/withdrawals/*` dùng `ApiResponse<T>` wrapper
 
 ### 4.6 Expert/Member APIs
 
@@ -208,17 +208,24 @@ Request constraints:
 Success response:
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "userId": "550e8400-e29b-41d4-a716-446655440001",
-  "amount": 50000,
-  "bankAccount": "******7890",
-  "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-  "status": "Pending",
-  "processedAt": null,
-  "rejectionReason": null,
-  "vietQrPayload": null,
-  "vietQrImageBase64": null,
-  "createdAt": "2026-04-02T12:30:00Z"
+  "status_code": 200,
+  "message": "Operation successful",
+  "is_success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "userId": "550e8400-e29b-41d4-a716-446655440001",
+    "amount": 50000,
+    "bankAccount": "******7890",
+    "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
+    "bankBin": "970400",
+    "status": "Pending",
+    "processedAt": null,
+    "rejectionReason": null,
+    "vietQrPayload": null,
+    "vietQrImageBase64": null,
+    "createdAt": "2026-04-02T12:30:00Z"
+  },
+  "error": null
 }
 ```
 
@@ -236,21 +243,28 @@ Authentication:
 
 Success response:
 ```json
-[
-  {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "userId": "550e8400-e29b-41d4-a716-446655440001",
-    "amount": 50000,
-    "bankAccount": "******7890",
-    "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-    "status": "Pending",
-    "processedAt": null,
-    "rejectionReason": null,
-    "vietQrPayload": null,
-    "vietQrImageBase64": null,
-    "createdAt": "2026-04-02T12:30:00Z"
-  }
-]
+{
+  "status_code": 200,
+  "message": "Operation successful",
+  "is_success": true,
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "userId": "550e8400-e29b-41d4-a716-446655440001",
+      "amount": 50000,
+      "bankAccount": "******7890",
+      "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
+      "bankBin": "970400",
+      "status": "Pending",
+      "processedAt": null,
+      "rejectionReason": null,
+      "vietQrPayload": null,
+      "vietQrImageBase64": null,
+      "createdAt": "2026-04-02T12:30:00Z"
+    }
+  ],
+  "error": null
+}
 ```
 
 #### 4.6.5 `GET /api/withdrawals/{id}`
@@ -267,17 +281,24 @@ Authorization:
 Success response sau khi approve:
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "userId": "550e8400-e29b-41d4-a716-446655440001",
-  "amount": 50000,
-  "bankAccount": "******7890",
-  "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-  "status": "Approved",
-  "processedAt": "2026-04-02T12:45:00Z",
-  "rejectionReason": null,
-  "vietQrPayload": "00020101021138550010A0000007270125000697045601139704005802VN1234567890540650000.005802VN6304XXXX",
-  "vietQrImageBase64": "iVBORw0KGgoAAAANSUhEUgAA...",
-  "createdAt": "2026-04-02T12:30:00Z"
+  "status_code": 200,
+  "message": "Operation successful",
+  "is_success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "userId": "550e8400-e29b-41d4-a716-446655440001",
+    "amount": 50000,
+    "bankAccount": "******7890",
+    "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
+    "bankBin": "970400",
+    "status": "Approved",
+    "processedAt": "2026-04-02T12:45:00Z",
+    "rejectionReason": null,
+    "vietQrPayload": "00020101021138550010A0000007270125000697045601139704005802VN1234567890540650000.005802VN6304XXXX",
+    "vietQrImageBase64": "iVBORw0KGgoAAAANSUhEUgAA...",
+    "createdAt": "2026-04-02T12:30:00Z"
+  },
+  "error": null
 }
 ```
 
@@ -292,17 +313,24 @@ Authentication:
 Success response:
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "userId": "550e8400-e29b-41d4-a716-446655440001",
-  "amount": 50000,
-  "bankAccount": "******7890",
-  "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-  "status": "Rejected",
-  "processedAt": "2026-04-02T12:35:00Z",
-  "rejectionReason": "Cancelled by user",
-  "vietQrPayload": null,
-  "vietQrImageBase64": null,
-  "createdAt": "2026-04-02T12:30:00Z"
+  "status_code": 200,
+  "message": "Operation successful",
+  "is_success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "userId": "550e8400-e29b-41d4-a716-446655440001",
+    "amount": 50000,
+    "bankAccount": "******7890",
+    "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
+    "bankBin": "970400",
+    "status": "Rejected",
+    "processedAt": "2026-04-02T12:35:00Z",
+    "rejectionReason": "Cancelled by user",
+    "vietQrPayload": null,
+    "vietQrImageBase64": null,
+    "createdAt": "2026-04-02T12:30:00Z"
+  },
+  "error": null
 }
 ```
 
@@ -358,21 +386,28 @@ Authorization:
 
 Success response:
 ```json
-[
-  {
-    "id": "550e8400-e29b-41d4-a716-446655440000",
-    "userId": "550e8400-e29b-41d4-a716-446655440001",
-    "amount": 50000,
-    "bankAccount": "1234567890",
-    "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-    "status": "Pending",
-    "processedAt": null,
-    "rejectionReason": null,
-    "vietQrPayload": null,
-    "vietQrImageBase64": null,
-    "createdAt": "2026-04-02T12:30:00Z"
-  }
-]
+{
+  "status_code": 200,
+  "message": "Operation successful",
+  "is_success": true,
+  "data": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "userId": "550e8400-e29b-41d4-a716-446655440001",
+      "amount": 50000,
+      "bankAccount": "1234567890",
+      "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
+      "bankBin": "970400",
+      "status": "Pending",
+      "processedAt": null,
+      "rejectionReason": null,
+      "vietQrPayload": null,
+      "vietQrImageBase64": null,
+      "createdAt": "2026-04-02T12:30:00Z"
+    }
+  ],
+  "error": null
+}
 ```
 
 Lưu ý:
@@ -392,7 +427,21 @@ Authorization:
 Success response:
 - cùng shape với `GET /api/admin/withdrawals`
 
-#### 5.4.3 `POST /api/admin/withdrawals/{id}/approve`
+#### 5.4.3 `GET /api/admin/withdrawals/{id}`
+
+Mục đích:
+- Admin lấy chi tiết một withdrawal cụ thể
+
+Authentication:
+- Required
+
+Authorization:
+- Role `Admin`
+
+Success response:
+- cùng shape `ApiResponse<WithdrawalResponse>`
+
+#### 5.4.4 `POST /api/admin/withdrawals/{id}/approve`
 
 Mục đích:
 - Approve withdrawal và generate QR
@@ -406,21 +455,28 @@ Authorization:
 Success response:
 ```json
 {
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "userId": "550e8400-e29b-41d4-a716-446655440001",
-  "amount": 50000,
-  "bankAccount": "1234567890",
-  "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-  "status": "Approved",
-  "processedAt": "2026-04-02T12:45:00Z",
-  "rejectionReason": null,
-  "vietQrPayload": "00020101021138550010A0000007270125000697045601139704005802VN1234567890540650000.005802VN6304XXXX",
-  "vietQrImageBase64": "iVBORw0KGgoAAAANSUhEUgAA...",
-  "createdAt": "2026-04-02T12:30:00Z"
+  "status_code": 200,
+  "message": "Operation successful",
+  "is_success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "userId": "550e8400-e29b-41d4-a716-446655440001",
+    "amount": 50000,
+    "bankAccount": "1234567890",
+    "bankName": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
+    "bankBin": "970400",
+    "status": "Approved",
+    "processedAt": "2026-04-02T12:45:00Z",
+    "rejectionReason": null,
+    "vietQrPayload": "00020101021138550010A0000007270125000697045601139704005802VN1234567890540650000.005802VN6304XXXX",
+    "vietQrImageBase64": "iVBORw0KGgoAAAANSUhEUgAA...",
+    "createdAt": "2026-04-02T12:30:00Z"
+  },
+  "error": null
 }
 ```
 
-#### 5.4.4 `POST /api/admin/withdrawals/{id}/reject`
+#### 5.4.5 `POST /api/admin/withdrawals/{id}/reject`
 
 Authentication:
 - Required
@@ -440,7 +496,7 @@ Success response:
 - `status = "Rejected"`
 - `rejectionReason` chứa giá trị từ request
 
-#### 5.4.5 `POST /api/admin/withdrawals/{id}/complete`
+#### 5.4.6 `POST /api/admin/withdrawals/{id}/complete`
 
 Mục đích:
 - Đánh dấu hoàn tất withdrawal
@@ -456,7 +512,7 @@ Success response:
 - cùng shape `WithdrawalResponse`
 - `status = "Completed"`
 
-#### 5.4.6 `POST /api/admin/withdrawals/{id}/fail`
+#### 5.4.7 `POST /api/admin/withdrawals/{id}/fail`
 
 Authentication:
 - Required
@@ -494,6 +550,7 @@ Success response:
 | amount | decimal | Withdrawal amount |
 | bankAccount | string | User endpoints mask số tài khoản |
 | bankName | string | Bank name |
+| bankBin | string? | Bank BIN được lưu cùng withdrawal |
 | status | enum | `Pending/Approved/Rejected/Completed/Failed` |
 | processedAt | datetime? | Thời điểm xử lý |
 | rejectionReason | string? | Lý do reject/fail/cancel |
@@ -539,12 +596,19 @@ Success response:
 ### Admin
 - `GET /api/admin/withdrawals`
 - `GET /api/admin/withdrawals/pending`
+- `GET /api/admin/withdrawals/{id}`
 - `POST /api/admin/withdrawals/{id}/approve`
 - `POST /api/admin/withdrawals/{id}/reject`
 - `POST /api/admin/withdrawals/{id}/complete`
 - `POST /api/admin/withdrawals/{id}/fail`
 
 ## 8. Changelog
+
+### 2026-04-03
+- Standardized all withdrawal endpoints to `ApiResponse<T>`
+- Added `bankBin` to withdrawal response contract
+- Added `GET /api/admin/withdrawals/{id}`
+- Kept cancel contract as `POST /api/withdrawals/{id}/cancel`
 
 ### 2026-04-02
 - Restructured document into actor-based sections
