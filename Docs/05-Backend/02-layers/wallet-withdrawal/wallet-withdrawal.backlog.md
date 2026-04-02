@@ -39,8 +39,11 @@ Current assumption:
   - `POST /api/admin/withdrawals/{id}/fail`
 - Success envelope for wallet + withdrawal endpoints: `ApiResponse<T>`
 - `bankBin` is now persisted and used when generating VietQR
-- Balance is still deducted at `complete`
-- User response masks `bankAccount`; admin response currently returns full value
+- Required create fields now include `accountHolderName`
+- Amount rule is now `50000` to `5000000`
+- Daily withdrawal limit is `10000000`
+- Balance is now deducted at `approve`
+- User response masks `bankAccount`; admin response returns full value and admin metadata
 
 ## Phase Status
 
@@ -65,36 +68,41 @@ Residual notes:
 
 ### Phase 2. Domain Finalization
 
-Status: Not started
+Status: Completed on backend 2026-04-03
 
 Goal: settle the actual withdrawal business contract, not just transport/API consistency.
 
-- [ ] Finalize `WalletWithdraw` schema
-- [ ] Decide whether `AccountHolderName` is required
-- [ ] Decide whether `ProcessedByAdminId` / `AdminNotes` are required
-- [ ] Decide whether `RenderQrEnabled` exists or should be dropped
-- [ ] Finalize naming across entity, DTO, docs, and tests
-- [ ] Finalize amount limits
-- [ ] Decide whether daily withdrawal limit exists
-- [ ] Finalize balance deduction strategy
-- [ ] Decide whether balance is reserved at `create`
-- [ ] Decide whether oversubscription validation is required before `complete`
-- [ ] Formalize masking policy for admin vs user
+- [x] Finalize `WalletWithdraw` schema
+- [x] Require `AccountHolderName`
+- [x] Add `ProcessedByAdminId` / `AdminNotes`
+- [x] Drop `RenderQrEnabled` from current contract
+- [x] Finalize naming across entity, DTO, and docs
+- [x] Finalize amount limits
+- [x] Add daily withdrawal limit
+- [x] Finalize balance deduction strategy
+- [x] Decide that balance is not reserved at `create`
+- [x] Add oversubscription validation for pending requests at `create`
+- [x] Formalize masking policy for admin vs user
 - [ ] Formalize QR contract:
-  - [ ] payload format
-  - [ ] whether image is mandatory
-  - [ ] fallback behavior when image generation fails
-- [ ] Update `wallet-withdrawal.usageguide.md` for any API contract change in Phase 2
-- [ ] Update `wallet-withdrawal.implementation.md` for any design/schema decision in Phase 2
-- [ ] Update this backlog after Phase 2 completion
-
-Open decisions:
-- Current code limit is `10,000` to `50,000,000`
-- Older plan expected `50,000` to `5,000,000` and possibly daily limit `10,000,000`
-- Current balance flow is `create: no deduction`, `approve: no deduction`, `complete: deduct + transaction`
+  - [x] payload format
+  - [x] image is optional
+  - [x] fallback behavior when image generation fails
+- [x] Update `wallet-withdrawal.usageguide.md` for any API contract change in Phase 2
+- [x] Update `wallet-withdrawal.implementation.md` for any design/schema decision in Phase 2
+- [x] Update this backlog after Phase 2 completion
 
 Implementation note:
 - Because this flow is not yet in production, Phase 2 may change schema and API contract directly without carrying legacy compatibility paths unless explicitly required later
+
+Decision summary:
+- `AccountHolderName` is part of the required create contract
+- `ProcessedByAdminId` and `AdminNotes` are stored on the withdrawal record
+- Balance strategy is:
+  - `create`: no deduction
+  - `approve`: deduct balance + create withdrawal transaction
+  - `complete`: confirm transfer only
+  - `reject/fail` from `Approved`: refund balance + create admin adjustment transaction
+- QR contract is payload-required for approved withdrawal, image best-effort
 
 ### Phase 3. Operational Hardening
 
@@ -102,8 +110,7 @@ Status: Not started
 
 - [ ] Replace mock bank directory with real source
 - [ ] Add withdrawal notification flow
-- [ ] Add admin audit metadata
-- [ ] Persist who processed approve/reject/complete/fail
+- [ ] Add dedicated audit trail beyond the current withdrawal fields
 - [ ] Add stable public error codes for FE/mobile
 - [ ] Add unit tests for create/approve/reject/complete/fail/cancel
 - [ ] Add integration tests for status transitions and balance effects
@@ -140,6 +147,6 @@ These are known issues but not on the immediate critical path:
 ## Recommended Next Order
 
 - [x] Phase 1. Contract Cleanup
-- [ ] Phase 2. Domain Finalization
+- [x] Phase 2. Domain Finalization
 - [ ] Phase 3. Operational Hardening
 - [ ] Phase 4. Production Guardrails
