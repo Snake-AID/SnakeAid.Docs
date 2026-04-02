@@ -20,9 +20,8 @@ verification_status: code-verified
 - [4. Expert/Member Business + Expert/Member APIs](#4-expertmember-business--expertmember-apis)
 - [5. Admin Business + Admin APIs](#5-admin-business--admin-apis)
 - [6. Shared Data Models](#6-shared-data-models)
-- [7. Important Implementation Notes](#7-important-implementation-notes)
-- [8. Verified Endpoint List](#8-verified-endpoint-list)
-- [9. Changelog](#9-changelog)
+- [7. Verified Endpoint List](#7-verified-endpoint-list)
+- [8. Changelog](#8-changelog)
 
 ## 2. Overview
 
@@ -35,21 +34,11 @@ Flow withdrawal hiện tại trong code hỗ trợ:
 - QR VietQR được sinh khi admin `approve`
 - Số dư ví chỉ bị trừ khi admin `complete`
 
-Những nội dung không có dấu vết trong codebase đã bị loại khỏi tài liệu này:
-- KYC / AML
-- webhook `withdrawal.status_changed`
-- rate limit theo giờ
-- settlement timeline `1-2 business days`
-- audit log chuyên biệt cho withdrawal
-- encryption-at-rest cho số tài khoản
-- suspicious activity rules / daily withdrawal rules
-
 ## 3. Authentication & Authorization
 
 ### Expert/Member Operations
 - JWT Bearer token bắt buộc
-- Flow withdrawal hiện tại không có role riêng cho `Expert`
-- `Expert` được xem là dùng chung contract với `Member` trong nhóm user-facing APIs
+- `Expert` và `Member` dùng cùng nhóm user-facing APIs cho flow này
 
 ### Admin Operations
 - JWT Bearer token bắt buộc
@@ -141,9 +130,6 @@ Mục đích:
 
 Authentication:
 - Required
-
-Lưu ý:
-- Codebase hiện tại không có `GET /api/wallet/balance`
 
 Success response:
 ```json
@@ -490,9 +476,6 @@ Success response:
 - `status = "Failed"`
 - `rejectionReason` chứa giá trị từ request
 
-Lưu ý:
-- Codebase hiện tại không có endpoint `GET /api/admin/withdrawals/{id}`
-
 ## 6. Shared Data Models
 
 ### CreateWithdrawalRequest
@@ -543,29 +526,7 @@ Lưu ý:
 | data | T | Payload |
 | error | object? | Error detail khi thất bại |
 
-## 7. Important Implementation Notes
-
-### 7.1 `bankBin` hiện chưa đi hết flow
-
-Mặc dù request bắt buộc có `bankBin`, implementation hiện tại:
-- không lưu `bankBin` vào entity `WalletWithdraw`
-- khi approve lại hardcode bank BIN là `970400`
-
-Vì vậy tài liệu này không khẳng định QR luôn được sinh theo đúng `bankBin` mà client gửi lên.
-
-### 7.2 User response và admin response khác nhau về masking
-
-- User endpoints mask `bankAccount`
-- Admin endpoints hiện trả raw `bankAccount`
-
-### 7.3 Số dư chỉ bị trừ ở bước `complete`
-
-Điểm này rất quan trọng:
-- `create`: chưa trừ tiền
-- `approve`: chưa trừ tiền
-- `complete`: mới trừ tiền và tạo transaction
-
-## 8. Verified Endpoint List
+## 7. Verified Endpoint List
 
 ### Expert/Member
 - `GET /api/wallet/me`
@@ -583,7 +544,7 @@ Vì vậy tài liệu này không khẳng định QR luôn được sinh theo đ
 - `POST /api/admin/withdrawals/{id}/complete`
 - `POST /api/admin/withdrawals/{id}/fail`
 
-## 9. Changelog
+## 8. Changelog
 
 ### 2026-04-02
 - Restructured document into actor-based sections
