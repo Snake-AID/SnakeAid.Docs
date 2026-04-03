@@ -202,7 +202,13 @@ Complete:
 These are intentionally not solved in this phase:
 - realtime updates
 - fraud checks / rate limiting
+- consistent `ValidateModel` coverage across withdrawal endpoints
 - layering cleanup for `IWalletService`
+
+Sequencing note after Phase 3:
+- The current public withdrawal contract is considered stable enough for frontend/mobile integration.
+- Migration consolidation is prioritized before production guardrails so the team can collapse withdrawal migration history before broader handoff and environment rollout.
+- This sequencing does not imply Phase 4 is unimportant; it only means Phase 4 should stay backward-compatible with the already-shared client contract.
 
 ## Change Log
 

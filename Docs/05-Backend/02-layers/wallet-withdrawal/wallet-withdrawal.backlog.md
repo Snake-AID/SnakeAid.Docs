@@ -132,6 +132,7 @@ Notes:
 Status: Not started
 
 - [ ] Add rate limiting if product requires it
+- [ ] Apply `ValidateModel` consistently to withdrawal endpoints so request validation behavior is explicit and production-safe
 - [ ] Decide whether realtime status update is needed
 - [ ] Add push/webhook/event flow if realtime is required
 - [ ] Add fraud / suspicious pattern rules if required
@@ -177,5 +178,10 @@ These are known issues but not on the immediate critical path:
 - [x] Phase 1. Contract Cleanup
 - [x] Phase 2. Domain Finalization
 - [x] Phase 3. Operational Hardening
-- [ ] Phase 4. Production Guardrails
 - [ ] Phase 5. Migration Consolidation
+- [ ] Phase 4. Production Guardrails
+
+Current sequencing note:
+- `Migration Consolidation` is now prioritized before `Production Guardrails`
+- Reason: Phase 3 contract is already stable enough for frontend/mobile integration, while migration history should be collapsed before broader handoff and environment rollout
+- Constraint: keep Phase 5 backward-compatibility assumptions explicit because migration rewriting can affect deployment workflow even if it does not change the public API contract
