@@ -4,7 +4,7 @@ module: wallet-withdrawal
 kind: flow
 doc_type: usageguide
 status: active
-last_updated: 2026-04-03
+last_updated: 2026-04-04
 api_version: v1
 owners: [backend-team]
 verification_status: code-verified
@@ -44,6 +44,8 @@ Client-visible behavior cần nắm ngay:
 - Withdrawal mới tạo chưa trừ tiền; tiền bị trừ khi admin `approve`
 - Bank directory hiện load từ `VietQRHelper` và được cache ở backend
 - Public error codes cho withdrawal flow đã ổn định để FE/mobile branch UI theo mã lỗi
+- `GET /api/withdrawals/{id}` trả `404 WITHDRAWAL_NOT_FOUND` cho cả trường hợp không tồn tại và trường hợp withdrawal không thuộc user hiện tại
+- Notification transport failure sau khi DB commit không làm request thành công bị đổi thành lỗi API
 
 ## 3. Authentication & Authorization
 
@@ -314,6 +316,11 @@ Mục đích:
 
 Authorization:
 - Chỉ owner mới xem được
+
+Failure behavior:
+- Nếu withdrawal không tồn tại, trả `404 WITHDRAWAL_NOT_FOUND`
+- Nếu withdrawal tồn tại nhưng không thuộc user hiện tại, backend cũng trả `404 WITHDRAWAL_NOT_FOUND`
+- Client không nên dựa vào endpoint này để phân biệt `not found` với `not yours`
 
 Success response sau khi approve:
 ```json
@@ -672,3 +679,7 @@ Notes:
 - Replaced mock bank directory note with actual `VietQRHelper` integration contract
 - Added richer `BankDirectoryResponse` fields for client mapping/search
 - Added stable public withdrawal error codes for FE/mobile error handling
+
+### 2026-04-04
+- Documented that user detail endpoint returns `404 WITHDRAWAL_NOT_FOUND` for both not-found and non-owner cases
+- Documented that notification publish failures after DB commit do not change a successful withdrawal API response into an error

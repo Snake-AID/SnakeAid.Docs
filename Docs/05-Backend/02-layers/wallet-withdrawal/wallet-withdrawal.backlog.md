@@ -4,7 +4,7 @@ module: wallet-withdrawal
 kind: implementation-tracker
 doc_type: backlog
 status: active
-last_updated: 2026-04-03
+last_updated: 2026-04-04
 owners: [backend-team]
 ---
 
@@ -125,6 +125,8 @@ Notes:
 - Phase 3 test pass also caught and fixed:
   - untracked admin state transitions caused by repository default `asNoTracking`
   - negative withdrawal transaction amount violating current transaction validation
+- Create-withdrawal checks now run atomically inside one transaction to reduce concurrent oversubscription races
+- Notification dispatch is now best-effort after commit so publish failures do not turn committed withdrawal state changes into API errors
 - Audit trail was explicitly dropped after review; no separate withdrawal history table is kept in this phase
 
 ### Phase 4. Production Guardrails

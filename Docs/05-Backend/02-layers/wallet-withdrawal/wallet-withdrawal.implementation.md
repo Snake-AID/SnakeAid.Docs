@@ -4,7 +4,7 @@ module: wallet-withdrawal
 kind: design-record
 doc_type: implementation
 status: active
-last_updated: 2026-04-03
+last_updated: 2026-04-04
 owners: [backend-team]
 ---
 
@@ -82,6 +82,11 @@ At `create`, service validates:
 
 This prevents stacking multiple pending withdrawals beyond available funds before admin review.
 
+Concurrency note:
+- create-withdrawal checks and insert now run inside one database transaction with `Serializable` isolation
+- the service recomputes wallet, pending total, and daily total inside that transaction before inserting the new `WalletWithdraw`
+- this closes the race window where concurrent create requests could otherwise bypass balance or daily-limit checks
+
 ### 6. QR contract
 
 At `approve`, backend generates:
@@ -142,6 +147,11 @@ Decision note:
 - backend does not add a withdrawal-specific notification orchestration layer in this phase
 - `INotificationQueueService` remains a transport dependency only
 
+Reliability note:
+- database state change is committed before notification dispatch is attempted
+- notification publish/broadcast is best-effort after commit
+- notification failures are logged and swallowed so a successful withdrawal state change does not become a `500` only because transport failed
+
 ### 11. Persistence fix discovered during Phase 3
 
 While adding tests, Phase 3 uncovered two real implementation bugs:
@@ -158,6 +168,12 @@ Current added coverage:
 - unit tests for create/cancel/approve/fail service behavior
 - integration tests for `create -> approve -> complete`
 - integration tests for `create -> approve -> fail`
+
+### 13. Service contract notes
+
+- `GetWithdrawalByIdAsync` is now nullable in the service contract: `Task<WalletWithdraw?>`
+- controllers remain responsible for converting `null` into the appropriate `404` API response
+- this matches the current controller flow more accurately than a non-null signature with post-call null checks
 
 ## API Notes
 
@@ -266,3 +282,6 @@ Verification performed during Phase 5:
 - Completed Phase 5 migration consolidation for wallet withdrawal
 - Replaced the three fragmented April withdrawal migrations with one consolidated migration: `20260403200823_SnakeaidWalletWithdraw`
 - Verified the revert-and-reapply path against the configured database target
+- Made create-withdrawal limit checks atomic by running wallet/pending/daily-limit checks and insert inside one transaction
+- Made withdrawal notifications best-effort after commit so publish failures no longer turn successful DB commits into API errors
+- Aligned `GetWithdrawalByIdAsync` service contract with controller behavior by returning nullable results
