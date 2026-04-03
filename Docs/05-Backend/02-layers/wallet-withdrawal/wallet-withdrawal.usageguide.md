@@ -509,6 +509,10 @@ Request body:
 }
 ```
 
+Field notes:
+- `reason` là bắt buộc, max `500` ký tự
+- nếu truyền `adminNotes`, max `1000` ký tự
+
 Success response:
 - Trả `ApiResponse<AdminWithdrawalResponse>`
 - `status = "Rejected"`
@@ -540,6 +544,10 @@ Request body:
   "adminNotes": "Destination bank unavailable"
 }
 ```
+
+Field notes:
+- `reason` là bắt buộc, max `500` ký tự
+- nếu truyền `adminNotes`, max `1000` ký tự
 
 Success response:
 - Trả `ApiResponse<AdminWithdrawalResponse>`
@@ -622,6 +630,11 @@ Admin-only notes:
 | `WITHDRAWAL_INSUFFICIENT_BALANCE` | Không đủ số dư để create/approve |
 | `WITHDRAWAL_DAILY_LIMIT_EXCEEDED` | Vượt limit rút trong ngày |
 | `WITHDRAWAL_BANK_BIN_MISSING` | Thiếu `bankBin`, backend không thể generate QR |
+
+Notes:
+- Đây là nhóm `withdrawal-specific business error codes` đã được ổn định cho FE/mobile branch UI.
+- Ngoài các mã trên, hệ thống vẫn có thể trả các generic error code ở envelope hiện tại cho các lỗi không đặc thù riêng của withdrawal flow.
+- Mobile nên ưu tiên branch business flow theo các mã `WITHDRAWAL_*`; không nên parse `message`.
 
 ## 7. Verified Endpoint List
 
