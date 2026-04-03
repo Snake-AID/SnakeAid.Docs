@@ -210,6 +210,39 @@ Sequencing note after Phase 3:
 - Migration consolidation is prioritized before production guardrails so the team can collapse withdrawal migration history before broader handoff and environment rollout.
 - This sequencing does not imply Phase 4 is unimportant; it only means Phase 4 should stay backward-compatible with the already-shared client contract.
 
+## Migration Strategy
+
+### Phase 5 consolidation result
+
+Withdrawal migration path is now consolidated.
+
+Chosen baseline:
+- `20260402100313_UpdateAppNotification`
+
+Removed fragmented withdrawal migrations:
+- `20260402141955_AddWalletWithdrawFields_PostgreSQL`
+- `20260403091500_AddWalletWithdrawBankBin_PostgreSQL`
+- `20260403133000_FinalizeWalletWithdrawPhase2_PostgreSQL`
+
+Current consolidated migration:
+- `20260403200823_SnakeaidWalletWithdraw`
+
+The consolidated migration contains the finalized withdrawal schema delta on top of the chosen baseline:
+- `AccountHolderName`
+- `AdminNotes`
+- `BankBin`
+- `ProcessedByAdminId`
+- `VietQrPayload`
+- `VietQrImageBase64`
+- index + foreign key for `ProcessedByAdminId`
+
+Verification performed during Phase 5:
+- revert database state back to `20260402100313_UpdateAppNotification`
+- remove fragmented withdrawal migrations from source history
+- generate one consolidated migration from the finalized model
+- apply `20260403200823_SnakeaidWalletWithdraw` on the reverted database
+- verify migration list now shows one consolidated withdrawal migration after the chosen baseline
+
 ## Change Log
 
 ### 2026-04-03
@@ -227,3 +260,9 @@ Sequencing note after Phase 3:
 - Fixed tracked-entity persistence bug in admin status transitions
 - Added automated test coverage for main withdrawal state transitions
 - Decided not to persist withdrawal audit history; only final state is kept on `WalletWithdraw`
+
+### 2026-04-04
+
+- Completed Phase 5 migration consolidation for wallet withdrawal
+- Replaced the three fragmented April withdrawal migrations with one consolidated migration: `20260403200823_SnakeaidWalletWithdraw`
+- Verified the revert-and-reapply path against the configured database target

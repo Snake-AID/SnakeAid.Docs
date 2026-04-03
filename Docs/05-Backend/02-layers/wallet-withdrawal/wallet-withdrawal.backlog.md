@@ -144,22 +144,32 @@ Status: Not started
 
 ### Phase 5. Migration Consolidation
 
-Status: Not started
+Status: Completed on backend 2026-04-04
 
 Goal: only after the withdrawal flow is fully stabilized, collapse fragmented withdrawal migrations into a single clean breaking migration path.
 
-- [ ] Freeze withdrawal schema changes before consolidation starts
-- [ ] Identify the nearest migration baseline not related to withdrawal flow
-- [ ] Inventory all withdrawal-related migrations currently layered on top of that baseline
-- [ ] Verify no production data depends on withdrawal-specific schema introduced by those mini migrations
-- [ ] Prepare rollback notes for local and production databases back to the non-withdrawal baseline
-- [ ] Revert database state to the chosen baseline before rewriting source migration history
-- [ ] Remove fragmented withdrawal migrations from source
-- [ ] Generate one consolidated withdrawal migration from the finalized model
-- [ ] Verify upgrade path on a clean database: baseline -> consolidated migration
-- [ ] Verify upgrade path on an existing reverted database: baseline -> consolidated migration
-- [ ] Update `wallet-withdrawal.implementation.md` with the final migration strategy
-- [ ] Update this backlog after Phase 5 completion
+- [x] Freeze withdrawal schema changes before consolidation starts
+- [x] Identify the nearest migration baseline not related to withdrawal flow
+- [x] Inventory all withdrawal-related migrations currently layered on top of that baseline
+- [x] Verify no production data depends on withdrawal-specific schema introduced by those mini migrations
+- [x] Prepare rollback notes for local and production databases back to the non-withdrawal baseline
+- [x] Revert database state to the chosen baseline before rewriting source migration history
+- [x] Remove fragmented withdrawal migrations from source
+- [x] Generate one consolidated withdrawal migration from the finalized model
+- [x] Verify upgrade path on a clean database: baseline -> consolidated migration
+- [x] Verify upgrade path on an existing reverted database: baseline -> consolidated migration
+- [x] Update `wallet-withdrawal.implementation.md` with the final migration strategy
+- [x] Update this backlog after Phase 5 completion
+
+Phase 5 result:
+- Chosen baseline: `20260402100313_UpdateAppNotification`
+- Removed fragmented withdrawal migrations:
+  - `20260402141955_AddWalletWithdrawFields_PostgreSQL`
+  - `20260403091500_AddWalletWithdrawBankBin_PostgreSQL`
+  - `20260403133000_FinalizeWalletWithdrawPhase2_PostgreSQL`
+- Added consolidated migration:
+  - `20260403200823_SnakeaidWalletWithdraw`
+- Verified database path by reverting to the chosen baseline first, then applying the consolidated migration
 
 Breaking-change note:
 - This phase intentionally rewrites the withdrawal migration path
@@ -178,7 +188,7 @@ These are known issues but not on the immediate critical path:
 - [x] Phase 1. Contract Cleanup
 - [x] Phase 2. Domain Finalization
 - [x] Phase 3. Operational Hardening
-- [ ] Phase 5. Migration Consolidation
+- [x] Phase 5. Migration Consolidation
 - [ ] Phase 4. Production Guardrails
 
 Current sequencing note:
