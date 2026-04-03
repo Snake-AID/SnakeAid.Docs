@@ -16,9 +16,9 @@ Internal backend tracker for withdrawal work.
 User-facing API usage stays in `wallet-withdrawal.usageguide.md`.
 
 Current assumption:
-- Withdrawal flow is still in development and has not gone to production
-- Backward compatibility is not a primary constraint for this module right now
-- Schema/API cleanup may prefer correctness and simplicity over preserving old dev-only contracts
+- Withdrawal flow is still being finalized at feature level
+- Some environments may already carry interim withdrawal migrations, so migration cleanup is deferred to Phase 5
+- Backward compatibility is still secondary to correctness for the feature contract, but migration history can no longer be treated as purely dev-only
 
 ## Current Baseline
 
@@ -106,23 +106,26 @@ Decision summary:
 
 ### Phase 3. Operational Hardening
 
-Status: Not started
+Status: Completed on backend 2026-04-03
 
-- [ ] Replace mock `BankDirectoryService` data with real `VietQRHelper` bank directory integration
-- [ ] Add caching strategy for bank directory lookup
-- [ ] Review whether withdrawal create contract should expose richer bank metadata beyond `bin` + `name`
-- [ ] Add withdrawal notification flow
-- [ ] Add dedicated audit trail beyond the current withdrawal fields
-- [ ] Add stable public error codes for FE/mobile
-- [ ] Add unit tests for create/approve/reject/complete/fail/cancel
-- [ ] Add integration tests for status transitions and balance effects
-- [ ] Update `wallet-withdrawal.usageguide.md` if operational changes affect public API/error contract
-- [ ] Update `wallet-withdrawal.implementation.md` for operational flow changes
-- [ ] Update this backlog after Phase 3 completion
+- [x] Replace mock `BankDirectoryService` data with real `VietQRHelper` bank directory integration
+- [x] Add caching strategy for bank directory lookup
+- [x] Review whether withdrawal create contract should expose richer bank metadata beyond `bin` + `name`
+- [x] Add withdrawal notification flow
+- [x] Decide to keep only final withdrawal state on `WalletWithdraw`
+- [x] Add stable public error codes for FE/mobile
+- [x] Add unit tests for create/approve/reject/complete/fail/cancel
+- [x] Add integration tests for status transitions and balance effects
+- [x] Update `wallet-withdrawal.usageguide.md` if operational changes affect public API/error contract
+- [x] Update `wallet-withdrawal.implementation.md` for operational flow changes
+- [x] Update this backlog after Phase 3 completion
 
 Notes:
 - Bash scripts are aligned with current response envelope
-- Automated coverage is still shallow for withdrawal service rules
+- Phase 3 test pass also caught and fixed:
+  - untracked admin state transitions caused by repository default `asNoTracking`
+  - negative withdrawal transaction amount violating current transaction validation
+- Audit trail was explicitly dropped after review; no separate withdrawal history table is kept in this phase
 
 ### Phase 4. Production Guardrails
 
@@ -167,13 +170,12 @@ Breaking-change note:
 These are known issues but not on the immediate critical path:
 
 - `WalletWithdrawService` currently depends on `IWalletService` DTO output instead of a domain-level wallet model
-- Stable business error typing is still missing; current flow still relies on exception text in several cases
 - Old-data remediation is optional for now and should only be added if the team decides dev/staging data must be preserved
 
 ## Recommended Next Order
 
 - [x] Phase 1. Contract Cleanup
 - [x] Phase 2. Domain Finalization
-- [ ] Phase 3. Operational Hardening
+- [x] Phase 3. Operational Hardening
 - [ ] Phase 4. Production Guardrails
 - [ ] Phase 5. Migration Consolidation

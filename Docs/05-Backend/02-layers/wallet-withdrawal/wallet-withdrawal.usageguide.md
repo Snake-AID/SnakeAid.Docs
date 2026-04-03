@@ -42,6 +42,8 @@ Client-visible behavior cần nắm ngay:
 - `vietQrImageBase64` có thể là `null` dù `vietQrPayload` đã có
 - User cancel dùng `POST /api/withdrawals/{id}/cancel`, không phải `DELETE`
 - Withdrawal mới tạo chưa trừ tiền; tiền bị trừ khi admin `approve`
+- Bank directory hiện load từ `VietQRHelper` và được cache ở backend
+- Public error codes cho withdrawal flow đã ổn định để FE/mobile branch UI theo mã lỗi
 
 ## 3. Authentication & Authorization
 
@@ -166,7 +168,8 @@ Auth:
 - JWT Bearer token bắt buộc
 
 Ghi chú:
-- Dữ liệu hiện tại là mock data từ `BankDirectoryService`
+- Dữ liệu hiện tại load từ `VietQRHelper.BankApp.BanksObject`
+- Backend cache bank directory để tránh parse lại ở mỗi request
 
 Success response:
 - `ApiResponse<List<BankDirectoryResponse>>`
@@ -179,14 +182,24 @@ Example response:
   "is_success": true,
   "data": [
     {
+      "key": "vietcombank",
+      "code": "VCB",
+      "shortName": "Vietcombank",
       "bin": "970400",
-      "name": "Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)",
-      "vietQrStatus": "TransferSupported"
+      "name": "Ngân hàng TMCP Ngoại thương Việt Nam",
+      "vietQrStatus": "TransferSupported",
+      "lookupSupported": true,
+      "swiftCode": "BFTVVNVX"
     },
     {
+      "key": "mbbank",
+      "code": "MB",
+      "shortName": "MB Bank",
       "bin": "970422",
       "name": "Ngân hàng TMCP Quân đội (MB Bank)",
-      "vietQrStatus": "TransferSupported"
+      "vietQrStatus": "TransferSupported",
+      "lookupSupported": true,
+      "swiftCode": null
     }
   ],
   "error": null
@@ -194,6 +207,7 @@ Example response:
 ```
 
 Field notes:
+- `key`, `code`, `shortName`, `lookupSupported`, `swiftCode` là metadata bổ sung; client có thể dùng cho search, display, hoặc fallback mapping
 - `bin` là giá trị client cần map vào `bankBin` khi gọi `POST /api/withdrawals/create`
 - `name` là giá trị có thể bind vào `bankName`
 - `vietQrStatus` hiện có các giá trị:
@@ -587,6 +601,28 @@ Admin-only notes:
 | data | T | Payload |
 | error | object? | Error detail khi thất bại |
 
+### BankDirectoryResponse
+| Field | Type | Description |
+|-------|------|-------------|
+| key | string? | Stable key từ `VietQRHelper` |
+| code | string? | Mã ngân hàng ngắn |
+| shortName | string? | Tên ngắn phù hợp cho dropdown/search |
+| bin | string | Giá trị map sang `bankBin` khi create withdrawal |
+| name | string | Tên ngân hàng đầy đủ |
+| vietQrStatus | enum | `TransferSupported/ReceiveOnly/NotSupported` |
+| lookupSupported | bool | Gợi ý backend/source có hỗ trợ tra cứu |
+| swiftCode | string? | Swift code nếu source có trả về |
+
+### Common Public Error Codes
+| Code | Khi nào dùng |
+|------|--------------|
+| `WITHDRAWAL_NOT_FOUND` | Không tìm thấy withdrawal |
+| `WITHDRAWAL_FORBIDDEN` | User không được xem/chỉnh withdrawal đó |
+| `WITHDRAWAL_INVALID_STATUS` | Action không hợp lệ với trạng thái hiện tại |
+| `WITHDRAWAL_INSUFFICIENT_BALANCE` | Không đủ số dư để create/approve |
+| `WITHDRAWAL_DAILY_LIMIT_EXCEEDED` | Vượt limit rút trong ngày |
+| `WITHDRAWAL_BANK_BIN_MISSING` | Thiếu `bankBin`, backend không thể generate QR |
+
 ## 7. Verified Endpoint List
 
 ### Expert/Member
@@ -620,3 +656,6 @@ Admin-only notes:
 - Added `bankBin` to withdrawal response contract
 - Added `GET /api/admin/withdrawals/{id}`
 - Kept cancel contract as `POST /api/withdrawals/{id}/cancel`
+- Replaced mock bank directory note with actual `VietQRHelper` integration contract
+- Added richer `BankDirectoryResponse` fields for client mapping/search
+- Added stable public withdrawal error codes for FE/mobile error handling

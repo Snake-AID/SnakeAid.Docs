@@ -99,6 +99,66 @@ Fallback rule:
   - `ProcessedByAdminId`
   - `AdminNotes`
 
+### 8. Bank directory source
+
+- `BankDirectoryService` now reads from `VietQRHelper.BankApp.BanksObject`
+- Results are cached in-memory for `24` hours
+- Backend now exposes richer bank metadata:
+  - `Key`
+  - `Code`
+  - `ShortName`
+  - `LookupSupported`
+  - `SwiftCode`
+
+Implementation goal:
+- keep FE/mobile bank picker aligned with the same source used for VietQR-related metadata
+
+### 9. Stable public error codes
+
+Withdrawal flow now uses stable codes for FE/mobile-visible failures:
+- `WITHDRAWAL_NOT_FOUND`
+- `WITHDRAWAL_FORBIDDEN`
+- `WITHDRAWAL_INVALID_STATUS`
+- `WITHDRAWAL_INSUFFICIENT_BALANCE`
+- `WITHDRAWAL_DAILY_LIMIT_EXCEEDED`
+- `WITHDRAWAL_BANK_BIN_MISSING`
+
+These codes are propagated through `ApiException` and the exception middleware so clients do not need to parse exception text.
+
+### 10. Notification flow
+
+Current notification behavior:
+- `create`: broadcast admin notification `WITHDRAWAL_REQUEST_CREATED`
+- `cancel`: broadcast admin notification `WITHDRAWAL_CANCELLED`
+- `approve`: publish user notification `WITHDRAWAL_APPROVED`
+- `reject`: publish user notification `WITHDRAWAL_REJECTED`
+- `complete`: publish user notification `WITHDRAWAL_COMPLETED`
+- `fail`: publish user notification `WITHDRAWAL_FAILED`
+
+Deep-link generation is handled in `NotificationQueueService`.
+
+Decision note:
+- notification remains inside `WalletWithdrawService` for now
+- backend does not add a withdrawal-specific notification orchestration layer in this phase
+- `INotificationQueueService` remains a transport dependency only
+
+### 11. Persistence fix discovered during Phase 3
+
+While adding tests, Phase 3 uncovered two real implementation bugs:
+- approval path was writing a negative `Transaction.Amount`, which violated the current transaction validation attributes
+- approve/reject/complete/fail were loading `WalletWithdraw` with repository default `asNoTracking = true`, so status and wallet changes were not reliably persisted
+
+Current fix:
+- withdrawal debit transaction now stores a positive amount and relies on `TransactionType` + wallet balance mutation to indicate direction
+- state-changing admin queries now use tracked entities (`asNoTracking: false`)
+
+### 12. Automated coverage added
+
+Current added coverage:
+- unit tests for create/cancel/approve/fail service behavior
+- integration tests for `create -> approve -> complete`
+- integration tests for `create -> approve -> fail`
+
 ## API Notes
 
 ### User create contract
@@ -140,10 +200,6 @@ Complete:
 ## Out of Scope for Current Implementation
 
 These are intentionally not solved in this phase:
-- notification flow
-- audit log table
-- stable business error codes
-- real bank directory source
 - realtime updates
 - fraud checks / rate limiting
 - layering cleanup for `IWalletService`
@@ -159,3 +215,9 @@ These are intentionally not solved in this phase:
 - Moved balance deduction from `complete` to `approve`
 - Changed `complete` into transfer-confirmation step
 - Formalized QR fallback behavior
+- Phase 3 replaced mock bank directory with `VietQRHelper` integration + caching
+- Added stable public withdrawal error codes
+- Added withdrawal notifications for create/cancel/approve/reject/complete/fail
+- Fixed tracked-entity persistence bug in admin status transitions
+- Added automated test coverage for main withdrawal state transitions
+- Decided not to persist withdrawal audit history; only final state is kept on `WalletWithdraw`
