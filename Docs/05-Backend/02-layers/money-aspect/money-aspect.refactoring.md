@@ -165,14 +165,19 @@ Không dùng chung:
 
 ### 3. Prefix routing phải unique
 
-Mỗi flow PayOS phải có prefix riêng, ví dụ:
+Mỗi flow PayOS phải có prefix riêng:
 
 - `TOPUP-`
 - `CATCHING-`
 - `INCIDENT-`
 - `CONSULTPAY-`
 
-Không reuse prefix giữa các flow.
+Decision đã chốt:
+
+- `wallet topup` dùng `TOPUP-`
+- `snake catching` dùng `CATCHING-`
+- chấp nhận migration cost để loại bỏ `SNAKEAID-` và lấy lại naming trật tự theo flow
+- không reuse prefix giữa các flow
 
 ### 4. Domain state update phải nằm sau money confirmation đúng owner
 
@@ -214,7 +219,12 @@ Mỗi flow tiền tệ chuẩn hóa theo cấu trúc:
 - trả checkout url nếu là PayOS
 
 2. `ConfirmPayment`
-- resolve payment theo `transactionId` hoặc `orderCode`
+- nhận input từ entrypoint hiện tại:
+  - manual confirm đi bằng `transactionId`
+  - return đi bằng `orderCode`
+  - webhook đi bằng payload đã verify
+- manual confirm và return phải hội tụ về cùng processing path sau bước lookup ban đầu
+- resolve owner flow cuối cùng bằng `description prefix`
 - verify trạng thái gateway
 - idempotency guard
 
@@ -297,7 +307,7 @@ Trong target state:
 
 Giữ `PayOsController` là entrypoint callback chung.
 
-Thay vì hardcode logic mơ hồ, routing trong `PayOsController` phải explicit:
+Routing trong `PayOsController` phải explicit:
 
 - parse prefix
 - map prefix -> flow owner
@@ -310,6 +320,10 @@ Nguyên tắc là:
 - `PayOsController` chỉ nhận request và dispatch theo prefix
 - `PayOsController` không chứa domain side-effect
 - flow owner service mới là nơi confirm/process webhook và apply business logic
+- routing key cuối cùng là `description prefix`
+- manual confirm, return, webhook được phép có input khác nhau nhưng phải hội tụ về cùng rule dispatch này
+- `manual confirm` tiếp tục nhận `transactionId`
+- `return` tiếp tục nhận `orderCode`
 
 ### Documentation structure cho code mới
 
@@ -333,7 +347,7 @@ Trạng thái: `TODO`
 Checklist:
 
 - [ ] chốt danh sách 4 flow tiền tệ cần quản lý
-- [ ] chốt prefix hiện tại của từng flow
+- [x] chốt prefix hiện tại của từng flow
 - [ ] chốt entrypoints controller/service hiện tại
 - [ ] chốt các integration test đang có
 - [ ] bổ sung regression notes cho topup đang đi nhờ snake catching
@@ -354,7 +368,7 @@ Mục tiêu:
 
 Checklist:
 
-- [ ] tạo prefix riêng cho topup
+- [x] tạo prefix riêng cho topup
 - [ ] tạo owner service cho topup callback/confirm
 - [ ] cập nhật PayOS router
 - [ ] thêm test routing cho topup
@@ -458,7 +472,9 @@ Done khi:
 ### Latest confirmed findings
 
 - `wallet topup` đang dùng prefix `SNAKEAID-`
+- target prefix mới của `wallet topup` là `TOPUP-`
 - `wallet topup` đang được PayOS route sang snake catching processor
+- target prefix mới của `snake catching` là `CATCHING-`
 - `consultation` dùng prefix `CONSULTPAY-`
 - `snakebite incident` dùng prefix `INCIDENT-`
 - `snake catching` đang split money ownership giữa `SnakeCatchingPaymentService` và `WalletPaymentService`

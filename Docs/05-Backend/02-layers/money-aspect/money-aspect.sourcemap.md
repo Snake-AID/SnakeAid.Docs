@@ -68,6 +68,13 @@ flowchart LR
 - money primitive được share qua service riêng
 - `PayOsController` là callback entrypoint chung, chỉ nhận request và dispatch theo prefix
 - `PayOsController` không apply domain side-effect
+- `wallet topup` dùng prefix `TOPUP-`
+- `snake catching` dùng prefix `CATCHING-`
+- chấp nhận migration từ `SNAKEAID-` sang `CATCHING-` để đổi lấy routing trật tự theo flow
+- manual confirm, return, webhook có thể nhận input khác nhau nhưng owner flow luôn được resolve bằng `description prefix`
+- `manual confirm` tiếp tục nhận `transactionId`
+- `return` tiếp tục nhận `orderCode`
+- `manual confirm` và `return` phải hội tụ về cùng processing path sau bước lookup ban đầu
 
 ## Class Diagram
 

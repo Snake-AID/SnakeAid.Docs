@@ -35,34 +35,35 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
 
 ## Bucket B. PayOS Callback Routing
 
-### Mục tiêu
+### Fact đã verify
 
-Chốt callback đang đi như thế nào và prefix nào thật sự là key dispatch ổn định.
+- cả `confirm manual`, `return`, `webhook` đều được dispatch trực tiếp trong `PayOsController`
+- 3 đường vào khác nhau ở input lookup, nhưng cùng hội tụ về `description prefix`
+- `confirm manual` đi vào bằng `transactionId`, rồi lookup ra `description`
+- `return` đi vào bằng `orderCode`, rồi lookup ra `description`
+- `webhook` đi vào bằng payload đã verify, rồi dùng luôn `description`
+- `PayOsDescriptionLookup` hiện chỉ recognize 3 prefix:
+  - `SNAKEAID-`
+  - `INCIDENT-`
+  - `CONSULTPAY-`
+- `wallet topup` hiện đang build `SNAKEAID-`, nên callback bị route nhầm vào owner của snake catching
+- `consultation` đang dùng `CONSULTPAY-` nhất quán
+- `snakebite incident` đang dùng `INCIDENT-` nhất quán
+- `snake catching` đang dùng `SNAKEAID-` nhất quán
+- `SNAKEAID-` đang xuất hiện ở service logic, lookup logic, test, và helper script; đổi prefix này có blast radius cao hơn tách prefix riêng cho topup
 
-### Câu hỏi cần trả lời
+### Decision đã chốt từ bucket này
 
-- `PayOsController` đang route theo `description prefix`, `orderCode`, hay transaction lookup kiểu kết hợp
-- callback, return, confirm manual có cùng logic dispatch không
-- prefix hiện tại có chỗ nào bị reuse sai semantic không
-- snake catching có bắt buộc phải giữ `SNAKEAID-` vì backward compatibility hay không
-- topup có thể tách sang prefix riêng mà không phá flow hiện tại không
-
-### Khu vực code cần soi
-
-- `SnakeAid.Api/Controllers/PayOsController.cs`
-- các hàm build description / order code trong:
-  - `WalletTopupService.cs`
-  - `SnakeCatchingPaymentService.cs`
-  - `ConsultationPaymentService.cs`
-  - `SnakebiteIncidentPaymentService.cs`
-- integration test liên quan PayOS routing
-
-### Decision phụ thuộc bucket này
-
-- `9. PayOsController dispatch bằng gì`
-- `10. Prefix cuối cùng của 4 flow`
-- `11. CATCHING- hay giữ SNAKEAID-`
-- `16. transactionId hay orderCode là key resolve chính`
+- không tạo router abstraction riêng
+- callback dispatch tiếp tục nằm trong `PayOsController`
+- dispatch rule cốt lõi tiếp tục dựa trên `description prefix`
+- prefix final của `wallet topup` là `TOPUP-`
+- prefix final của `snake catching` là `CATCHING-`
+- chấp nhận migration cost để đổi từ `SNAKEAID-` sang `CATCHING-` nhằm lấy lại trật tự prefix theo flow
+- `manual confirm` tiếp tục nhận `transactionId`
+- `return` tiếp tục nhận `orderCode`
+- `manual confirm` và `return` phải hội tụ về cùng processing path sau bước lookup ban đầu
+- owner flow luôn được resolve cuối cùng bằng `description prefix`
 
 ---
 
@@ -233,7 +234,7 @@ Chốt placement và naming theo convention codebase, tránh sinh abstraction l�
 Khi research codebase, nên tick theo bucket thay vì theo decision rời:
 
 - [x] Bucket A done
-- [ ] Bucket B done
+- [x] Bucket B done
 - [ ] Bucket C done
 - [ ] Bucket D done
 - [ ] Bucket E done
