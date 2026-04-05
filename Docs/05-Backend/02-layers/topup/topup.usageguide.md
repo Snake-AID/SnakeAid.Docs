@@ -390,7 +390,7 @@ Success response:
     "amount": 50000,
     "currency": "VND",
     "transactionType": "WalletTopup",
-    "description": "SNAKEAID-17123456781234",
+    "description": "TOPUP-17123456781234",
     "paymentMethod": "PayOS",
     "externalTransactionId": "MANUAL-550e8400-e29b-41d4-a716-446655440000",
     "createdAt": "2026-04-05T11:24:10Z"

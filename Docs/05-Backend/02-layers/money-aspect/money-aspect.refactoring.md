@@ -390,15 +390,23 @@ Mục tiêu của phase này:
 
 Checklist:
 
-- [ ] đổi prefix `wallet topup` sang `TOPUP-`
-- [ ] đổi prefix `snake catching` sang `CATCHING-`
-- [ ] để `PayOsController` dispatch theo `description prefix` mới mà không tạo router abstraction
-- [ ] thêm hoặc hoàn thiện callback/confirm handling đúng owner cho `wallet topup`
-- [ ] absorb logic của `WalletPaymentService` vào `SnakeCatchingPaymentService`
-- [ ] xóa route leak `POST /api/wallet/payment`
-- [ ] chuyển snake catching wallet payment sang route đúng domain
-- [ ] viết doc migration cho frontend nếu route/DTO thay đổi
-- [ ] giữ `consultation` và `snakebite incident` ổn định, chỉ align semantic tối thiểu cần thiết trong phase này
+- [x] đổi prefix `wallet topup` sang `TOPUP-`
+- [x] đổi prefix `snake catching` sang `CATCHING-`
+- [x] để `PayOsController` dispatch theo `description prefix` mới mà không tạo router abstraction
+- [x] thêm hoặc hoàn thiện callback/confirm handling đúng owner cho `wallet topup`
+- [x] absorb logic của `WalletPaymentService` vào `SnakeCatchingPaymentService`
+- [x] xóa route leak `POST /api/wallet/payment`
+- [x] chuyển snake catching wallet payment sang route đúng domain
+- [x] viết doc migration cho frontend nếu route/DTO thay đổi
+- [x] giữ `consultation` và `snakebite incident` ổn định, chỉ align semantic tối thiểu cần thiết trong phase này
+
+Migration note cho frontend/mobile:
+
+- endpoint tạo snake catching wallet payment đổi từ `POST /api/wallet/payment` sang `POST /api/snakecatching/payment/wallet`
+- request DTO giữ nguyên `CreateSnakeCatchingPaymentRequest`, chỉ đổi route owner
+- PayOS description của snake catching đổi từ `SNAKEAID-{orderCode}` sang `CATCHING-{orderCode}`
+- wallet topup đổi PayOS description từ `SNAKEAID-{orderCode}` sang `TOPUP-{orderCode}`
+- nếu client đang parse prefix cũ hoặc hardcode route cũ thì phải migrate cùng release backend này
 
 ### Phase 3. Trích shared money primitives
 
@@ -459,22 +467,23 @@ Checklist:
 
 ### Current status
 
-- Phase 0: `IN PROGRESS`
-- Phase 1: `TODO`
-- Phase 2: `TODO`
+- Phase 0: `DONE`
+- Phase 1: `DONE`
+- Phase 2: `DONE`
 - Phase 3: `TODO`
 - Phase 4: `TODO`
 - Phase 5: `TODO`
 
 ### Latest confirmed findings
 
-- `wallet topup` đang dùng prefix `SNAKEAID-`
+- `wallet topup` đã dùng prefix `TOPUP-`
 - target prefix mới của `wallet topup` là `TOPUP-`
-- `wallet topup` đang được PayOS route sang snake catching processor
+- `wallet topup` đã tự owner callback/confirm path qua `WalletTopupService`
 - target prefix mới của `snake catching` là `CATCHING-`
 - `consultation` dùng prefix `CONSULTPAY-`
 - `snakebite incident` dùng prefix `INCIDENT-`
-- `snake catching` đang split money ownership giữa `SnakeCatchingPaymentService` và `WalletPaymentService`
+- `snake catching` đã absorb `WalletPaymentService` vào `SnakeCatchingPaymentService`
+- route leak `POST /api/wallet/payment` đã bị xóa; route wallet payment hiện thuộc `POST /api/snakecatching/payment/wallet`
 
 ## Resume Guide
 
