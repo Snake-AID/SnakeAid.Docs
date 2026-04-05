@@ -10,6 +10,17 @@ Mục đích:
 - giúp reviewer kiểm tra đúng ranh giới flow
 - giúp agent resume với structural memory rõ ràng
 
+## Document mode
+
+File này là `decision-only`.
+
+Quy ước sử dụng:
+
+- các diagram trong file này luôn là `target-state`
+- không sửa diagram để phản ánh implementation tạm thời giữa chừng
+- tiến độ implementation được ghi bằng note, mô tả hệ thống hiện đã đi tới đâu so với target diagram
+- nếu target diagram cần đổi, đó là thay đổi decision và phải được chốt trước khi sửa file này
+
 ## Flow Map
 
 | Flow | Semantic | Owner service | Prefix | Domain side-effect |

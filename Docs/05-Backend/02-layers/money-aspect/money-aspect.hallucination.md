@@ -67,6 +67,49 @@ Chốt flow nào hiện đang sở hữu:
 - `7. Mức refactor của snake catching`
 - `8. Mức refactor của consultation và snakebite incident`
 
+### Research result
+
+#### Verified facts
+
+- `wallet topup`
+  - create payment đang đi qua `WalletController -> IWalletTopupService.CreateWalletTopupAsync`
+  - topup chỉ sở hữu pha create intent
+  - topup không có callback owner riêng trong `PayOsController`
+  - callback của topup hiện đang bị route vào `ISnakeCatchingPaymentService`
+  - side-effect cộng tiền vào ví user hiện nằm trong `SnakeCatchingPaymentService.HandleWalletTopupAsync`
+
+- `snake catching`
+  - PayOS create/confirm/webhook owner là `SnakeCatchingPaymentService`
+  - wallet payment owner lại là `WalletPaymentService`
+  - payout transfer cho rescuer owner là `SnakeCatchingPaymentService.TransferSnakeCatchingFundsToRescuerAsync`
+  - domain side-effect của catching đang split giữa `WalletPaymentService` và `SnakeCatchingPaymentService`
+
+- `consultation`
+  - create payment owner là `ConsultationPaymentService`
+  - service này tự dispatch giữa `WalletBalance` và `PayOs`
+  - confirm owner là `ConsultationPaymentService.ConfirmConsultationPaymentAsync`
+  - webhook owner là `ConsultationPaymentService.ProcessConsultationWebhookAsync`
+  - wallet movement vào escrow và domain side-effect đều nằm trong `ConsultationPaymentService`
+
+- `snakebite incident`
+  - PayOS create owner là `SnakebiteIncidentPaymentService.CreateSnakebiteIncidentPaymentLinkAsync`
+  - wallet payment owner là `SnakebiteIncidentPaymentService.CreateSnakebiteIncidentWalletPaymentAsync`
+  - confirm owner là `SnakebiteIncidentPaymentService.ConfirmSnakebiteIncidentPaymentAsync`
+  - webhook owner là `SnakebiteIncidentPaymentService.ProcessSnakebiteIncidentWebhookAsync`
+  - refund owner là `SnakebiteIncidentPaymentService.RefundSnakebiteIncidentTransactionAsync`
+  - wallet movement vào escrow và domain side-effect đều nằm trong `SnakebiteIncidentPaymentService`
+
+#### Current ownership conclusion
+
+- `wallet topup` là flow sai ownership rõ nhất
+- `snake catching` là flow split ownership rõ nhất
+- `consultation` và `snakebite incident` hiện là hai flow self-contained nhất trong money aspect
+
+#### Ambiguity còn lại
+
+- mức absorb của `WalletPaymentService` vào `SnakeCatchingPaymentService` nên full hay partial
+- có cần đụng sâu vào `consultation` và `snakebite incident` ngay trong lượt refactor này hay chỉ dùng làm baseline pattern
+
 ---
 
 ## Bucket B. PayOS Callback Routing
@@ -258,18 +301,22 @@ Chốt placement và naming theo convention codebase, tránh sinh abstraction l�
 
 Chốt `sourcemap` sẽ đóng vai trò gì sau khi implementation bắt đầu.
 
-### Câu hỏi cần trả lời
+### Decision đã chốt
 
-- `sourcemap` dùng để mô tả target state hay implementation state
-- diagram có cần update theo từng phase hay chỉ update khi kết thúc
-- `refactoring.md` có giữ hoàn toàn decision-only hay cho phép progress notes ngắn
+- `money-aspect.sourcemap.md` giữ các diagram ở `target-state`
+- `implementation-state` không thay diagram hiện tại, mà được ghi bằng note cho biết hệ thống đã implement tới đâu so với target
+- cả `money-aspect.refactoring.md` và `money-aspect.sourcemap.md` đều là `decision-only`
+- không để doc mở ra các nhánh quyết định mới trong lúc implementation
+- mọi thay đổi quyết định kiến trúc phải được chốt trước trong doc, không đổi ngầm trong code
 
-### Khu vực code cần soi
+### Hệ quả vận hành doc
 
-- không phụ thuộc code runtime nhiều
-- phụ thuộc cách team muốn review và resume
+- `refactoring.md` chỉ chứa decision, roadmap, scope, tracking theo decision đã chốt
+- `sourcemap.md` chỉ chứa target diagram và note implementation progress bám theo target đó
+- không dùng hai doc này để brainstorm giữa chừng
+- nếu phát sinh ambiguity mới từ codebase research, phải ghi vào `money-aspect.hallucination.md` trước, chưa được tự động đẩy sang hai doc decision
 
-### Decision phụ thuộc bucket này
+### Decision đã khóa bởi bucket này
 
 - `18. money-aspect.sourcemap.md là target-state hay implementation-state`
 - `20. Mức độ decision-only của 2 doc`
@@ -294,13 +341,14 @@ Chốt `sourcemap` sẽ đóng vai trò gì sau khi implementation bắt đầu.
 Khi research codebase, nên tick theo bucket thay vì theo decision rời:
 
 - [ ] Bucket A done
+- [x] Bucket A done
 - [ ] Bucket B done
 - [ ] Bucket C done
 - [ ] Bucket D done
 - [ ] Bucket E done
 - [ ] Bucket F done
 - [ ] Bucket G done
-- [ ] Bucket H done
+- [x] Bucket H done
 
 ## Output Format Sau Mỗi Bucket
 

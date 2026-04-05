@@ -2,6 +2,24 @@
 
 ## Background
 
+### Document mode
+
+File này là `decision-only`.
+
+Nó chỉ chứa:
+
+- decision đã chốt
+- roadmap thực hiện
+- tracking tiến độ bám theo decision đã chốt
+
+Nó không dùng để:
+
+- brainstorm
+- mở thêm phương án giữa chừng
+- ghi tạm các cân nhắc chưa verify
+
+Mọi ambiguity mới phát sinh trong quá trình research hoặc implementation phải được đưa sang `money-aspect.hallucination.md` trước khi được nâng cấp thành decision trong file này.
+
 ### Vấn đề
 
 Hiện tại logic tiền tệ của backend đang phân tán theo nhiều service và chưa thống nhất ownership theo flow.
