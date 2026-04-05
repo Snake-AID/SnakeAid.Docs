@@ -113,44 +113,93 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
 
 - `wallet topup` không dùng chung primitive escrow với 3 flow domain
 - commission của `snake catching` là domain-specific logic, không đưa vào shared primitive layer
-- payout của `snake catching` tạm thời giữ trong flow owner, không shared ở giai đoạn hiện tại
-- candidate shared mạnh nhất hiện tại là `escrow primitive`
-- refund có thể trở thành candidate shared ở phase cuối, nhưng chưa chốt boundary ở thời điểm này
-- quyết định shared boundary cuối cùng vẫn defer tới phase cuối sau khi flow đã được chuẩn hóa
+- payout của `snake catching` giữ trong flow owner; không shared trong lượt refactor hiện tại
+- refund của `snake catching` dù có wallet movement gần consultation/incident thì vẫn giữ trong flow owner ở lượt refactor hiện tại
+- `consultation` và `snakebite incident` tiếp tục giữ refund/payout/settlement logic trong owner service hiện tại; lượt refactor này chỉ align semantic cần thiết, không trích shared primitive mới từ các nhánh đó
+- candidate shared mạnh nhất về mặt lý thuyết hiện tại là `escrow primitive`, nhưng lượt refactor này không tạo shared escrow abstraction mới
+- lượt refactor hiện tại không tạo shared refund abstraction
+- lượt refactor hiện tại không tạo shared payout abstraction
+- cleanup logic tiền ở phase hiện tại phải diễn ra bên trong flow owner, không mở thêm crosscutting layer mới
+- quyết định shared boundary cuối cùng vẫn defer tới phase cuối sau khi flow đã được chuẩn hóa và route migration đã ổn định
 
-### Ambiguity còn lại
+### Kết luận bucket này
 
-- sau khi chuẩn hóa snake catching, nó có hội tụ đủ để dùng cùng escrow primitive với consultation/incident hay không
-- refund có pattern wallet movement khá gần giữa consultation/incident/snake catching, nhưng boundary shared tới đâu sẽ chỉ chốt ở phase cuối
-- payout hiện chưa đủ giống nhau:
-  - consultation payout = escrow settlement sang expert
-  - snake catching payout = aggregate paid transactions + commission + payout sang rescuer
-  nên nhiều khả năng payout vẫn nên giữ trong từng flow owner
-- shared boundary cuối cùng sẽ dừng ở `escrow only` hay đi xa tới `ledger pair`
-
+- mọi quyết định actionable của bucket này cho lượt refactor hiện tại đã được khóa
+- các câu hỏi còn lại về `escrow only` hay `ledger pair`, hoặc refund shared tới đâu, được chuyển hẳn sang phase cuối và không còn là ambiguity cản tiến độ của implementation hiện tại
 ---
 
 ## Bucket E. Public API And Client Impact
 
-### Mục tiêu
+### Fact đã verify
 
-Chốt blast radius ra bên ngoài trước khi refactor.
+- client-visible payment entrypoints hiện tại gồm:
+  - `POST /api/wallet/topup`
+  - `POST /api/wallet/payment`
+  - `POST /api/snakecatching/payment/create-link`
+  - `POST /api/snakecatching/payment/cancel-link/{orderCode}`
+  - `POST /api/snakecatching/payment/transfer-to-rescuer`
+  - `POST /api/consultations/scheduled/{bookingId}/payments`
+  - `POST /api/consultations/instant/{requestId}/payments`
+  - `POST /api/consultations/payments/confirm`
+  - `POST /api/incidents/{incidentId}/payment/payos`
+  - `POST /api/incidents/{incidentId}/payment/wallet`
+  - `DELETE /api/incidents/{incidentId}/payment/payos/{orderCode}`
+  - `POST /api/incidents/{incidentId}/payment/refund`
+- `TransactionController` public response đang expose trực tiếp các field nhạy cảm với refactor:
+  - `TransactionType`
+  - `Description`
+  - `PaymentMethod`
+  - `ExternalTransactionId`
+  - `CreatedAt`
+- topup response hiện expose:
+  - `TransactionId`
+  - `Amount`
+  - `Status`
+  - `CheckoutUrl`
+  - `OrderCode`
+  - `PaymentLinkId`
+  - `Provider`
+  - `GatewayRawResponse`
+- snake catching payment response hiện expose:
+  - `TransactionId`
+  - `SnakeCatchingRequestId`
+  - `Amount`
+  - `Status`
+  - `CheckoutUrl`
+  - `OrderCode`
+  - `PaymentLinkId`
+  - `Provider`
+  - `GatewayRawResponse`
+- consultation payment response expose thêm:
+  - `PaymentMethod`
+  - `UserWalletBalanceAfter`
+  - `SystemWalletBalanceAfter`
+  - `PaidAtUtc`
+  - `ExternalTransactionId`
+- incident payment response expose thêm:
+  - `ExternalTransactionId`
+  - `UserWalletBalanceAfter`
+  - `SystemWalletBalanceAfter`
+  - `PaidAt`
+- shape response giữa 4 flow hiện chưa thống nhất; client đang thấy implementation differences thật sự
+- `WalletController.POST /api/wallet/payment` là API snake catching wallet payment nhưng đang nằm dưới wallet namespace; đây là implementation leak cũ ra public API
+- `ConsultationPaymentsController` có manual confirm endpoint public dưới role `User`; đây là client-visible contract thật, không thể xem như internal-only
 
-### Câu hỏi cần trả lời
+### Ambiguity còn lại
 
-- mobile/client hiện đang phụ thuộc vào endpoint nào cho topup, wallet payment, transaction refresh
-- client có đọc `transactionType`, `description`, `orderCode`, `checkoutUrl`, `status` trực tiếp không
-- callback refactor có làm thay đổi response shape hay polling flow không
-- có API nào public nhưng thực chất đang phản ánh implementation leak cũ không
+### Decision đã chốt
 
-### Khu vực code cần soi
-
-- `WalletController.cs`
-- `TransactionController.cs`
-- `ConsultationPaymentsController.cs`
-- `SnakeCatchingPaymentsController.cs`
-- `SnakebiteIncidentController.cs`
-- docs hiện có trong `SnakeAid.Docs`
+- public API contract được phép đổi route/response ngay trong lượt refactor này
+- route leak `POST /api/wallet/payment` sẽ bị xóa; flow snake catching phải chuyển hẳn sang route đúng domain
+- `TransactionController` giữ nguyên response contract trong suốt lượt refactor; semantic cleanup nội bộ không được làm breaking API ngay tại controller này
+- `manual confirm` và `return` giữ contract ngoài như hiện tại; chỉ unify processing path bên trong
+- chưa cố đồng nhất response shape của 4 flow trong lượt này; chỉ giữ backward compatibility ở những chỗ đã public
+- nếu có thay đổi lớn ở phía frontend-facing route/DTO, bắt buộc phải có documentation hướng dẫn frontend migration
+- doc migration phải chỉ rõ:
+  - route cũ -> route mới
+  - request DTO cũ -> request DTO mới
+  - response DTO cũ -> response DTO mới
+  - thay đổi calling flow nếu có
 
 ### Decision phụ thuộc bucket này
 
@@ -161,22 +210,28 @@ Chốt blast radius ra bên ngoài trước khi refactor.
 
 ## Bucket F. Safe Refactor Scope
 
-### Mục tiêu
+### Fact đã verify
 
-Chốt refactor lượt này sẽ đi xa đến đâu mà vẫn an toàn.
+- test coverage hiện lệch mạnh giữa các flow, không đồng đều cho một big-bang refactor:
+  - `consultation` có integration coverage thật cho wallet payment, PayOS pending, manual confirm, refund, và idempotent settlement
+  - `snakebite incident` có unit test + property test khá dày, nhưng thiếu integration coverage tương đương consultation
+  - `snake catching` chủ yếu có preservation/property tests và route contract tests; gần như không có service-level integration coverage tương đương consultation
+  - `wallet topup` hiện gần như không có unit/integration coverage riêng; chủ yếu mới có bash endpoint scripts
+- `SnakeCatchingPaymentsController` đã tồn tại dưới route đúng domain `api/snakecatching/payment`, nhưng `WalletController.POST /api/wallet/payment` vẫn còn sống và vẫn inject `IWalletPaymentService`
+- điều này cho thấy route migration của snake catching đang ở trạng thái dual-path, chưa clean cut
+- coverage hiện có đủ để xem `consultation` là executable baseline cho pattern target
+- coverage hiện có không đủ mạnh để vừa absorb `WalletPaymentService`, vừa cleanup semantic ledger, vừa extract shared primitive cho cả 4 flow trong cùng một pass mà vẫn an toàn
+- rủi ro cao nhất của lượt refactor này nằm ở `wallet topup` và `snake catching`, vì đây là nơi vừa có ownership defect vừa có public route migration
 
-### Câu hỏi cần trả lời
+### Decision đã chốt
 
-- có cần làm full 4 flow trong một lượt implementation không
-- topup + catching có đủ lớn để tách thành trọng tâm chính không
-- consultation và incident có đang ổn đủ để chỉ dùng làm baseline
-- có test coverage hay integration verification đủ để absorb `WalletPaymentService` ngay không
-
-### Khu vực code cần soi
-
-- test project
-- regression tests liên quan payment / webhook / wallet
-- controller/service call graph
+- lượt refactor này không làm full structural rewrite cho cả 4 flow trong cùng một pass
+- trọng tâm implementation full sẽ là `wallet topup` và `snake catching`, vì đây là 2 flow có ownership defect thật sự
+- `consultation` được giữ làm baseline/reference implementation; chỉ align những điểm semantic cần thiết, không làm deep structural rewrite trong lượt này
+- `snakebite incident` chỉ align theo baseline và semantic cleanup cần thiết; không mở rộng scope sang deep rewrite hoặc primitive extraction trong lượt này
+- `WalletPaymentService` sẽ bị absorb vào `SnakeCatchingPaymentService` trong lượt refactor này, nhưng theo kiểu move-and-stabilize, không redesign thêm abstraction mới xung quanh nó
+- quyết định shared primitive vẫn defer tới phase cuối; lượt này không được đồng thời vừa chuẩn hóa flow vừa tạo shared crosscutting layer
+- số lượng class production mới phải giữ ở mức tối thiểu; chỉ tạo class mới khi nó trực tiếp giải quyết ownership/route defect, không tạo thêm service trung gian vì tiện tay
 
 ### Decision phụ thuộc bucket này
 
@@ -184,7 +239,6 @@ Chốt refactor lượt này sẽ đi xa đến đâu mà vẫn an toàn.
 - `6. WalletPaymentService sẽ bị xử lý thế nào`
 - `7. Mức refactor của snake catching`
 - `8. Mức refactor của consultation và snakebite incident`
-
 ---
 
 ## Bucket G. Structure Placement And Naming
@@ -233,8 +287,11 @@ Khi research codebase, nên tick theo bucket thay vì theo decision rời:
 - [x] Bucket A done
 - [x] Bucket B done
 - [x] Bucket C done
-- [ ] Bucket D done
-- [ ] Bucket E done
-- [ ] Bucket F done
+- [x] Bucket D done
+- [x] Bucket E done
+- [x] Bucket F done
 - [ ] Bucket G done
 - [x] Bucket H done
+
+
+

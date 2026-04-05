@@ -129,6 +129,7 @@ Sau khi hoàn tất:
   - payout/refund nếu có
 - giảm lặp code primitive tiền mà không làm domain bị trộn lẫn
 - cleanup semantic của `TransactionType.WalletTopup` và `TransactionType.WalletWithdraw` ngay trong chính lượt refactor này
+- nếu đổi front-facing route/DTO thì phải có doc migration cho frontend trong cùng lượt refactor
 
 ## Nguyên tắc Codebase
 
@@ -196,6 +197,7 @@ Mỗi bước phải:
 - có scope nhỏ
 - có test/verification rõ
 - có khả năng dừng và resume
+- nếu có breaking change front-facing thì phải có migration doc đi kèm
 
 ### 6. Không tạo thêm service “tiện tay”
 
@@ -382,25 +384,24 @@ Done khi:
 
 - topup không còn phụ thuộc vào `SnakeCatchingPaymentService.HandleWalletTopupAsync`
 
-### Phase 2. Hợp nhất ownership của snake catching money flow
+### Phase 2. Ownership repair and callback isolation
 
-Trạng thái: `TODO`
+Mục tiêu của phase này:
 
-Mục tiêu:
-
-- wallet payment của snake catching không nằm riêng ở `WalletPaymentService`
+- xử lý full ownership defect ở `wallet topup` và `snake catching`
+- không mở rộng cùng lúc sang structural rewrite sâu cho `consultation` và `snakebite incident`
 
 Checklist:
 
-- [ ] xác định API contract nào của snake catching cần giữ nguyên
-- [ ] chuyển wallet payment logic vào snake catching owner service
-- [ ] giữ nguyên behavior payout/commission
-- [ ] loại bỏ `WalletPaymentService`
-- [ ] update tests
-
-Done khi:
-
-- snake catching payment logic nằm trong một owner thống nhất
+- [ ] đổi prefix `wallet topup` sang `TOPUP-`
+- [ ] đổi prefix `snake catching` sang `CATCHING-`
+- [ ] để `PayOsController` dispatch theo `description prefix` mới mà không tạo router abstraction
+- [ ] thêm hoặc hoàn thiện callback/confirm handling đúng owner cho `wallet topup`
+- [ ] absorb logic của `WalletPaymentService` vào `SnakeCatchingPaymentService`
+- [ ] xóa route leak `POST /api/wallet/payment`
+- [ ] chuyển snake catching wallet payment sang route đúng domain
+- [ ] viết doc migration cho frontend nếu route/DTO thay đổi
+- [ ] giữ `consultation` và `snakebite incident` ổn định, chỉ align semantic tối thiểu cần thiết trong phase này
 
 ### Phase 3. Trích shared money primitives
 
@@ -441,29 +442,21 @@ Done khi:
 
 - không còn hardcode mơ hồ theo description prefix ở nhiều nơi
 
-### Phase 5. Ledger semantics cleanup và shared crosscutting decision
+### Phase 5. Ledger semantics cleanup and shared crosscutting decision
 
-Trạng thái: `TODO`
+Mục tiêu phase cuối:
 
-Mục tiêu:
-
-- làm rõ nghĩa transaction records
-- chỉ chốt shared crosscutting sau khi flow đã được chuẩn hóa
+- chốt semantic ledger sau khi flow ownership đã ổn định
+- chỉ lúc này mới quyết định shared primitive boundary
 
 Checklist:
 
-- [ ] rà soát chỗ đang dùng `WalletTopup` như generic credit event
-- [ ] quyết định semantic chuẩn cho system credit / escrow credit / user topup
-- [ ] cập nhật naming và description
-- [ ] đánh giá lại candidate `MoneyEscrowService`
-- [ ] đánh giá lại candidate `MoneyLedgerService`
-- [ ] không tạo `MoneyTransferService` nếu sau chuẩn hóa vẫn không có pattern đủ chặt
-- [ ] cập nhật doc và test nếu contract đọc transaction có đổi
-
-Done khi:
-
-- nhìn transaction type có thể hiểu đúng ngữ nghĩa business
-- decision về shared crosscutting được chốt từ target pattern đã chuẩn hóa, không từ hiện trạng méo
+- [ ] cleanup hết chỗ còn dùng `WalletTopup` như generic system credit
+- [ ] cleanup hết chỗ còn dùng `WalletWithdraw` như generic payout/refund source
+- [ ] đối chiếu lại 4 flow sau khi chuẩn hóa ownership
+- [ ] đánh giá lại có cần `MoneyEscrowService` hay không
+- [ ] đánh giá lại có cần `MoneyLedgerService` hay không
+- [ ] không tạo `MoneyTransferService` nếu pattern shared chưa tự chứng minh đủ mạnh
 
 ## Tracking Progress
 
@@ -497,6 +490,8 @@ Khi quay lại refactor, luôn bắt đầu theo thứ tự:
 
 Nếu bị gián đoạn giữa chừng:
 
+- luôn kiểm tra có breaking change front-facing nào chưa được viết migration doc hay không
+
 - update lại trạng thái phase
 - tick checklist đã xong
 - ghi thêm finding mới vào `Latest confirmed findings`
@@ -506,3 +501,4 @@ Nếu bị gián đoạn giữa chừng:
 - redesign toàn bộ payment API contract cho mobile trong một lần
 - đổi schema transaction hàng loạt mà không có migration plan riêng
 - merge money refactor với các business refactor không liên quan
+
