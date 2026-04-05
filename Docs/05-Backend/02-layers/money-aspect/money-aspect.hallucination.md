@@ -69,75 +69,64 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
 
 ## Bucket C. Wallet Movement And Transaction Semantics
 
-### Fact đã verify
+### Decision đã chốt
 
-- `Transaction` hiện có `TransactionType` để phân biệt loại giao dịch theo enum
-- `Transaction` ko có lifecycle status riêng cho pending/confirmed/failed/cancelled business status sẽ do domain entity của từng flow quản lý
-- `ExternalTransactionId` hiện là external reference bridge, đồng thời trong nhiều flow còn bị dùng như processing marker để suy ra payment đã được gateway confirm hay chưa
-- `WalletTopupService` tạo pending transaction type `WalletTopup`, sau đó khi callback thành công thì topup side-effect lại đi nhờ snake catching
-- `SnakeCatchingPaymentService` khi xử lý PayOS thành công sẽ:
-  - credit `system wallet`
-  - tạo thêm transaction type `WalletTopup` cho phía system
-- `WalletPaymentService` khi xử lý wallet payment cho snake catching sẽ:
-  - debit user wallet
-  - tạo transaction phía user bằng type domain thật (`CatchingPayment` / `CatchingDeposit` / ...)
-  - credit `system wallet`
-  - tạo transaction phía system bằng `TransactionType.WalletTopup`
-- `ConsultationPaymentService.MoveMoneyToEscrowAsync` và `SnakebiteIncidentPaymentService.MoveMoneyToEscrowAsync` có pattern gần như giống nhau:
-  - nếu là wallet payment thì debit user wallet
-  - luôn credit `system wallet`
-  - transaction payment chính giữ type domain thật (`ConsultationPayment` / `SnakebiteIncidentPayment`)
-  - transaction credit phía system lại dùng `TransactionType.WalletTopup`
-- refund/settlement ở consultation và incident đang dùng pattern khá rõ:
-  - transaction nguồn rời system wallet dùng `TransactionType.WalletWithdraw`
-  - transaction đích dùng type domain thật như `ConsultationRefund`, `ExpertPayout`, `SnakebiteIncidentRefund`
-- vì vậy `TransactionType.WalletTopup` hiện đang bị reuse như generic “money vào system wallet”, không còn mang nghĩa thuần là “user nạp tiền”
-- tương tự, `TransactionType.WalletWithdraw` đang bị reuse như generic “money ra khỏi system wallet”, không còn mang nghĩa thuần là “user rút tiền”
-- snake catching còn lẫn thêm topup logic trong `HandleWalletTopupAsync`, làm semantic của `WalletTopup` càng mờ hơn
-
-### Ambiguity còn lại
-
+- `TransactionType` tiếp tục là enum phân biệt loại giao dịch theo business type
+- `Transaction` không có lifecycle status riêng; business status tiếp tục thuộc domain entity của từng flow
+- `ExternalTransactionId` được hiểu là external reference bridge; việc nó đang bị dùng như processing marker là hiện trạng cần được kiểm soát, không phải semantic đích
 - semantic cleanup của `TransactionType.WalletTopup` và `TransactionType.WalletWithdraw` sẽ làm ngay trong lượt refactor này
+- không được tiếp tục sinh thêm code mới dùng `WalletTopup` như generic system credit hoặc `WalletWithdraw` như generic system payout/refund source
 - quyết định shared crosscutting (`MoneyEscrowService`, `MoneyLedgerService`, `MoneyTransferService`) được dời về phase cuối, sau khi 4 flow đã được chuẩn hóa ownership và semantics
-- không khóa abstraction dựa trên hiện trạng méo của codebase trước khi chuẩn hóa flow
-
-### Decision phụ thuộc bucket này
-
-- `1. Shared money module có tồn tại hay không`
-- `2. Bộ class shared nào là bắt buộc`
-- `3. MoneyTransferService có tồn tại hay không`
-- `12. Transaction semantic cleanup có nằm trong scope hay không`
-- `15. payment intent hay chỉ pending transaction`
-- `17. refund và payout có được chuẩn hóa chung không`
+- không khóa abstraction shared dựa trên hiện trạng méo của codebase trước khi chuẩn hóa flow
 
 ---
 
 ## Bucket D. Primitive Duplication And Shared Layer Boundary
 
-### Mục tiêu
+### Fact đã verify
 
-Xác định đâu là duplication thật, đâu là domain-specific logic không được trích nhầm.
+- `ConsultationPaymentService.MoveMoneyToEscrowAsync` và `SnakebiteIncidentPaymentService.MoveMoneyToEscrowAsync` gần như là cùng một primitive, khác chủ yếu ở:
+  - transaction type domain thật
+  - description wording
+  - reference naming
+- consultation có thêm 2 primitive riêng sau escrow:
+  - `RefundFromEscrowAsync`
+  - `TransferEscrowToExpertAsync`
+- snakebite incident hiện có refund pattern gần consultation, nhưng chưa có settlement/payout tương ứng
+- snake catching chưa có `MoveMoneyToEscrowAsync` clean primitive tương đương; money movement đang bị trộn trong:
+  - PayOS webhook confirm path
+  - `HandleCatcherCommissionAsync`
+  - `HandleWalletTopupAsync`
+  - `TransferSnakeCatchingFundsToRescuerAsync`
+  - `RefundSnakeCatchingTransactionAsync`
+- `TransferSnakeCatchingFundsToRescuerAsync` không chỉ là payout primitive:
+  - nó aggregate từ nhiều paid transaction của cùng catching request
+  - tự trừ `commissionFee`
+  - tự tạo `PlatformFee`
+  - tự update `SnakeCatchingRequest.Status = Completed`
+- `RefundSnakeCatchingTransactionAsync` của snake catching gần refund pattern của consultation/incident ở tầng wallet movement, nhưng vẫn nằm trong domain-specific flow API và semantics
+- `HandleCatcherCommissionAsync` là logic domain-specific của snake catching, không nên shared ra money primitive layer
+- `HandleWalletTopupAsync` là logic tuyệt đối không được shared với 3 flow domain vì semantic của topup khác escrow/payment
+- `wallet topup` không nên dùng chung primitive escrow với 3 flow domain, vì semantic của nó là nạp tiền vào ví user chứ không phải đưa tiền vào domain escrow
 
-### Câu hỏi cần trả lời
+### Decision đã chốt
 
-- `MoveMoneyToEscrowAsync` ở consultation và incident giống nhau đến mức nào
-- snake catching có primitive tương đương hay khác bản chất
-- topup có dùng chung được primitive nào với 3 flow domain, và primitive nào tuyệt đối không nên shared
-- ledger creation có giống nhau giữa các flow không
+- `wallet topup` không dùng chung primitive escrow với 3 flow domain
+- commission của `snake catching` là domain-specific logic, không đưa vào shared primitive layer
+- payout của `snake catching` tạm thời giữ trong flow owner, không shared ở giai đoạn hiện tại
+- candidate shared mạnh nhất hiện tại là `escrow primitive`
+- refund có thể trở thành candidate shared ở phase cuối, nhưng chưa chốt boundary ở thời điểm này
+- quyết định shared boundary cuối cùng vẫn defer tới phase cuối sau khi flow đã được chuẩn hóa
 
-### Khu vực code cần soi
+### Ambiguity còn lại
 
-- các hàm `MoveMoneyToEscrowAsync`
-- các đoạn create transaction pending / mark confirmed
-- các đoạn wallet balance mutation
-- các đoạn refund / payout / commission logic
-
-### Decision phụ thuộc bucket này
-
-- `1. Shared money module có tồn tại hay không`
-- `2. Bộ class shared nào là bắt buộc`
-- `3. MoneyTransferService có tồn tại hay không`
-- `17. refund và payout có được chuẩn hóa chung không`
+- sau khi chuẩn hóa snake catching, nó có hội tụ đủ để dùng cùng escrow primitive với consultation/incident hay không
+- refund có pattern wallet movement khá gần giữa consultation/incident/snake catching, nhưng boundary shared tới đâu sẽ chỉ chốt ở phase cuối
+- payout hiện chưa đủ giống nhau:
+  - consultation payout = escrow settlement sang expert
+  - snake catching payout = aggregate paid transactions + commission + payout sang rescuer
+  nên nhiều khả năng payout vẫn nên giữ trong từng flow owner
+- shared boundary cuối cùng sẽ dừng ở `escrow only` hay đi xa tới `ledger pair`
 
 ---
 
@@ -243,7 +232,7 @@ Khi research codebase, nên tick theo bucket thay vì theo decision rời:
 
 - [x] Bucket A done
 - [x] Bucket B done
-- [ ] Bucket C done
+- [x] Bucket C done
 - [ ] Bucket D done
 - [ ] Bucket E done
 - [ ] Bucket F done
