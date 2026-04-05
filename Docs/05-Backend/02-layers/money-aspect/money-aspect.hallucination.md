@@ -69,29 +69,37 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
 
 ## Bucket C. Wallet Movement And Transaction Semantics
 
-### Mục tiêu
+### Fact đã verify
 
-Chốt hệ thống hiện đang model tiền như thế nào, đặc biệt là các thao tác tăng/giảm số dư ví và semantic của transaction records.
+- `Transaction` hiện có `TransactionType` để phân biệt loại giao dịch theo enum
+- `Transaction` ko có lifecycle status riêng cho pending/confirmed/failed/cancelled business status sẽ do domain entity của từng flow quản lý
+- `ExternalTransactionId` hiện là external reference bridge, đồng thời trong nhiều flow còn bị dùng như processing marker để suy ra payment đã được gateway confirm hay chưa
+- `WalletTopupService` tạo pending transaction type `WalletTopup`, sau đó khi callback thành công thì topup side-effect lại đi nhờ snake catching
+- `SnakeCatchingPaymentService` khi xử lý PayOS thành công sẽ:
+  - credit `system wallet`
+  - tạo thêm transaction type `WalletTopup` cho phía system
+- `WalletPaymentService` khi xử lý wallet payment cho snake catching sẽ:
+  - debit user wallet
+  - tạo transaction phía user bằng type domain thật (`CatchingPayment` / `CatchingDeposit` / ...)
+  - credit `system wallet`
+  - tạo transaction phía system bằng `TransactionType.WalletTopup`
+- `ConsultationPaymentService.MoveMoneyToEscrowAsync` và `SnakebiteIncidentPaymentService.MoveMoneyToEscrowAsync` có pattern gần như giống nhau:
+  - nếu là wallet payment thì debit user wallet
+  - luôn credit `system wallet`
+  - transaction payment chính giữ type domain thật (`ConsultationPayment` / `SnakebiteIncidentPayment`)
+  - transaction credit phía system lại dùng `TransactionType.WalletTopup`
+- refund/settlement ở consultation và incident đang dùng pattern khá rõ:
+  - transaction nguồn rời system wallet dùng `TransactionType.WalletWithdraw`
+  - transaction đích dùng type domain thật như `ConsultationRefund`, `ExpertPayout`, `SnakebiteIncidentRefund`
+- vì vậy `TransactionType.WalletTopup` hiện đang bị reuse như generic “money vào system wallet”, không còn mang nghĩa thuần là “user nạp tiền”
+- tương tự, `TransactionType.WalletWithdraw` đang bị reuse như generic “money ra khỏi system wallet”, không còn mang nghĩa thuần là “user rút tiền”
+- snake catching còn lẫn thêm topup logic trong `HandleWalletTopupAsync`, làm semantic của `WalletTopup` càng mờ hơn
 
-### Câu hỏi cần trả lời
+### Ambiguity còn lại
 
-- chỗ nào đang cộng tiền vào ví
-- chỗ nào đang trừ số dư ví để thanh toán
-- chỗ nào đang chuyển tiền vào escrow
-- chỗ nào đang mark confirmed / pending / failed
-- `TransactionType.WalletTopup` có đang bị reuse làm generic credit event không
-- payout và refund đang dùng cùng semantic transaction hay có type riêng
-
-### Khu vực code cần soi
-
-- entity / enum / repository liên quan transaction và wallet
-- `WalletService.cs`
-- `WalletTopupService.cs`
-- `WalletPaymentService.cs`
-- `ConsultationPaymentService.cs`
-- `SnakebiteIncidentPaymentService.cs`
-- `SnakeCatchingPaymentService.cs`
-- các query/list API transaction
+- semantic cleanup của `TransactionType.WalletTopup` và `TransactionType.WalletWithdraw` sẽ làm ngay trong lượt refactor này
+- quyết định shared crosscutting (`MoneyEscrowService`, `MoneyLedgerService`, `MoneyTransferService`) được dời về phase cuối, sau khi 4 flow đã được chuẩn hóa ownership và semantics
+- không khóa abstraction dựa trên hiện trạng méo của codebase trước khi chuẩn hóa flow
 
 ### Decision phụ thuộc bucket này
 

@@ -128,6 +128,7 @@ Sau khi hoàn tất:
   - apply domain state
   - payout/refund nếu có
 - giảm lặp code primitive tiền mà không làm domain bị trộn lẫn
+- cleanup semantic của `TransactionType.WalletTopup` và `TransactionType.WalletWithdraw` ngay trong chính lượt refactor này
 
 ## Nguyên tắc Codebase
 
@@ -244,22 +245,27 @@ Mỗi flow tiền tệ chuẩn hóa theo cấu trúc:
 - commission
 - refund
 
-### Shared module đề xuất
+### Shared module strategy
 
-Tạo shared layer cho money primitive, ví dụ:
+Decision đã chốt:
+
+- cleanup semantic của `TransactionType.WalletTopup` và `TransactionType.WalletWithdraw` được làm ngay trong lượt refactor này
+- quyết định cuối cùng về shared crosscutting chỉ được chốt ở phase cuối, sau khi 4 flow đã được chuẩn hóa ownership và semantics
+- không khóa shared abstraction dựa trên hiện trạng code chưa chuẩn hóa
+
+Candidate sẽ được đánh giá lại ở phase cuối:
 
 - `MoneyEscrowService`
-- `MoneyTransferService`
 - `MoneyLedgerService`
 
-Layer này chỉ xử lý:
+Nếu được tạo ở phase cuối, layer shared chỉ xử lý:
 
 - wallet movement
 - system wallet movement
 - transaction record creation
 - idempotent money operation
 
-Layer này không được biết:
+Layer shared không được biết:
 
 - snake catching status
 - consultation booking status
@@ -280,8 +286,6 @@ Các class dự kiến có thể xuất hiện:
 - `SnakeAid.Service/Implements/WalletTopupPaymentService.cs`
 - `SnakeAid.Service/Interfaces/IMoneyEscrowService.cs`
 - `SnakeAid.Service/Implements/MoneyEscrowService.cs`
-- `SnakeAid.Service/Interfaces/IMoneyTransferService.cs`
-- `SnakeAid.Service/Implements/MoneyTransferService.cs`
 - `SnakeAid.Service/Interfaces/IMoneyLedgerService.cs`
 - `SnakeAid.Service/Implements/MoneyLedgerService.cs`
 
@@ -289,7 +293,7 @@ Lưu ý:
 
 - đây là target placement, không phải cam kết sẽ tạo đủ tất cả class trên
 - chỉ tạo class khi refactor thực tế chứng minh là cần
-- ưu tiên absorb hợp lý vào structure hiện có trước khi tạo abstraction mới
+- chỉ chốt shared class sau phase chuẩn hóa flow
 
 ### Flow owner đề xuất
 
@@ -404,20 +408,18 @@ Trạng thái: `TODO`
 
 Mục tiêu:
 
-- giảm lặp code ở consultation và snakebite incident
-- giữ domain side-effect ở từng flow owner
+- chưa chốt abstraction shared
+- chỉ chuẩn bị dữ kiện để đánh giá shared primitive ở phase cuối
 
 Checklist:
 
 - [ ] xác định phần lặp giữa các `MoveMoneyToEscrowAsync`
-- [ ] tách primitive shared
-- [ ] migrate consultation sang primitive mới
-- [ ] migrate snakebite incident sang primitive mới
-- [ ] migrate snake catching sang primitive mới nếu phù hợp
+- [ ] xác định phần nào là duplication thật, phần nào chỉ là coupling tạm thời do flow chưa chuẩn hóa
+- [ ] ghi lại blast radius nếu trích shared primitive quá sớm
 
 Done khi:
 
-- không còn nhiều bản sao gần giống nhau của escrow logic
+- đủ dữ kiện để chốt abstraction shared ở phase cuối, không quyết định sớm
 
 ### Phase 4. Chuẩn hóa PayOS flow router
 
@@ -439,24 +441,29 @@ Done khi:
 
 - không còn hardcode mơ hồ theo description prefix ở nhiều nơi
 
-### Phase 5. Ledger semantics cleanup
+### Phase 5. Ledger semantics cleanup và shared crosscutting decision
 
 Trạng thái: `TODO`
 
 Mục tiêu:
 
 - làm rõ nghĩa transaction records
+- chỉ chốt shared crosscutting sau khi flow đã được chuẩn hóa
 
 Checklist:
 
 - [ ] rà soát chỗ đang dùng `WalletTopup` như generic credit event
 - [ ] quyết định semantic chuẩn cho system credit / escrow credit / user topup
 - [ ] cập nhật naming và description
+- [ ] đánh giá lại candidate `MoneyEscrowService`
+- [ ] đánh giá lại candidate `MoneyLedgerService`
+- [ ] không tạo `MoneyTransferService` nếu sau chuẩn hóa vẫn không có pattern đủ chặt
 - [ ] cập nhật doc và test nếu contract đọc transaction có đổi
 
 Done khi:
 
 - nhìn transaction type có thể hiểu đúng ngữ nghĩa business
+- decision về shared crosscutting được chốt từ target pattern đã chuẩn hóa, không từ hiện trạng méo
 
 ## Tracking Progress
 
