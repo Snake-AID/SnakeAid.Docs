@@ -53,6 +53,7 @@ flowchart LR
 - shared primitive boundary chưa được khóa trong target-state hiện tại; nếu phase cuối chứng minh là cần thì mới bổ sung vào sourcemap như một decision mới
 - `PayOsController` là callback entrypoint chung, chỉ nhận request và dispatch theo prefix
 - `PayOsController` không apply domain side-effect
+- route leak `POST /api/wallet/payment` bị xóa khỏi target-state; snake catching wallet payment thuộc `SnakeCatchingPaymentsController`
 - `wallet topup` dùng prefix `TOPUP-`
 - `snake catching` dùng prefix `CATCHING-`
 - chấp nhận migration từ `SNAKEAID-` sang `CATCHING-` để đổi lấy routing trật tự theo flow

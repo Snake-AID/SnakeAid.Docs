@@ -363,7 +363,7 @@ Mục tiêu:
 Checklist:
 
 - [x] tạo prefix riêng cho topup
-- [ ] tạo owner service cho topup callback/confirm
+- [ ] hoàn thiện `WalletTopupService` để tự sở hữu callback/confirm
 - [ ] cập nhật PayOS router
 - [ ] thêm test routing cho topup
 - [ ] verify topup credit đúng wallet user
