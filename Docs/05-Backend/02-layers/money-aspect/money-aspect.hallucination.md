@@ -12,103 +12,24 @@ Nguyên tắc:
 - chốt decision sau
 - chỉ update `refactoring.md` và `sourcemap.md` khi đã có kết luận đủ chắc
 
-## Research Order
-
-Đề xuất thứ tự research:
-
-1. current state và ownership thật sự của 4 flow
-2. callback routing và prefix dependency
-3. wallet movement và transaction semantics
-4. duplication của money primitive
-5. blast radius lên API contract và client flow
-6. mức refactor an toàn cho từng flow
-7. structure code mới và placement
-8. documentation mode của `sourcemap`
-
 ---
+
+File này chỉ giữ:
+
+- bucket chưa khóa để phục vụ research tiếp
+- decision đã chốt của bucket đã khóa
+
+Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc phình to.
 
 ## Bucket A. Current Ownership Map
 
-### Mục tiêu
+### Decision đã chốt
 
-Chốt flow nào hiện đang sở hữu:
-
-- create payment
-- confirm payment
-- webhook processing
-- wallet balance update
-- domain side-effect
-- payout/refund
-
-### Câu hỏi cần trả lời
-
-- `wallet topup` hiện thật sự dừng ở `WalletTopupService` hay đã đi sâu vào service khác ở pha callback
-- `snake catching` đang split ownership ở những điểm nào
-- `consultation` và `snakebite incident` có thật sự self-contained hay vẫn đang mượn primitive hoặc status handling ở nơi khác
-- `WalletPaymentService` đang phục vụ chính xác flow nào
-
-### Khu vực code cần soi
-
-- `SnakeAid.Api/Controllers/WalletController.cs`
-- `SnakeAid.Api/Controllers/PayOsController.cs`
-- `SnakeAid.Api/Controllers/SnakeCatchingPaymentsController.cs`
-- `SnakeAid.Api/Controllers/ConsultationPaymentsController.cs`
-- `SnakeAid.Api/Controllers/SnakebiteIncidentController.cs`
-- `SnakeAid.Service/Implements/WalletTopupService.cs`
-- `SnakeAid.Service/Implements/WalletPaymentService.cs`
-- `SnakeAid.Service/Implements/SnakeCatchingPaymentService.cs`
-- `SnakeAid.Service/Implements/ConsultationPaymentService.cs`
-- `SnakeAid.Service/Implements/SnakebiteIncidentPaymentService.cs`
-
-### Decision phụ thuộc bucket này
-
-- `4. WalletTopupPaymentService có tạo mới hay không`
-- `6. WalletPaymentService sẽ bị xử lý thế nào`
-- `7. Mức refactor của snake catching`
-- `8. Mức refactor của consultation và snakebite incident`
-
-### Research result
-
-#### Verified facts
-
-- `wallet topup`
-  - create payment đang đi qua `WalletController -> IWalletTopupService.CreateWalletTopupAsync`
-  - topup chỉ sở hữu pha create intent
-  - topup không có callback owner riêng trong `PayOsController`
-  - callback của topup hiện đang bị route vào `ISnakeCatchingPaymentService`
-  - side-effect cộng tiền vào ví user hiện nằm trong `SnakeCatchingPaymentService.HandleWalletTopupAsync`
-
-- `snake catching`
-  - PayOS create/confirm/webhook owner là `SnakeCatchingPaymentService`
-  - wallet payment owner lại là `WalletPaymentService`
-  - payout transfer cho rescuer owner là `SnakeCatchingPaymentService.TransferSnakeCatchingFundsToRescuerAsync`
-  - domain side-effect của catching đang split giữa `WalletPaymentService` và `SnakeCatchingPaymentService`
-
-- `consultation`
-  - create payment owner là `ConsultationPaymentService`
-  - service này tự dispatch giữa `WalletBalance` và `PayOs`
-  - confirm owner là `ConsultationPaymentService.ConfirmConsultationPaymentAsync`
-  - webhook owner là `ConsultationPaymentService.ProcessConsultationWebhookAsync`
-  - wallet movement vào escrow và domain side-effect đều nằm trong `ConsultationPaymentService`
-
-- `snakebite incident`
-  - PayOS create owner là `SnakebiteIncidentPaymentService.CreateSnakebiteIncidentPaymentLinkAsync`
-  - wallet payment owner là `SnakebiteIncidentPaymentService.CreateSnakebiteIncidentWalletPaymentAsync`
-  - confirm owner là `SnakebiteIncidentPaymentService.ConfirmSnakebiteIncidentPaymentAsync`
-  - webhook owner là `SnakebiteIncidentPaymentService.ProcessSnakebiteIncidentWebhookAsync`
-  - refund owner là `SnakebiteIncidentPaymentService.RefundSnakebiteIncidentTransactionAsync`
-  - wallet movement vào escrow và domain side-effect đều nằm trong `SnakebiteIncidentPaymentService`
-
-#### Current ownership conclusion
-
-- `wallet topup` là flow sai ownership rõ nhất
-- `snake catching` là flow split ownership rõ nhất
-- `consultation` và `snakebite incident` hiện là hai flow self-contained nhất trong money aspect
-
-#### Ambiguity còn lại
-
-- mức absorb của `WalletPaymentService` vào `SnakeCatchingPaymentService` nên full hay partial
-- có cần đụng sâu vào `consultation` và `snakebite incident` ngay trong lượt refactor này hay chỉ dùng làm baseline pattern
+- `WalletPaymentService` không phải service của `WalletTopup`
+- logic trong `WalletPaymentService` sẽ được absorb vào `SnakeCatchingPaymentService`
+- `WalletTopup` sẽ giữ owner service riêng, không absorb vào `SnakeCatchingPaymentService`
+- `consultation` được dùng làm baseline pattern chính
+- `snakebite incident` được xem là đã follow baseline này ở tầng ownership, không phải primary ownership defect
 
 ---
 
@@ -297,10 +218,6 @@ Chốt placement và naming theo convention codebase, tránh sinh abstraction l�
 
 ## Bucket H. Documentation Mode
 
-### Mục tiêu
-
-Chốt `sourcemap` sẽ đóng vai trò gì sau khi implementation bắt đầu.
-
 ### Decision đã chốt
 
 - `money-aspect.sourcemap.md` giữ các diagram ở `target-state`
@@ -309,38 +226,12 @@ Chốt `sourcemap` sẽ đóng vai trò gì sau khi implementation bắt đầu.
 - không để doc mở ra các nhánh quyết định mới trong lúc implementation
 - mọi thay đổi quyết định kiến trúc phải được chốt trước trong doc, không đổi ngầm trong code
 
-### Hệ quả vận hành doc
-
-- `refactoring.md` chỉ chứa decision, roadmap, scope, tracking theo decision đã chốt
-- `sourcemap.md` chỉ chứa target diagram và note implementation progress bám theo target đó
-- không dùng hai doc này để brainstorm giữa chừng
-- nếu phát sinh ambiguity mới từ codebase research, phải ghi vào `money-aspect.hallucination.md` trước, chưa được tự động đẩy sang hai doc decision
-
-### Decision đã khóa bởi bucket này
-
-- `18. money-aspect.sourcemap.md là target-state hay implementation-state`
-- `20. Mức độ decision-only của 2 doc`
-
 ---
-
-## Bucket To Decision Mapping
-
-| Bucket | Decisions |
-|---|---|
-| A. Current Ownership Map | 4, 6, 7, 8 |
-| B. PayOS Callback Routing | 9, 10, 11, 16 |
-| C. Wallet Movement And Transaction Semantics | 1, 2, 3, 12, 15, 17 |
-| D. Primitive Duplication And Shared Layer Boundary | 1, 2, 3, 17 |
-| E. Public API And Client Impact | 13, 16 |
-| F. Safe Refactor Scope | 5, 6, 7, 8 |
-| G. Structure Placement And Naming | 4, 5, 19 |
-| H. Documentation Mode | 18, 20 |
 
 ## Research Checklist
 
 Khi research codebase, nên tick theo bucket thay vì theo decision rời:
 
-- [ ] Bucket A done
 - [x] Bucket A done
 - [ ] Bucket B done
 - [ ] Bucket C done
@@ -349,12 +240,3 @@ Khi research codebase, nên tick theo bucket thay vì theo decision rời:
 - [ ] Bucket F done
 - [ ] Bucket G done
 - [x] Bucket H done
-
-## Output Format Sau Mỗi Bucket
-
-Sau khi research xong một bucket, output nên theo format ngắn:
-
-1. fact đã verify từ code
-2. ambiguity còn lại
-3. decision nào giờ đã đủ dữ kiện để chốt
-4. impact lên `refactoring.md` và `sourcemap.md`

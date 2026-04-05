@@ -114,6 +114,7 @@ Sau khi hoàn tất:
 - 4 flow không còn mượn callback hoặc processor của nhau
 - phần dùng chung chỉ là money primitive
 - phần domain state và business side-effect vẫn thuộc từng flow owner
+- `WalletPaymentService` không còn tồn tại như một owner riêng; logic của nó được absorb vào `SnakeCatchingPaymentService`
 
 ### Mục tiêu cụ thể
 
@@ -138,6 +139,13 @@ Không để:
 
 - topup dùng callback handler của snake catching
 - snake catching wallet payment nằm ở service ngoài domain owner
+
+Decision đã chốt:
+
+- `WalletTopup` giữ owner riêng
+- logic của `WalletPaymentService` được absorb vào `SnakeCatchingPaymentService`
+- `consultation` là baseline pattern chính
+- `snakebite incident` được xem là đã follow baseline ở tầng ownership
 
 ### 2. Shared primitive, không shared domain side-effect
 
@@ -282,8 +290,8 @@ Lưu ý:
 
 Trong target state:
 
-- `WalletPaymentService` nên bị loại bỏ hoặc absorb vào `SnakeCatchingPaymentService`
-- `PayOsController` chỉ làm routing theo prefix hoặc delegate qua một flow router rõ nghĩa
+- `WalletPaymentService` được absorb vào `SnakeCatchingPaymentService`
+- `PayOsController` chỉ làm routing theo prefix
 
 ### PayOS routing đề xuất
 
@@ -369,7 +377,7 @@ Checklist:
 - [ ] xác định API contract nào của snake catching cần giữ nguyên
 - [ ] chuyển wallet payment logic vào snake catching owner service
 - [ ] giữ nguyên behavior payout/commission
-- [ ] loại bỏ hoặc deprecate `WalletPaymentService`
+- [ ] loại bỏ `WalletPaymentService`
 - [ ] update tests
 
 Done khi:
