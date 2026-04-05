@@ -96,7 +96,7 @@ Thống nhất toàn bộ money aspect theo một pattern rõ ràng:
 - mỗi money flow có owner service riêng
 - không flow nào dùng tạm callback/processor của flow khác
 - PayOS routing phân biệt được flow một cách deterministic
-- logic escrow, transfer, payout, refund dùng chung primitive nhưng không chia sẻ domain side-effect
+- money movement sẽ được chuẩn hóa theo owner flow; shared primitive chỉ được trích ở phase cuối nếu pattern đủ mạnh và không làm mờ domain side-effect
 - transaction/ledger rõ nghĩa, không dùng nhòe semantic giữa các flow
 
 ### Quang cảnh sau refactor
@@ -105,8 +105,8 @@ Sau refactor, money aspect phải có trạng thái cuối như sau:
 
 - `wallet topup` là một flow độc lập, có prefix riêng, callback owner riêng, và chỉ chịu trách nhiệm nạp tiền vào ví user
 - `snake catching` là một flow độc lập, toàn bộ money logic của nó nằm dưới owner service của chính catching, không còn split qua service ngoài flow
-- `consultation` vẫn giữ ownership theo flow hiện tại, nhưng phần money primitive dùng chung sẽ được chuẩn hóa
-- `snakebite incident` vẫn giữ ownership theo flow hiện tại, nhưng phần money primitive dùng chung sẽ được chuẩn hóa
+- `consultation` vẫn giữ ownership theo flow hiện tại và chỉ align semantic cần thiết trong lượt refactor này
+- `snakebite incident` vẫn giữ ownership theo flow hiện tại và chỉ align semantic cần thiết trong lượt refactor này
 
 Sau khi hoàn tất:
 
@@ -232,11 +232,9 @@ Mỗi flow tiền tệ chuẩn hóa theo cấu trúc:
 - idempotency guard
 
 3. `ApplyMoneyMovement`
-- gọi shared primitive:
-  - escrow
-  - wallet debit/credit
-  - system wallet movement
-  - ledger pair
+- thực hiện money movement trong owner flow
+- chỉ trích shared primitive ở phase cuối nếu pattern đã đủ rõ
+- không khóa trước `MoneyEscrowService` / `MoneyLedgerService` / `MoneyTransferService` trong target hiện tại
 
 4. `ApplyDomainSideEffects`
 - update status/domain record của chính flow đó
@@ -254,25 +252,10 @@ Decision đã chốt:
 - cleanup semantic của `TransactionType.WalletTopup` và `TransactionType.WalletWithdraw` được làm ngay trong lượt refactor này
 - quyết định cuối cùng về shared crosscutting chỉ được chốt ở phase cuối, sau khi 4 flow đã được chuẩn hóa ownership và semantics
 - không khóa shared abstraction dựa trên hiện trạng code chưa chuẩn hóa
+- lượt refactor hiện tại không tạo `MoneyTransferService`
+- `MoneyEscrowService` và `MoneyLedgerService` mới chỉ là candidate để đánh giá lại ở phase cuối, không phải target-state đã chốt
 
-Candidate sẽ được đánh giá lại ở phase cuối:
-
-- `MoneyEscrowService`
-- `MoneyLedgerService`
-
-Nếu được tạo ở phase cuối, layer shared chỉ xử lý:
-
-- wallet movement
-- system wallet movement
-- transaction record creation
-- idempotent money operation
-
-Layer shared không được biết:
-
-- snake catching status
-- consultation booking status
-- snakebite incident status
-- wallet topup UI flow
+Nếu phase cuối chứng minh là cần, layer shared chỉ được xử lý money movement mức thấp và không được biết domain state.
 
 ### Vị trí class/service nếu tạo mới
 
@@ -282,14 +265,18 @@ Nếu cần tạo mới trong repo, vị trí phải bám convention hiện tạ
 - implementation đặt tại `SnakeAid.Service/Implements`
 - controller giữ mỏng và tiếp tục đặt tại `SnakeAid.Api/Controllers`
 
-Các class dự kiến có thể xuất hiện:
+Các class owner chắc chắn thuộc target-state hiện tại:
 
 - `SnakeAid.Service/Interfaces/IWalletTopupService.cs`
 - `SnakeAid.Service/Implements/WalletTopupService.cs`
-- `SnakeAid.Service/Interfaces/IMoneyEscrowService.cs`
-- `SnakeAid.Service/Implements/MoneyEscrowService.cs`
-- `SnakeAid.Service/Interfaces/IMoneyLedgerService.cs`
-- `SnakeAid.Service/Implements/MoneyLedgerService.cs`
+- `SnakeAid.Service/Interfaces/ISnakeCatchingPaymentService.cs`
+- `SnakeAid.Service/Implements/SnakeCatchingPaymentService.cs`
+- `SnakeAid.Service/Interfaces/IConsultationPaymentService.cs`
+- `SnakeAid.Service/Implements/ConsultationPaymentService.cs`
+- `SnakeAid.Service/Interfaces/ISnakebiteIncidentPaymentService.cs`
+- `SnakeAid.Service/Implements/SnakebiteIncidentPaymentService.cs`
+
+Nếu phase cuối chứng minh shared primitive là cần, placement của `MoneyEscrowService` / `MoneyLedgerService` sẽ follow cùng convention repo nhưng chưa được coi là target-state bắt buộc ở thời điểm hiện tại.
 
 Lưu ý:
 
@@ -502,6 +489,7 @@ Nếu bị gián đoạn giữa chừng:
 - redesign toàn bộ payment API contract cho mobile trong một lần
 - đổi schema transaction hàng loạt mà không có migration plan riêng
 - merge money refactor với các business refactor không liên quan
+
 
 
 

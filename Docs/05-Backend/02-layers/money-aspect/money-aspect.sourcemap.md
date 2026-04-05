@@ -43,21 +43,6 @@ flowchart LR
     SnakeCatchingPaymentsController --> SnakeCatchingPaymentService
     ConsultationPaymentsController --> ConsultationPaymentService
     SnakebiteIncidentController --> SnakebiteIncidentPaymentService
-
-    WalletTopupService --> MoneyTransferService
-    WalletTopupService --> MoneyLedgerService
-
-    SnakeCatchingPaymentService --> MoneyEscrowService
-    SnakeCatchingPaymentService --> MoneyTransferService
-    SnakeCatchingPaymentService --> MoneyLedgerService
-
-    ConsultationPaymentService --> MoneyEscrowService
-    ConsultationPaymentService --> MoneyTransferService
-    ConsultationPaymentService --> MoneyLedgerService
-
-    SnakebiteIncidentPaymentService --> MoneyEscrowService
-    SnakebiteIncidentPaymentService --> MoneyTransferService
-    SnakebiteIncidentPaymentService --> MoneyLedgerService
 ```
 
 ## Ownership Rules
@@ -65,7 +50,7 @@ flowchart LR
 - mỗi flow sở hữu `CreatePaymentIntent`
 - mỗi flow sở hữu `ConfirmPayment`
 - mỗi flow sở hữu `ApplyDomainSideEffects`
-- money primitive được share qua service riêng
+- shared primitive boundary chưa được khóa trong target-state hiện tại; nếu phase cuối chứng minh là cần thì mới bổ sung vào sourcemap như một decision mới
 - `PayOsController` là callback entrypoint chung, chỉ nhận request và dispatch theo prefix
 - `PayOsController` không apply domain side-effect
 - `wallet topup` dùng prefix `TOPUP-`
@@ -116,42 +101,10 @@ classDiagram
       +ApplyDomainSideEffects()
     }
 
-    class MoneyEscrowService {
-      +MoveMoneyToEscrow()
-    }
-
-    class MoneyTransferService {
-      +CreditWallet()
-      +DebitWallet()
-      +TransferSystemMoney()
-      +RefundMoney()
-    }
-
-    class MoneyLedgerService {
-      +CreatePendingTransaction()
-      +MarkConfirmed()
-      +CreateLedgerPair()
-    }
-
     PayOsController --> WalletTopupService
     PayOsController --> SnakeCatchingPaymentService
     PayOsController --> ConsultationPaymentService
     PayOsController --> SnakebiteIncidentPaymentService
-
-    WalletTopupService --> MoneyTransferService
-    WalletTopupService --> MoneyLedgerService
-
-    SnakeCatchingPaymentService --> MoneyEscrowService
-    SnakeCatchingPaymentService --> MoneyTransferService
-    SnakeCatchingPaymentService --> MoneyLedgerService
-
-    ConsultationPaymentService --> MoneyEscrowService
-    ConsultationPaymentService --> MoneyTransferService
-    ConsultationPaymentService --> MoneyLedgerService
-
-    SnakebiteIncidentPaymentService --> MoneyEscrowService
-    SnakebiteIncidentPaymentService --> MoneyTransferService
-    SnakebiteIncidentPaymentService --> MoneyLedgerService
 ```
 
 ## Function Graph
@@ -180,19 +133,16 @@ sequenceDiagram
     participant WalletTopupService
     participant PaymentGateway
     participant PayOsController
-    participant MoneyTransferService
-    participant MoneyLedgerService
 
     Flutter->>WalletController: POST /api/wallet/topup
     WalletController->>WalletTopupService: CreatePaymentIntent
-    WalletTopupService->>MoneyLedgerService: CreatePendingTransaction
+    WalletTopupService->>WalletTopupService: CreatePendingTransaction
     WalletTopupService->>PaymentGateway: CreatePaymentLink
     WalletTopupService-->>Flutter: checkoutUrl + transactionId + orderCode
 
     PaymentGateway->>PayOsController: return/webhook
     PayOsController->>WalletTopupService: Dispatch by TOPUP-
-    WalletTopupService->>MoneyTransferService: CreditWallet
-    WalletTopupService->>MoneyLedgerService: MarkConfirmed
+    WalletTopupService->>WalletTopupService: CreditWallet + MarkConfirmed
 ```
 
 ## Sequence Diagram: Domain Payment Flow
@@ -204,33 +154,32 @@ sequenceDiagram
     participant DomainPaymentService
     participant PaymentGateway
     participant PayOsController
-    participant MoneyEscrowService
-    participant MoneyLedgerService
 
     Client->>DomainController: Create payment
     DomainController->>DomainPaymentService: CreatePaymentIntent
-    DomainPaymentService->>MoneyLedgerService: CreatePendingTransaction
+    DomainPaymentService->>DomainPaymentService: CreatePendingTransaction
     DomainPaymentService-->>Client: wallet success or checkoutUrl
 
     PaymentGateway->>PayOsController: return/webhook
     PayOsController->>DomainPaymentService: Dispatch by flow prefix
-    DomainPaymentService->>MoneyEscrowService: MoveMoneyToEscrow
-    DomainPaymentService->>MoneyLedgerService: MarkConfirmed
+    DomainPaymentService->>DomainPaymentService: ApplyMoneyMovement
     DomainPaymentService->>DomainPaymentService: ApplyDomainSideEffects
 ```
 
 ## File Placement
 
-Nếu phải tạo mới trong repo, vị trí mục tiêu là:
+Placement target ưu tiên hiện tại chỉ khóa owner services và controller boundary:
 
 - `SnakeAid.Service/Interfaces/IWalletTopupService.cs`
 - `SnakeAid.Service/Implements/WalletTopupService.cs`
-- `SnakeAid.Service/Interfaces/IMoneyEscrowService.cs`
-- `SnakeAid.Service/Implements/MoneyEscrowService.cs`
-- `SnakeAid.Service/Interfaces/IMoneyTransferService.cs`
-- `SnakeAid.Service/Implements/MoneyTransferService.cs`
-- `SnakeAid.Service/Interfaces/IMoneyLedgerService.cs`
-- `SnakeAid.Service/Implements/MoneyLedgerService.cs`
+- `SnakeAid.Service/Interfaces/ISnakeCatchingPaymentService.cs`
+- `SnakeAid.Service/Implements/SnakeCatchingPaymentService.cs`
+- `SnakeAid.Service/Interfaces/IConsultationPaymentService.cs`
+- `SnakeAid.Service/Implements/ConsultationPaymentService.cs`
+- `SnakeAid.Service/Interfaces/ISnakebiteIncidentPaymentService.cs`
+- `SnakeAid.Service/Implements/SnakebiteIncidentPaymentService.cs`
+
+Shared service placement nếu có sẽ chỉ được khóa sau phase cuối.
 
 ## Reading Order
 
@@ -242,4 +191,5 @@ Khi review hoặc resume:
    - flow owner đã đúng chưa
    - shared primitive đã tách khỏi domain side-effect chưa
    - callback/webhook đã không còn đi nhờ flow khác chưa
+
 
