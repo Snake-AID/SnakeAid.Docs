@@ -25,7 +25,7 @@ Quy ước sử dụng:
 
 | Flow | Semantic | Owner service | Prefix | Domain side-effect |
 |---|---|---|---|---|
-| Wallet Topup | nạp tiền vào ví user | `WalletTopupPaymentService` | `TOPUP-` | credit user wallet |
+| Wallet Topup | nạp tiền vào ví user | `WalletTopupService` | `TOPUP-` | credit user wallet |
 | Snake Catching | thanh toán cho snake catching | `SnakeCatchingPaymentService` | `CATCHING-` | update catching payment/domain state |
 | Consultation | thanh toán cho consultation | `ConsultationPaymentService` | `CONSULTPAY-` | update booking/request payment state |
 | Snakebite Incident | thanh toán cho incident | `SnakebiteIncidentPaymentService` | `INCIDENT-` | update incident payment/domain state |
@@ -34,18 +34,18 @@ Quy ước sử dụng:
 
 ```mermaid
 flowchart LR
-    PayOsController --> WalletTopupPaymentService
+    PayOsController --> WalletTopupService
     PayOsController --> SnakeCatchingPaymentService
     PayOsController --> ConsultationPaymentService
     PayOsController --> SnakebiteIncidentPaymentService
 
-    WalletController --> WalletTopupPaymentService
+    WalletController --> WalletTopupService
     SnakeCatchingPaymentsController --> SnakeCatchingPaymentService
     ConsultationPaymentsController --> ConsultationPaymentService
     SnakebiteIncidentController --> SnakebiteIncidentPaymentService
 
-    WalletTopupPaymentService --> MoneyTransferService
-    WalletTopupPaymentService --> MoneyLedgerService
+    WalletTopupService --> MoneyTransferService
+    WalletTopupService --> MoneyLedgerService
 
     SnakeCatchingPaymentService --> MoneyEscrowService
     SnakeCatchingPaymentService --> MoneyTransferService
@@ -88,7 +88,7 @@ classDiagram
       +DispatchByPrefix()
     }
 
-    class WalletTopupPaymentService {
+    class WalletTopupService {
       +CreatePaymentIntent()
       +ConfirmPayment()
       +ProcessWebhook()
@@ -133,13 +133,13 @@ classDiagram
       +CreateLedgerPair()
     }
 
-    PayOsController --> WalletTopupPaymentService
+    PayOsController --> WalletTopupService
     PayOsController --> SnakeCatchingPaymentService
     PayOsController --> ConsultationPaymentService
     PayOsController --> SnakebiteIncidentPaymentService
 
-    WalletTopupPaymentService --> MoneyTransferService
-    WalletTopupPaymentService --> MoneyLedgerService
+    WalletTopupService --> MoneyTransferService
+    WalletTopupService --> MoneyLedgerService
 
     SnakeCatchingPaymentService --> MoneyEscrowService
     SnakeCatchingPaymentService --> MoneyTransferService
@@ -177,22 +177,22 @@ flowchart TD
 sequenceDiagram
     participant Flutter
     participant WalletController
-    participant WalletTopupPaymentService
+    participant WalletTopupService
     participant PaymentGateway
     participant PayOsController
     participant MoneyTransferService
     participant MoneyLedgerService
 
     Flutter->>WalletController: POST /api/wallet/topup
-    WalletController->>WalletTopupPaymentService: CreatePaymentIntent
-    WalletTopupPaymentService->>MoneyLedgerService: CreatePendingTransaction
-    WalletTopupPaymentService->>PaymentGateway: CreatePaymentLink
-    WalletTopupPaymentService-->>Flutter: checkoutUrl + transactionId + orderCode
+    WalletController->>WalletTopupService: CreatePaymentIntent
+    WalletTopupService->>MoneyLedgerService: CreatePendingTransaction
+    WalletTopupService->>PaymentGateway: CreatePaymentLink
+    WalletTopupService-->>Flutter: checkoutUrl + transactionId + orderCode
 
     PaymentGateway->>PayOsController: return/webhook
-    PayOsController->>WalletTopupPaymentService: Dispatch by TOPUP-
-    WalletTopupPaymentService->>MoneyTransferService: CreditWallet
-    WalletTopupPaymentService->>MoneyLedgerService: MarkConfirmed
+    PayOsController->>WalletTopupService: Dispatch by TOPUP-
+    WalletTopupService->>MoneyTransferService: CreditWallet
+    WalletTopupService->>MoneyLedgerService: MarkConfirmed
 ```
 
 ## Sequence Diagram: Domain Payment Flow
@@ -223,8 +223,8 @@ sequenceDiagram
 
 Nếu phải tạo mới trong repo, vị trí mục tiêu là:
 
-- `SnakeAid.Service/Interfaces/IWalletTopupPaymentService.cs`
-- `SnakeAid.Service/Implements/WalletTopupPaymentService.cs`
+- `SnakeAid.Service/Interfaces/IWalletTopupService.cs`
+- `SnakeAid.Service/Implements/WalletTopupService.cs`
 - `SnakeAid.Service/Interfaces/IMoneyEscrowService.cs`
 - `SnakeAid.Service/Implements/MoneyEscrowService.cs`
 - `SnakeAid.Service/Interfaces/IMoneyTransferService.cs`
@@ -242,3 +242,4 @@ Khi review hoặc resume:
    - flow owner đã đúng chưa
    - shared primitive đã tách khỏi domain side-effect chưa
    - callback/webhook đã không còn đi nhờ flow khác chưa
+

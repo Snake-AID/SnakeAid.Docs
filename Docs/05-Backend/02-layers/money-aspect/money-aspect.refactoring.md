@@ -284,8 +284,8 @@ Nếu cần tạo mới trong repo, vị trí phải bám convention hiện tạ
 
 Các class dự kiến có thể xuất hiện:
 
-- `SnakeAid.Service/Interfaces/IWalletTopupPaymentService.cs`
-- `SnakeAid.Service/Implements/WalletTopupPaymentService.cs`
+- `SnakeAid.Service/Interfaces/IWalletTopupService.cs`
+- `SnakeAid.Service/Implements/WalletTopupService.cs`
 - `SnakeAid.Service/Interfaces/IMoneyEscrowService.cs`
 - `SnakeAid.Service/Implements/MoneyEscrowService.cs`
 - `SnakeAid.Service/Interfaces/IMoneyLedgerService.cs`
@@ -293,13 +293,14 @@ Các class dự kiến có thể xuất hiện:
 
 Lưu ý:
 
-- đây là target placement, không phải cam kết sẽ tạo đủ tất cả class trên
+- đây là placement tham chiếu ưu tiên, không phải danh sách bắt buộc cứng
+- placement thực tế được phép linh hoạt miễn vẫn bám convention repo
 - chỉ tạo class khi refactor thực tế chứng minh là cần
 - chỉ chốt shared class sau phase chuẩn hóa flow
 
 ### Flow owner đề xuất
 
-- `WalletTopupPaymentService`
+- `WalletTopupService`
 - `SnakeCatchingPaymentService`
 - `ConsultationPaymentService`
 - `SnakebiteIncidentPaymentService`
@@ -501,4 +502,6 @@ Nếu bị gián đoạn giữa chừng:
 - redesign toàn bộ payment API contract cho mobile trong một lần
 - đổi schema transaction hàng loạt mà không có migration plan riêng
 - merge money refactor với các business refactor không liên quan
+
+
 

@@ -243,29 +243,47 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
 
 ## Bucket G. Structure Placement And Naming
 
-### Mục tiêu
+### Fact đã verify
 
-Chốt placement và naming theo convention codebase, tránh sinh abstraction lệch phong cách repo.
+- convention chính của repo hiện tại là:
+  - interface đặt trong `SnakeAid.Service/Interfaces`
+  - implementation đặt trong `SnakeAid.Service/Implements`
+  - naming theo mẫu `I{Name}Service` / `{Name}Service`
+- các payment owner service hiện tại đều đang follow convention này:
+  - `IConsultationPaymentService` / `ConsultationPaymentService`
+  - `ISnakebiteIncidentPaymentService` / `SnakebiteIncidentPaymentService`
+  - `ISnakeCatchingPaymentService` / `SnakeCatchingPaymentService`
+  - `IWalletTopupService` / `WalletTopupService`
+  - `IWalletPaymentService` / `WalletPaymentService`
+- repo hiện không có pattern payment subfolder riêng trong `Interfaces` hoặc `Implements`; payment service vẫn đứng ngang hàng với service khác
+- `WalletTopupService` theo naming hiện tại khớp convention repo hơn `WalletTopupPaymentService`
+- `IWalletPaymentService` / `WalletPaymentService` đang là tên gây nhiễu semantic:
+  - method duy nhất là `CreateWalletPaymentAsync`
+  - request/response lại là snake catching DTO
+  - controller gọi nó từ `WalletController.POST /api/wallet/payment`
+  - nhưng business thật của nó là snake catching wallet payment, không phải generic wallet payment
+- `Program.cs` hiện đăng ký rõ `ISnakeCatchingPaymentService` và `IWalletTopupService`
+- kết quả grep hiện không thấy đăng ký DI cho `IWalletPaymentService` trong `Program.cs`, trong khi `WalletController` vẫn inject interface này; đây là dấu hiệu cấu trúc cũ chưa được clean up triệt để hoặc registration đang nằm ngoài vùng payment registration hiện tại
+- target docs hiện còn chứa một số giả định naming/placement chưa khớp với scope đã chốt ở các bucket trước:
+  - `WalletTopupPaymentService`
+  - `MoneyEscrowService`
+  - `MoneyLedgerService`
+  - `MoneyTransferService`
+- trong khi Bucket C, D, F đã chốt rằng shared crosscutting chưa được tạo ở lượt refactor hiện tại và số class mới phải giữ tối thiểu
 
-### Câu hỏi cần trả lời
+### Decision đã chốt
 
-- repo hiện có pattern rõ cho service owner, helper service, adapter service hay chưa
-- flow owner mới nên là class mới hay mở rộng class cũ
-- shared primitive nếu có nên đặt cùng `Implements`/`Interfaces` hay tạo subfolder riêng
-- naming nào sát domain nhất: `WalletTopupService` hay `WalletTopupPaymentService`
+- giữ naming `WalletTopupService`; không tạo hay rename sang `WalletTopupPaymentService`
+- `WalletPaymentService` và `IWalletPaymentService` sẽ bị xóa hẳn; logic được chuyển hết về `SnakeCatchingPaymentService`
+- nếu cần compatibility trong quá trình code move, đó chỉ là trạng thái tạm implementation, không phải target-state để ghi vào doc kiến trúc
+- file placement list trong doc chỉ là tham chiếu ưu tiên, không phải danh sách bắt buộc cứng
+- placement thực tế được phép linh hoạt miễn vẫn bám convention repo và không tạo structure rối hơn hiện trạng
 
-### Khu vực code cần soi
+### Kết luận bucket này
 
-- `SnakeAid.Service/Interfaces`
-- `SnakeAid.Service/Implements`
-- convention của các service payment hiện tại
-
-### Decision phụ thuộc bucket này
-
-- `4. WalletTopupPaymentService có tạo mới hay không`
-- `5. Số lượng class mới tối đa được phép`
-- `19. File placement list là bắt buộc hay tham chiếu`
-
+- naming target-state bám theo convention repo hiện có, không cố phát minh tên mới cho cùng một vai trò
+- owner service của `wallet topup` giữ tên hiện tại
+- owner service của snake catching hấp thụ toàn bộ wallet payment logic và xóa lớp naming gây nhiễu cũ
 ---
 
 ## Bucket H. Documentation Mode
@@ -290,8 +308,10 @@ Khi research codebase, nên tick theo bucket thay vì theo decision rời:
 - [x] Bucket D done
 - [x] Bucket E done
 - [x] Bucket F done
-- [ ] Bucket G done
+- [x] Bucket G done
 - [x] Bucket H done
+
+
 
 
 
