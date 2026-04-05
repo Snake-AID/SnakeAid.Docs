@@ -361,7 +361,7 @@ Resume output mong muốn:
 
 ### Phase 1. Tách wallet topup khỏi snake catching
 
-Trạng thái: `TODO`
+Trạng thái: `DONE`
 
 Mục tiêu:
 
@@ -372,10 +372,10 @@ Mục tiêu:
 Checklist:
 
 - [x] tạo prefix riêng cho topup
-- [ ] hoàn thiện `WalletTopupService` để tự sở hữu callback/confirm
-- [ ] cập nhật PayOS router
-- [ ] thêm test routing cho topup
-- [ ] verify topup credit đúng wallet user
+- [x] hoàn thiện `WalletTopupService` để tự sở hữu callback/confirm
+- [x] cập nhật PayOS router
+- [x] thêm test routing cho topup
+- [x] verify topup credit đúng wallet user
 
 Done khi:
 
