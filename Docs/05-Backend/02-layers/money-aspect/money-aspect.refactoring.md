@@ -336,19 +336,28 @@ Nguyên tắc là:
 
 ### Phase 0. Freeze hiện trạng
 
-Trạng thái: `TODO`
+Trạng thái: `DONE`
 
 Checklist:
 
-- [ ] chốt danh sách 4 flow tiền tệ cần quản lý
+- [x] chốt danh sách 4 flow tiền tệ cần quản lý
 - [x] chốt prefix hiện tại của từng flow
-- [ ] chốt entrypoints controller/service hiện tại
-- [ ] chốt các integration test đang có
-- [ ] bổ sung regression notes cho topup đang đi nhờ snake catching
+- [x] chốt entrypoints controller/service hiện tại
+- [x] chốt các integration test đang có
+- [x] bổ sung regression notes cho topup đang đi nhờ snake catching
 
 Resume output mong muốn:
 
 - có bảng mapping flow -> controller -> service -> prefix -> callback handler
+
+### Phase 0 output
+
+| Flow | Primary controller entry | Current owner service | Prefix hiện trạng | Callback/confirm handler hiện trạng |
+|---|---|---|---|---|
+| Wallet Topup | `WalletController.POST /api/wallet/topup` | `WalletTopupService` | `SNAKEAID-` | đang đi nhờ `PayOsController` dispatch sang `SnakeCatchingPaymentService.HandleWalletTopupAsync` |
+| Snake Catching | `SnakeCatchingPaymentsController`, `WalletController.POST /api/wallet/payment` | `SnakeCatchingPaymentService` + `WalletPaymentService` | `SNAKEAID-` | `PayOsController` dispatch về snake catching |
+| Consultation | `ConsultationPaymentsController` | `ConsultationPaymentService` | `CONSULTPAY-` | `PayOsController` dispatch về consultation |
+| Snakebite Incident | `SnakebiteIncidentController` | `SnakebiteIncidentPaymentService` | `INCIDENT-` | `PayOsController` dispatch về incident |
 
 ### Phase 1. Tách wallet topup khỏi snake catching
 
