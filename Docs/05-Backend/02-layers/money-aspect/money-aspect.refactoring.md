@@ -521,6 +521,8 @@ Test/verification:
 
 ### Phase 5. Ledger semantics cleanup and shared crosscutting decision
 
+Trạng thái: `DONE`
+
 Mục tiêu phase cuối:
 
 - chốt semantic ledger sau khi flow ownership đã ổn định
@@ -528,12 +530,50 @@ Mục tiêu phase cuối:
 
 Checklist:
 
-- [ ] cleanup hết chỗ còn dùng `WalletTopup` như generic system credit
-- [ ] cleanup hết chỗ còn dùng `WalletWithdraw` như generic payout/refund source
-- [ ] đối chiếu lại 4 flow sau khi chuẩn hóa ownership
-- [ ] đánh giá lại có cần `MoneyEscrowService` hay không
-- [ ] đánh giá lại có cần `MoneyLedgerService` hay không
-- [ ] không tạo `MoneyTransferService` nếu pattern shared chưa tự chứng minh đủ mạnh
+- [x] cleanup hết chỗ còn dùng `WalletTopup` như generic system credit
+- [x] cleanup hết chỗ còn dùng `WalletWithdraw` như generic payout/refund source
+- [x] đối chiếu lại 4 flow sau khi chuẩn hóa ownership
+- [x] đánh giá lại có cần `MoneyEscrowService` hay không
+- [x] đánh giá lại có cần `MoneyLedgerService` hay không
+- [x] không tạo `MoneyTransferService` nếu pattern shared chưa tự chứng minh đủ mạnh
+
+### Phase 5 output
+
+Kết luận code-verified:
+
+- thêm `TransactionType.EscrowHold = 34` cho system wallet giữ tiền trong escrow
+- thêm `TransactionType.EscrowRelease = 35` cho system wallet giải phóng tiền khỏi escrow
+- `TransactionType.WalletTopup` hiện chỉ còn được dùng bởi `WalletTopupService` cho user-facing wallet topup, và trong `TransactionService` system filter
+- `TransactionType.WalletWithdraw` hiện chỉ còn được dùng bởi `WalletWithdrawService` cho user-facing withdrawal, và trong `TransactionService` system filter
+- các system wallet ledger entry đã đổi semantic:
+  - consultation escrow source -> `EscrowHold`
+  - consultation refund/settlement source -> `EscrowRelease`
+  - snakebite incident escrow source -> `EscrowHold`
+  - snakebite incident refund source -> `EscrowRelease`
+  - snake catching system escrow source -> `EscrowHold`
+  - snake catching payout/refund source -> `EscrowRelease`
+- `SnakeCatchingPaymentService` không còn legacy branch `HandleWalletTopupAsync`; topup callback owner vẫn là `WalletTopupService`
+- `TransactionService` system transaction group đã include `EscrowHold` và `EscrowRelease`
+
+Shared primitive decision:
+
+- không tạo `MoneyTransferService`
+- không tạo `MoneyEscrowService` trong lượt này
+- không tạo `MoneyLedgerService` trong lượt này
+- lý do:
+  - ledger semantic cleanup đã xử lý nguồn gây nhòe nghĩa chính của phase 5
+  - candidate shared mạnh nhất vẫn là escrow primitive giữa consultation và incident, nhưng extraction sẽ đổi nhiều private flow contract cùng lúc sau khi enum semantic vừa thay đổi
+  - snake catching vẫn có domain side-effect riêng trong money path, nên chưa nên kéo vào shared primitive
+  - giữ duplication cục bộ ở consultation/incident hiện an toàn hơn tạo shared abstraction mới chưa bắt buộc
+
+Test/verification:
+
+- thêm assertion trong `ConsultationPaymentIntegrationTests` để verify escrow ledger dùng `EscrowHold` / `EscrowRelease`, đồng thời không tạo system `WalletTopup` / `WalletWithdraw` cho escrow source
+- `dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "ConsultationPaymentIntegrationTests|SnakebiteIncidentPaymentServiceTests|WalletTopupServiceTests|WalletWithdrawServiceTests|WalletWithdrawalFlowIntegrationTests|PayOs"` pass `115/115`
+- grep production code xác nhận `TransactionType.WalletTopup` / `TransactionType.WalletWithdraw` chỉ còn ở đúng owner service và system transaction grouping
+- full `dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj` vẫn fail `2/202` bởi cùng 2 lỗi ngoài scope PayOS/money-aspect đã ghi ở Phase 4:
+  - `ShiftServiceTests.GetAssignmentsByDateAsync_ShouldIncludeOvernightShiftFromPreviousDay`: EF mapping `Point.UserData`
+  - `ScheduledConsultationIntegrationTests.CreateScheduledBookingAsync_ShouldReserveSlot_AndCreateBookingAndConsultation`: slot test đã bắt đầu
 
 ## Tracking Progress
 
@@ -544,7 +584,7 @@ Checklist:
 - Phase 2: `DONE`
 - Phase 3: `DONE`
 - Phase 4: `DONE`
-- Phase 5: `TODO`
+- Phase 5: `DONE`
 
 ### Latest confirmed findings
 
@@ -564,6 +604,10 @@ Checklist:
 - Phase 4 đã chuẩn hóa dispatch ở `PayOsController` qua `PayOsPaymentFlowPrefixes.TryResolve(...)` cho manual confirm, return confirm helper, và webhook
 - Phase 4 đã xác nhận production prefix literals chỉ còn nằm ở `PayOsPaymentFlowPrefixes.cs`
 - Phase 4 targeted PayOS tests pass `92/92`; full test suite còn 2 failure ngoài scope PayOS như ghi ở `Phase 4 output`
+- Phase 5 đã thêm `EscrowHold` và `EscrowRelease` để thay semantic generic `WalletTopup` / `WalletWithdraw` cho system escrow ledger
+- Phase 5 đã xác nhận `WalletTopup` và `WalletWithdraw` chỉ còn dùng cho owner service thật và system transaction filter
+- Phase 5 đã quyết định không tạo `MoneyEscrowService`, `MoneyLedgerService`, hoặc `MoneyTransferService` trong lượt này
+- Phase 5 targeted payment/withdrawal/PayOS tests pass `115/115`
 
 ## Resume Guide
 
