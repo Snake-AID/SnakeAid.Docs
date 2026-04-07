@@ -473,7 +473,7 @@ Decision sau phase 3:
 
 ### Phase 4. Chuẩn hóa PayOS flow router
 
-Trạng thái: `TODO`
+Trạng thái: `DONE`
 
 Mục tiêu:
 
@@ -482,14 +482,42 @@ Mục tiêu:
 
 Checklist:
 
-- [ ] chuẩn hóa prefix constants
-- [ ] gom routing logic về một chỗ
-- [ ] thêm test uniqueness của prefix
-- [ ] thêm test router dispatch đúng owner
+- [x] chuẩn hóa prefix constants
+- [x] gom routing logic về một chỗ
+- [x] thêm test uniqueness của prefix
+- [x] thêm test router dispatch đúng owner
 
 Done khi:
 
 - không còn hardcode mơ hồ theo description prefix ở nhiều nơi
+
+### Phase 4 output
+
+Kết luận code-verified:
+
+- PayOS prefix đã được gom về `PayOsPaymentFlowPrefixes` với 4 flow:
+  - `Topup` -> `TOPUP-`
+  - `SnakeCatching` -> `CATCHING-`
+  - `SnakebiteIncident` -> `INCIDENT-`
+  - `Consultation` -> `CONSULTPAY-`
+- `PayOsController` không còn tự hardcode chuỗi prefix trong các nhánh dispatch chính; controller dùng `PayOsPaymentFlowPrefixes.TryResolve(...)` rồi dispatch theo `PayOsPaymentFlow`
+- `ConfirmPayment`, `Webhook`, và `ConfirmByOrderCodeAsync` hiện dùng cùng rule resolve prefix trước khi gọi owner service
+- `PayOsDescriptionLookup` vẫn giữ query dạng explicit `StartsWith(...)` để tránh rủi ro EF translation, nhưng các prefix trong query lấy từ cùng constants
+- Các service owner đã dùng cùng constants khi build/parse PayOS description:
+  - `WalletTopupService`
+  - `SnakeCatchingPaymentService`
+  - `SnakebiteIncidentPaymentService`
+  - `ConsultationPaymentService`
+- grep production code cho literal `TOPUP-`, `CATCHING-`, `INCIDENT-`, `CONSULTPAY-`, `SNAKEAID-` chỉ còn match ở file constants `PayOsPaymentFlowPrefixes.cs`
+
+Test/verification:
+
+- thêm `PayOsPaymentFlowPrefixesTests` để verify prefix uniqueness, mapping flow -> prefix, resolve description -> flow, và build prefix theo order code
+- mở rộng `PayOsTopupRoutingTests` để verify `ConfirmPayment`, `Webhook`, và `ConfirmByOrderCodeAsync` dispatch đúng owner cho cả 4 flow
+- `dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "FullyQualifiedName~PayOs"` pass `92/92`
+- full `dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj` hiện fail `2/202` bởi lỗi ngoài scope PayOS:
+  - `ShiftServiceTests.GetAssignmentsByDateAsync_ShouldIncludeOvernightShiftFromPreviousDay`: EF mapping `Point.UserData`
+  - `ScheduledConsultationIntegrationTests.CreateScheduledBookingAsync_ShouldReserveSlot_AndCreateBookingAndConsultation`: slot test đã bắt đầu
 
 ### Phase 5. Ledger semantics cleanup and shared crosscutting decision
 
@@ -515,7 +543,7 @@ Checklist:
 - Phase 1: `DONE`
 - Phase 2: `DONE`
 - Phase 3: `DONE`
-- Phase 4: `TODO`
+- Phase 4: `DONE`
 - Phase 5: `TODO`
 
 ### Latest confirmed findings
@@ -532,6 +560,10 @@ Checklist:
 - Phase 3 đã xác nhận `WalletTopupService` không được dùng chung escrow primitive vì semantic là topup inflow vào user wallet
 - Phase 3 đã xác nhận snake catching vẫn có nhiều money movement trộn domain side-effect, nên không extract shared primitive từ snake catching trong lượt này
 - Phase 3 đã xác nhận không tạo shared money primitive mới trước phase 5
+- Phase 4 đã gom PayOS prefix constants về `PayOsPaymentFlowPrefixes`
+- Phase 4 đã chuẩn hóa dispatch ở `PayOsController` qua `PayOsPaymentFlowPrefixes.TryResolve(...)` cho manual confirm, return confirm helper, và webhook
+- Phase 4 đã xác nhận production prefix literals chỉ còn nằm ở `PayOsPaymentFlowPrefixes.cs`
+- Phase 4 targeted PayOS tests pass `92/92`; full test suite còn 2 failure ngoài scope PayOS như ghi ở `Phase 4 output`
 
 ## Resume Guide
 
