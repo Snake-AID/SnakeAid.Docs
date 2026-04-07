@@ -256,6 +256,49 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
 - `8. Mức refactor của consultation và snakebite incident`
 ---
 
+## Bucket H. Phase 6/7 Transaction-Sourced Escrow And Consultation Platform Fee
+
+### Fact đã verify
+
+- `ConsultationPaymentService` còn dùng `SystemWalletUserId` và update system wallet balance trong:
+  - `MoveMoneyToEscrowAsync`
+  - `RefundFromEscrowAsync`
+  - `TransferEscrowToExpertAsync`
+- `SnakebiteIncidentPaymentService` còn dùng `SystemWalletUserId` và update system wallet balance trong:
+  - `MoveMoneyToEscrowAsync`
+  - `RefundSnakebiteIncidentTransactionAsync`
+- `SnakeCatchingPaymentService` còn dùng system wallet trong:
+  - wallet payment
+  - PayOS webhook confirm path
+  - transfer-to-rescuer
+  - refund
+- DTO public còn expose `SystemWalletBalance*`:
+  - `ConsultationPaymentResponse.SystemWalletBalanceAfter`
+  - `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter`
+  - `RefundTransactionResponse.SystemWalletBalanceBefore`
+  - `RefundTransactionResponse.SystemWalletBalanceAfter`
+  - `TransferToRescuerResponse.SystemWalletBalanceBefore`
+  - `TransferToRescuerResponse.SystemWalletBalanceAfter`
+- consultation settlement hiện cộng 100% amount cho expert wallet và chỉ tạo `ExpertPayout`; chưa tạo `PlatformFee`
+- snake catching đã có pattern platform fee riêng, nhưng đang hardcode `commissionFee = 200000`
+- repo đã có `SystemSettingKeys` và `ISystemSettingService`, phù hợp để thêm platform fee percent cho consultation nếu cần dynamic config
+
+### Decision đã chốt từ bucket này
+
+- Phase 6 xử lý transaction-sourced escrow trước Phase 7
+- Phase 6 không implement consultation platform fee
+- Phase 7 không nên dùng `EscrowRelease` generic cho consultation settlement nếu release được biểu diễn bằng `PlatformFee` + `ExpertPayout`
+- `money-aspect.changelog.md` là nơi tracking mọi thay đổi front-facing liên quan `SystemWalletBalance*`, fee breakdown, hoặc transaction type exposure
+
+### Ambiguity còn lại
+
+- default consultation platform fee percent là bao nhiêu nếu system setting chưa tồn tại
+- rounding rule cho fee là gì
+- client có cần thấy fee breakdown trong response hay chỉ cần transaction ledger
+- `EscrowHold` / `EscrowRelease` nên bị xóa khỏi enum sau Phase 6 hay giữ lại như explicit event type
+
+---
+
 ## Bucket G. Structure Placement And Naming
 
 ### Fact đã verify

@@ -50,6 +50,8 @@ flowchart LR
 - mỗi flow sở hữu `CreatePaymentIntent`
 - mỗi flow sở hữu `ConfirmPayment`
 - mỗi flow sở hữu `ApplyDomainSideEffects`
+- escrow target-state sau Phase 6 là transaction-sourced; `System Wallet` không còn là két sắt cố định để hold/release tiền
+- held/released amount phải được suy ra từ `TransactionType` + `ReferenceId`, không từ balance của account `system.wallet`
 - shared primitive boundary chưa được khóa trong target-state hiện tại; nếu phase cuối chứng minh là cần thì mới bổ sung vào sourcemap như một decision mới
 - `PayOsController` là callback entrypoint chung, chỉ nhận request và dispatch theo prefix
 - `PayOsController` không apply domain side-effect
@@ -116,14 +118,39 @@ flowchart TD
     B --> C[Create pending transaction]
     C --> D{Payment method}
     D -->|PayOS| E[Create checkout link]
-    D -->|Wallet| F[Debit wallet or move to escrow]
+    D -->|Wallet| F[Debit user wallet and create payment transaction]
     E --> G[ConfirmPayment or Webhook]
     F --> H[Apply domain side-effects]
     G --> I[Verify gateway result]
-    I --> J[Apply money movement]
+    I --> J[Create transaction-sourced escrow ledger]
     J --> H
     H --> K[Post payment actions]
 ```
+
+## Transaction-Sourced Escrow Target
+
+Target-state mới sau Money Aspect 6:
+
+- không update balance của system wallet khi hold/release escrow
+- escrow hold được suy ra từ payment transaction thật của từng flow:
+  - `ConsultationPayment`
+  - `CatchingPayment` / `CatchingDeposit`
+  - `SnakebiteIncidentPayment`
+- escrow release/refund được suy ra từ sink transaction thật của từng flow:
+  - consultation: `ExpertPayout`, `ConsultationRefund`, `PlatformFee`
+  - snake catching: `CatcherPayout`, `CatchingRefund`, `PlatformFee`
+  - snakebite incident: `SnakebiteIncidentRefund`
+- `EscrowHold` / `EscrowRelease` là transitional transaction type từ Phase 5; sau Phase 6 chỉ giữ lại nếu có decision mới chứng minh cần explicit escrow event riêng
+- `SystemWalletBalance*` trong response là front-facing transitional contract; nếu đổi/bỏ phải ghi vào `money-aspect.changelog.md`
+
+## Consultation Platform Fee Target
+
+Target-state mới sau Money Aspect 7:
+
+- `SettleConsultationEscrowAsync` không payout 100% amount cho expert
+- settlement consultation tạo `PlatformFee` và `ExpertPayout`
+- expert wallet chỉ được cộng net amount sau khi trừ platform fee
+- fee percent nên đi qua `SystemSettingKeys`, không hardcode trong `ConsultationPaymentService`
 
 ## Sequence Diagram: Wallet Topup
 

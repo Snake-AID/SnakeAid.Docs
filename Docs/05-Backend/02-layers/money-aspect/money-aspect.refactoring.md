@@ -575,6 +575,139 @@ Test/verification:
   - `ShiftServiceTests.GetAssignmentsByDateAsync_ShouldIncludeOvernightShiftFromPreviousDay`: EF mapping `Point.UserData`
   - `ScheduledConsultationIntegrationTests.CreateScheduledBookingAsync_ShouldReserveSlot_AndCreateBookingAndConsultation`: slot test đã bắt đầu
 
+### Phase 6. Transaction-sourced escrow ledger
+
+Trạng thái: `TODO`
+
+Mục tiêu:
+
+- bãi bỏ `System Wallet` như két sắt cố định của escrow
+- chuyển escrow balance từ wallet side-effect sang ledger được suy ra từ `Transaction`
+- giữ rule `Transaction` là NoSQL-style ledger entity: `TransactionType` xác định semantic, `ReferenceId` xác định entity đích
+- không làm platform fee consultation trong phase này; chỉ chuẩn hóa nguồn sự thật của escrow trước
+
+Decision đã chốt cho phase này:
+
+- không còn tăng/giảm balance của account `system.wallet` khi hold/release escrow
+- không dùng system wallet balance để validate refund/payout; thay bằng transaction-sourced escrow availability theo `ReferenceId`
+- không tạo schema migration vì dữ liệu dev có thể drop; nếu enum/domain contract đổi thì code và tests là nguồn sự thật
+- `SystemWalletBalance*` là field front-facing nhạy cảm; nếu đổi hoặc bỏ phải ghi vào `money-aspect.changelog.md`
+
+Research finding trước implementation:
+
+- `ConsultationPaymentService.MoveMoneyToEscrowAsync`, `RefundFromEscrowAsync`, `TransferEscrowToExpertAsync` đang trực tiếp tạo/lấy system wallet và update balance
+- `SnakebiteIncidentPaymentService.MoveMoneyToEscrowAsync` và `RefundSnakebiteIncidentTransactionAsync` cũng phụ thuộc system wallet balance
+- `SnakeCatchingPaymentService` phụ thuộc system wallet ở cả wallet payment, PayOS webhook, refund, transfer-to-rescuer, và response balance
+- front-facing response hiện đang expose system wallet fields:
+  - `ConsultationPaymentResponse.SystemWalletBalanceAfter`
+  - `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter`
+  - `RefundTransactionResponse.SystemWalletBalanceBefore`
+  - `RefundTransactionResponse.SystemWalletBalanceAfter`
+  - `TransferToRescuerResponse.SystemWalletBalanceBefore`
+  - `TransferToRescuerResponse.SystemWalletBalanceAfter`
+
+Target ledger equation:
+
+- hold source là payment transaction thật của flow:
+  - consultation: `ConsultationPayment`
+  - snake catching: `CatchingPayment` / `CatchingDeposit`
+  - snakebite incident: `SnakebiteIncidentPayment`
+- release/refund sinks là domain transaction thật của flow:
+  - consultation: `ExpertPayout`, `ConsultationRefund`, và Phase 7 sẽ thêm `PlatformFee`
+  - snake catching: `CatcherPayout`, `CatchingRefund`, `PlatformFee`
+  - snakebite incident: `SnakebiteIncidentRefund`
+- escrow available amount theo `ReferenceId` = paid/held amount - released/refunded/fee amount
+- `EscrowHold` / `EscrowRelease` là transitional naming từ Phase 5; sau Phase 6 phải quyết định xóa hẳn khỏi enum nếu không còn production usage, hoặc giữ lại chỉ khi có semantic transaction event thật sự cần chúng
+
+Phase 6A. Freeze current escrow contract with characterization tests:
+
+- [ ] thêm hoặc cập nhật tests để capture current consultation hold/refund/settlement behavior trước khi bỏ system wallet
+- [ ] thêm tests cho transaction-sourced availability: hold amount, refunded amount, settled amount, remaining amount
+- [ ] grep toàn repo production cho `SystemWalletUserId`, `systemWallet`, `SystemWalletBalance`, `EscrowHold`, `EscrowRelease`
+- [ ] lập bảng affected public DTO fields và ghi watchlist vào `money-aspect.changelog.md`
+
+Phase 6B. Consultation transaction-sourced escrow first:
+
+- [ ] refactor `ConsultationPaymentService.MoveMoneyToEscrowAsync` để không tạo/update system wallet
+- [ ] refactor `RefundFromEscrowAsync` để validate bằng transaction-sourced availability thay vì `systemWallet.Balance`
+- [ ] refactor `TransferEscrowToExpertAsync` để validate bằng transaction-sourced availability thay vì `systemWallet.Balance`
+- [ ] giữ expert/user wallet mutation vì expert và member vẫn có ví thật
+- [ ] cập nhật `ConsultationPaymentIntegrationTests` để không seed/assert system wallet balance
+- [ ] quyết định response `SystemWalletBalanceAfter`: giữ nullable và trả `null` trong phase chuyển tiếp, hoặc đổi contract có changelog rõ
+
+Phase 6C. Snakebite incident transaction-sourced escrow:
+
+- [ ] refactor `SnakebiteIncidentPaymentService.MoveMoneyToEscrowAsync` để không tạo/update system wallet
+- [ ] refactor `RefundSnakebiteIncidentTransactionAsync` để validate bằng transaction-sourced availability
+- [ ] cập nhật `SnakebiteIncidentPaymentServiceTests` và property tests đang assert `SystemWalletBalance*`
+- [ ] nếu `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` đổi semantic hoặc bị null hóa, ghi vào changelog vì đây là DTO public
+
+Phase 6D. Snake catching transaction-sourced escrow:
+
+- [ ] refactor wallet payment và PayOS webhook path để không credit system wallet
+- [ ] refactor `TransferSnakeCatchingFundsToRescuerAsync` để tính available paid amount từ transactions thay vì system wallet balance
+- [ ] refactor `RefundSnakeCatchingTransactionAsync` để validate bằng transaction-sourced availability
+- [ ] giữ platform fee hiện hữu của snake catching trong owner service, chưa share abstraction
+- [ ] cập nhật response `TransferToRescuerResponse` / `RefundTransactionResponse` nếu bỏ `SystemWalletBalance*`, kèm changelog
+
+Phase 6E. Remove transitional system escrow artifacts:
+
+- [ ] xóa hoặc ngừng dùng `SystemWalletUserId` trong payment services nếu không còn production usage
+- [ ] xóa `EscrowHold` / `EscrowRelease` khỏi production path; chỉ giữ enum nếu có decision mới chứng minh cần transaction event riêng
+- [ ] cập nhật `TransactionService` grouping để không đưa transaction-sourced escrow vào nhóm `system` một cách mơ hồ
+- [ ] cập nhật `money-aspect.sourcemap.md` target-state sau khi code khớp quyết định mới
+- [ ] targeted tests tối thiểu: `ConsultationPaymentIntegrationTests|SnakebiteIncidentPaymentServiceTests|SnakebiteIncidentPaymentPropertyTests|SnakeCatching|PayOs`
+
+### Phase 7. Consultation platform fee on escrow release
+
+Trạng thái: `TODO`
+
+Mục tiêu:
+
+- khi consultation settlement release, expert không nhận 100% order amount nữa
+- tạo doanh thu nền tảng bằng `PlatformFee`
+- release của consultation sau Phase 6 phải tạo 2 transaction chính:
+  - `PlatformFee` cho phí nền tảng
+  - `ExpertPayout` cho lợi nhuận ròng của expert
+- expert wallet vẫn được cộng tiền bình thường với net amount
+
+Decision đề xuất trước implementation:
+
+- không tạo `ConsultationEscrowRelease` nếu release đã được biểu diễn bằng cặp `PlatformFee` + `ExpertPayout`
+- không dùng `EscrowRelease` generic cho consultation settlement sau Phase 7
+- giữ `TransactionType.PlatformFee` thay vì tạo enum platform fee riêng cho consultation, vì enum hiện tại đã có semantic platform commission chung
+- dùng `ReferenceId = consultationId` cho cả `PlatformFee` và `ExpertPayout` trong settlement consultation để cùng scope với payout hiện tại
+- fee config nên đi qua `SystemSettingKeys`, không hardcode phần trăm trong service như `SnakeCatchingPaymentService.commissionFee`
+
+Open decision cần chốt trước khi code:
+
+- default consultation platform fee percent là bao nhiêu nếu system setting chưa tồn tại
+- fee rounding dùng rule nào: làm tròn VND bằng `MidpointRounding.AwayFromZero`, floor, hay giữ `numeric(18,2)`
+- có cần trả fee breakdown ra API không, hay chỉ ghi transaction ledger
+
+Phase 7A. Fee configuration:
+
+- [ ] thêm key vào `SystemSettingKeys`, ví dụ `Consultation:PlatformFeePercent`
+- [ ] inject `ISystemSettingService` vào `ConsultationPaymentService` nếu chọn dynamic setting
+- [ ] thêm helper tính fee: `grossAmount`, `feeAmount`, `expertNetAmount`
+- [ ] validate percent trong khoảng an toàn, ví dụ `0 <= percent < 1`
+
+Phase 7B. Settlement behavior:
+
+- [ ] cập nhật `TransferEscrowToExpertAsync` để tính fee và net amount
+- [ ] tạo `PlatformFee` transaction với amount = fee
+- [ ] tạo `ExpertPayout` transaction với amount = gross - fee
+- [ ] cộng expert wallet bằng net amount, không phải gross amount
+- [ ] idempotency guard vẫn dựa vào `ExpertPayout` hoặc một settlement marker rõ ràng để không double payout
+
+Phase 7C. Tests and reporting:
+
+- [ ] cập nhật `ConsultationPaymentIntegrationTests.SettleConsultationEscrowAsync_ShouldBeIdempotent` để assert expert wallet nhận net amount
+- [ ] assert tạo đúng 1 `PlatformFee` transaction và 1 `ExpertPayout` transaction
+- [ ] assert tổng `PlatformFee + ExpertPayout` bằng original `ConsultationPayment`
+- [ ] cập nhật `TransactionService` grouping nếu cần để `PlatformFee` vẫn xuất hiện trong group phù hợp
+- [ ] nếu response trả fee breakdown mới thì update `money-aspect.changelog.md`
+
 ## Tracking Progress
 
 ### Current status
@@ -585,6 +718,8 @@ Test/verification:
 - Phase 3: `DONE`
 - Phase 4: `DONE`
 - Phase 5: `DONE`
+- Phase 6: `TODO`
+- Phase 7: `TODO`
 
 ### Latest confirmed findings
 
@@ -608,6 +743,9 @@ Test/verification:
 - Phase 5 đã xác nhận `WalletTopup` và `WalletWithdraw` chỉ còn dùng cho owner service thật và system transaction filter
 - Phase 5 đã quyết định không tạo `MoneyEscrowService`, `MoneyLedgerService`, hoặc `MoneyTransferService` trong lượt này
 - Phase 5 targeted payment/withdrawal/PayOS tests pass `115/115`
+- Phase 6 research xác nhận system wallet vẫn là side-effect thật trong consultation, snakebite incident, và snake catching escrow paths
+- Phase 6 research xác nhận các response public còn expose `SystemWalletBalance*`, nên mọi thay đổi field này phải đi qua `money-aspect.changelog.md`
+- Phase 7 research xác nhận consultation settlement hiện payout 100% amount cho expert và chưa tạo `PlatformFee`
 
 ## Resume Guide
 
