@@ -410,7 +410,7 @@ Migration note cho frontend/mobile:
 
 ### Phase 3. Trích shared money primitives
 
-Trạng thái: `TODO`
+Trạng thái: `DONE`
 
 Mục tiêu:
 
@@ -419,13 +419,57 @@ Mục tiêu:
 
 Checklist:
 
-- [ ] xác định phần lặp giữa các `MoveMoneyToEscrowAsync`
-- [ ] xác định phần nào là duplication thật, phần nào chỉ là coupling tạm thời do flow chưa chuẩn hóa
-- [ ] ghi lại blast radius nếu trích shared primitive quá sớm
+- [x] xác định phần lặp giữa các `MoveMoneyToEscrowAsync`
+- [x] xác định phần nào là duplication thật, phần nào chỉ là coupling tạm thời do flow chưa chuẩn hóa
+- [x] ghi lại blast radius nếu trích shared primitive quá sớm
 
 Done khi:
 
 - đủ dữ kiện để chốt abstraction shared ở phase cuối, không quyết định sớm
+
+### Phase 3 output
+
+Kết luận code-verified:
+
+- duplication thật mạnh nhất nằm giữa `ConsultationPaymentService.MoveMoneyToEscrowAsync` và `SnakebiteIncidentPaymentService.MoveMoneyToEscrowAsync`
+- phần lặp gồm:
+  - lấy hoặc tạo system wallet
+  - nếu payment method là `Wallet` thì debit user wallet và validate số dư
+  - nếu payment method là `PayOS` thì giữ nguyên user wallet balance hiện tại
+  - credit system wallet như escrow
+  - insert hoặc reuse payment transaction theo `skipExistingPaymentInsert`
+  - insert paired system credit transaction
+  - trả về `TransactionId`, user wallet balance sau xử lý, system wallet balance sau xử lý, timestamp, external transaction id
+- khác biệt còn lại giữa consultation và incident chủ yếu là:
+  - `TransactionType` domain payment
+  - `ReferenceId` semantic (`booking/request/consultation` vs `incident`)
+  - wording description
+  - exception message
+  - caller side-effect sau escrow
+- đây là candidate shared primitive hợp lý về mặt kỹ thuật, nhưng chưa extract trong phase này vì phase 3 chỉ chốt dữ kiện, không chốt abstraction
+
+Không phải duplication nên extract ngay:
+
+- `WalletTopupService.ProcessConfirmedPaymentAsync` chỉ credit user wallet; semantic là topup inflow, không phải escrow primitive
+- `SnakeCatchingPaymentService.CreateWalletPaymentAsync` debit user wallet, credit system wallet, tạo paired transactions, rồi update snake catching domain state trong cùng owner flow; hình dạng giống escrow nhưng còn trộn business transition `IsPrePaid`, `PrePaidAt`, `Status`
+- `SnakeCatchingPaymentService.ProcessWebhookCoreAsync` credit system wallet và tạo system credit transaction, nhưng vẫn chứa PayOS idempotency, catching status update, commission branch, và legacy `WalletTopup` branch
+- `SnakeCatchingPaymentService.TransferSnakeCatchingFundsToRescuerAsync` không chỉ là payout primitive; nó aggregate paid catching transactions, trừ commission, tạo `PlatformFee`, tạo `CatcherPayout`, và chuyển request sang `Completed`
+- `SnakeCatchingPaymentService.RefundSnakeCatchingTransactionAsync`, `ConsultationPaymentService.RefundFromEscrowAsync`, và incident refund có movement tương tự nhau, nhưng transaction type, public API, owner side-effect, và refund semantics chưa đủ sạch để trích shared refund primitive trong lượt này
+
+Blast radius nếu extract shared primitive quá sớm:
+
+- shared primitive có thể vô tình encode `WalletTopup` như generic system escrow credit, trong khi phase cuối vẫn chưa cleanup semantic ledger
+- có thể kéo domain state transition của snake catching vào shared layer, trái rule shared primitive không biết domain side-effect
+- có thể làm mờ ranh giới topup inflow với domain payment escrow/outflow
+- có thể thay đổi response balance fields của consultation/incident nếu return tuple hoặc commit timing không giữ nguyên
+- có thể làm PayOS idempotency guard và `skipExistingPaymentInsert` bị áp dụng sai giữa manual confirm, return, webhook, và wallet payment
+- có thể tăng rủi ro test regression vì coverage giữa 4 flow không đồng đều; consultation có baseline tốt hơn, snake catching còn nhiều logic domain-specific trong cùng service
+
+Decision sau phase 3:
+
+- không tạo `MoneyEscrowService`, `MoneyLedgerService`, `MoneyTransferService`, hoặc shared refund/payout primitive ở phase này
+- giữ candidate shared mạnh nhất là escrow primitive giữa consultation và incident để đánh giá lại ở phase 5
+- nếu phase 5 tạo shared primitive, boundary chỉ được xử lý wallet movement và paired ledger insert mức thấp; domain state update vẫn nằm ở owner service
 
 ### Phase 4. Chuẩn hóa PayOS flow router
 
@@ -470,7 +514,7 @@ Checklist:
 - Phase 0: `DONE`
 - Phase 1: `DONE`
 - Phase 2: `DONE`
-- Phase 3: `TODO`
+- Phase 3: `DONE`
 - Phase 4: `TODO`
 - Phase 5: `TODO`
 
@@ -484,6 +528,10 @@ Checklist:
 - `snakebite incident` dùng prefix `INCIDENT-`
 - `snake catching` đã absorb `WalletPaymentService` vào `SnakeCatchingPaymentService`
 - route leak `POST /api/wallet/payment` đã bị xóa; route wallet payment hiện thuộc `POST /api/snakecatching/payment/wallet`
+- Phase 3 đã xác nhận duplication thật mạnh nhất là escrow primitive giữa `ConsultationPaymentService.MoveMoneyToEscrowAsync` và `SnakebiteIncidentPaymentService.MoveMoneyToEscrowAsync`
+- Phase 3 đã xác nhận `WalletTopupService` không được dùng chung escrow primitive vì semantic là topup inflow vào user wallet
+- Phase 3 đã xác nhận snake catching vẫn có nhiều money movement trộn domain side-effect, nên không extract shared primitive từ snake catching trong lượt này
+- Phase 3 đã xác nhận không tạo shared money primitive mới trước phase 5
 
 ## Resume Guide
 

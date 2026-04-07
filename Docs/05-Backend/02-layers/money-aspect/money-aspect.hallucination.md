@@ -83,6 +83,21 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
 
 ## Bucket D. Primitive Duplication And Shared Layer Boundary
 
+### Phase 3 re-verify từ code hiện tại
+
+- `ConsultationPaymentService.MoveMoneyToEscrowAsync` và `SnakebiteIncidentPaymentService.MoveMoneyToEscrowAsync` vẫn là duplication thật mạnh nhất:
+  - cùng debit user wallet khi `PaymentMethod == "Wallet"`
+  - cùng credit system wallet như escrow
+  - cùng reuse pending payment transaction khi `skipExistingPaymentInsert == true`
+  - cùng insert system-side credit transaction bằng `TransactionType.WalletTopup`
+  - cùng return tuple balance/id/timestamp/external reference
+- khác biệt giữa 2 method này hiện nằm ở domain transaction type, reference semantic, description wording, và exception message.
+- `WalletTopupService.ProcessConfirmedPaymentAsync` không thuộc escrow duplication vì chỉ credit user wallet sau PayOS topup.
+- `SnakeCatchingPaymentService.CreateWalletPaymentAsync` có shape gần escrow nhưng vẫn trộn domain state update `IsPrePaid`, `PrePaidAt`, `Status`, nên không đủ sạch để extract shared primitive từ đây trong phase 3.
+- `SnakeCatchingPaymentService.ProcessWebhookCoreAsync` vẫn chứa credit system wallet, paired system transaction, catching status update, commission branch, và legacy `WalletTopup` branch; đây là coupling residue cần giữ trong owner flow, không kéo vào shared layer.
+- `WalletPaymentService` / `IWalletPaymentService` không còn xuất hiện trong repo backend hiện tại; wallet payment của snake catching đã thuộc `SnakeCatchingPaymentService`.
+- route leak `POST /api/wallet/payment` không còn xuất hiện trong repo backend hiện tại; route wallet payment hiện là `POST /api/snakecatching/payment/wallet`.
+
 ### Fact đã verify
 
 - `ConsultationPaymentService.MoveMoneyToEscrowAsync` và `SnakebiteIncidentPaymentService.MoveMoneyToEscrowAsync` gần như là cùng một primitive, khác chủ yếu ở:
