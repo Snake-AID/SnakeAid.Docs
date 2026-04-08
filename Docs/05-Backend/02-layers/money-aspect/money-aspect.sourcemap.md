@@ -137,6 +137,361 @@ flowchart TD
     H --> K[Post payment actions]
 ```
 
+## Phase 6 Code-Change Trace
+
+### Phase 6A — Regression / characterization freeze
+
+Why this phase touched the graph:
+
+- Phase 6A không đổi production flow; nó thêm regression/characterization coverage để freeze các controller/service entrypoints trước khi 6B/6C/6D đổi money semantics
+- graph của 6A vì vậy là `test -> production touchpoints`, không phải redesign graph
+
+Changed classes / services:
+
+- `ConsultationPaymentIntegrationTests`
+- `PayOsPreservationTests`
+- `PayOsTopupRoutingTests`
+- `PayOsController`
+- `PayOsDescriptionLookup`
+- `ConsultationPaymentService`
+- `WalletTopupService`
+- `SnakeCatchingPaymentService`
+- `SnakebiteIncidentPaymentService`
+
+Function anchors:
+
+- `PayOsController.ConfirmPayment`
+- `PayOsController.Webhook`
+- `PayOsController.ConfirmByOrderCodeAsync`
+- `ConsultationPaymentService.ConfirmConsultationPaymentAsync`
+- `ConsultationPaymentService.ProcessConsultationWebhookAsync`
+- `PayOsDescriptionLookup.ResolveFlowAsync`
+
+#### Class Diagram
+
+```mermaid
+classDiagram
+    class ConsultationPaymentIntegrationTests
+    class PayOsPreservationTests
+    class PayOsTopupRoutingTests
+    class PayOsController {
+        +ConfirmPayment(...)
+        +Webhook(...)
+        -ConfirmByOrderCodeAsync(...)
+    }
+    class PayOsDescriptionLookup {
+        +ResolveFlowAsync(...)
+    }
+    class ConsultationPaymentService {
+        +ConfirmConsultationPaymentAsync(...)
+        +ProcessConsultationWebhookAsync(...)
+    }
+    class WalletTopupService
+    class SnakeCatchingPaymentService
+    class SnakebiteIncidentPaymentService
+
+    ConsultationPaymentIntegrationTests --> ConsultationPaymentService : freezes
+    PayOsPreservationTests --> PayOsController : preserves routes
+    PayOsPreservationTests --> SnakeCatchingPaymentService : preserves owner graph
+    PayOsPreservationTests --> SnakebiteIncidentPaymentService : preserves owner graph
+    PayOsTopupRoutingTests --> PayOsController : verifies routing
+    PayOsTopupRoutingTests --> PayOsDescriptionLookup : verifies prefix dispatch
+    PayOsController --> ConsultationPaymentService : dispatch
+    PayOsController --> WalletTopupService : dispatch
+    PayOsController --> SnakeCatchingPaymentService : dispatch
+    PayOsController --> SnakebiteIncidentPaymentService : dispatch
+    PayOsController --> PayOsDescriptionLookup : resolve owner
+```
+
+#### Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant Test as ConsultationPaymentIntegrationTests / PayOs*Tests
+    participant PayOsController
+    participant PayOsDescriptionLookup
+    participant ConsultationPaymentService
+    participant WalletTopupService
+    participant SnakeCatchingPaymentService
+    participant SnakebiteIncidentPaymentService
+
+    Test->>PayOsController: invoke ConfirmPayment / Webhook / ConfirmByOrderCodeAsync
+    PayOsController->>PayOsDescriptionLookup: ResolveFlowAsync(description/orderCode)
+    PayOsDescriptionLookup-->>PayOsController: resolved flow owner
+    alt Consultation flow frozen
+        PayOsController->>ConsultationPaymentService: ConfirmConsultationPaymentAsync / ProcessConsultationWebhookAsync
+    else Topup flow frozen
+        PayOsController->>WalletTopupService: confirm/webhook owner path
+    else Snake catching flow frozen
+        PayOsController->>SnakeCatchingPaymentService: confirm/webhook owner path
+    else Snakebite incident flow frozen
+        PayOsController->>SnakebiteIncidentPaymentService: confirm/webhook owner path
+    end
+```
+
+### Phase 6B — Consultation transaction-sourced escrow
+
+Why this phase touched the graph:
+
+- 6B đổi consultation từ `system.wallet` side-effect sang transaction-sourced escrow
+- touched graph tập trung vào consultation payment owner service và các entrypoints hội tụ vào escrow primitive
+
+Changed classes / services:
+
+- `ConsultationPaymentsController`
+- `PayOsController`
+- `ConsultationPaymentService`
+- `Transaction`
+- `Wallet`
+- `Booking`
+
+Function anchors:
+
+- `ConsultationPaymentService.CreateConsultationPaymentLinkAsync`
+- `ConsultationPaymentService.CreateWalletPaymentAsync`
+- `ConsultationPaymentService.ConfirmConsultationPaymentAsync`
+- `ConsultationPaymentService.ProcessConsultationWebhookAsync`
+- `ConsultationPaymentService.ProcessConfirmedPayOsPaymentAsync`
+- `ConsultationPaymentService.MoveMoneyToEscrowAsync`
+- `ConsultationPaymentService.SettleConsultationEscrowAsync`
+- verification anchor: `ConsultationPaymentIntegrationTests`
+
+#### Class Diagram
+
+```mermaid
+classDiagram
+    class ConsultationPaymentsController
+    class PayOsController
+    class ConsultationPaymentService {
+        +CreateConsultationPaymentLinkAsync(...)
+        +CreateWalletPaymentAsync(...)
+        +ConfirmConsultationPaymentAsync(...)
+        +ProcessConsultationWebhookAsync(...)
+        -ProcessConfirmedPayOsPaymentAsync(...)
+        -MoveMoneyToEscrowAsync(...)
+        +SettleConsultationEscrowAsync(...)
+    }
+    class Transaction
+    class Wallet
+    class Booking
+
+    ConsultationPaymentsController --> ConsultationPaymentService : create / wallet pay
+    PayOsController --> ConsultationPaymentService : confirm / webhook
+    ConsultationPaymentService --> Transaction : source escrow from ledger
+    ConsultationPaymentService --> Wallet : debit user wallet only
+    ConsultationPaymentService --> Booking : update payment state
+```
+
+#### Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant Entry as ConsultationPaymentsController / PayOsController
+    participant ConsultationPaymentService
+    participant Transaction
+    participant Wallet
+    participant Booking
+
+    alt Wallet payment
+        Entry->>ConsultationPaymentService: CreateWalletPaymentAsync(...)
+        ConsultationPaymentService->>ConsultationPaymentService: MoveMoneyToEscrowAsync(...)
+        ConsultationPaymentService->>Wallet: debit member wallet
+        ConsultationPaymentService->>Transaction: create consultation payment ledger
+    else PayOS confirm/webhook
+        Entry->>ConsultationPaymentService: ConfirmConsultationPaymentAsync(...) / ProcessConsultationWebhookAsync(...)
+        ConsultationPaymentService->>ConsultationPaymentService: ProcessConfirmedPayOsPaymentAsync(...)
+        ConsultationPaymentService->>ConsultationPaymentService: MoveMoneyToEscrowAsync(...)
+        ConsultationPaymentService->>Transaction: finalize consultation payment ledger
+    end
+    ConsultationPaymentService->>Booking: update booking / consultation payment state
+    Note over ConsultationPaymentService,Transaction: 6B path no longer depends on system.wallet hold/release side-effect
+```
+
+### Phase 6C — Snakebite incident ledger-only system revenue
+
+Why this phase touched the graph:
+
+- 6C corrective pass bỏ escrow semantics khỏi incident
+- touched graph tập trung vào incident payment/refund owner service và revenue/refundable calculation functions
+
+Changed classes / services:
+
+- `SnakebiteIncidentController`
+- `PayOsController`
+- `SnakebiteIncidentPaymentService`
+- `Transaction`
+- `Wallet`
+- `SnakebiteIncident`
+
+Function anchors:
+
+- `SnakebiteIncidentPaymentService.CreateSnakebiteIncidentPaymentLinkAsync`
+- `SnakebiteIncidentPaymentService.CreateSnakebiteIncidentWalletPaymentAsync`
+- `SnakebiteIncidentPaymentService.ProcessSnakebiteIncidentWebhookAsync`
+- `SnakebiteIncidentPaymentService.ConfirmSnakebiteIncidentPaymentAsync`
+- `SnakebiteIncidentPaymentService.ProcessConfirmedPayOsPaymentAsync`
+- `SnakebiteIncidentPaymentService.PreparePendingPayOsTransactionAsync`
+- `SnakebiteIncidentPaymentService.FindIncidentTransactionByOrderCodeAsync`
+- `SnakebiteIncidentPaymentService.RecordSystemRevenuePaymentAsync`
+- `SnakebiteIncidentPaymentService.RefundSnakebiteIncidentTransactionAsync`
+- `SnakebiteIncidentPaymentService.GetRefundableSnakebiteIncidentRevenueAsync`
+
+#### Class Diagram
+
+```mermaid
+classDiagram
+    class SnakebiteIncidentController
+    class PayOsController
+    class SnakebiteIncidentPaymentService {
+        +CreateSnakebiteIncidentPaymentLinkAsync(...)
+        +CreateSnakebiteIncidentWalletPaymentAsync(...)
+        +ProcessSnakebiteIncidentWebhookAsync(...)
+        +ConfirmSnakebiteIncidentPaymentAsync(...)
+        -ProcessConfirmedPayOsPaymentAsync(...)
+        -PreparePendingPayOsTransactionAsync(...)
+        -FindIncidentTransactionByOrderCodeAsync(...)
+        -RecordSystemRevenuePaymentAsync(...)
+        +RefundSnakebiteIncidentTransactionAsync(...)
+        -GetRefundableSnakebiteIncidentRevenueAsync(...)
+    }
+    class Transaction
+    class Wallet
+    class SnakebiteIncident
+
+    SnakebiteIncidentController --> SnakebiteIncidentPaymentService : create / wallet pay / refund
+    PayOsController --> SnakebiteIncidentPaymentService : confirm / webhook
+    SnakebiteIncidentPaymentService --> Transaction : payment + refund ledger
+    SnakebiteIncidentPaymentService --> Wallet : debit user / credit refund receiver
+    SnakebiteIncidentPaymentService --> SnakebiteIncident : update incident status
+```
+
+#### Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant Entry as SnakebiteIncidentController / PayOsController
+    participant SnakebiteIncidentPaymentService
+    participant Transaction
+    participant Wallet
+    participant SnakebiteIncident
+
+    alt Payment path
+        Entry->>SnakebiteIncidentPaymentService: wallet pay / PayOS confirm
+        SnakebiteIncidentPaymentService->>SnakebiteIncidentPaymentService: PreparePendingPayOsTransactionAsync / FindIncidentTransactionByOrderCodeAsync
+        SnakebiteIncidentPaymentService->>SnakebiteIncidentPaymentService: RecordSystemRevenuePaymentAsync(...)
+        SnakebiteIncidentPaymentService->>Wallet: debit user wallet only when paymentMethod=Wallet
+        SnakebiteIncidentPaymentService->>Transaction: persist SnakebiteIncidentPayment
+        SnakebiteIncidentPaymentService->>SnakebiteIncident: update incident to Completed
+    else Refund path
+        Entry->>SnakebiteIncidentPaymentService: RefundSnakebiteIncidentTransactionAsync(...)
+        SnakebiteIncidentPaymentService->>SnakebiteIncidentPaymentService: GetRefundableSnakebiteIncidentRevenueAsync(...)
+        SnakebiteIncidentPaymentService->>Transaction: read SnakebiteIncidentPayment - SnakebiteIncidentRefund
+        SnakebiteIncidentPaymentService->>Wallet: credit refund receiver
+        SnakebiteIncidentPaymentService->>Transaction: persist SnakebiteIncidentRefund
+    end
+    Note over SnakebiteIncidentPaymentService,Transaction: 6C removes incident escrow semantics, incident now uses ledger-only system revenue
+```
+
+### Phase 6D — Snake catching system/platform revenue
+
+Why this phase touched the graph:
+
+- 6D redefine catching away from escrow-to-rescuer semantics
+- only `6D1` is implemented in code today
+- settlement/refund graph drift still exists in `6D2-6D4` pending paths
+
+Changed classes / services:
+
+- `SnakeCatchingPaymentsController`
+- `PayOsController`
+- `SnakeCatchingPaymentService`
+- `SnakeCatchingMissionService`
+- `Transaction`
+- `Wallet`
+- `SnakeCatchingRequest`
+
+Function anchors:
+
+- `SnakeCatchingPaymentService.CreateSnakeCatchingPaymentLinkAsync`
+- `SnakeCatchingPaymentService.CreateWalletPaymentAsync`
+- `SnakeCatchingPaymentService.ProcessSnakeCatchingWebhookAsync`
+- `SnakeCatchingPaymentService.ConfirmSnakeCatchingPaymentAsync`
+- `SnakeCatchingPaymentService.ConfirmSnakeCatchingPaymentByOrderCodeAsync`
+- `SnakeCatchingPaymentService.ProcessWebhookCoreAsync`
+- `SnakeCatchingPaymentService.RecordSystemRevenuePaymentAsync`
+- `SnakeCatchingPaymentService.TransferSnakeCatchingFundsToRescuerAsync`
+- `SnakeCatchingPaymentService.RefundSnakeCatchingTransactionAsync`
+
+Implemented in 6D1:
+
+- `CreateWalletPaymentAsync`
+- `ProcessSnakeCatchingWebhookAsync`
+- `ConfirmSnakeCatchingPaymentAsync`
+- `ConfirmSnakeCatchingPaymentByOrderCodeAsync`
+- `ProcessWebhookCoreAsync`
+- `RecordSystemRevenuePaymentAsync`
+
+Still pending in 6D2-6D4:
+
+- `TransferSnakeCatchingFundsToRescuerAsync`
+- `RefundSnakeCatchingTransactionAsync`
+- cleanup of remaining settlement/refund graph drift
+
+#### Class Diagram
+
+```mermaid
+classDiagram
+    class SnakeCatchingPaymentsController
+    class PayOsController
+    class SnakeCatchingPaymentService {
+        +CreateSnakeCatchingPaymentLinkAsync(...)
+        +CreateWalletPaymentAsync(...)
+        +ProcessSnakeCatchingWebhookAsync(...)
+        +ConfirmSnakeCatchingPaymentAsync(...)
+        +ConfirmSnakeCatchingPaymentByOrderCodeAsync(...)
+        -ProcessWebhookCoreAsync(...)
+        -RecordSystemRevenuePaymentAsync(...)
+        +TransferSnakeCatchingFundsToRescuerAsync(...)
+        +RefundSnakeCatchingTransactionAsync(...)
+    }
+    class SnakeCatchingMissionService
+    class Transaction
+    class Wallet
+    class SnakeCatchingRequest
+
+    SnakeCatchingPaymentsController --> SnakeCatchingPaymentService : create / wallet pay / transfer
+    PayOsController --> SnakeCatchingPaymentService : confirm / webhook
+    SnakeCatchingMissionService --> SnakeCatchingPaymentService : refund on mission cancellation
+    SnakeCatchingPaymentService --> Transaction : payment / refund / settlement ledger
+    SnakeCatchingPaymentService --> Wallet : user debit + legacy settlement/refund touchpoints
+    SnakeCatchingPaymentService --> SnakeCatchingRequest : update payment state
+```
+
+#### Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant Entry as SnakeCatchingPaymentsController / PayOsController
+    participant SnakeCatchingPaymentService
+    participant Wallet
+    participant Transaction
+    participant SnakeCatchingRequest
+
+    alt Wallet payment
+        Entry->>SnakeCatchingPaymentService: CreateWalletPaymentAsync(...)
+        SnakeCatchingPaymentService->>SnakeCatchingPaymentService: RecordSystemRevenuePaymentAsync(...)
+        SnakeCatchingPaymentService->>Wallet: debit member wallet
+        SnakeCatchingPaymentService->>Transaction: persist CatchingPayment / CatchingDeposit
+    else PayOS confirm/webhook
+        Entry->>SnakeCatchingPaymentService: ConfirmSnakeCatchingPaymentAsync(...) / ProcessSnakeCatchingWebhookAsync(...)
+        SnakeCatchingPaymentService->>SnakeCatchingPaymentService: ProcessWebhookCoreAsync(...)
+        SnakeCatchingPaymentService->>SnakeCatchingPaymentService: RecordSystemRevenuePaymentAsync(...) semantic owner
+        SnakeCatchingPaymentService->>Transaction: finalize payment transaction with ExternalTransactionId
+    end
+    SnakeCatchingPaymentService->>SnakeCatchingRequest: update Paid / Completed / prepaid state
+    Note over SnakeCatchingPaymentService,Transaction: 6D1 path does not credit system.wallet and does not create EscrowHold
+```
+
 ## Consultation Escrow Target
 
 Target-state mới sau Money Aspect 6:
@@ -152,22 +507,6 @@ Target-state mới sau Money Aspect 6:
   - consultation: `ExpertPayout`, `ConsultationRefund`, `PlatformFee`
 - `EscrowHold` / `EscrowRelease` là transitional transaction type từ Phase 5; sau Phase 6 sẽ xóa khi production logic không còn sử dụng
 - `SystemWalletBalance*` trong response là front-facing transitional contract; nếu đổi/bỏ phải ghi vào `money-aspect.changelog.md`
-
-Phase 6B applied for consultation:
-
-- `ConsultationPaymentService` no longer uses system wallet for escrow hold/refund/settlement
-- consultation escrow availability is now sourced from `ConsultationPayment`, `ConsultationRefund`, and `ExpertPayout`
-- `ConsultationPaymentResponse.SystemWalletBalanceAfter` remains nullable and returns `null` for consultation escrow responses
-- incident and catching flows were not converted in Phase 6B
-
-Phase 6C corrected for snakebite incident:
-
-- `SnakebiteIncidentPaymentService` no longer uses system wallet for incident payment/refund
-- incident refundable revenue is now sourced from `SnakebiteIncidentPayment` and `SnakebiteIncidentRefund`
-- `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` remains nullable and returns `null` for incident payment responses
-- `RefundTransactionResponse.SystemWalletBalanceBefore/After` are nullable and return `null` for incident refunds
-- business correction 2026-04-08 supersedes the old escrow wording: incident is not an escrow flow and now uses ledger-only system/platform revenue semantics
-- snake catching must not be converted to escrow-to-rescuer semantics; Phase 6D uses ledger-only system/platform revenue transaction semantics
 
 ## Consultation Platform Fee Target
 
