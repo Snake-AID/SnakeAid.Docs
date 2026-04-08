@@ -789,14 +789,12 @@ Phase 6D4. Snake catching response/docs cleanup:
 
 Kết quả 6D4 đã implement:
 
-- trong `SnakeCatchingPaymentService`, production path không còn system-wallet side-effect; dấu vết còn lại chỉ là:
-  - `systemId` để validate system account khi tạo PayOS payment intent
-  - response compatibility fields nullable/null cho deprecated payout và refund responses
+- trong `SnakeCatchingPaymentService`, production path không còn system-wallet side-effect; response compatibility fields nullable/null còn tồn tại cho deprecated payout và refund responses
 - `SnakeCatchingPaymentResponse.GatewayRawResponse` của wallet payment không còn expose `SystemWalletBalance`
 - test coverage cho snake catching money path đã được cập nhật để khóa:
-  - payment không tạo `EscrowHold`
+  - payment không tạo escrow transitional transaction
   - deprecated transfer không tạo payout/release
-  - refund không tạo `EscrowRelease`
+  - refund không tạo escrow release artifact
   - wallet payment raw payload không còn `SystemWalletBalance`
 - targeted verification sau 6D4:
   - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatchingPaymentServiceTests|PayOsPreservationTests|PayOsTopupRoutingTests" --no-restore` passed `69/69`
@@ -813,12 +811,23 @@ Trạng thái Phase 6D: `DONE`.
 
 Phase 6E. Remove transitional system escrow artifacts:
 
-- [ ] xóa hoặc ngừng dùng `SystemWalletUserId` trong payment services nếu không còn production usage
-- [ ] xóa `EscrowHold` / `EscrowRelease` khỏi production path và khỏi enum sau khi không còn logic sử dụng
-- [ ] cập nhật `TransactionService` grouping để không đưa transaction-sourced escrow vào nhóm `system` một cách mơ hồ
-- [ ] cập nhật `money-aspect.sourcemap.md` target-state sau khi code khớp quyết định mới
-- [ ] kiểm tra frontend/mobile changelog gate: nếu `EscrowHold` / `EscrowRelease` hoặc `GET /api/transactions` exposure đổi, phải ghi ngay vào `money-aspect.changelog.md`
-- [ ] targeted tests tối thiểu: `ConsultationPaymentIntegrationTests|SnakebiteIncidentPaymentServiceTests|SnakebiteIncidentPaymentPropertyTests|SnakeCatching|PayOs`
+- [x] xóa hoặc ngừng dùng `SystemWalletUserId` trong payment services nếu không còn production usage
+- [x] xóa `EscrowHold` / `EscrowRelease` khỏi production path và khỏi enum sau khi không còn logic sử dụng
+- [x] cập nhật `TransactionService` grouping để không đưa transaction-sourced escrow vào nhóm `system` một cách mơ hồ
+- [x] cập nhật `money-aspect.sourcemap.md` target-state sau khi code khớp quyết định mới
+- [x] kiểm tra frontend/mobile changelog gate: nếu `EscrowHold` / `EscrowRelease` hoặc `GET /api/transactions` exposure đổi, phải ghi ngay vào `money-aspect.changelog.md`
+- [x] targeted tests tối thiểu: `ConsultationPaymentIntegrationTests|SnakebiteIncidentPaymentServiceTests|SnakebiteIncidentPaymentPropertyTests|SnakeCatching|PayOs`
+
+Kết quả 6E đã implement:
+
+- `SnakeCatchingPaymentService` không còn giữ `systemId` hoặc `commissionFee`; PayOS intent path không còn validate system account như receiver trung gian
+- `TransactionType.EscrowHold` và `TransactionType.EscrowRelease` đã bị xóa khỏi enum sau khi consultation, incident, và catching đều không còn production logic sử dụng
+- `TransactionService` group `system` không còn include escrow transitional transaction; group này giờ chỉ còn `PlatformFee`, `WalletTopup`, `WalletWithdraw`, `AdminAdjustment`
+- snake catching controller description đã được đổi sang deprecated compatibility wording thay vì transfer từ system wallet sang rescuer wallet
+- targeted verification sau 6E:
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "ConsultationPaymentIntegrationTests|SnakebiteIncidentPaymentServiceTests|SnakebiteIncidentPaymentPropertyTests|SnakeCatching|PayOs" --no-restore` passed `140/140`
+
+Trạng thái Phase 6E: `DONE`.
 
 ### Phase 7. Consultation platform fee on escrow release
 
@@ -917,7 +926,7 @@ Phase 8B. Normalize naming and helper contracts:
 - Phase 3: `DONE`
 - Phase 4: `DONE`
 - Phase 5: `DONE`
-- Phase 6: `IN PROGRESS`
+- Phase 6: `DONE`
 - Phase 6 corrective review: `DONE`
 - Phase 7: `TODO`
 - Phase 8: `TODO`
@@ -959,7 +968,7 @@ Phase 8B. Normalize naming and helper contracts:
 - Phase 7 decision đã chốt default consultation platform fee là `20%` nếu system setting chưa tồn tại
 - Phase 7 decision đã chốt rounding ưu tiên expert: làm tròn lên `expertNetAmount`, phí nền tảng là phần còn lại
 - Phase 7 decision đã chốt client cần fee breakdown khi có response/contract liên quan consultation payout hoặc transaction detail
-- Phase 7 decision đã chốt xóa `EscrowHold` / `EscrowRelease` sau khi production logic không còn sử dụng
+- Phase 6E đã xóa `EscrowHold` / `EscrowRelease` khỏi enum và khỏi `TransactionService` system grouping sau khi production logic không còn sử dụng
 - Phase 8 mở mới để xử lý vấn đề các money stage như escrow in, escrow out, refund, payout, fee đang dùng input param khác nhau giữa các flow; mục tiêu là chuẩn hóa service-internal stage input contract sau khi Phase 6D và Phase 7 làm rõ đủ mapping `ReferenceId`
 
 ## Resume Guide

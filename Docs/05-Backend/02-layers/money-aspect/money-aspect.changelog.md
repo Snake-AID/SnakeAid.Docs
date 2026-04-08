@@ -29,6 +29,27 @@ Các nội dung đó đã thuộc `money-aspect.refactoring.md` và `money-aspec
 | Snakebite Incident | payment là ledger-only system revenue; wallet payment status là `Paid`; `SystemWalletBalance*` nullable và trả `null` |
 | Snake Catching | payment/refund là ledger-only system revenue; `transfer-to-rescuer` đã bị deprecate thành compatibility no-op |
 
+## 2026-04-09 - Transaction exposure cleanup after escrow transitional type removal
+
+**Status:** `transaction exposure change`
+
+**Scope**
+
+- `GET /api/transactions`
+- client transaction filtering by `TransactionType` or by `transType=system`
+
+**Change**
+
+- backend removed `EscrowHold` and `EscrowRelease` from `TransactionType`
+- `TransactionService` group `system` no longer includes escrow transitional types
+- consultation escrow, incident revenue, and catching revenue/refund must now be interpreted via their domain transaction types
+
+**Client action**
+
+- remove any client filter or mapping that still expects `EscrowHold` / `EscrowRelease`
+- do not treat `transType=system` as containing escrow movements anymore
+- for consultation, incident, and snake catching, render money state from domain transaction types instead of escrow transitional types
+
 ## 2026-04-09 - Snake Catching Phase 6D final cleanup
 
 **Status:** `response cleanup`

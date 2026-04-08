@@ -339,11 +339,7 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
 - Business correction 2026-04-08: incident và catching là payment một chiều vào system/platform; không release qua rescuer vì rescuer là nhân viên system
 - Business correction 2026-04-08: implementation dùng ledger-only system revenue transaction cho incident/catching; admin analytics đọc từ `Transaction`, không từ `system.wallet`
 - Business correction 2026-04-08: Phase 6C corrective review done; incident now uses ledger-only system revenue wording/validation
-- `SnakeCatchingPaymentService` còn dùng system wallet trong:
-  - wallet payment
-  - PayOS webhook confirm path
-  - transfer-to-rescuer
-  - refund
+- Phase 6E update: `SnakeCatchingPaymentService` không còn production usage của system wallet; phần còn lại chỉ là response compatibility fields nullable/null cho deprecated payout và refund responses
 - DTO public còn expose `SystemWalletBalance*`:
   - `ConsultationPaymentResponse.SystemWalletBalanceAfter`
   - `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter`
@@ -352,7 +348,7 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
   - `TransferToRescuerResponse.SystemWalletBalanceBefore`
   - `TransferToRescuerResponse.SystemWalletBalanceAfter`
 - consultation settlement hiện cộng 100% amount cho expert wallet và chỉ tạo `ExpertPayout`; chưa tạo `PlatformFee`
-- snake catching đã có pattern platform fee riêng, nhưng đang hardcode `commissionFee = 200000`
+- Phase 6E update: `commissionFee` hardcoded của snake catching đã bị xóa cùng deprecated settlement semantics
 - repo đã có `SystemSettingKeys` và `ISystemSettingService`, phù hợp để thêm platform fee percent cho consultation
 
 ### Decision đã chốt từ bucket này
@@ -363,7 +359,7 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
 - consultation platform fee default là `20%` nếu system setting chưa tồn tại
 - rounding rule ưu tiên expert: tính `expertNetAmount` rồi làm tròn lên theo đơn vị VND; `platformFeeAmount = grossAmount - expertNetAmount`
 - client cần thấy fee breakdown khi settlement/response có contract liên quan consultation payout hoặc transaction detail
-- `EscrowHold` / `EscrowRelease` nên bị xóa sau khi production logic không còn sử dụng
+- Phase 6E done: `EscrowHold` / `EscrowRelease` đã bị xóa sau khi production logic không còn sử dụng
 - Phase 6 target-state phải được sửa: transaction-sourced escrow chỉ áp dụng cho consultation; incident/catching cần ledger-only system/platform revenue semantics riêng
 - Phase 6D không còn bị block bởi revenue representation: catching phải dùng ledger-only system/platform revenue và không được mô tả như `transfer-to-rescuer` hoặc marketplace payout flow
 - `money-aspect.changelog.md` là nơi tracking mọi thay đổi front-facing liên quan `SystemWalletBalance*`, fee breakdown, hoặc transaction type exposure

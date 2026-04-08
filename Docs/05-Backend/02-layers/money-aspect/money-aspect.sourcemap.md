@@ -64,6 +64,7 @@ flowchart LR
 - snake catching `transfer-to-rescuer` endpoint đã bị deprecate thành compatibility no-op từ 2026-04-09; không còn là settlement owner của customer payment
 - snake catching refund path đã khớp target-state từ 2026-04-09; refundability được suy ra từ `CatchingPayment + CatchingDeposit - CatchingRefund`, không từ `system.wallet`
 - snake catching Phase 6D đạt trạng thái final: payment/refund là ledger-only system revenue semantics; deprecated payout endpoint chỉ còn để compatibility
+- Phase 6E đã xóa escrow transitional enum/grouping artifacts; transaction list group `system` không còn mang nghĩa escrow
 - consultation held/released amount phải được suy ra từ `TransactionType` + `ReferenceId`, không từ balance của account `system.wallet`
 - shared primitive boundary chưa được khóa trong target-state hiện tại; nếu phase cuối chứng minh là cần thì mới bổ sung vào sourcemap như một decision mới
 - `PayOsController` là callback entrypoint chung, chỉ nhận request và dispatch theo prefix
@@ -492,7 +493,7 @@ sequenceDiagram
         SnakeCatchingPaymentService->>Transaction: finalize payment transaction with ExternalTransactionId
     end
     SnakeCatchingPaymentService->>SnakeCatchingRequest: update Paid / Completed / prepaid state
-    Note over SnakeCatchingPaymentService,Transaction: 6D1 path does not credit system.wallet and does not create EscrowHold
+    Note over SnakeCatchingPaymentService,Transaction: 6D1 path does not credit system.wallet and does not create escrow transitional transactions
 ```
 
 ## Consultation Escrow Target
@@ -508,7 +509,7 @@ Target-state mới sau Money Aspect 6:
   - `ConsultationPayment`
 - escrow release/refund được suy ra từ sink transaction thật của consultation:
   - consultation: `ExpertPayout`, `ConsultationRefund`, `PlatformFee`
-- `EscrowHold` / `EscrowRelease` là transitional transaction type từ Phase 5; sau Phase 6 sẽ xóa khi production logic không còn sử dụng
+- Phase 6E đã xóa `EscrowHold` / `EscrowRelease`; consultation escrow hiện được suy ra hoàn toàn từ domain transaction types thật
 - `SystemWalletBalance*` trong response là front-facing transitional contract; nếu đổi/bỏ phải ghi vào `money-aspect.changelog.md`
 
 ## Consultation Platform Fee Target
