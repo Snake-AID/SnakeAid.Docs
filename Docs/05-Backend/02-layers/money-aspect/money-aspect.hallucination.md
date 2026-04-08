@@ -21,6 +21,14 @@ File này chỉ giữ:
 
 Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc phình to.
 
+## Current Direction Summary
+
+| Flow | Before | After |
+|---|---|---|
+| Consultation | ambiguity cũ xoay quanh việc có còn dùng `system wallet` để hold/release hay không | đã khóa: consultation là escrow thật, nhưng ledger-driven |
+| Snakebite Incident | ambiguity lớn nhất là có phải escrow flow giống consultation không | đã khóa: không phải escrow; là ledger-only system revenue |
+| Snake Catching | ambiguity lớn nhất là còn `transfer-to-rescuer` và commission split hay không | đã khóa ở mức direction: không phải escrow; phải chuyển sang ledger-only system revenue, implementation còn pending |
+
 ## Bucket A. Current Ownership Map
 
 ### Decision đã chốt
@@ -378,8 +386,3 @@ Khi research codebase, nên tick theo bucket thay vì theo decision rời:
 - [x] Bucket G done
 - [x] Bucket H done
 - [x] Bucket I done
-
-
-
-
-

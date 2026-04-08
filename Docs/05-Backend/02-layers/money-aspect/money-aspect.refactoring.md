@@ -20,6 +20,14 @@ Nó không dùng để:
 
 Mọi ambiguity mới phát sinh trong quá trình research hoặc implementation phải được đưa sang `money-aspect.hallucination.md` trước khi được nâng cấp thành decision trong file này.
 
+## Current Direction Summary
+
+| Flow | Before | After |
+|---|---|---|
+| Consultation | dùng tư duy `system wallet` như két giữ tiền escrow; refund/settlement còn phụ thuộc wallet side-effect | vẫn là **escrow thật**, nhưng escrow availability được suy ra từ `Transaction` thay vì `system.wallet` |
+| Snakebite Incident | từng bị kéo theo mô hình escrow/hold-release giống consultation | là **ledger-only system revenue**; tiền đi thẳng vào system/platform, refund tính từ `SnakebiteIncidentPayment - SnakebiteIncidentRefund` |
+| Snake Catching | code cũ còn mang tư duy escrow-to-rescuer, `transfer-to-rescuer`, commission split trong owner service | target là **ledger-only system revenue**; không release customer money sang rescuer, không dùng `system.wallet` làm revenue balance |
+
 ### Vấn đề
 
 Hiện tại logic tiền tệ của backend đang phân tán theo nhiều service và chưa thống nhất ownership theo flow.

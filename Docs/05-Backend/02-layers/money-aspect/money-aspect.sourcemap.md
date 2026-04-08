@@ -21,6 +21,14 @@ Quy ước sử dụng:
 - tiến độ implementation được ghi bằng note, mô tả hệ thống hiện đã đi tới đâu so với target diagram
 - nếu target diagram cần đổi, đó là thay đổi decision và phải được chốt trước khi sửa file này
 
+## Current Direction Summary
+
+| Flow | Before | After |
+|---|---|---|
+| Consultation | escrow được hiểu qua `system wallet` balance và system-wallet side effect | escrow vẫn tồn tại, nhưng source of truth là `Transaction` |
+| Snakebite Incident | từng đi gần pattern consultation và bị gọi như escrow flow | là ledger-only system revenue; admin đọc từ `Transaction`, không đọc từ `system.wallet` |
+| Snake Catching | đang còn mixed semantics: payment, refund, `transfer-to-rescuer`, commission | target-state là ledger-only system revenue; không escrow-to-rescuer |
+
 ## Flow Map
 
 | Flow | Semantic | Owner service | Prefix | Domain side-effect |

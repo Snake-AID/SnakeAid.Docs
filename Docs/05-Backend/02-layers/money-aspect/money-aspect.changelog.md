@@ -19,6 +19,14 @@ Chỉ ghi thay đổi client-visible:
 - payment prefix nếu client có parse/hardcode
 - transaction type nếu client hiển thị hoặc filter theo transaction list
 
+## Current Direction Summary
+
+| Flow | Before | After |
+|---|---|---|
+| Consultation | `SystemWalletBalanceAfter` từng ngầm phản ánh system-wallet escrow state | field vẫn còn nhưng trả `null`; consultation escrow state đọc từ `Transaction` |
+| Snakebite Incident | wallet payment từng trả status kiểu escrow (`Escrowed`) và dễ bị hiểu là escrow flow | wallet payment trả `Paid`; `SystemWalletBalance*` vẫn `null`; incident là ledger-only system revenue |
+| Snake Catching | client-facing risk vẫn còn quanh `TransferToRescuerResponse.SystemWalletBalance*` và payout semantics | chưa đổi production contract trong doc này, nhưng target-state không còn transfer-to-rescuer semantics |
+
 ## 2026-04-08 - Phase 6/7 planning watchlist
 
 Trạng thái: `PLANNED`, chưa đổi production endpoint/DTO trong code ở entry này.
