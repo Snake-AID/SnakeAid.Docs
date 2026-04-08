@@ -617,9 +617,9 @@ Target ledger equation:
   - snake catching: `CatcherPayout`, `CatchingRefund`, `PlatformFee`
   - snakebite incident: `SnakebiteIncidentRefund`
 - escrow available amount theo `ReferenceId` = paid/held amount - released/refunded/fee amount
-- `EscrowHold` / `EscrowRelease` là transitional naming từ Phase 5; sau Phase 6 phải quyết định xóa hẳn khỏi enum nếu không còn production usage, hoặc giữ lại chỉ khi có semantic transaction event thật sự cần chúng
+- `EscrowHold` / `EscrowRelease` là transitional naming từ Phase 5; sau Phase 6 sẽ xóa khỏi enum khi production logic không còn sử dụng
 
-Phase 6A. Freeze current escrow contract with characterization tests:
+Phase 6A. Regression test / freeze current escrow contract with characterization tests:
 
 - [ ] thêm hoặc cập nhật tests để capture current consultation hold/refund/settlement behavior trước khi bỏ system wallet
 - [ ] thêm tests cho transaction-sourced availability: hold amount, refunded amount, settled amount, remaining amount
@@ -653,7 +653,7 @@ Phase 6D. Snake catching transaction-sourced escrow:
 Phase 6E. Remove transitional system escrow artifacts:
 
 - [ ] xóa hoặc ngừng dùng `SystemWalletUserId` trong payment services nếu không còn production usage
-- [ ] xóa `EscrowHold` / `EscrowRelease` khỏi production path; chỉ giữ enum nếu có decision mới chứng minh cần transaction event riêng
+- [ ] xóa `EscrowHold` / `EscrowRelease` khỏi production path và khỏi enum sau khi không còn logic sử dụng
 - [ ] cập nhật `TransactionService` grouping để không đưa transaction-sourced escrow vào nhóm `system` một cách mơ hồ
 - [ ] cập nhật `money-aspect.sourcemap.md` target-state sau khi code khớp quyết định mới
 - [ ] targeted tests tối thiểu: `ConsultationPaymentIntegrationTests|SnakebiteIncidentPaymentServiceTests|SnakebiteIncidentPaymentPropertyTests|SnakeCatching|PayOs`
@@ -679,17 +679,20 @@ Decision đề xuất trước implementation:
 - dùng `ReferenceId = consultationId` cho cả `PlatformFee` và `ExpertPayout` trong settlement consultation để cùng scope với payout hiện tại
 - fee config nên đi qua `SystemSettingKeys`, không hardcode phần trăm trong service như `SnakeCatchingPaymentService.commissionFee`
 
-Open decision cần chốt trước khi code:
+Decision đã chốt trước implementation:
 
-- default consultation platform fee percent là bao nhiêu nếu system setting chưa tồn tại
-- fee rounding dùng rule nào: làm tròn VND bằng `MidpointRounding.AwayFromZero`, floor, hay giữ `numeric(18,2)`
-- có cần trả fee breakdown ra API không, hay chỉ ghi transaction ledger
+- default consultation platform fee percent là `20%` nếu system setting chưa tồn tại
+- rounding rule ưu tiên expert: tính `expertNetAmount` rồi làm tròn lên theo đơn vị VND; `platformFeeAmount = grossAmount - expertNetAmount`
+- client cần thấy fee breakdown khi settlement/response có contract liên quan consultation payout hoặc transaction detail
+- `EscrowHold` / `EscrowRelease` nên bị xóa sau khi production logic không còn sử dụng
 
 Phase 7A. Fee configuration:
 
 - [ ] thêm key vào `SystemSettingKeys`, ví dụ `Consultation:PlatformFeePercent`
 - [ ] inject `ISystemSettingService` vào `ConsultationPaymentService` nếu chọn dynamic setting
 - [ ] thêm helper tính fee: `grossAmount`, `feeAmount`, `expertNetAmount`
+- [ ] helper dùng default fee percent `20%` khi setting chưa tồn tại hoặc chưa load được
+- [ ] làm tròn lên `expertNetAmount` theo đơn vị VND rồi tính `feeAmount` bằng phần còn lại để ưu tiên expert
 - [ ] validate percent trong khoảng an toàn, ví dụ `0 <= percent < 1`
 
 Phase 7B. Settlement behavior:
@@ -706,7 +709,7 @@ Phase 7C. Tests and reporting:
 - [ ] assert tạo đúng 1 `PlatformFee` transaction và 1 `ExpertPayout` transaction
 - [ ] assert tổng `PlatformFee + ExpertPayout` bằng original `ConsultationPayment`
 - [ ] cập nhật `TransactionService` grouping nếu cần để `PlatformFee` vẫn xuất hiện trong group phù hợp
-- [ ] nếu response trả fee breakdown mới thì update `money-aspect.changelog.md`
+- [ ] nếu response trả fee breakdown mới thì update `money-aspect.changelog.md` với `grossAmount`, `platformFeePercent`, `platformFeeAmount`, `expertNetAmount`
 
 ## Tracking Progress
 
@@ -746,6 +749,10 @@ Phase 7C. Tests and reporting:
 - Phase 6 research xác nhận system wallet vẫn là side-effect thật trong consultation, snakebite incident, và snake catching escrow paths
 - Phase 6 research xác nhận các response public còn expose `SystemWalletBalance*`, nên mọi thay đổi field này phải đi qua `money-aspect.changelog.md`
 - Phase 7 research xác nhận consultation settlement hiện payout 100% amount cho expert và chưa tạo `PlatformFee`
+- Phase 7 decision đã chốt default consultation platform fee là `20%` nếu system setting chưa tồn tại
+- Phase 7 decision đã chốt rounding ưu tiên expert: làm tròn lên `expertNetAmount`, phí nền tảng là phần còn lại
+- Phase 7 decision đã chốt client cần fee breakdown khi có response/contract liên quan consultation payout hoặc transaction detail
+- Phase 7 decision đã chốt xóa `EscrowHold` / `EscrowRelease` sau khi production logic không còn sử dụng
 
 ## Resume Guide
 

@@ -34,3 +34,14 @@ Quy tắc khi implement:
 - nếu field bị remove/rename thì phải ghi rõ old field -> new field
 - nếu thêm fee breakdown cho consultation settlement response thì phải ghi rõ field mới và endpoint liên quan
 - nếu transaction list bắt đầu expose transaction type mới hoặc bỏ `EscrowHold` / `EscrowRelease`, phải ghi rõ impact với `GET /api/transactions`
+
+Decision đã chốt cho Phase 7:
+
+- consultation platform fee default là `20%` nếu system setting chưa tồn tại
+- rounding ưu tiên expert: làm tròn lên `expertNetAmount` theo đơn vị VND, rồi tính `platformFeeAmount = grossAmount - expertNetAmount`
+- client cần fee breakdown khi có response/contract liên quan consultation payout hoặc transaction detail
+- nếu thêm fee breakdown, field dự kiến cần document gồm:
+  - `grossAmount`
+  - `platformFeePercent`
+  - `platformFeeAmount`
+  - `expertNetAmount`

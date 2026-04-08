@@ -140,7 +140,7 @@ Target-state mới sau Money Aspect 6:
   - consultation: `ExpertPayout`, `ConsultationRefund`, `PlatformFee`
   - snake catching: `CatcherPayout`, `CatchingRefund`, `PlatformFee`
   - snakebite incident: `SnakebiteIncidentRefund`
-- `EscrowHold` / `EscrowRelease` là transitional transaction type từ Phase 5; sau Phase 6 chỉ giữ lại nếu có decision mới chứng minh cần explicit escrow event riêng
+- `EscrowHold` / `EscrowRelease` là transitional transaction type từ Phase 5; sau Phase 6 sẽ xóa khi production logic không còn sử dụng
 - `SystemWalletBalance*` trong response là front-facing transitional contract; nếu đổi/bỏ phải ghi vào `money-aspect.changelog.md`
 
 ## Consultation Platform Fee Target
@@ -150,7 +150,9 @@ Target-state mới sau Money Aspect 7:
 - `SettleConsultationEscrowAsync` không payout 100% amount cho expert
 - settlement consultation tạo `PlatformFee` và `ExpertPayout`
 - expert wallet chỉ được cộng net amount sau khi trừ platform fee
-- fee percent nên đi qua `SystemSettingKeys`, không hardcode trong `ConsultationPaymentService`
+- fee percent đi qua `SystemSettingKeys`, default `20%` nếu system setting chưa tồn tại
+- rounding ưu tiên expert: làm tròn lên `expertNetAmount` theo đơn vị VND, rồi tính `platformFeeAmount = grossAmount - expertNetAmount`
+- client cần thấy fee breakdown khi có response/contract liên quan consultation payout hoặc transaction detail
 
 ## Sequence Diagram: Wallet Topup
 
