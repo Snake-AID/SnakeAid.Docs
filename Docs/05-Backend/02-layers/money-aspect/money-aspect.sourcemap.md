@@ -134,6 +134,7 @@ Target-state mới sau Money Aspect 6:
 
 - business correction 2026-04-08: chỉ `consultation` dùng escrow + net payout + platform fee
 - `snakebite incident` và `snake catching` là payment một chiều vào system/platform; không release qua rescuer vì rescuer là nhân viên system
+- implementation decision: incident/catching dùng ledger-only system revenue transaction; admin analytics đọc từ `Transaction`, không từ `system.wallet` balance
 - target escrow equation dưới đây chỉ áp dụng cho consultation
 - không update balance của system wallet khi hold/release consultation escrow
 - escrow hold được suy ra từ payment transaction thật của consultation:
@@ -150,14 +151,14 @@ Phase 6B applied for consultation:
 - `ConsultationPaymentResponse.SystemWalletBalanceAfter` remains nullable and returns `null` for consultation escrow responses
 - incident and catching flows were not converted in Phase 6B
 
-Phase 6C correction required for snakebite incident:
+Phase 6C corrected for snakebite incident:
 
-- `SnakebiteIncidentPaymentService` no longer uses system wallet for escrow hold/refund
-- incident escrow availability is now sourced from `SnakebiteIncidentPayment` and `SnakebiteIncidentRefund`
-- `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` remains nullable and returns `null` for incident escrow responses
+- `SnakebiteIncidentPaymentService` no longer uses system wallet for incident payment/refund
+- incident refundable revenue is now sourced from `SnakebiteIncidentPayment` and `SnakebiteIncidentRefund`
+- `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` remains nullable and returns `null` for incident payment responses
 - `RefundTransactionResponse.SystemWalletBalanceBefore/After` are nullable and return `null` for incident refunds
-- business correction 2026-04-08 supersedes this target: incident is not an escrow flow and must be corrected to one-way system/platform revenue semantics before Phase 6 is considered done
-- snake catching must not be converted to escrow-to-rescuer semantics; Phase 6D is blocked until the system/platform revenue ledger target is defined
+- business correction 2026-04-08 supersedes the old escrow wording: incident is not an escrow flow and now uses ledger-only system/platform revenue semantics
+- snake catching must not be converted to escrow-to-rescuer semantics; Phase 6D uses ledger-only system/platform revenue transaction semantics
 
 ## Consultation Platform Fee Target
 

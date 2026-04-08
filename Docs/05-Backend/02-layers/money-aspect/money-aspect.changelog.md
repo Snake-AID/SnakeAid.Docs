@@ -59,13 +59,14 @@ Correction đã chốt cho target-state:
 - chỉ `Expert Consultation` dùng escrow + net payout + platform fee
 - `snakebite incident` và `snake catching` là payment một chiều vào system/platform
 - `snakebite incident` và `snake catching` không release tiền qua rescuer vì rescuer là nhân viên của system
+- implementation dùng ledger-only system revenue transaction; admin analytics đọc từ `Transaction`, không từ `system.wallet`
 - `snake catching transfer-to-rescuer` không còn là target contract hợp lệ cho Phase 6D nếu không có business decision mới
 
 Frontend/mobile impact hiện tại:
 
 - entry này chưa đổi endpoint/request/response trong code
 - Phase 6C code hiện tại vẫn có response semantic change đã ghi ở entry Phase 6C bên dưới
-- Phase 6C sẽ cần corrective review; nếu incident response hoặc transaction exposure đổi lại, phải ghi một changelog entry mới ngay trong lượt sửa đó
+- Phase 6C corrective review đã xử lý naming/semantic để incident không còn được mô tả như escrow flow; response change được ghi ở entry Phase 6C bên dưới
 
 ## 2026-04-08 - Phase 6A regression coverage
 
@@ -102,11 +103,18 @@ Transaction exposure:
 - `ConsultationPayment`, `ConsultationRefund`, và `ExpertPayout` vẫn là các transaction domain chính cho consultation
 - `EscrowHold` / `EscrowRelease` vẫn có thể xuất hiện ở flow khác cho tới khi Phase 6C/6D/6E hoàn tất
 
-## 2026-04-08 - Phase 6C snakebite incident transaction-sourced escrow
+## 2026-04-08 - Phase 6C snakebite incident ledger-only system revenue
 
 Trạng thái: `CLIENT-VISIBLE RESPONSE FIELD SEMANTIC CHANGE`.
 
-Correction note 2026-04-08: entry này mô tả trạng thái code sau Phase 6C. Target business đã được sửa lại: incident không phải escrow flow mà là payment một chiều vào system/platform, nên Phase 6C cần corrective review trước khi xem Phase 6 hoàn tất.
+Correction note 2026-04-08: entry này mô tả trạng thái code sau Phase 6C corrective review. Target business đã được sửa lại: incident không phải escrow flow mà là ledger-only payment một chiều vào system/platform.
+
+Corrective update 2026-04-08:
+
+- `POST /api/incidents/{incidentId}/payment/wallet`: `SnakebiteIncidentPaymentResponse.Status` đổi từ `Escrowed` sang `Paid`
+- `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` vẫn trả `null` vì incident revenue là ledger-only, không đọc từ `system.wallet`
+- `RefundTransactionResponse.SystemWalletBalanceBefore/After` vẫn nullable và trả `null` cho incident refunds
+- incident refund validation không còn gọi là escrow balance; backend tính refundable amount từ `SnakebiteIncidentPayment - SnakebiteIncidentRefund`
 
 Áp dụng cho snakebite incident payment/refund responses:
 
@@ -117,16 +125,16 @@ Correction note 2026-04-08: entry này mô tả trạng thái code sau Phase 6C.
 Thay đổi:
 
 - `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` vẫn tồn tại và vẫn nullable
-- từ Phase 6C, field này trả `null` cho incident escrow responses
+- từ Phase 6C corrective update, field này trả `null` cho incident payment responses
 - `RefundTransactionResponse.SystemWalletBalanceBefore` đổi từ `decimal` sang `decimal?`
 - `RefundTransactionResponse.SystemWalletBalanceAfter` đổi từ `decimal` sang `decimal?`
 - đây là shared response model; nếu flow khác còn dùng model này và vẫn trả số, client vẫn phải treat hai field này là nullable từ Phase 6C
 - với incident refunds, hai field `RefundTransactionResponse.SystemWalletBalanceBefore/After` trả `null`
-- lý do: snakebite incident escrow không còn tạo/update system wallet; availability được suy ra từ `Transaction`
+- lý do: snakebite incident system revenue không tạo/update system wallet; refundable amount được suy ra từ `Transaction`
 
 Transaction exposure:
 
-- incident hold không còn tạo `EscrowHold`
+- incident payment không còn tạo `EscrowHold`
 - incident refund không còn tạo `EscrowRelease`
-- `SnakebiteIncidentPayment` và `SnakebiteIncidentRefund` là các transaction domain chính cho incident escrow
+- `SnakebiteIncidentPayment` và `SnakebiteIncidentRefund` là các transaction domain chính cho incident system revenue/refund
 - `EscrowHold` / `EscrowRelease` vẫn có thể xuất hiện ở snake catching cho tới khi Phase 6D/6E hoàn tất
