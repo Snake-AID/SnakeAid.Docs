@@ -96,7 +96,38 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
 
 - treat `SystemWalletBalanceAfter` là nullable compatibility field
 - không dùng field này làm source of truth
-- nếu cần hiển thị consultation money state, phải bám vào domain semantics của consultation thay vì system wallet
+- nếu cần hiển thị consultation money state, chỉ bám vào:
+  - `ConsultationPaymentResponse.Status`
+  - payment method đã chọn (`WalletBalance` hoặc `PayOs`)
+  - booking/consultation status do consultation APIs trả về
+  - không tự tính escrow amount từ `system wallet`
+
+**Client call order**
+
+- Scheduled consultation, wallet:
+  1. `POST /api/consultations/scheduled/{bookingId}/payments`
+  2. không cần gọi confirm endpoint
+  3. khi consultation kết thúc, gọi `POST /api/consultations/{consultationId}/end`
+  4. backend tự settle escrow sau bước end
+
+- Scheduled consultation, PayOS:
+  1. `POST /api/consultations/scheduled/{bookingId}/payments`
+  2. user hoàn tất PayOS
+  3. backend confirm qua PayOS return/webhook; nếu app đang dùng manual confirm thì gọi `POST /api/consultations/payments/confirm`
+  4. khi consultation kết thúc, gọi `POST /api/consultations/{consultationId}/end`
+  5. backend tự settle escrow sau bước end
+
+- Instant consultation cũng theo cùng pattern:
+  1. `POST /api/consultations/instant/{requestId}/payments`
+  2. confirm nếu là PayOS
+  3. `POST /api/consultations/{consultationId}/end` khi kết thúc
+  4. backend tự settle escrow
+
+**What mobile must stop doing**
+
+- không chờ một endpoint escrow riêng
+- không chờ một endpoint settlement riêng
+- không build UI state theo kiểu `system wallet increased => escrowed`
 
 ### 3. Snakebite Incident is no longer an escrow flow
 
@@ -136,6 +167,39 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
 - đổi logic status của incident wallet payment sang `Paid`
 - treat toàn bộ `SystemWalletBalance*` của incident flow là nullable compatibility field
 - bỏ toàn bộ wording/logic escrow cho incident
+- nếu cần hiển thị incident money state, chỉ bám vào:
+  - `SnakebiteIncidentPaymentResponse.Status`
+  - incident status / mission completion state do incident APIs trả về
+  - không suy luận từ `SystemWalletBalance*` hay escrow transaction types
+
+**Client call order**
+
+- Incident handling trước payment:
+  1. `POST /api/incidents/sos`
+  2. incident được operator/admin confirm qua `POST /api/incidents/{incidentId}/confirm`
+  3. incident được dispatch qua `POST /api/incidents/{incidentId}/dispatch`
+  4. rescue mission chạy và hoàn tất
+
+- Incident payment, wallet:
+  1. chỉ sau khi mission đã completed, gọi `POST /api/incidents/{incidentId}/payment/wallet`
+  2. expect payment status `Paid`
+  3. dừng ở đây; không có bước escrow hold hoặc escrow release
+
+- Incident payment, PayOS:
+  1. chỉ sau khi mission đã completed, gọi `POST /api/incidents/{incidentId}/payment/payos`
+  2. user hoàn tất PayOS
+  3. backend confirm qua PayOS return/webhook; nếu app đang có manual confirm theo generic PayOS flow thì chỉ dùng confirm path đó
+  4. dừng ở đây; không có bước escrow hold hoặc escrow release
+
+- Incident refund:
+  1. `POST /api/incidents/{incidentId}/payment/refund`
+  2. đây là refund/admin-operator flow, không phải bước bình thường trong member payment sequence
+
+**What mobile must stop doing**
+
+- không cho user đi vào incident payment trước khi rescue mission completed
+- không build state machine kiểu `PendingPayment -> Escrowed -> Released`
+- không hiển thị incident payment/refund như một escrow lifecycle
 
 ### 4. Snake Catching is no longer an escrow-to-rescuer flow
 
@@ -176,6 +240,36 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
 - bỏ parse `GatewayRawResponse.SystemWalletBalance`
 - dùng `PayOsWebhookResponse.Status` mới để render confirm/webhook state
 - bỏ toàn bộ wording/logic escrow cho snake catching payment/refund
+- nếu cần hiển thị catching money state, chỉ bám vào:
+  - payment status từ snake catching payment APIs
+  - request/mission status do snake catching request/mission APIs trả về
+  - không suy luận từ system wallet, escrow, hay transfer-to-rescuer
+
+**Client call order**
+
+- Catching payment/deposit, wallet:
+  1. `POST /api/snakecatching/payment/wallet`
+  2. nhận `Paid`
+  3. tiếp tục flow request/mission bình thường
+
+- Catching payment/deposit, PayOS:
+  1. `POST /api/snakecatching/payment/create-link`
+  2. user hoàn tất PayOS
+  3. backend confirm qua PayOS return/webhook
+  4. nếu app có manual confirm riêng theo PayOS generic flow thì chỉ dùng confirm path đó
+  5. tiếp tục flow request/mission bình thường
+
+- Mission flow sau payment:
+  1. `PATCH /api/snakecatching/missions/{missionId}/start`
+  2. `PATCH /api/snakecatching/missions/{missionId}/arrived`
+  3. `PATCH /api/snakecatching/missions/{missionId}/complete`
+  4. dừng ở đây
+
+**What mobile must stop doing**
+
+- không thêm `POST /api/snakecatching/payment/transfer-to-rescuer` sau bước complete
+- không xem `complete -> transfer-to-rescuer` là required call stack nữa
+- không giữ state machine kiểu `Completed -> EscrowTransferredToRescuer`
 
 ### 5. `transfer-to-rescuer` is deprecated and no longer performs payout
 
@@ -221,6 +315,7 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
 - không dùng endpoint này như business action payout nữa
 - handle nullable cho toàn bộ transfer/balance fields
 - nếu UI đang hiển thị transfer receipt, phải handle trường hợp không còn transfer transaction
+- nếu app cũ đang có call chain `... -> complete mission -> transfer-to-rescuer`, phải xóa bước cuối
 
 ## Mobile Migration Checklist
 
