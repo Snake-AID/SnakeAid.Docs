@@ -27,7 +27,25 @@ Các nội dung đó đã thuộc `money-aspect.refactoring.md` và `money-aspec
 |---|---|
 | Consultation | escrow vẫn tồn tại; `SystemWalletBalanceAfter` được giữ nhưng trả `null` |
 | Snakebite Incident | payment là ledger-only system revenue; wallet payment status là `Paid`; `SystemWalletBalance*` nullable và trả `null` |
-| Snake Catching | payment là ledger-only system revenue; `transfer-to-rescuer` đã bị deprecate thành compatibility no-op |
+| Snake Catching | payment/refund là ledger-only system revenue; `transfer-to-rescuer` đã bị deprecate thành compatibility no-op |
+
+## 2026-04-09 - Snake Catching Phase 6D final cleanup
+
+**Status:** `response cleanup`
+
+**Scope**
+
+- snake catching wallet payment response
+- `SnakeCatchingPaymentResponse.GatewayRawResponse`
+
+**Change**
+
+- wallet payment `GatewayRawResponse` không còn expose `SystemWalletBalance`
+
+**Client action**
+
+- nếu client từng parse `GatewayRawResponse.SystemWalletBalance`, logic đó phải bỏ
+- với snake catching, không dùng `GatewayRawResponse` để suy luận system revenue/escrow state
 
 ## 2026-04-09 - Snake Catching `transfer-to-rescuer` deprecated
 

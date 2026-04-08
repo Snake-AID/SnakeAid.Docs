@@ -27,7 +27,7 @@ Quy ước sử dụng:
 |---|---|---|
 | Consultation | escrow được hiểu qua `system wallet` balance và system-wallet side effect | escrow vẫn tồn tại, nhưng source of truth là `Transaction` |
 | Snakebite Incident | từng đi gần pattern consultation và bị gọi như escrow flow | là ledger-only system revenue; admin đọc từ `Transaction`, không đọc từ `system.wallet` |
-| Snake Catching | đang còn mixed semantics: payment, refund, `transfer-to-rescuer`, commission | target-state là ledger-only system revenue; không escrow-to-rescuer |
+| Snake Catching | đang còn mixed semantics: payment, refund, `transfer-to-rescuer`, commission | đã khớp target-state: ledger-only system revenue; không escrow-to-rescuer |
 
 ## Flow Map
 
@@ -60,9 +60,10 @@ flowchart LR
 - mỗi flow sở hữu `ApplyDomainSideEffects`
 - consultation escrow target-state sau Phase 6 là transaction-sourced; `System Wallet` không còn là két sắt cố định để hold/release tiền cho consultation
 - incident/catching target-state sau business correction 2026-04-08 là payment một chiều vào system/platform, không phải escrow-to-rescuer
-- snake catching payment path (wallet + PayOS confirm/webhook) đã khớp target-state từ 2026-04-09; remaining drift chỉ còn ở settlement/refund path
+- snake catching payment path (wallet + PayOS confirm/webhook) đã khớp target-state từ 2026-04-09
 - snake catching `transfer-to-rescuer` endpoint đã bị deprecate thành compatibility no-op từ 2026-04-09; không còn là settlement owner của customer payment
 - snake catching refund path đã khớp target-state từ 2026-04-09; refundability được suy ra từ `CatchingPayment + CatchingDeposit - CatchingRefund`, không từ `system.wallet`
+- snake catching Phase 6D đạt trạng thái final: payment/refund là ledger-only system revenue semantics; deprecated payout endpoint chỉ còn để compatibility
 - consultation held/released amount phải được suy ra từ `TransactionType` + `ReferenceId`, không từ balance của account `system.wallet`
 - shared primitive boundary chưa được khóa trong target-state hiện tại; nếu phase cuối chứng minh là cần thì mới bổ sung vào sourcemap như một decision mới
 - `PayOsController` là callback entrypoint chung, chỉ nhận request và dispatch theo prefix

@@ -27,7 +27,7 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
 |---|---|---|
 | Consultation | ambiguity cũ xoay quanh việc có còn dùng `system wallet` để hold/release hay không | đã khóa: consultation là escrow thật, nhưng ledger-driven |
 | Snakebite Incident | ambiguity lớn nhất là có phải escrow flow giống consultation không | đã khóa: không phải escrow; là ledger-only system revenue |
-| Snake Catching | ambiguity lớn nhất là còn `transfer-to-rescuer` và commission split hay không | đã khóa và implement qua payment, settlement deprecation, refund semantics: không phải escrow; customer money path là ledger-only system revenue |
+| Snake Catching | ambiguity lớn nhất là còn `transfer-to-rescuer` và commission split hay không | đã khóa và implement hoàn tất trong Phase 6D: không phải escrow; customer money path là ledger-only system revenue |
 | Snake Catching Payment Path | hallucination cũ là wallet payment / PayOS confirm phải tạo `EscrowHold` và credit `system.wallet` | đã resolve trong 6D1: payment path là ledger-only system/platform revenue; phần pending còn lại nằm ở settlement/refund |
 
 ## Bucket A. Current Ownership Map

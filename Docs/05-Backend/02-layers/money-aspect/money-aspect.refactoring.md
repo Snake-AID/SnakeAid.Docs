@@ -782,10 +782,34 @@ Kết quả 6D3 đã implement:
 
 Phase 6D4. Snake catching response/docs cleanup:
 
-- [ ] grep production usage còn lại của system wallet trong `SnakeCatchingPaymentService`
-- [ ] cập nhật tests cho toàn bộ snake catching money paths đã chuyển đổi
-- [ ] cập nhật `money-aspect.sourcemap.md` và `money-aspect.changelog.md` với trạng thái final của snake catching trong Phase 6D
-- [ ] chạy targeted tests: `SnakeCatching|PayOs|WalletTopupServiceTests|WalletWithdrawServiceTests`
+- [x] grep production usage còn lại của system wallet trong `SnakeCatchingPaymentService`
+- [x] cập nhật tests cho toàn bộ snake catching money paths đã chuyển đổi
+- [x] cập nhật `money-aspect.sourcemap.md` và `money-aspect.changelog.md` với trạng thái final của snake catching trong Phase 6D
+- [x] chạy targeted tests: `SnakeCatching|PayOs|WalletTopupServiceTests|WalletWithdrawServiceTests`
+
+Kết quả 6D4 đã implement:
+
+- trong `SnakeCatchingPaymentService`, production path không còn system-wallet side-effect; dấu vết còn lại chỉ là:
+  - `systemId` để validate system account khi tạo PayOS payment intent
+  - response compatibility fields nullable/null cho deprecated payout và refund responses
+- `SnakeCatchingPaymentResponse.GatewayRawResponse` của wallet payment không còn expose `SystemWalletBalance`
+- test coverage cho snake catching money path đã được cập nhật để khóa:
+  - payment không tạo `EscrowHold`
+  - deprecated transfer không tạo payout/release
+  - refund không tạo `EscrowRelease`
+  - wallet payment raw payload không còn `SystemWalletBalance`
+- targeted verification sau 6D4:
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatchingPaymentServiceTests|PayOsPreservationTests|PayOsTopupRoutingTests" --no-restore` passed `69/69`
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatching|PayOs|WalletTopupServiceTests|WalletWithdrawServiceTests" --no-restore` passed `104/104`
+
+Phase 6D overall:
+
+- [x] snake catching payment path -> ledger-only system revenue
+- [x] snake catching settlement path -> deprecated compatibility no-op
+- [x] snake catching refund path -> revenue-ledger refundability
+- [x] response/docs cleanup complete
+
+Trạng thái Phase 6D: `DONE`.
 
 Phase 6E. Remove transitional system escrow artifacts:
 
