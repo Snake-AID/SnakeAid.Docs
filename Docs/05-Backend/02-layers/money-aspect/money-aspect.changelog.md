@@ -45,3 +45,14 @@ Decision đã chốt cho Phase 7:
   - `platformFeePercent`
   - `platformFeeAmount`
   - `expertNetAmount`
+
+## 2026-04-08 - Phase 6A regression coverage
+
+Trạng thái: `NO CLIENT-VISIBLE CONTRACT CHANGE`.
+
+Phase 6A chỉ thêm regression/characterization tests cho consultation escrow. Production endpoint, HTTP method, request DTO, response DTO, payment prefix, và transaction enum chưa đổi trong entry này.
+
+Client-facing watchlist giữ nguyên cho Phase 6B+:
+
+- nếu `ConsultationPaymentResponse.SystemWalletBalanceAfter` bắt đầu trả `null`, `0`, hoặc đổi nghĩa theo transaction-sourced ledger thì phải ghi entry changelog mới
+- nếu `GET /api/transactions` bỏ hoặc đổi nghĩa `EscrowHold` / `EscrowRelease`, phải ghi rõ impact cho client đang filter theo transaction type

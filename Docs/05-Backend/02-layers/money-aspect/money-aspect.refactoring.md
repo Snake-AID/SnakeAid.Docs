@@ -577,7 +577,7 @@ Test/verification:
 
 ### Phase 6. Transaction-sourced escrow ledger
 
-Trạng thái: `TODO`
+Trạng thái: `IN PROGRESS`
 
 Mục tiêu:
 
@@ -621,10 +621,19 @@ Target ledger equation:
 
 Phase 6A. Regression test / freeze current escrow contract with characterization tests:
 
-- [ ] thêm hoặc cập nhật tests để capture current consultation hold/refund/settlement behavior trước khi bỏ system wallet
-- [ ] thêm tests cho transaction-sourced availability: hold amount, refunded amount, settled amount, remaining amount
-- [ ] grep toàn repo production cho `SystemWalletUserId`, `systemWallet`, `SystemWalletBalance`, `EscrowHold`, `EscrowRelease`
-- [ ] lập bảng affected public DTO fields và ghi watchlist vào `money-aspect.changelog.md`
+- [x] thêm hoặc cập nhật tests để capture current consultation hold/refund/settlement behavior trước khi bỏ system wallet
+- [x] thêm tests cho transaction-sourced availability: hold amount, refunded amount, settled amount, remaining amount
+- [x] grep toàn repo production cho `SystemWalletUserId`, `systemWallet`, `SystemWalletBalance`, `EscrowHold`, `EscrowRelease`
+- [x] lập bảng affected public DTO fields và ghi watchlist vào `money-aspect.changelog.md`
+
+Phase 6A output:
+
+- added consultation regression assertions in `ConsultationPaymentIntegrationTests`
+- added test-only transaction-sourced availability helpers for payment-reference escrow and scheduled/emergency settlement mapping
+- locked the PayOS pending invariant: a pending `ConsultationPayment` transaction with empty `ExternalTransactionId` must not count as held escrow
+- verified production still uses system wallet side effects in consultation, snakebite incident, and snake catching; Phase 6B/6C/6D will remove them flow by flow
+- no production endpoint or DTO contract changed in Phase 6A
+- targeted verification: `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "FullyQualifiedName~ConsultationPaymentIntegrationTests"` passed `6/6`
 
 Phase 6B. Consultation transaction-sourced escrow first:
 
@@ -721,7 +730,7 @@ Phase 7C. Tests and reporting:
 - Phase 3: `DONE`
 - Phase 4: `DONE`
 - Phase 5: `DONE`
-- Phase 6: `TODO`
+- Phase 6: `IN PROGRESS`
 - Phase 7: `TODO`
 
 ### Latest confirmed findings
@@ -748,6 +757,8 @@ Phase 7C. Tests and reporting:
 - Phase 5 targeted payment/withdrawal/PayOS tests pass `115/115`
 - Phase 6 research xác nhận system wallet vẫn là side-effect thật trong consultation, snakebite incident, và snake catching escrow paths
 - Phase 6 research xác nhận các response public còn expose `SystemWalletBalance*`, nên mọi thay đổi field này phải đi qua `money-aspect.changelog.md`
+- Phase 6A đã thêm regression/characterization coverage cho consultation escrow availability; PayOS pending transaction không được tính là held escrow cho tới khi có `ExternalTransactionId`
+- Phase 6A không đổi production endpoint/DTO contract
 - Phase 7 research xác nhận consultation settlement hiện payout 100% amount cho expert và chưa tạo `PlatformFee`
 - Phase 7 decision đã chốt default consultation platform fee là `20%` nếu system setting chưa tồn tại
 - Phase 7 decision đã chốt rounding ưu tiên expert: làm tròn lên `expertNetAmount`, phí nền tảng là phần còn lại
