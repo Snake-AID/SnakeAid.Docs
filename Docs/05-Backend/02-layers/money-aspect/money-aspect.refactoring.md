@@ -760,10 +760,25 @@ Kết quả 6D2 đã implement:
 
 Phase 6D3. Snake catching refund:
 
-- [ ] redefine `RefundSnakeCatchingTransactionAsync` theo system/platform revenue semantics, không phải escrow availability
-- [ ] nếu refund cần kiểm tra refundable amount, tính từ successful catching revenue/payment transactions trừ refunded transactions, không tính như release-to-rescuer escrow
-- [ ] cập nhật `RefundTransactionResponse.SystemWalletBalanceBefore/After` nếu bỏ hoặc null hóa, kèm changelog
-- [ ] kiểm tra frontend/mobile changelog gate: mọi response semantic change phải được ghi ngay vào `money-aspect.changelog.md`
+- [x] redefine `RefundSnakeCatchingTransactionAsync` theo system/platform revenue semantics, không phải escrow availability
+- [x] nếu refund cần kiểm tra refundable amount, tính từ successful catching revenue/payment transactions trừ refunded transactions, không tính như release-to-rescuer escrow
+- [x] cập nhật `RefundTransactionResponse.SystemWalletBalanceBefore/After` nếu bỏ hoặc null hóa, kèm changelog
+- [x] kiểm tra frontend/mobile changelog gate: mọi response semantic change phải được ghi ngay vào `money-aspect.changelog.md`
+
+Kết quả 6D3 đã implement:
+
+- `RefundSnakeCatchingTransactionAsync` không còn dùng `system.wallet` làm nguồn refundability hoặc liquidity check
+- snake catching refund không còn tạo `EscrowRelease`
+- refundability hiện được tính từ:
+  - successful `CatchingPayment` + `CatchingDeposit`
+  - trừ `CatchingRefund`
+- refund side-effect hiện chỉ:
+  - credit receiver wallet
+  - tạo `CatchingRefund`
+- `RefundTransactionResponse.SystemWalletBalanceBefore/After` tiếp tục trả `null` cho snake catching refund path
+- targeted verification sau 6D3:
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatchingPaymentServiceTests|PayOsPreservationTests|PayOsTopupRoutingTests" --no-restore` passed `69/69`
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatching|PayOs|WalletTopupServiceTests|WalletWithdrawServiceTests" --no-restore` passed `104/104`
 
 Phase 6D4. Snake catching response/docs cleanup:
 

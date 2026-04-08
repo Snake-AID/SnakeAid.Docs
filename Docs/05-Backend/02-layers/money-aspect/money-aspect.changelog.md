@@ -98,6 +98,33 @@ Các nội dung đó đã thuộc `money-aspect.refactoring.md` và `money-aspec
 - không parse `GatewayRawResponse` của wallet payment như source of truth cho system-wallet revenue/escrow
 - nếu UI đang hiển thị webhook/confirm status, dùng `PayOsWebhookResponse.Status` mới thay vì dựa vào default cũ
 
+## 2026-04-09 - Snake Catching refund switched to revenue-ledger semantics
+
+**Status:** `response semantic change`
+
+**Scope**
+
+- snake catching refund path
+- `RefundTransactionResponse`
+- transaction list views nếu client filter theo `TransactionType`
+
+**Change**
+
+- snake catching refund không còn tạo `EscrowRelease`
+- snake catching refund không còn check `system.wallet` balance
+- refundability được backend tính từ:
+  - `CatchingPayment + CatchingDeposit - CatchingRefund`
+
+**Response semantic**
+
+- `RefundTransactionResponse.SystemWalletBalanceBefore/After` vẫn tồn tại nhưng trả `null` cho snake catching refund path
+
+**Client action**
+
+- treat `SystemWalletBalanceBefore/After` của snake catching refund là nullable semantic field
+- không hiển thị snake catching refund như escrow release nữa
+- nếu transaction UI đang filter theo `EscrowRelease` để biểu diễn catching refund, logic đó phải bỏ
+
 ## 2026-04-08 - Snakebite Incident moved to ledger-only system revenue
 
 **Status:** `response semantic change`
