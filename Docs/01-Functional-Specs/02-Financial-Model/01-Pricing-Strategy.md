@@ -7,6 +7,13 @@
 
 ---
 
+> [!IMPORTANT]
+> Payment Correction - 2026-04-08
+>
+> Các phần pricing/revenue split cho rescue/catching như Rescuer 85%, Platform 10%, quỹ bảo hiểm 5%, hoặc hỗ trợ Rescuer chia doanh thu cho Expert là legacy/wrong for current target-state.
+>
+> Target hiện tại: Incident và Catching thu một chiều vào system/platform. Escrow + net payout + platform fee split chỉ áp dụng cho Expert Consultation.
+
 ## 📋 MỤC LỤC
 
 1.  [Tổng quan Chiến lược Giá](#1-tổng-quan-chiến-lược-giá)

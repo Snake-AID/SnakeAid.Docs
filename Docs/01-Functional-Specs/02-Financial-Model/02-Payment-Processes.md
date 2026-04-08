@@ -6,6 +6,13 @@
 
 ---
 
+> [!IMPORTANT]
+> Payment Correction - 2026-04-08
+>
+> Các sequence/table bên dưới còn chứa legacy/wrong model cho rescue/catching: 85% Rescuer, 10% Platform, 5% Insurance, hoặc Platform/Rescuer chuyển tiền cho Rescuer sau thanh toán.
+>
+> Target hiện tại: Incident và Catching đi một chiều vào system/platform. Rescuer là nhân viên system, không nhận customer escrow payout. Escrow + net payout + platform fee split chỉ áp dụng cho Expert Consultation.
+
 ## 📌 TỔNG QUAN LUỒNG TIỀN
 
 Hệ thống SnakeAid có **4 luồng thanh toán chính**:

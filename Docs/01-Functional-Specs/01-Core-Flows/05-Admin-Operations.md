@@ -14,6 +14,13 @@
 > [Migration Impact]
 > This file is a major backend-migration reference. Separate dispatch responsibilities, managerial controls, and deprecated medical-support modules carefully.
 
+> [!IMPORTANT]
+> Payment Correction - 2026-04-08
+>
+> Admin configuration must not assume rescue/catching revenue share fields such as `% chia cho Rescuer` or `% quỹ bảo hiểm` as current target-state money flow.
+>
+> Target hiện tại: Incident và Catching thu một chiều vào system/platform. Escrow + net payout + platform fee split chỉ áp dụng cho Expert Consultation.
+
 ## 4.1 Quản lý database loài rắn
 
 **Flow 4.1 — Cập nhật thông tin loài rắn**
@@ -127,7 +134,7 @@
 > Review pricing rules, dispatch distance calculation, and financial reporting assumptions in backend services.
 
 1. Admin truy cập **"Quản lý Tài chính"**.
-2. Thiết lập phí dịch vụ: phí cứu hộ, phí tư vấn, % hoa hồng nền tảng, % chia cho Rescuer, % quỹ bảo hiểm.
+2. Thiết lập phí dịch vụ: phí cứu hộ, phí tư vấn, và cấu hình platform fee cho Expert Consultation; không cấu hình % chia cho Rescuer hoặc % quỹ bảo hiểm cho rescue/catching target-state.
 3. Xem báo cáo doanh thu theo ngày/tuần/tháng/năm, theo Rescuer/Expert.
 4. Quản lý thanh toán: danh sách giao dịch chờ, kiểm tra và xử lý giao dịch lỗi.
 5. Xử lý tranh chấp: kiểm tra lịch sử GPS / trạng thái thanh toán và đưa ra quyết định hoàn tiền hoặc từ chối.

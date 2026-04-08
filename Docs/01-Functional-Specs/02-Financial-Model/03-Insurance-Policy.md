@@ -6,6 +6,13 @@
 
 ---
 
+> [!IMPORTANT]
+> Payment Correction - 2026-04-08
+>
+> Cơ chế trích 5% từ mỗi đơn cứu hộ vào quỹ bảo hiểm là legacy/wrong for current target-state.
+>
+> Target hiện tại: Incident và Catching là payment một chiều vào system/platform; không có split 85% Rescuer / 10% Platform / 5% Insurance trong money flow hiện tại.
+
 ## 1. TỔNG QUAN
 
 ### 1.1. Nguồn thu

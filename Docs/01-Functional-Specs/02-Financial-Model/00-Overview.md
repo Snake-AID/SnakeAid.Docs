@@ -6,6 +6,13 @@
 
 ---
 
+> [!IMPORTANT]
+> Payment Correction - 2026-04-08
+>
+> Những phần bên dưới mô tả `Member -> Rescuer`, 85% cho Rescuer, 10% platform, 5% bảo hiểm, hoặc Rescuer chia tiền cho Expert là legacy/wrong for current target-state.
+>
+> Target hiện tại: Incident và Catching là payment một chiều vào system/platform. Escrow + net payout + platform fee split chỉ áp dụng cho Expert Consultation.
+
 ## 📌 TỔNG QUAN 4 LUỒNG TIỀN
 
 1.  **Member → Rescuer** (Cứu hộ rắn)

@@ -14,6 +14,13 @@
 > [Migration Impact]
 > Rescue dispatch is a breaking-change area for backend migration. Keep legacy behavior visible at the changed points below.
 
+> [!IMPORTANT]
+> Payment Correction - 2026-04-08
+>
+> Rescue/catching payments are one-way payments into the system/platform. Do not model this flow as escrow-to-rescuer, rescuer revenue share, or 85% / 10% / 5% split.
+>
+> Escrow, net payout, and platform fee split apply only to Expert Consultation. Rescuers are system staff, so payment settlement does not release customer money to a rescuer wallet.
+
 ## 2.1 Giai đoạn phát hiện và báo cáo rắn (Member)
 
 **Flow 2.1 — Báo cáo phát hiện rắn**
@@ -111,13 +118,10 @@
 1. Rescuer đánh dấu "Hoàn thành nhiệm vụ".
 2. Hệ thống gửi thông báo đến Member: "Cứu hộ hoàn tất. Vui lòng thanh toán và đánh giá."
 3. Member xác nhận và thanh toán:
-   - Hiển thị hóa đơn: Phí cứu hộ + Phí nền tảng (10%)
+   - Hiển thị hóa đơn: Phí cứu hộ
    - Phương thức: Momo / VNPay / ZaloPay / Thẻ
 4. Sau khi thanh toán thành công → Member đánh giá Rescuer (1–5 sao + nhận xét).
-5. Hệ thống phân chia thanh toán:
-   - 85% → Tài khoản Rescuer
-   - 10% → Phí nền tảng
-   - 5% → Quỹ bảo hiểm
+5. Hệ thống ghi nhận thanh toán một chiều vào system/platform; không phân chia 85% / 10% / 5% và không release tiền sang ví Rescuer.
 6. Rescuer nhận thông báo và cập nhật rating.
 7. Lưu lịch sử giao dịch và báo cáo cho Member / Rescuer / Admin.
 
