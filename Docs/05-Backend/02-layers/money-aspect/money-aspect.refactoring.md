@@ -577,19 +577,30 @@ Test/verification:
 
 ### Phase 6. Transaction-sourced escrow ledger
 
-Trạng thái: `IN PROGRESS`
+Trạng thái: `PAUSED - BUSINESS SEMANTIC CORRECTION REQUIRED`
+
+Business correction 2026-04-08:
+
+- chỉ `Expert Consultation` dùng escrow + net payout + platform fee
+- `snakebite incident` và `snake catching` là payment một chiều vào system/platform; không release qua rescuer vì rescuer là nhân viên của system
+- mọi nội dung cũ coi incident/catching là escrow flow hoặc transfer-to-rescuer marketplace flow phải được xem là sai cho target-state mới
+- Phase 6B consultation vẫn cùng hướng vì consultation thật sự là escrow flow
+- Phase 6C incident đã implement theo giả định escrow cũ và phải được review/correct trước khi đi tiếp
+- Phase 6D chưa được implement tiếp cho tới khi target system/platform revenue path của catching được chốt rõ
 
 Mục tiêu:
 
-- bãi bỏ `System Wallet` như két sắt cố định của escrow
-- chuyển escrow balance từ wallet side-effect sang ledger được suy ra từ `Transaction`
+- bãi bỏ `System Wallet` như két sắt cố định của consultation escrow
+- chuyển consultation escrow balance từ wallet side-effect sang ledger được suy ra từ `Transaction`
+- redefine incident/catching payment semantics thành system/platform revenue path, không phải escrow flow
 - giữ rule `Transaction` là NoSQL-style ledger entity: `TransactionType` xác định semantic, `ReferenceId` xác định entity đích
 - không làm platform fee consultation trong phase này; chỉ chuẩn hóa nguồn sự thật của escrow trước
 
 Decision đã chốt cho phase này:
 
-- không còn tăng/giảm balance của account `system.wallet` khi hold/release escrow
-- không dùng system wallet balance để validate refund/payout; thay bằng transaction-sourced escrow availability theo `ReferenceId`
+- không còn tăng/giảm balance của account `system.wallet` khi hold/release consultation escrow
+- không dùng system wallet balance để validate consultation refund/payout; thay bằng transaction-sourced escrow availability theo `ReferenceId`
+- incident/catching không dùng transaction-sourced escrow equation; nếu cần refund validation, phải tính theo revenue/payment minus refunded semantics riêng
 - không tạo schema migration vì dữ liệu dev có thể drop; nếu enum/domain contract đổi thì code và tests là nguồn sự thật
 - `SystemWalletBalance*` là field front-facing nhạy cảm; nếu đổi hoặc bỏ phải ghi vào `money-aspect.changelog.md`
 - **Frontend/mobile changelog gate:** trong mọi subphase của Phase 6, nếu có bất kỳ thay đổi nào ở endpoint, request DTO, response DTO, response field semantic, payment prefix, hoặc transaction type mà client có thể đọc/filter, phải cập nhật `money-aspect.changelog.md` ngay trong cùng lượt code. Không được để frontend/mobile dev phải suy luận từ backend diff.
@@ -609,15 +620,12 @@ Research finding trước implementation:
 
 Target ledger equation:
 
-- hold source là payment transaction thật của flow:
+- target equation dưới đây chỉ còn đúng cho consultation; incident/catching phải được thay bằng system/platform revenue path sau business correction 2026-04-08
+- hold source là payment transaction thật của consultation:
   - consultation: `ConsultationPayment`
-  - snake catching: `CatchingPayment` / `CatchingDeposit`
-  - snakebite incident: `SnakebiteIncidentPayment`
-- release/refund sinks là domain transaction thật của flow:
+- release/refund sinks là domain transaction thật của consultation:
   - consultation: `ExpertPayout`, `ConsultationRefund`, và Phase 7 sẽ thêm `PlatformFee`
-  - snake catching: `CatcherPayout`, `CatchingRefund`, `PlatformFee`
-  - snakebite incident: `SnakebiteIncidentRefund`
-- escrow available amount theo `ReferenceId` = paid/held amount - released/refunded/fee amount
+- consultation escrow available amount theo `ReferenceId` = paid/held amount - released/refunded/fee amount
 - `EscrowHold` / `EscrowRelease` là transitional naming từ Phase 5; sau Phase 6 sẽ xóa khỏi enum khi production logic không còn sử dụng
 
 Phase 6A. Regression test / freeze current escrow contract with characterization tests:
@@ -663,6 +671,10 @@ Phase 6B output:
 
 Phase 6C. Snakebite incident transaction-sourced escrow:
 
+Trạng thái: `NEEDS CORRECTION`.
+
+Business correction 2026-04-08: incident không phải escrow flow; payment incident là tiền đi thẳng vào system/platform. Implementation Phase 6C hiện tại đã bỏ system wallet và chuyển incident sang transaction-sourced escrow availability, nên phải được review/correct trước khi chốt tiếp.
+
 - [x] refactor `SnakebiteIncidentPaymentService.MoveMoneyToEscrowAsync` để không tạo/update system wallet
 - [x] refactor `RefundSnakebiteIncidentTransactionAsync` để validate bằng transaction-sourced availability
 - [x] cập nhật `SnakebiteIncidentPaymentServiceTests` và property tests đang assert `SystemWalletBalance*`
@@ -685,27 +697,31 @@ Phase 6C output:
   - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatching"` passed `26/26`
 - full suite status: `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj` still fails `2/204` on the existing out-of-scope `ShiftServiceTests` / `ScheduledConsultationIntegrationTests` failures
 
-Phase 6D. Snake catching transaction-sourced escrow:
+Phase 6D. Snake catching system/platform revenue path:
 
-Snake catching phức tạp hơn consultation/incident vì có wallet payment, PayOS webhook, rescuer payout, refund, và commission/platform fee trong cùng owner service. Tách 6D thành 4 subphase để tránh refactor quá rộng trong một lượt.
+Trạng thái: `BLOCKED - REDEFINE TARGET`.
 
-Phase 6D1. Snake catching hold/payment path:
+Business correction 2026-04-08: snake catching không phải escrow-to-rescuer flow trong target business model. Vì rescuer là nhân viên system, catching payment phải đi một chiều vào system/platform; không dùng `transfer-to-rescuer` như marketplace payout. Tách 6D thành các subphase mới sau khi chốt system/platform revenue ledger target.
 
-- [ ] refactor wallet payment path để không credit system wallet
-- [ ] refactor PayOS webhook confirm path để không credit system wallet
-- [ ] giữ `CatchingPayment` / `CatchingDeposit` làm held source transaction theo flow hiện tại
+Phase 6D1. Snake catching payment path:
+
+- [ ] redefine wallet payment path thành system/platform revenue path, không phải escrow hold path
+- [ ] redefine PayOS webhook confirm path thành system/platform revenue path, không phải escrow hold path
+- [ ] quyết định có giữ credit system wallet như revenue account hay chuyển sang ledger-only system revenue transaction
 - [ ] kiểm tra frontend/mobile changelog gate: nếu payment response hoặc transaction exposure đổi, ghi ngay vào `money-aspect.changelog.md`
 
-Phase 6D2. Snake catching transfer-to-rescuer:
+Phase 6D2. Snake catching system revenue settlement:
 
-- [ ] refactor `TransferSnakeCatchingFundsToRescuerAsync` để tính available paid amount từ transactions thay vì system wallet balance
-- [ ] giữ platform fee/commission hiện hữu của snake catching trong owner service, chưa share abstraction
+- [ ] remove hoặc deprecate `TransferSnakeCatchingFundsToRescuerAsync` nếu target business không còn transfer sang rescuer
+- [ ] nếu vẫn cần admin/internal payout cho payroll/reporting, định nghĩa lại như flow nội bộ riêng, không phải customer escrow release
+- [ ] loại bỏ giả định platform fee/commission split của catching trong target-state nếu payment đi thẳng vào system
 - [ ] cập nhật `TransferToRescuerResponse.SystemWalletBalanceBefore/After` nếu bỏ hoặc null hóa, kèm changelog
 - [ ] kiểm tra frontend/mobile changelog gate: mọi response semantic change phải được ghi ngay vào `money-aspect.changelog.md`
 
 Phase 6D3. Snake catching refund:
 
-- [ ] refactor `RefundSnakeCatchingTransactionAsync` để validate bằng transaction-sourced availability
+- [ ] redefine `RefundSnakeCatchingTransactionAsync` theo system/platform revenue semantics, không phải escrow availability
+- [ ] nếu refund cần kiểm tra refundable amount, tính từ successful catching revenue/payment transactions trừ refunded transactions, không tính như release-to-rescuer escrow
 - [ ] cập nhật `RefundTransactionResponse.SystemWalletBalanceBefore/After` nếu bỏ hoặc null hóa, kèm changelog
 - [ ] kiểm tra frontend/mobile changelog gate: mọi response semantic change phải được ghi ngay vào `money-aspect.changelog.md`
 
@@ -801,8 +817,8 @@ Mục tiêu:
 Phase 8A. Audit current stage inputs:
 
 - [ ] map consultation stage inputs: escrow in, refund, settlement, platform fee
-- [ ] map snakebite incident stage inputs: escrow in, refund
-- [ ] map snake catching stage inputs sau Phase 6D: escrow in, transfer-to-rescuer, refund, platform fee/commission
+- [ ] map snakebite incident stage inputs: payment into system/platform, refund
+- [ ] map snake catching stage inputs sau Phase 6D: payment into system/platform, refund, any internal admin/accounting settlement nếu có
 - [ ] ghi rõ mỗi stage đang dùng `ReferenceId` nào trong `Transaction`
 
 Phase 8B. Normalize naming and helper contracts:
@@ -822,7 +838,8 @@ Phase 8B. Normalize naming and helper contracts:
 - Phase 3: `DONE`
 - Phase 4: `DONE`
 - Phase 5: `DONE`
-- Phase 6: `IN PROGRESS`
+- Phase 6: `PAUSED - BUSINESS SEMANTIC CORRECTION REQUIRED`
+- Phase 6 corrective review: `REQUIRED BEFORE 6D`
 - Phase 7: `TODO`
 - Phase 8: `TODO`
 
@@ -856,7 +873,9 @@ Phase 8B. Normalize naming and helper contracts:
 - Phase 6B đã null hóa `ConsultationPaymentResponse.SystemWalletBalanceAfter` trong consultation escrow responses và ghi front-facing changelog
 - Phase 6C đã chuyển snakebite incident escrow sang transaction-sourced ledger và bỏ system wallet side effect khỏi `SnakebiteIncidentPaymentService`
 - Phase 6C đã null hóa `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` cho incident escrow responses và `RefundTransactionResponse.SystemWalletBalanceBefore/After` cho incident refunds; impact đã ghi front-facing changelog
-- Phase 6C chưa đụng snake catching; flow này vẫn còn system wallet side effect và sẽ xử lý theo Phase 6D1-6D4
+- Business correction 2026-04-08: chỉ consultation dùng escrow + net payout + platform fee; incident/catching là payment một chiều vào system/platform vì rescuer là nhân viên system
+- Phase 6C cần correction vì đã implement incident theo giả định escrow cũ
+- Phase 6D bị block cho tới khi định nghĩa lại catching là system/platform revenue path thay vì transfer-to-rescuer
 - Phase 7 research xác nhận consultation settlement hiện payout 100% amount cho expert và chưa tạo `PlatformFee`
 - Phase 7 decision đã chốt default consultation platform fee là `20%` nếu system setting chưa tồn tại
 - Phase 7 decision đã chốt rounding ưu tiên expert: làm tròn lên `expertNetAmount`, phí nền tảng là phần còn lại

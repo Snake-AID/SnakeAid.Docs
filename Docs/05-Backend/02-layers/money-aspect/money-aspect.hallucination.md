@@ -326,6 +326,9 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
 - Phase 6C update: `SnakebiteIncidentPaymentService` đã bỏ `SystemWalletUserId` và không còn update/validate system wallet trong incident hold/refund path
 - Phase 6C update: `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` vẫn tồn tại nhưng trả `null` cho incident escrow responses
 - Phase 6C update: `RefundTransactionResponse.SystemWalletBalanceBefore/After` chuyển sang nullable và trả `null` cho incident refunds
+- Business correction 2026-04-08: chỉ consultation dùng escrow + net payout + platform fee
+- Business correction 2026-04-08: incident và catching là payment một chiều vào system/platform; không release qua rescuer vì rescuer là nhân viên system
+- Business correction 2026-04-08: Phase 6C implementation hiện tại cần corrective review vì đã model incident như escrow flow
 - `SnakeCatchingPaymentService` còn dùng system wallet trong:
   - wallet payment
   - PayOS webhook confirm path
@@ -344,13 +347,15 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
 
 ### Decision đã chốt từ bucket này
 
-- Phase 6 xử lý transaction-sourced escrow trước Phase 7
+- Phase 6 chỉ xử lý transaction-sourced escrow cho consultation; incident/catching phải được đưa về system/platform revenue semantics
 - Phase 6 không implement consultation platform fee
 - Phase 7 không nên dùng `EscrowRelease` generic cho consultation settlement nếu release được biểu diễn bằng `PlatformFee` + `ExpertPayout`
 - consultation platform fee default là `20%` nếu system setting chưa tồn tại
 - rounding rule ưu tiên expert: tính `expertNetAmount` rồi làm tròn lên theo đơn vị VND; `platformFeeAmount = grossAmount - expertNetAmount`
 - client cần thấy fee breakdown khi settlement/response có contract liên quan consultation payout hoặc transaction detail
 - `EscrowHold` / `EscrowRelease` nên bị xóa sau khi production logic không còn sử dụng
+- Phase 6 target-state phải được sửa: transaction-sourced escrow chỉ áp dụng cho consultation; incident/catching cần system/platform revenue semantics riêng
+- Phase 6D bị block cho tới khi catching không còn được mô tả như `transfer-to-rescuer` hoặc marketplace payout flow
 - `money-aspect.changelog.md` là nơi tracking mọi thay đổi front-facing liên quan `SystemWalletBalance*`, fee breakdown, hoặc transaction type exposure
 
 ### Ambiguity còn lại

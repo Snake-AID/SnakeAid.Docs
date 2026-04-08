@@ -50,6 +50,23 @@ Decision đã chốt cho Phase 7:
   - `platformFeeAmount`
   - `expertNetAmount`
 
+## 2026-04-08 - Phase 6 business semantic correction
+
+Trạng thái: `NO CLIENT-VISIBLE CONTRACT CHANGE IN THIS ENTRY - CORRECTION PENDING`.
+
+Correction đã chốt cho target-state:
+
+- chỉ `Expert Consultation` dùng escrow + net payout + platform fee
+- `snakebite incident` và `snake catching` là payment một chiều vào system/platform
+- `snakebite incident` và `snake catching` không release tiền qua rescuer vì rescuer là nhân viên của system
+- `snake catching transfer-to-rescuer` không còn là target contract hợp lệ cho Phase 6D nếu không có business decision mới
+
+Frontend/mobile impact hiện tại:
+
+- entry này chưa đổi endpoint/request/response trong code
+- Phase 6C code hiện tại vẫn có response semantic change đã ghi ở entry Phase 6C bên dưới
+- Phase 6C sẽ cần corrective review; nếu incident response hoặc transaction exposure đổi lại, phải ghi một changelog entry mới ngay trong lượt sửa đó
+
 ## 2026-04-08 - Phase 6A regression coverage
 
 Trạng thái: `NO CLIENT-VISIBLE CONTRACT CHANGE`.
@@ -88,6 +105,8 @@ Transaction exposure:
 ## 2026-04-08 - Phase 6C snakebite incident transaction-sourced escrow
 
 Trạng thái: `CLIENT-VISIBLE RESPONSE FIELD SEMANTIC CHANGE`.
+
+Correction note 2026-04-08: entry này mô tả trạng thái code sau Phase 6C. Target business đã được sửa lại: incident không phải escrow flow mà là payment một chiều vào system/platform, nên Phase 6C cần corrective review trước khi xem Phase 6 hoàn tất.
 
 Áp dụng cho snakebite incident payment/refund responses:
 

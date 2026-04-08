@@ -50,8 +50,9 @@ flowchart LR
 - mỗi flow sở hữu `CreatePaymentIntent`
 - mỗi flow sở hữu `ConfirmPayment`
 - mỗi flow sở hữu `ApplyDomainSideEffects`
-- escrow target-state sau Phase 6 là transaction-sourced; `System Wallet` không còn là két sắt cố định để hold/release tiền
-- held/released amount phải được suy ra từ `TransactionType` + `ReferenceId`, không từ balance của account `system.wallet`
+- consultation escrow target-state sau Phase 6 là transaction-sourced; `System Wallet` không còn là két sắt cố định để hold/release tiền cho consultation
+- incident/catching target-state sau business correction 2026-04-08 là payment một chiều vào system/platform, không phải escrow-to-rescuer
+- consultation held/released amount phải được suy ra từ `TransactionType` + `ReferenceId`, không từ balance của account `system.wallet`
 - shared primitive boundary chưa được khóa trong target-state hiện tại; nếu phase cuối chứng minh là cần thì mới bổ sung vào sourcemap như một decision mới
 - `PayOsController` là callback entrypoint chung, chỉ nhận request và dispatch theo prefix
 - `PayOsController` không apply domain side-effect
@@ -122,24 +123,23 @@ flowchart TD
     E --> G[ConfirmPayment or Webhook]
     F --> H[Apply domain side-effects]
     G --> I[Verify gateway result]
-    I --> J[Create transaction-sourced escrow ledger]
+    I --> J[Create flow transaction ledger entry]
     J --> H
     H --> K[Post payment actions]
 ```
 
-## Transaction-Sourced Escrow Target
+## Consultation Escrow Target
 
 Target-state mới sau Money Aspect 6:
 
-- không update balance của system wallet khi hold/release escrow
-- escrow hold được suy ra từ payment transaction thật của từng flow:
+- business correction 2026-04-08: chỉ `consultation` dùng escrow + net payout + platform fee
+- `snakebite incident` và `snake catching` là payment một chiều vào system/platform; không release qua rescuer vì rescuer là nhân viên system
+- target escrow equation dưới đây chỉ áp dụng cho consultation
+- không update balance của system wallet khi hold/release consultation escrow
+- escrow hold được suy ra từ payment transaction thật của consultation:
   - `ConsultationPayment`
-  - `CatchingPayment` / `CatchingDeposit`
-  - `SnakebiteIncidentPayment`
-- escrow release/refund được suy ra từ sink transaction thật của từng flow:
+- escrow release/refund được suy ra từ sink transaction thật của consultation:
   - consultation: `ExpertPayout`, `ConsultationRefund`, `PlatformFee`
-  - snake catching: `CatcherPayout`, `CatchingRefund`, `PlatformFee`
-  - snakebite incident: `SnakebiteIncidentRefund`
 - `EscrowHold` / `EscrowRelease` là transitional transaction type từ Phase 5; sau Phase 6 sẽ xóa khi production logic không còn sử dụng
 - `SystemWalletBalance*` trong response là front-facing transitional contract; nếu đổi/bỏ phải ghi vào `money-aspect.changelog.md`
 
@@ -150,13 +150,14 @@ Phase 6B applied for consultation:
 - `ConsultationPaymentResponse.SystemWalletBalanceAfter` remains nullable and returns `null` for consultation escrow responses
 - incident and catching flows were not converted in Phase 6B
 
-Phase 6C applied for snakebite incident:
+Phase 6C correction required for snakebite incident:
 
 - `SnakebiteIncidentPaymentService` no longer uses system wallet for escrow hold/refund
 - incident escrow availability is now sourced from `SnakebiteIncidentPayment` and `SnakebiteIncidentRefund`
 - `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` remains nullable and returns `null` for incident escrow responses
 - `RefundTransactionResponse.SystemWalletBalanceBefore/After` are nullable and return `null` for incident refunds
-- snake catching is not yet converted and remains the only Phase 6 flow still using system wallet escrow side effects
+- business correction 2026-04-08 supersedes this target: incident is not an escrow flow and must be corrected to one-way system/platform revenue semantics before Phase 6 is considered done
+- snake catching must not be converted to escrow-to-rescuer semantics; Phase 6D is blocked until the system/platform revenue ledger target is defined
 
 ## Consultation Platform Fee Target
 
