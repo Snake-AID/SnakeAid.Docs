@@ -592,6 +592,7 @@ Decision đã chốt cho phase này:
 - không dùng system wallet balance để validate refund/payout; thay bằng transaction-sourced escrow availability theo `ReferenceId`
 - không tạo schema migration vì dữ liệu dev có thể drop; nếu enum/domain contract đổi thì code và tests là nguồn sự thật
 - `SystemWalletBalance*` là field front-facing nhạy cảm; nếu đổi hoặc bỏ phải ghi vào `money-aspect.changelog.md`
+- **Frontend/mobile changelog gate:** trong mọi subphase của Phase 6, nếu có bất kỳ thay đổi nào ở endpoint, request DTO, response DTO, response field semantic, payment prefix, hoặc transaction type mà client có thể đọc/filter, phải cập nhật `money-aspect.changelog.md` ngay trong cùng lượt code. Không được để frontend/mobile dev phải suy luận từ backend diff.
 
 Research finding trước implementation:
 
@@ -625,6 +626,7 @@ Phase 6A. Regression test / freeze current escrow contract with characterization
 - [x] thêm tests cho transaction-sourced availability: hold amount, refunded amount, settled amount, remaining amount
 - [x] grep toàn repo production cho `SystemWalletUserId`, `systemWallet`, `SystemWalletBalance`, `EscrowHold`, `EscrowRelease`
 - [x] lập bảng affected public DTO fields và ghi watchlist vào `money-aspect.changelog.md`
+- [x] kiểm tra frontend/mobile changelog gate cho Phase 6A: không có endpoint/request/response production change
 
 Phase 6A output:
 
@@ -643,6 +645,7 @@ Phase 6B. Consultation transaction-sourced escrow first:
 - [x] giữ expert/user wallet mutation vì expert và member vẫn có ví thật
 - [x] cập nhật `ConsultationPaymentIntegrationTests` để không seed/assert system wallet balance
 - [x] quyết định response `SystemWalletBalanceAfter`: giữ nullable và trả `null` trong phase chuyển tiếp, hoặc đổi contract có changelog rõ
+- [x] kiểm tra frontend/mobile changelog gate cho Phase 6B và ghi `ConsultationPaymentResponse.SystemWalletBalanceAfter = null` vào `money-aspect.changelog.md`
 
 Phase 6B output:
 
@@ -664,6 +667,7 @@ Phase 6C. Snakebite incident transaction-sourced escrow:
 - [ ] refactor `RefundSnakebiteIncidentTransactionAsync` để validate bằng transaction-sourced availability
 - [ ] cập nhật `SnakebiteIncidentPaymentServiceTests` và property tests đang assert `SystemWalletBalance*`
 - [ ] nếu `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` đổi semantic hoặc bị null hóa, ghi vào changelog vì đây là DTO public
+- [ ] kiểm tra frontend/mobile changelog gate: mọi thay đổi endpoint/request/response/transaction type trong incident phải được ghi ngay vào `money-aspect.changelog.md`
 
 Phase 6D. Snake catching transaction-sourced escrow:
 
@@ -672,6 +676,7 @@ Phase 6D. Snake catching transaction-sourced escrow:
 - [ ] refactor `RefundSnakeCatchingTransactionAsync` để validate bằng transaction-sourced availability
 - [ ] giữ platform fee hiện hữu của snake catching trong owner service, chưa share abstraction
 - [ ] cập nhật response `TransferToRescuerResponse` / `RefundTransactionResponse` nếu bỏ `SystemWalletBalance*`, kèm changelog
+- [ ] kiểm tra frontend/mobile changelog gate: mọi thay đổi endpoint/request/response/transaction type trong snake catching phải được ghi ngay vào `money-aspect.changelog.md`
 
 Phase 6E. Remove transitional system escrow artifacts:
 
@@ -679,6 +684,7 @@ Phase 6E. Remove transitional system escrow artifacts:
 - [ ] xóa `EscrowHold` / `EscrowRelease` khỏi production path và khỏi enum sau khi không còn logic sử dụng
 - [ ] cập nhật `TransactionService` grouping để không đưa transaction-sourced escrow vào nhóm `system` một cách mơ hồ
 - [ ] cập nhật `money-aspect.sourcemap.md` target-state sau khi code khớp quyết định mới
+- [ ] kiểm tra frontend/mobile changelog gate: nếu `EscrowHold` / `EscrowRelease` hoặc `GET /api/transactions` exposure đổi, phải ghi ngay vào `money-aspect.changelog.md`
 - [ ] targeted tests tối thiểu: `ConsultationPaymentIntegrationTests|SnakebiteIncidentPaymentServiceTests|SnakebiteIncidentPaymentPropertyTests|SnakeCatching|PayOs`
 
 ### Phase 7. Consultation platform fee on escrow release

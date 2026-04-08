@@ -4,6 +4,10 @@
 
 File này dùng để kiểm soát các thay đổi có thể ảnh hưởng frontend/mobile trong money aspect.
 
+File này là handoff artifact cho frontend/mobile dev. Bất kỳ subphase nào của money refactor làm đổi endpoint, request DTO, response DTO, response field semantic, payment prefix, hoặc transaction type mà client có thể đọc/filter thì phải cập nhật file này ngay trong cùng lượt code.
+
+Nếu không có client-visible change, vẫn nên ghi rõ `NO CLIENT-VISIBLE CONTRACT CHANGE` cho phase đó để reviewer không phải suy luận từ backend diff.
+
 Chỉ ghi thay đổi client-visible:
 
 - route
