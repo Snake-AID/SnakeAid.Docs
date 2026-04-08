@@ -709,16 +709,29 @@ Phase 6C output:
 
 Phase 6D. Snake catching system/platform revenue path:
 
-Trạng thái: `READY`.
+Trạng thái: `IN PROGRESS`.
 
 Business correction 2026-04-08: snake catching không phải escrow-to-rescuer flow trong target business model. Vì rescuer là nhân viên system, catching payment phải đi một chiều vào system/platform; không dùng `transfer-to-rescuer` như marketplace payout. Tách 6D thành các subphase mới sau khi chốt system/platform revenue ledger target.
 
 Phase 6D1. Snake catching payment path:
 
-- [ ] redefine wallet payment path thành system/platform revenue path, không phải escrow hold path
-- [ ] redefine PayOS webhook confirm path thành system/platform revenue path, không phải escrow hold path
+- [x] redefine wallet payment path thành system/platform revenue path, không phải escrow hold path
+- [x] redefine PayOS webhook confirm path thành system/platform revenue path, không phải escrow hold path
 - [x] dùng ledger-only system revenue transaction; không credit system wallet như revenue account
-- [ ] kiểm tra frontend/mobile changelog gate: nếu payment response hoặc transaction exposure đổi, ghi ngay vào `money-aspect.changelog.md`
+- [x] kiểm tra frontend/mobile changelog gate: nếu payment response hoặc transaction exposure đổi, ghi ngay vào `money-aspect.changelog.md`
+
+Kết quả 6D1 đã implement:
+
+- `SnakeCatchingPaymentService.CreateWalletPaymentAsync` không còn credit `system.wallet`
+- wallet payment không còn tạo `TransactionType.EscrowHold`; chỉ ghi nhận catching payment transaction như system/platform revenue ledger
+- `SnakeCatchingPaymentService.ProcessWebhookCoreAsync` không còn credit `system.wallet`
+- PayOS confirm/webhook path không còn tạo `EscrowHold` cho catching payment
+- PayOS idempotency guard của catching payment chuyển sang dựa trên existing `ExternalTransactionId` của pending payment transaction, không còn dựa trên việc tìm `EscrowHold`
+- `PayOsWebhookResponse.Status` của catching confirm/webhook hiện được set đúng `Paid` / `Failed`
+- targeted verification sau 6D1:
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatchingPaymentServiceTests|PayOsPreservationTests|PayOsTopupRoutingTests" --no-restore` passed `66/66`
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatching" --no-restore` passed `28/28`
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatching|PayOs|WalletTopupServiceTests|WalletWithdrawServiceTests" --no-restore` passed `101/101`
 
 Phase 6D2. Snake catching system revenue settlement:
 

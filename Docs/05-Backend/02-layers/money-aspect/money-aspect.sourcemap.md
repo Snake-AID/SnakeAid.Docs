@@ -60,6 +60,7 @@ flowchart LR
 - mỗi flow sở hữu `ApplyDomainSideEffects`
 - consultation escrow target-state sau Phase 6 là transaction-sourced; `System Wallet` không còn là két sắt cố định để hold/release tiền cho consultation
 - incident/catching target-state sau business correction 2026-04-08 là payment một chiều vào system/platform, không phải escrow-to-rescuer
+- snake catching payment path (wallet + PayOS confirm/webhook) đã khớp target-state từ 2026-04-09; remaining drift chỉ còn ở settlement/refund path
 - consultation held/released amount phải được suy ra từ `TransactionType` + `ReferenceId`, không từ balance của account `system.wallet`
 - shared primitive boundary chưa được khóa trong target-state hiện tại; nếu phase cuối chứng minh là cần thì mới bổ sung vào sourcemap như một decision mới
 - `PayOsController` là callback entrypoint chung, chỉ nhận request và dispatch theo prefix

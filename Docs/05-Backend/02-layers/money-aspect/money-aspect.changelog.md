@@ -76,6 +76,25 @@ Frontend/mobile impact hiện tại:
 - Phase 6C code hiện tại vẫn có response semantic change đã ghi ở entry Phase 6C bên dưới
 - Phase 6C corrective review đã xử lý naming/semantic để incident không còn được mô tả như escrow flow; response change được ghi ở entry Phase 6C bên dưới
 
+## 2026-04-09 - Phase 6D1 snake catching payment path
+
+Trạng thái: `CLIENT-VISIBLE SEMANTIC CHANGE`.
+
+Đã đổi production behavior cho snake catching payment:
+
+- wallet payment và PayOS confirm/webhook của snake catching không còn tạo `EscrowHold`
+- snake catching payment không còn credit `system.wallet`; payment được ghi nhận như ledger-only system/platform revenue
+- `PayOsWebhookResponse.Status` của catching confirm/webhook hiện trả đúng:
+  - `Paid` khi confirm thành công
+  - `Failed` khi confirm thất bại
+  - trước đó field này có thể rơi về default `Pending` vì service chưa set explicit
+
+Impact cần lưu ý cho frontend/mobile:
+
+- nếu client đang suy luận snake catching payment qua transaction type `EscrowHold`, assumption đó không còn đúng cho payment path sau 6D1
+- `SnakeCatchingPaymentResponse` top-level contract không thêm/xóa field trong 6D1
+- `GatewayRawResponse` của wallet payment không còn mang semantic system-wallet credit như trước; không nên parse nó như source of truth revenue/escrow state
+
 ## 2026-04-08 - Phase 6A regression coverage
 
 Trạng thái: `NO CLIENT-VISIBLE CONTRACT CHANGE`.
