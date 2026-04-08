@@ -95,6 +95,42 @@ Impact cần lưu ý cho frontend/mobile:
 - `SnakeCatchingPaymentResponse` top-level contract không thêm/xóa field trong 6D1
 - `GatewayRawResponse` của wallet payment không còn mang semantic system-wallet credit như trước; không nên parse nó như source of truth revenue/escrow state
 
+## 2026-04-09 - Phase 6D2 snake catching transfer-to-rescuer deprecation
+
+Trạng thái: `CLIENT-VISIBLE SEMANTIC CHANGE`.
+
+Đã đổi production behavior cho snake catching settlement endpoint:
+
+- `POST /api/snakecatching/payment/transfer-to-rescuer` vẫn còn để giữ compatibility
+- nhưng endpoint/service giờ là deprecated no-op:
+  - không còn tạo `CatcherPayout`
+  - không còn tạo `PlatformFee`
+  - không còn tạo `EscrowRelease`
+  - không còn đụng `system.wallet` hoặc rescuer wallet
+
+Response contract change:
+
+- `TransferToRescuerResponse.TransferTransactionId`: `Guid` -> `Guid?`
+- `TransferToRescuerResponse.SystemWalletBalanceBefore`: `decimal` -> `decimal?`
+- `TransferToRescuerResponse.SystemWalletBalanceAfter`: `decimal` -> `decimal?`
+- `TransferToRescuerResponse.RescuerWalletBalanceBefore`: `decimal` -> `decimal?`
+- `TransferToRescuerResponse.RescuerWalletBalanceAfter`: `decimal` -> `decimal?`
+
+Response semantic change:
+
+- response có thể trả:
+  - `Success = true`
+  - `TransferTransactionId = null`
+  - các field balance = `null`
+  - `NetAmountToRescuer = 0`
+- `Message` hiện nêu rõ đây là deprecated endpoint và customer payment được ghi nhận là system revenue, không còn rescuer transfer
+
+Impact cần lưu ý cho frontend/mobile:
+
+- client không được xem endpoint này là payout trigger nữa
+- client không được giả định các balance field luôn có số
+- nếu UI đang hiển thị transfer receipt từ `TransferTransactionId`, cần xử lý `null`
+
 ## 2026-04-08 - Phase 6A regression coverage
 
 Trạng thái: `NO CLIENT-VISIBLE CONTRACT CHANGE`.

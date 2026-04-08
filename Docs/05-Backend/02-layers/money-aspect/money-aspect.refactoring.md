@@ -735,11 +735,28 @@ Kết quả 6D1 đã implement:
 
 Phase 6D2. Snake catching system revenue settlement:
 
-- [ ] remove hoặc deprecate `TransferSnakeCatchingFundsToRescuerAsync` nếu target business không còn transfer sang rescuer
-- [ ] nếu vẫn cần admin/internal payout cho payroll/reporting, định nghĩa lại như flow nội bộ riêng, không phải customer escrow release
-- [ ] loại bỏ giả định platform fee/commission split của catching trong target-state nếu payment đi thẳng vào system
-- [ ] cập nhật `TransferToRescuerResponse.SystemWalletBalanceBefore/After` nếu bỏ hoặc null hóa, kèm changelog
-- [ ] kiểm tra frontend/mobile changelog gate: mọi response semantic change phải được ghi ngay vào `money-aspect.changelog.md`
+- [x] remove hoặc deprecate `TransferSnakeCatchingFundsToRescuerAsync` nếu target business không còn transfer sang rescuer
+- [x] nếu vẫn cần admin/internal payout cho payroll/reporting, định nghĩa lại như flow nội bộ riêng, không phải customer escrow release
+- [x] loại bỏ giả định platform fee/commission split của catching trong target-state nếu payment đi thẳng vào system
+- [x] cập nhật `TransferToRescuerResponse.SystemWalletBalanceBefore/After` nếu bỏ hoặc null hóa, kèm changelog
+- [x] kiểm tra frontend/mobile changelog gate: mọi response semantic change phải được ghi ngay vào `money-aspect.changelog.md`
+
+Kết quả 6D2 đã implement:
+
+- `TransferSnakeCatchingFundsToRescuerAsync` được giữ để tương thích route/interface, nhưng đã chuyển thành deprecated no-op
+- endpoint/service không còn tạo:
+  - `CatcherPayout`
+  - `PlatformFee`
+  - `EscrowRelease`
+  - wallet side-effect cho system/rescuer
+- response của deprecated endpoint vẫn trả `200` / `Success=true` để tránh hard break cho client cũ, nhưng message đã nói rõ customer payment là system revenue và không có rescuer transfer
+- `TransferToRescuerResponse.TransferTransactionId` chuyển sang nullable và trả `null`
+- `TransferToRescuerResponse.SystemWalletBalanceBefore/After` chuyển sang nullable và trả `null`
+- `TransferToRescuerResponse.RescuerWalletBalanceBefore/After` chuyển sang nullable và trả `null`
+- targeted verification sau 6D2:
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatchingPaymentServiceTests|PayOsPreservationTests|PayOsTopupRoutingTests" --no-restore` passed `67/67`
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatching" --no-restore` passed `29/29`
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatching|PayOs|WalletTopupServiceTests|WalletWithdrawServiceTests" --no-restore` passed `102/102`
 
 Phase 6D3. Snake catching refund:
 
