@@ -56,3 +56,27 @@ Client-facing watchlist giữ nguyên cho Phase 6B+:
 
 - nếu `ConsultationPaymentResponse.SystemWalletBalanceAfter` bắt đầu trả `null`, `0`, hoặc đổi nghĩa theo transaction-sourced ledger thì phải ghi entry changelog mới
 - nếu `GET /api/transactions` bỏ hoặc đổi nghĩa `EscrowHold` / `EscrowRelease`, phải ghi rõ impact cho client đang filter theo transaction type
+
+## 2026-04-08 - Phase 6B consultation transaction-sourced escrow
+
+Trạng thái: `CLIENT-VISIBLE RESPONSE FIELD SEMANTIC CHANGE`.
+
+Áp dụng cho consultation payment responses:
+
+- `POST /api/consultations/scheduled/{bookingId:guid}/payments`
+- `POST /api/consultations/instant/{requestId:guid}/payments`
+- `POST /api/consultations/payments/confirm`
+- consultation PayOS webhook/confirm path trả cùng response model nội bộ trước khi map webhook response
+
+Thay đổi:
+
+- `ConsultationPaymentResponse.SystemWalletBalanceAfter` vẫn tồn tại và vẫn nullable
+- từ Phase 6B, field này trả `null` cho consultation escrow responses
+- lý do: consultation escrow không còn tạo/update system wallet; availability được suy ra từ `Transaction`
+
+Transaction exposure:
+
+- consultation hold không còn tạo `EscrowHold`
+- consultation refund/settlement không còn tạo `EscrowRelease`
+- `ConsultationPayment`, `ConsultationRefund`, và `ExpertPayout` vẫn là các transaction domain chính cho consultation
+- `EscrowHold` / `EscrowRelease` vẫn có thể xuất hiện ở flow khác cho tới khi Phase 6C/6D/6E hoàn tất

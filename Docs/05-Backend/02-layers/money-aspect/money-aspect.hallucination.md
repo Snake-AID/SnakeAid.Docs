@@ -321,6 +321,8 @@ Bucket nào đã khóa thì xóa phần research scaffolding để tránh doc ph
   - `MoveMoneyToEscrowAsync`
   - `RefundFromEscrowAsync`
   - `TransferEscrowToExpertAsync`
+- Phase 6B update: `ConsultationPaymentService` đã bỏ `SystemWalletUserId` và không còn update/validate system wallet trong consultation hold/refund/settlement path
+- Phase 6B update: `ConsultationPaymentResponse.SystemWalletBalanceAfter` vẫn tồn tại nhưng trả `null` cho consultation escrow responses
 - `SnakebiteIncidentPaymentService` còn dùng `SystemWalletUserId` và update system wallet balance trong:
   - `MoveMoneyToEscrowAsync`
   - `RefundSnakebiteIncidentTransactionAsync`

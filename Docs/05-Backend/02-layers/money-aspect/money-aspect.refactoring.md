@@ -637,12 +637,26 @@ Phase 6A output:
 
 Phase 6B. Consultation transaction-sourced escrow first:
 
-- [ ] refactor `ConsultationPaymentService.MoveMoneyToEscrowAsync` để không tạo/update system wallet
-- [ ] refactor `RefundFromEscrowAsync` để validate bằng transaction-sourced availability thay vì `systemWallet.Balance`
-- [ ] refactor `TransferEscrowToExpertAsync` để validate bằng transaction-sourced availability thay vì `systemWallet.Balance`
-- [ ] giữ expert/user wallet mutation vì expert và member vẫn có ví thật
-- [ ] cập nhật `ConsultationPaymentIntegrationTests` để không seed/assert system wallet balance
-- [ ] quyết định response `SystemWalletBalanceAfter`: giữ nullable và trả `null` trong phase chuyển tiếp, hoặc đổi contract có changelog rõ
+- [x] refactor `ConsultationPaymentService.MoveMoneyToEscrowAsync` để không tạo/update system wallet
+- [x] refactor `RefundFromEscrowAsync` để validate bằng transaction-sourced availability thay vì `systemWallet.Balance`
+- [x] refactor `TransferEscrowToExpertAsync` để validate bằng transaction-sourced availability thay vì `systemWallet.Balance`
+- [x] giữ expert/user wallet mutation vì expert và member vẫn có ví thật
+- [x] cập nhật `ConsultationPaymentIntegrationTests` để không seed/assert system wallet balance
+- [x] quyết định response `SystemWalletBalanceAfter`: giữ nullable và trả `null` trong phase chuyển tiếp, hoặc đổi contract có changelog rõ
+
+Phase 6B output:
+
+- `ConsultationPaymentService` không còn khai báo `SystemWalletUserId` và không còn tạo/update/validate system wallet trong consultation hold/refund/settlement path
+- wallet payment vẫn trừ member wallet; settlement vẫn cộng expert wallet; refund vẫn cộng lại member wallet
+- consultation escrow availability hiện được tính từ transaction ledger:
+  - held source: successful `ConsultationPayment` có `ExternalTransactionId`
+  - refund sink: `ConsultationRefund`
+  - settlement sink: `ExpertPayout`
+  - reserved for Phase 7: `PlatformFee`
+- consultation không còn tạo `EscrowHold` / `EscrowRelease`; các transaction type này vẫn tồn tại vì incident/catching chưa refactor xong
+- `ConsultationPaymentResponse.SystemWalletBalanceAfter` được giữ nullable và trả `null` cho consultation escrow response; impact đã ghi trong `money-aspect.changelog.md`
+- targeted verification: `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "ConsultationPaymentIntegrationTests|PayOs|SnakebiteIncidentPaymentServiceTests|WalletTopupServiceTests|WalletWithdrawServiceTests|WalletWithdrawalFlowIntegrationTests"` passed `115/115`
+- full suite status: `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj` still fails `2/202` on the existing out-of-scope `ShiftServiceTests` / `ScheduledConsultationIntegrationTests` failures
 
 Phase 6C. Snakebite incident transaction-sourced escrow:
 
@@ -759,6 +773,9 @@ Phase 7C. Tests and reporting:
 - Phase 6 research xác nhận các response public còn expose `SystemWalletBalance*`, nên mọi thay đổi field này phải đi qua `money-aspect.changelog.md`
 - Phase 6A đã thêm regression/characterization coverage cho consultation escrow availability; PayOS pending transaction không được tính là held escrow cho tới khi có `ExternalTransactionId`
 - Phase 6A không đổi production endpoint/DTO contract
+- Phase 6B đã chuyển consultation escrow sang transaction-sourced ledger và bỏ system wallet side effect khỏi `ConsultationPaymentService`
+- Phase 6B đã null hóa `ConsultationPaymentResponse.SystemWalletBalanceAfter` trong consultation escrow responses và ghi front-facing changelog
+- Phase 6B chưa đụng snakebite incident hoặc snake catching; các flow này vẫn còn system wallet side effect
 - Phase 7 research xác nhận consultation settlement hiện payout 100% amount cho expert và chưa tạo `PlatformFee`
 - Phase 7 decision đã chốt default consultation platform fee là `20%` nếu system setting chưa tồn tại
 - Phase 7 decision đã chốt rounding ưu tiên expert: làm tròn lên `expertNetAmount`, phí nền tảng là phần còn lại

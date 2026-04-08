@@ -143,6 +143,13 @@ Target-state mới sau Money Aspect 6:
 - `EscrowHold` / `EscrowRelease` là transitional transaction type từ Phase 5; sau Phase 6 sẽ xóa khi production logic không còn sử dụng
 - `SystemWalletBalance*` trong response là front-facing transitional contract; nếu đổi/bỏ phải ghi vào `money-aspect.changelog.md`
 
+Phase 6B applied for consultation:
+
+- `ConsultationPaymentService` no longer uses system wallet for escrow hold/refund/settlement
+- consultation escrow availability is now sourced from `ConsultationPayment`, `ConsultationRefund`, and `ExpertPayout`
+- `ConsultationPaymentResponse.SystemWalletBalanceAfter` remains nullable and returns `null` for consultation escrow responses
+- incident and catching flows are not yet converted in Phase 6B
+
 ## Consultation Platform Fee Target
 
 Target-state mới sau Money Aspect 7:
