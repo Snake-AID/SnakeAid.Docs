@@ -2,202 +2,165 @@
 
 ## Purpose
 
-File này dùng để kiểm soát các thay đổi có thể ảnh hưởng frontend/mobile trong money aspect.
+File này chỉ dùng để handoff cho frontend/mobile dev.
 
-File này là handoff artifact cho frontend/mobile dev. Bất kỳ subphase nào của money refactor làm đổi endpoint, request DTO, response DTO, response field semantic, payment prefix, hoặc transaction type mà client có thể đọc/filter thì phải cập nhật file này ngay trong cùng lượt code.
+Chỉ ghi:
 
-Nếu không có client-visible change, vẫn nên ghi rõ `NO CLIENT-VISIBLE CONTRACT CHANGE` cho phase đó để reviewer không phải suy luận từ backend diff.
+- endpoint/route change
+- request/response DTO change
+- response field semantic change
+- deprecation
+- transaction exposure change nếu client có đọc/filter transaction list
 
-Chỉ ghi thay đổi client-visible:
+Không ghi:
 
-- route
-- HTTP method
-- auth/role expectation
-- request DTO
-- response DTO
-- response field semantic
-- payment prefix nếu client có parse/hardcode
-- transaction type nếu client hiển thị hoặc filter theo transaction list
+- roadmap phase
+- reasoning nội bộ
+- correction history
+- verification log
 
-## Current Direction Summary
+Các nội dung đó đã thuộc `money-aspect.refactoring.md` và `money-aspect.hallucination.md`.
 
-| Flow | Before | After |
-|---|---|---|
-| Consultation | `SystemWalletBalanceAfter` từng ngầm phản ánh system-wallet escrow state | field vẫn còn nhưng trả `null`; consultation escrow state đọc từ `Transaction` |
-| Snakebite Incident | wallet payment từng trả status kiểu escrow (`Escrowed`) và dễ bị hiểu là escrow flow | wallet payment trả `Paid`; `SystemWalletBalance*` vẫn `null`; incident là ledger-only system revenue |
-| Snake Catching | client-facing risk vẫn còn quanh `TransferToRescuerResponse.SystemWalletBalance*` và payout semantics | chưa đổi production contract trong doc này, nhưng target-state không còn transfer-to-rescuer semantics |
+## Current Contract Snapshot
 
-## 2026-04-08 - Phase 6/7 planning watchlist
+| Flow | Client-facing contract state |
+|---|---|
+| Consultation | escrow vẫn tồn tại; `SystemWalletBalanceAfter` được giữ nhưng trả `null` |
+| Snakebite Incident | payment là ledger-only system revenue; wallet payment status là `Paid`; `SystemWalletBalance*` nullable và trả `null` |
+| Snake Catching | payment là ledger-only system revenue; `transfer-to-rescuer` đã bị deprecate thành compatibility no-op |
 
-Trạng thái: `PLANNED`, chưa đổi production endpoint/DTO trong code ở entry này.
+## 2026-04-09 - Snake Catching `transfer-to-rescuer` deprecated
 
-Các field có rủi ro đổi semantic khi Phase 6 bãi bỏ system wallet:
+**Status:** `deprecation + semantic change`
 
-- `ConsultationPaymentResponse.SystemWalletBalanceAfter`
-- `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter`
-- `RefundTransactionResponse.SystemWalletBalanceBefore`
-- `RefundTransactionResponse.SystemWalletBalanceAfter`
-- `TransferToRescuerResponse.SystemWalletBalanceBefore`
-- `TransferToRescuerResponse.SystemWalletBalanceAfter`
+**Scope**
 
-Quy tắc khi implement:
+- `POST /api/snakecatching/payment/transfer-to-rescuer`
+- `TransferToRescuerResponse`
 
-- nếu field được giữ nhưng trả `null`, `0`, hoặc đổi nghĩa sang transaction-sourced value thì phải thêm entry changelog mới
-- nếu field bị remove/rename thì phải ghi rõ old field -> new field
-- nếu thêm fee breakdown cho consultation settlement response thì phải ghi rõ field mới và endpoint liên quan
-- nếu transaction list bắt đầu expose transaction type mới hoặc bỏ `EscrowHold` / `EscrowRelease`, phải ghi rõ impact với `GET /api/transactions`
+**Change**
 
-Decision đã chốt cho Phase 7:
+- endpoint vẫn còn để giữ compatibility
+- endpoint không còn trigger payout nữa
+- endpoint/service không còn tạo:
+  - `CatcherPayout`
+  - `PlatformFee`
+  - `EscrowRelease`
+- endpoint/service không còn đụng `system.wallet` hoặc rescuer wallet
 
-- consultation platform fee default là `20%` nếu system setting chưa tồn tại
-- rounding ưu tiên expert: làm tròn lên `expertNetAmount` theo đơn vị VND, rồi tính `platformFeeAmount = grossAmount - expertNetAmount`
-- client cần fee breakdown khi có response/contract liên quan consultation payout hoặc transaction detail
-- nếu thêm fee breakdown, field dự kiến cần document gồm:
-  - `grossAmount`
-  - `platformFeePercent`
-  - `platformFeeAmount`
-  - `expertNetAmount`
+**Response DTO**
 
-## 2026-04-08 - Phase 6 business semantic correction
+- `TransferTransactionId`: `Guid` -> `Guid?`
+- `SystemWalletBalanceBefore`: `decimal` -> `decimal?`
+- `SystemWalletBalanceAfter`: `decimal` -> `decimal?`
+- `RescuerWalletBalanceBefore`: `decimal` -> `decimal?`
+- `RescuerWalletBalanceAfter`: `decimal` -> `decimal?`
 
-Trạng thái: `NO CLIENT-VISIBLE CONTRACT CHANGE IN THIS ENTRY - CORRECTION PENDING`.
+**Response semantic**
 
-Correction đã chốt cho target-state:
+- `Success` vẫn có thể là `true`
+- `TransferTransactionId` có thể là `null`
+- các balance field có thể là `null`
+- `NetAmountToRescuer = 0`
+- `Message` nêu rõ endpoint đã deprecated và không còn thực hiện rescuer transfer
 
-- chỉ `Expert Consultation` dùng escrow + net payout + platform fee
-- `snakebite incident` và `snake catching` là payment một chiều vào system/platform
-- `snakebite incident` và `snake catching` không release tiền qua rescuer vì rescuer là nhân viên của system
-- implementation dùng ledger-only system revenue transaction; admin analytics đọc từ `Transaction`, không từ `system.wallet`
-- `snake catching transfer-to-rescuer` không còn là target contract hợp lệ cho Phase 6D nếu không có business decision mới
+**Client action**
 
-Frontend/mobile impact hiện tại:
+- không xem endpoint này là payout trigger nữa
+- xử lý nullable cho `TransferTransactionId` và các balance field
+- nếu UI đang hiển thị transfer receipt, phải handle trường hợp không còn transfer transaction
 
-- entry này chưa đổi endpoint/request/response trong code
-- Phase 6C code hiện tại vẫn có response semantic change đã ghi ở entry Phase 6C bên dưới
-- Phase 6C corrective review đã xử lý naming/semantic để incident không còn được mô tả như escrow flow; response change được ghi ở entry Phase 6C bên dưới
+## 2026-04-09 - Snake Catching payment path switched to ledger-only system revenue
 
-## 2026-04-09 - Phase 6D1 snake catching payment path
+**Status:** `semantic change`
 
-Trạng thái: `CLIENT-VISIBLE SEMANTIC CHANGE`.
+**Scope**
 
-Đã đổi production behavior cho snake catching payment:
+- snake catching wallet payment
+- snake catching PayOS confirm/webhook path
+- transaction list views nếu client filter theo `TransactionType`
 
-- wallet payment và PayOS confirm/webhook của snake catching không còn tạo `EscrowHold`
-- snake catching payment không còn credit `system.wallet`; payment được ghi nhận như ledger-only system/platform revenue
-- `PayOsWebhookResponse.Status` của catching confirm/webhook hiện trả đúng:
-  - `Paid` khi confirm thành công
-  - `Failed` khi confirm thất bại
-  - trước đó field này có thể rơi về default `Pending` vì service chưa set explicit
+**Change**
 
-Impact cần lưu ý cho frontend/mobile:
+- snake catching payment không còn tạo `EscrowHold`
+- snake catching payment không còn credit `system.wallet`
+- payment được ghi nhận như ledger-only system/platform revenue
 
-- nếu client đang suy luận snake catching payment qua transaction type `EscrowHold`, assumption đó không còn đúng cho payment path sau 6D1
-- `SnakeCatchingPaymentResponse` top-level contract không thêm/xóa field trong 6D1
-- `GatewayRawResponse` của wallet payment không còn mang semantic system-wallet credit như trước; không nên parse nó như source of truth revenue/escrow state
+**Response semantic**
 
-## 2026-04-09 - Phase 6D2 snake catching transfer-to-rescuer deprecation
+- `PayOsWebhookResponse.Status` của snake catching confirm/webhook giờ trả explicit:
+  - `Paid` khi thành công
+  - `Failed` khi thất bại
 
-Trạng thái: `CLIENT-VISIBLE SEMANTIC CHANGE`.
+**Client action**
 
-Đã đổi production behavior cho snake catching settlement endpoint:
+- không suy luận snake catching payment state qua `EscrowHold`
+- không parse `GatewayRawResponse` của wallet payment như source of truth cho system-wallet revenue/escrow
+- nếu UI đang hiển thị webhook/confirm status, dùng `PayOsWebhookResponse.Status` mới thay vì dựa vào default cũ
 
-- `POST /api/snakecatching/payment/transfer-to-rescuer` vẫn còn để giữ compatibility
-- nhưng endpoint/service giờ là deprecated no-op:
-  - không còn tạo `CatcherPayout`
-  - không còn tạo `PlatformFee`
-  - không còn tạo `EscrowRelease`
-  - không còn đụng `system.wallet` hoặc rescuer wallet
+## 2026-04-08 - Snakebite Incident moved to ledger-only system revenue
 
-Response contract change:
+**Status:** `response semantic change`
 
-- `TransferToRescuerResponse.TransferTransactionId`: `Guid` -> `Guid?`
-- `TransferToRescuerResponse.SystemWalletBalanceBefore`: `decimal` -> `decimal?`
-- `TransferToRescuerResponse.SystemWalletBalanceAfter`: `decimal` -> `decimal?`
-- `TransferToRescuerResponse.RescuerWalletBalanceBefore`: `decimal` -> `decimal?`
-- `TransferToRescuerResponse.RescuerWalletBalanceAfter`: `decimal` -> `decimal?`
+**Scope**
 
-Response semantic change:
+- `POST /api/incidents/{incidentId}/payment/wallet`
+- incident PayOS confirm/webhook path
+- `POST /api/incidents/{incidentId}/payment/refund`
+- `SnakebiteIncidentPaymentResponse`
+- `RefundTransactionResponse`
 
-- response có thể trả:
-  - `Success = true`
-  - `TransferTransactionId = null`
-  - các field balance = `null`
-  - `NetAmountToRescuer = 0`
-- `Message` hiện nêu rõ đây là deprecated endpoint và customer payment được ghi nhận là system revenue, không còn rescuer transfer
+**Change**
 
-Impact cần lưu ý cho frontend/mobile:
+- incident không còn là escrow flow
+- wallet payment status đổi:
+  - `Escrowed` -> `Paid`
+- incident payment không còn tạo `EscrowHold`
+- incident refund không còn tạo `EscrowRelease`
 
-- client không được xem endpoint này là payout trigger nữa
-- client không được giả định các balance field luôn có số
-- nếu UI đang hiển thị transfer receipt từ `TransferTransactionId`, cần xử lý `null`
+**Response DTO**
 
-## 2026-04-08 - Phase 6A regression coverage
+- `RefundTransactionResponse.SystemWalletBalanceBefore`: `decimal` -> `decimal?`
+- `RefundTransactionResponse.SystemWalletBalanceAfter`: `decimal` -> `decimal?`
 
-Trạng thái: `NO CLIENT-VISIBLE CONTRACT CHANGE`.
+**Response semantic**
 
-Phase 6A chỉ thêm regression/characterization tests cho consultation escrow. Production endpoint, HTTP method, request DTO, response DTO, payment prefix, và transaction enum chưa đổi trong entry này.
+- `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` vẫn tồn tại nhưng trả `null`
+- `RefundTransactionResponse.SystemWalletBalanceBefore/After` vẫn tồn tại nhưng có thể trả `null`
+- incident refundability được backend tính từ:
+  - `SnakebiteIncidentPayment - SnakebiteIncidentRefund`
 
-Client-facing watchlist giữ nguyên cho Phase 6B+:
+**Client action**
 
-- nếu `ConsultationPaymentResponse.SystemWalletBalanceAfter` bắt đầu trả `null`, `0`, hoặc đổi nghĩa theo transaction-sourced ledger thì phải ghi entry changelog mới
-- nếu `GET /api/transactions` bỏ hoặc đổi nghĩa `EscrowHold` / `EscrowRelease`, phải ghi rõ impact cho client đang filter theo transaction type
+- treat toàn bộ `SystemWalletBalance*` field của incident flow là nullable
+- không hiển thị incident payment/refund như escrow state nữa
+- nếu transaction UI đang filter theo `EscrowHold` / `EscrowRelease` để biểu diễn incident money movement, logic đó phải bỏ
 
-## 2026-04-08 - Phase 6B consultation transaction-sourced escrow
+## 2026-04-08 - Consultation escrow switched to transaction-sourced ledger
 
-Trạng thái: `CLIENT-VISIBLE RESPONSE FIELD SEMANTIC CHANGE`.
+**Status:** `response semantic change`
 
-Áp dụng cho consultation payment responses:
+**Scope**
 
 - `POST /api/consultations/scheduled/{bookingId:guid}/payments`
 - `POST /api/consultations/instant/{requestId:guid}/payments`
 - `POST /api/consultations/payments/confirm`
-- consultation PayOS webhook/confirm path trả cùng response model nội bộ trước khi map webhook response
+- consultation PayOS confirm/webhook path
+- `ConsultationPaymentResponse`
 
-Thay đổi:
+**Change**
 
-- `ConsultationPaymentResponse.SystemWalletBalanceAfter` vẫn tồn tại và vẫn nullable
-- từ Phase 6B, field này trả `null` cho consultation escrow responses
-- lý do: consultation escrow không còn tạo/update system wallet; availability được suy ra từ `Transaction`
-
-Transaction exposure:
-
+- consultation vẫn là escrow flow
+- nhưng consultation không còn tạo/update system wallet để biểu diễn escrow
 - consultation hold không còn tạo `EscrowHold`
 - consultation refund/settlement không còn tạo `EscrowRelease`
-- `ConsultationPayment`, `ConsultationRefund`, và `ExpertPayout` vẫn là các transaction domain chính cho consultation
-- `EscrowHold` / `EscrowRelease` vẫn có thể xuất hiện ở flow khác cho tới khi Phase 6C/6D/6E hoàn tất
 
-## 2026-04-08 - Phase 6C snakebite incident ledger-only system revenue
+**Response semantic**
 
-Trạng thái: `CLIENT-VISIBLE RESPONSE FIELD SEMANTIC CHANGE`.
+- `ConsultationPaymentResponse.SystemWalletBalanceAfter` vẫn tồn tại và vẫn nullable
+- field này trả `null`
 
-Correction note 2026-04-08: entry này mô tả trạng thái code sau Phase 6C corrective review. Target business đã được sửa lại: incident không phải escrow flow mà là ledger-only payment một chiều vào system/platform.
+**Client action**
 
-Corrective update 2026-04-08:
-
-- `POST /api/incidents/{incidentId}/payment/wallet`: `SnakebiteIncidentPaymentResponse.Status` đổi từ `Escrowed` sang `Paid`
-- `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` vẫn trả `null` vì incident revenue là ledger-only, không đọc từ `system.wallet`
-- `RefundTransactionResponse.SystemWalletBalanceBefore/After` vẫn nullable và trả `null` cho incident refunds
-- incident refund validation không còn gọi là escrow balance; backend tính refundable amount từ `SnakebiteIncidentPayment - SnakebiteIncidentRefund`
-
-Áp dụng cho snakebite incident payment/refund responses:
-
-- `POST /api/incidents/{incidentId}/payment/wallet`
-- `POST /api/incidents/{incidentId}/payment/payos` sau khi PayOS được confirm/webhook xử lý
-- `POST /api/incidents/{incidentId}/payment/refund`
-
-Thay đổi:
-
-- `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` vẫn tồn tại và vẫn nullable
-- từ Phase 6C corrective update, field này trả `null` cho incident payment responses
-- `RefundTransactionResponse.SystemWalletBalanceBefore` đổi từ `decimal` sang `decimal?`
-- `RefundTransactionResponse.SystemWalletBalanceAfter` đổi từ `decimal` sang `decimal?`
-- đây là shared response model; nếu flow khác còn dùng model này và vẫn trả số, client vẫn phải treat hai field này là nullable từ Phase 6C
-- với incident refunds, hai field `RefundTransactionResponse.SystemWalletBalanceBefore/After` trả `null`
-- lý do: snakebite incident system revenue không tạo/update system wallet; refundable amount được suy ra từ `Transaction`
-
-Transaction exposure:
-
-- incident payment không còn tạo `EscrowHold`
-- incident refund không còn tạo `EscrowRelease`
-- `SnakebiteIncidentPayment` và `SnakebiteIncidentRefund` là các transaction domain chính cho incident system revenue/refund
-- `EscrowHold` / `EscrowRelease` vẫn có thể xuất hiện ở snake catching cho tới khi Phase 6D/6E hoàn tất
+- không dùng `SystemWalletBalanceAfter` để suy luận escrow amount nữa
+- nếu transaction UI đang filter theo `EscrowHold` / `EscrowRelease` để biểu diễn consultation escrow, logic đó phải đổi sang transaction domain types của consultation
