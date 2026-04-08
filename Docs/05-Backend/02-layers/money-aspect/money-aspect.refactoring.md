@@ -663,20 +663,58 @@ Phase 6B output:
 
 Phase 6C. Snakebite incident transaction-sourced escrow:
 
-- [ ] refactor `SnakebiteIncidentPaymentService.MoveMoneyToEscrowAsync` để không tạo/update system wallet
-- [ ] refactor `RefundSnakebiteIncidentTransactionAsync` để validate bằng transaction-sourced availability
-- [ ] cập nhật `SnakebiteIncidentPaymentServiceTests` và property tests đang assert `SystemWalletBalance*`
-- [ ] nếu `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` đổi semantic hoặc bị null hóa, ghi vào changelog vì đây là DTO public
-- [ ] kiểm tra frontend/mobile changelog gate: mọi thay đổi endpoint/request/response/transaction type trong incident phải được ghi ngay vào `money-aspect.changelog.md`
+- [x] refactor `SnakebiteIncidentPaymentService.MoveMoneyToEscrowAsync` để không tạo/update system wallet
+- [x] refactor `RefundSnakebiteIncidentTransactionAsync` để validate bằng transaction-sourced availability
+- [x] cập nhật `SnakebiteIncidentPaymentServiceTests` và property tests đang assert `SystemWalletBalance*`
+- [x] nếu `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` đổi semantic hoặc bị null hóa, ghi vào changelog vì đây là DTO public
+- [x] kiểm tra frontend/mobile changelog gate: mọi thay đổi endpoint/request/response/transaction type trong incident phải được ghi ngay vào `money-aspect.changelog.md`
+
+Phase 6C output:
+
+- `SnakebiteIncidentPaymentService` không còn khai báo `SystemWalletUserId` và không còn tạo/update/validate system wallet trong incident hold/refund path
+- wallet payment vẫn trừ member wallet; refund vẫn cộng lại receiver wallet
+- incident escrow availability hiện được tính từ transaction ledger:
+  - held source: successful `SnakebiteIncidentPayment` có `ExternalTransactionId`
+  - refund sink: `SnakebiteIncidentRefund`
+- incident không còn tạo `EscrowHold` / `EscrowRelease`; các transaction type này vẫn tồn tại vì snake catching chưa refactor xong
+- `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` được giữ nullable và trả `null` cho incident escrow responses
+- `RefundTransactionResponse.SystemWalletBalanceBefore` và `RefundTransactionResponse.SystemWalletBalanceAfter` chuyển sang nullable và trả `null` cho incident refunds; impact đã ghi trong `money-aspect.changelog.md`
+- targeted verification: `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakebiteIncidentPaymentServiceTests|SnakebiteIncidentPaymentPropertyTests|PayOsPreservationTests"` passed `95/95`
+- broader money verification passed:
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "ConsultationPaymentIntegrationTests|PayOs|SnakebiteIncidentPaymentServiceTests|SnakebiteIncidentPaymentPropertyTests|WalletTopupServiceTests|WalletWithdrawServiceTests|WalletWithdrawalFlowIntegrationTests"` passed `144/144`
+  - `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "SnakeCatching"` passed `26/26`
+- full suite status: `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj` still fails `2/204` on the existing out-of-scope `ShiftServiceTests` / `ScheduledConsultationIntegrationTests` failures
 
 Phase 6D. Snake catching transaction-sourced escrow:
 
-- [ ] refactor wallet payment và PayOS webhook path để không credit system wallet
+Snake catching phức tạp hơn consultation/incident vì có wallet payment, PayOS webhook, rescuer payout, refund, và commission/platform fee trong cùng owner service. Tách 6D thành 4 subphase để tránh refactor quá rộng trong một lượt.
+
+Phase 6D1. Snake catching hold/payment path:
+
+- [ ] refactor wallet payment path để không credit system wallet
+- [ ] refactor PayOS webhook confirm path để không credit system wallet
+- [ ] giữ `CatchingPayment` / `CatchingDeposit` làm held source transaction theo flow hiện tại
+- [ ] kiểm tra frontend/mobile changelog gate: nếu payment response hoặc transaction exposure đổi, ghi ngay vào `money-aspect.changelog.md`
+
+Phase 6D2. Snake catching transfer-to-rescuer:
+
 - [ ] refactor `TransferSnakeCatchingFundsToRescuerAsync` để tính available paid amount từ transactions thay vì system wallet balance
+- [ ] giữ platform fee/commission hiện hữu của snake catching trong owner service, chưa share abstraction
+- [ ] cập nhật `TransferToRescuerResponse.SystemWalletBalanceBefore/After` nếu bỏ hoặc null hóa, kèm changelog
+- [ ] kiểm tra frontend/mobile changelog gate: mọi response semantic change phải được ghi ngay vào `money-aspect.changelog.md`
+
+Phase 6D3. Snake catching refund:
+
 - [ ] refactor `RefundSnakeCatchingTransactionAsync` để validate bằng transaction-sourced availability
-- [ ] giữ platform fee hiện hữu của snake catching trong owner service, chưa share abstraction
-- [ ] cập nhật response `TransferToRescuerResponse` / `RefundTransactionResponse` nếu bỏ `SystemWalletBalance*`, kèm changelog
-- [ ] kiểm tra frontend/mobile changelog gate: mọi thay đổi endpoint/request/response/transaction type trong snake catching phải được ghi ngay vào `money-aspect.changelog.md`
+- [ ] cập nhật `RefundTransactionResponse.SystemWalletBalanceBefore/After` nếu bỏ hoặc null hóa, kèm changelog
+- [ ] kiểm tra frontend/mobile changelog gate: mọi response semantic change phải được ghi ngay vào `money-aspect.changelog.md`
+
+Phase 6D4. Snake catching response/docs cleanup:
+
+- [ ] grep production usage còn lại của system wallet trong `SnakeCatchingPaymentService`
+- [ ] cập nhật tests cho toàn bộ snake catching money paths đã chuyển đổi
+- [ ] cập nhật `money-aspect.sourcemap.md` và `money-aspect.changelog.md` với trạng thái final của snake catching trong Phase 6D
+- [ ] chạy targeted tests: `SnakeCatching|PayOs|WalletTopupServiceTests|WalletWithdrawServiceTests`
 
 Phase 6E. Remove transitional system escrow artifacts:
 
@@ -740,6 +778,40 @@ Phase 7C. Tests and reporting:
 - [ ] cập nhật `TransactionService` grouping nếu cần để `PlatformFee` vẫn xuất hiện trong group phù hợp
 - [ ] nếu response trả fee breakdown mới thì update `money-aspect.changelog.md` với `grossAmount`, `platformFeePercent`, `platformFeeAmount`, `expertNetAmount`
 
+### Phase 8. Money stage input contract normalization
+
+Trạng thái: `TODO`
+
+Vấn đề cần xử lý:
+
+- các stage như escrow in, escrow out, refund, payout, fee hiện đang dùng input param khác nhau giữa từng flow
+- consultation đang có khác biệt rõ vì payment hold dùng `bookingId` / `requestId`, còn settlement dùng `consultationId`
+- snakebite incident đơn giản hơn vì hold/refund cùng dùng `incidentId`
+- snake catching dự kiến còn phức tạp hơn vì có catching request id, catching id, rescuer payout, refund, và platform fee/commission
+- nếu không chuẩn hóa input contract, shared primitive sau này rất dễ encode nhầm `ReferenceId` hoặc tính sai escrow availability
+
+Mục tiêu:
+
+- lập bản đồ input contract của từng money stage theo từng flow
+- quyết định stage nào dùng domain aggregate id, stage nào dùng payment reference id, stage nào cần cả hai
+- chuẩn hóa naming cho các private helper params, ví dụ `paymentReferenceId`, `settlementReferenceId`, `domainReferenceId`
+- nếu cần, tạo value object/internal context để truyền stage input thay vì truyền nhiều `Guid` rời rạc
+- không đổi endpoint/request DTO nếu không cần; Phase 8 ưu tiên làm sạch service-internal contract
+
+Phase 8A. Audit current stage inputs:
+
+- [ ] map consultation stage inputs: escrow in, refund, settlement, platform fee
+- [ ] map snakebite incident stage inputs: escrow in, refund
+- [ ] map snake catching stage inputs sau Phase 6D: escrow in, transfer-to-rescuer, refund, platform fee/commission
+- [ ] ghi rõ mỗi stage đang dùng `ReferenceId` nào trong `Transaction`
+
+Phase 8B. Normalize naming and helper contracts:
+
+- [ ] đổi tên param private helper để phân biệt payment reference và domain reference rõ ràng
+- [ ] nếu helper cần nhiều reference id, gom vào context object có tên rõ thay vì truyền `Guid` rời rạc
+- [ ] thêm/giữ tests khóa mapping ReferenceId để tránh regression
+- [ ] kiểm tra frontend/mobile changelog gate: nếu Phase 8 chỉ đổi internal helper contract thì ghi `NO CLIENT-VISIBLE CONTRACT CHANGE`; nếu bất kỳ endpoint/request/response bị ảnh hưởng thì ghi rõ vào `money-aspect.changelog.md`
+
 ## Tracking Progress
 
 ### Current status
@@ -752,6 +824,7 @@ Phase 7C. Tests and reporting:
 - Phase 5: `DONE`
 - Phase 6: `IN PROGRESS`
 - Phase 7: `TODO`
+- Phase 8: `TODO`
 
 ### Latest confirmed findings
 
@@ -781,12 +854,15 @@ Phase 7C. Tests and reporting:
 - Phase 6A không đổi production endpoint/DTO contract
 - Phase 6B đã chuyển consultation escrow sang transaction-sourced ledger và bỏ system wallet side effect khỏi `ConsultationPaymentService`
 - Phase 6B đã null hóa `ConsultationPaymentResponse.SystemWalletBalanceAfter` trong consultation escrow responses và ghi front-facing changelog
-- Phase 6B chưa đụng snakebite incident hoặc snake catching; các flow này vẫn còn system wallet side effect
+- Phase 6C đã chuyển snakebite incident escrow sang transaction-sourced ledger và bỏ system wallet side effect khỏi `SnakebiteIncidentPaymentService`
+- Phase 6C đã null hóa `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` cho incident escrow responses và `RefundTransactionResponse.SystemWalletBalanceBefore/After` cho incident refunds; impact đã ghi front-facing changelog
+- Phase 6C chưa đụng snake catching; flow này vẫn còn system wallet side effect và sẽ xử lý theo Phase 6D1-6D4
 - Phase 7 research xác nhận consultation settlement hiện payout 100% amount cho expert và chưa tạo `PlatformFee`
 - Phase 7 decision đã chốt default consultation platform fee là `20%` nếu system setting chưa tồn tại
 - Phase 7 decision đã chốt rounding ưu tiên expert: làm tròn lên `expertNetAmount`, phí nền tảng là phần còn lại
 - Phase 7 decision đã chốt client cần fee breakdown khi có response/contract liên quan consultation payout hoặc transaction detail
 - Phase 7 decision đã chốt xóa `EscrowHold` / `EscrowRelease` sau khi production logic không còn sử dụng
+- Phase 8 mở mới để xử lý vấn đề các money stage như escrow in, escrow out, refund, payout, fee đang dùng input param khác nhau giữa các flow; mục tiêu là chuẩn hóa service-internal stage input contract sau khi Phase 6D và Phase 7 làm rõ đủ mapping `ReferenceId`
 
 ## Resume Guide
 

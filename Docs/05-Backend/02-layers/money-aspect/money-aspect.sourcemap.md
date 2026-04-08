@@ -148,7 +148,15 @@ Phase 6B applied for consultation:
 - `ConsultationPaymentService` no longer uses system wallet for escrow hold/refund/settlement
 - consultation escrow availability is now sourced from `ConsultationPayment`, `ConsultationRefund`, and `ExpertPayout`
 - `ConsultationPaymentResponse.SystemWalletBalanceAfter` remains nullable and returns `null` for consultation escrow responses
-- incident and catching flows are not yet converted in Phase 6B
+- incident and catching flows were not converted in Phase 6B
+
+Phase 6C applied for snakebite incident:
+
+- `SnakebiteIncidentPaymentService` no longer uses system wallet for escrow hold/refund
+- incident escrow availability is now sourced from `SnakebiteIncidentPayment` and `SnakebiteIncidentRefund`
+- `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` remains nullable and returns `null` for incident escrow responses
+- `RefundTransactionResponse.SystemWalletBalanceBefore/After` are nullable and return `null` for incident refunds
+- snake catching is not yet converted and remains the only Phase 6 flow still using system wallet escrow side effects
 
 ## Consultation Platform Fee Target
 

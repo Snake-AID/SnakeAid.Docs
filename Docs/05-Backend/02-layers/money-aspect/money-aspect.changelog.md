@@ -84,3 +84,30 @@ Transaction exposure:
 - consultation refund/settlement không còn tạo `EscrowRelease`
 - `ConsultationPayment`, `ConsultationRefund`, và `ExpertPayout` vẫn là các transaction domain chính cho consultation
 - `EscrowHold` / `EscrowRelease` vẫn có thể xuất hiện ở flow khác cho tới khi Phase 6C/6D/6E hoàn tất
+
+## 2026-04-08 - Phase 6C snakebite incident transaction-sourced escrow
+
+Trạng thái: `CLIENT-VISIBLE RESPONSE FIELD SEMANTIC CHANGE`.
+
+Áp dụng cho snakebite incident payment/refund responses:
+
+- `POST /api/incidents/{incidentId}/payment/wallet`
+- `POST /api/incidents/{incidentId}/payment/payos` sau khi PayOS được confirm/webhook xử lý
+- `POST /api/incidents/{incidentId}/payment/refund`
+
+Thay đổi:
+
+- `SnakebiteIncidentPaymentResponse.SystemWalletBalanceAfter` vẫn tồn tại và vẫn nullable
+- từ Phase 6C, field này trả `null` cho incident escrow responses
+- `RefundTransactionResponse.SystemWalletBalanceBefore` đổi từ `decimal` sang `decimal?`
+- `RefundTransactionResponse.SystemWalletBalanceAfter` đổi từ `decimal` sang `decimal?`
+- đây là shared response model; nếu flow khác còn dùng model này và vẫn trả số, client vẫn phải treat hai field này là nullable từ Phase 6C
+- với incident refunds, hai field `RefundTransactionResponse.SystemWalletBalanceBefore/After` trả `null`
+- lý do: snakebite incident escrow không còn tạo/update system wallet; availability được suy ra từ `Transaction`
+
+Transaction exposure:
+
+- incident hold không còn tạo `EscrowHold`
+- incident refund không còn tạo `EscrowRelease`
+- `SnakebiteIncidentPayment` và `SnakebiteIncidentRefund` là các transaction domain chính cho incident escrow
+- `EscrowHold` / `EscrowRelease` vẫn có thể xuất hiện ở snake catching cho tới khi Phase 6D/6E hoàn tất
