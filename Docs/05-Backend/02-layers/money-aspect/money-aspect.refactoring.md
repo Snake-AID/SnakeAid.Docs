@@ -880,19 +880,28 @@ Ví dụ semantic mong muốn:
 
 Phase 7B. Settlement behavior:
 
-- [ ] cập nhật `TransferEscrowToExpertAsync` để tính fee và net amount
-- [ ] tạo `PlatformFee` transaction với amount = fee
-- [ ] tạo `ExpertPayout` transaction với amount = gross - fee
-- [ ] cộng expert wallet bằng net amount, không phải gross amount
-- [ ] idempotency guard vẫn dựa vào `ExpertPayout` hoặc một settlement marker rõ ràng để không double payout
+- [x] cập nhật `TransferEscrowToExpertAsync` để tính fee và net amount
+- [x] tạo `PlatformFee` transaction với amount = fee
+- [x] tạo `ExpertPayout` transaction với amount = gross - fee
+- [x] cộng expert wallet bằng net amount, không phải gross amount
+- [x] idempotency guard vẫn dựa vào `ExpertPayout` hoặc một settlement marker rõ ràng để không double payout
 
 Phase 7C. Tests and reporting:
 
-- [ ] cập nhật `ConsultationPaymentIntegrationTests.SettleConsultationEscrowAsync_ShouldBeIdempotent` để assert expert wallet nhận net amount
-- [ ] assert tạo đúng 1 `PlatformFee` transaction và 1 `ExpertPayout` transaction
-- [ ] assert tổng `PlatformFee + ExpertPayout` bằng original `ConsultationPayment`
+- [x] cập nhật `ConsultationPaymentIntegrationTests.SettleConsultationEscrowAsync_ShouldBeIdempotent` để assert expert wallet nhận net amount
+- [x] assert tạo đúng 1 `PlatformFee` transaction và 1 `ExpertPayout` transaction
+- [x] assert tổng `PlatformFee + ExpertPayout` bằng original `ConsultationPayment`
 - [ ] cập nhật `TransactionService` grouping nếu cần để `PlatformFee` vẫn xuất hiện trong group phù hợp
 - [ ] nếu response trả fee breakdown mới thì update `money-aspect.changelog.md` với `grossAmount`, `platformFeePercent`, `platformFeeAmount`, `expertNetAmount`
+- [ ] cập nhật `money-aspect.changelog.md` như breaking-change note cho mobile dev, cảnh báo consultation settlement không còn là `gross -> expert 100%`, và nêu rõ field/transaction/response nào đổi contract
+
+Phase 7D. Compatibility cleanup after consultation fee rollout:
+
+- [ ] grep lại toàn bộ consultation payment path để tìm residue `SystemWallet*`, `system wallet`, `system.wallet`
+- [ ] xóa hoặc đổi tên residue internal không còn đúng semantic như tuple/variable `SystemWalletBalanceAfter` trong consultation flow
+- [ ] rà DTO public còn giữ field compatibility nào liên quan `SystemWallet*`; nếu bỏ field thì phải ghi changelog breaking change rõ cho mobile
+- [ ] dọn test fixture consultation còn seed/assert `system.wallet` chỉ để giữ di tích cũ, miễn là không làm mất regression value
+- [ ] chốt lại `money-aspect.changelog.md` sau cleanup để mobile dev thấy rõ contract cuối cùng của consultation payout/settlement
 
 ### Phase 8. Money stage input contract normalization
 
