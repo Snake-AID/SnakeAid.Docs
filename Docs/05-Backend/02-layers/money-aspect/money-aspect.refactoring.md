@@ -859,12 +859,12 @@ Decision đã chốt trước implementation:
 
 Phase 7A. Fee configuration:
 
-- [ ] thêm key vào `SystemSettingKeys`, ví dụ `Consultation:PlatformFeePercent`
-- [ ] inject `ISystemSettingService` vào `ConsultationPaymentService` nếu chọn dynamic setting
-- [ ] thêm helper tính fee: `grossAmount`, `feeAmount`, `expertNetAmount`
-- [ ] helper dùng default fee percent `20%` khi setting chưa tồn tại hoặc chưa load được
-- [ ] làm tròn lên `expertNetAmount` theo đơn vị VND rồi tính `feeAmount` bằng phần còn lại để ưu tiên expert
-- [ ] validate percent trong khoảng an toàn, ví dụ `0 <= percent < 1`
+- [x] thêm key vào `SystemSettingKeys`, ví dụ `Consultation:PlatformFeePercent`
+- [x] inject `ISystemSettingService` vào `ConsultationPaymentService` nếu chọn dynamic setting
+- [x] thêm helper tính fee: `grossAmount`, `feeAmount`, `expertNetAmount`
+- [x] helper dùng default fee percent `20%` khi setting chưa tồn tại hoặc chưa load được
+- [x] làm tròn lên `expertNetAmount` theo đơn vị VND rồi tính `feeAmount` bằng phần còn lại để ưu tiên expert
+- [x] validate percent trong khoảng an toàn, ví dụ `0 <= percent < 1`
 
 Phase 7B. Settlement behavior:
 
