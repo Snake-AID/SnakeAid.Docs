@@ -661,8 +661,8 @@ Phase 6B. Consultation transaction-sourced escrow first:
 - [x] refactor `TransferEscrowToExpertAsync` để validate bằng transaction-sourced availability thay vì `systemWallet.Balance`
 - [x] giữ expert/user wallet mutation vì expert và member vẫn có ví thật
 - [x] cập nhật `ConsultationPaymentIntegrationTests` để không seed/assert system wallet balance
-- [x] quyết định response `SystemWalletBalanceAfter`: giữ nullable và trả `null` trong phase chuyển tiếp, hoặc đổi contract có changelog rõ
-- [x] kiểm tra frontend/mobile changelog gate cho Phase 6B và ghi `ConsultationPaymentResponse.SystemWalletBalanceAfter = null` vào `money-aspect.changelog.md`
+- [x] quyết định response `SystemWalletBalanceAfter`: ban đầu giữ nullable và trả `null` trong phase chuyển tiếp; Phase 7D đã chốt xóa field khỏi `ConsultationPaymentResponse` và ghi breaking change rõ trong `money-aspect.changelog.md`
+- [x] kiểm tra frontend/mobile changelog gate cho Phase 6B/7D và ghi rõ evolution của `ConsultationPaymentResponse.SystemWalletBalanceAfter` trong `money-aspect.changelog.md`
 
 Phase 6B output:
 
@@ -674,7 +674,7 @@ Phase 6B output:
   - settlement sink: `ExpertPayout`
   - reserved for Phase 7: `PlatformFee`
 - consultation không còn tạo `EscrowHold` / `EscrowRelease`; các transaction type này vẫn tồn tại vì incident/catching chưa refactor xong
-- `ConsultationPaymentResponse.SystemWalletBalanceAfter` được giữ nullable và trả `null` cho consultation escrow response; impact đã ghi trong `money-aspect.changelog.md`
+- `ConsultationPaymentResponse.SystemWalletBalanceAfter` từng được giữ nullable và trả `null` trong phase chuyển tiếp; Phase 7D đã xóa field khỏi consultation response contract và ghi breaking change trong `money-aspect.changelog.md`
 - targeted verification: `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "ConsultationPaymentIntegrationTests|PayOs|SnakebiteIncidentPaymentServiceTests|WalletTopupServiceTests|WalletWithdrawServiceTests|WalletWithdrawalFlowIntegrationTests"` passed `115/115`
 - full suite status: `rtk dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj` still fails `2/202` on the existing out-of-scope `ShiftServiceTests` / `ScheduledConsultationIntegrationTests` failures
 
@@ -897,11 +897,11 @@ Phase 7C. Tests and reporting:
 
 Phase 7D. Compatibility cleanup after consultation fee rollout:
 
-- [ ] grep lại toàn bộ consultation payment path để tìm residue `SystemWallet*`, `system wallet`, `system.wallet`
-- [ ] xóa hoặc đổi tên residue internal không còn đúng semantic như tuple/variable `SystemWalletBalanceAfter` trong consultation flow
-- [ ] rà DTO public còn giữ field compatibility nào liên quan `SystemWallet*`; nếu bỏ field thì phải ghi changelog breaking change rõ cho mobile
-- [ ] dọn test fixture consultation còn seed/assert `system.wallet` chỉ để giữ di tích cũ, miễn là không làm mất regression value
-- [ ] chốt lại `money-aspect.changelog.md` sau cleanup để mobile dev thấy rõ contract cuối cùng của consultation payout/settlement
+- [x] grep lại toàn bộ consultation payment path để tìm residue `SystemWallet*`, `system wallet`, `system.wallet`
+- [x] xóa hoặc đổi tên residue internal không còn đúng semantic như tuple/variable `SystemWalletBalanceAfter` trong consultation flow
+- [x] rà DTO public còn giữ field compatibility nào liên quan `SystemWallet*`; Phase 7D đã chốt xóa `ConsultationPaymentResponse.SystemWalletBalanceAfter` khỏi contract consultation và giữ changelog breaking change cho mobile
+- [x] dọn test fixture consultation còn seed/assert `system.wallet` chỉ để giữ di tích cũ, miễn là không làm mất regression value
+- [x] chốt lại `money-aspect.changelog.md` sau cleanup để mobile dev thấy rõ contract cuối cùng của consultation payout/settlement
 
 ### Phase 8. Platform-owned transaction modeling
 
@@ -987,7 +987,7 @@ Phase 9B. Normalize naming and helper contracts:
 - Phase 5: `DONE`
 - Phase 6: `DONE`
 - Phase 6 corrective review: `DONE`
-- Phase 7: `TODO`
+- Phase 7: `DONE`
 - Phase 8: `TODO`
 - Phase 9: `TODO`
 

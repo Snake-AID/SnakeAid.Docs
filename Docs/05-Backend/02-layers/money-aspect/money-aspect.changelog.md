@@ -39,7 +39,7 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
 
 | Flow | New contract |
 |---|---|
-| Consultation | vẫn là escrow; escrow phải được suy ra từ domain transactions; settlement không còn trả 100% cho expert mà tách thành `PlatformFee + ExpertPayout`; `SystemWalletBalanceAfter` vẫn tồn tại nhưng trả `null` |
+| Consultation | vẫn là escrow; escrow phải được suy ra từ domain transactions; settlement không còn trả 100% cho expert mà tách thành `PlatformFee + ExpertPayout`; `ConsultationPaymentResponse.SystemWalletBalanceAfter` đã bị xóa khỏi contract |
 | Snakebite Incident | payment/refund là ledger-only system revenue; wallet payment status là `Paid`; `SystemWalletBalance*` là nullable semantic field và trả `null` |
 | Snake Catching | payment/refund là ledger-only system revenue; `transfer-to-rescuer` chỉ còn compatibility no-op; không còn rescuer transfer thật |
 
@@ -89,20 +89,19 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
 
 **Response behavior**
 
-- `ConsultationPaymentResponse.SystemWalletBalanceAfter` vẫn còn field
-- field này trả `null`
+- `ConsultationPaymentResponse.SystemWalletBalanceAfter` đã bị xóa khỏi response contract
 
 **What breaks in mobile**
 
-- code dùng `SystemWalletBalanceAfter` để hiển thị escrow amount
+- code vẫn deserialize hoặc parse `ConsultationPaymentResponse.SystemWalletBalanceAfter`
+- code dùng field đó để hiển thị escrow amount
 - UI dùng `EscrowHold` / `EscrowRelease` để mô tả consultation escrow state
 - UI hoặc reporting đang assume consultation kết thúc thì expert nhận 100% amount
 - code filter `transType=consultation` nhưng chưa expect `PlatformFee`
 
 **What mobile must do**
 
-- treat `SystemWalletBalanceAfter` là nullable compatibility field
-- không dùng field này làm source of truth
+- xóa mọi parsing/mapping/usage của `ConsultationPaymentResponse.SystemWalletBalanceAfter`
 - nếu cần hiển thị consultation money state, chỉ bám vào:
   - `ConsultationPaymentResponse.Status`
   - payment method đã chọn (`WalletBalance` hoặc `PayOs`)
