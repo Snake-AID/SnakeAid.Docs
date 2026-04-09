@@ -905,7 +905,7 @@ Phase 7D. Compatibility cleanup after consultation fee rollout:
 
 ### Phase 8. Platform-owned transaction modeling
 
-Trạng thái: `TODO`
+Trạng thái: `DONE`
 
 Vấn đề cần xử lý:
 
@@ -930,16 +930,30 @@ Mục tiêu:
 
 Phase 8A. Audit transaction ownership assumptions:
 
-- [ ] grep toàn bộ nơi assume `Transaction.UserId` luôn tồn tại
-- [ ] map các transaction type nào thực sự là user-owned, expert-owned, platform-owned
-- [ ] audit `TransactionService` / transaction APIs / reporting để xác định contract nào sẽ bị ảnh hưởng nếu `UserId` nullable
-- [ ] audit seed/test data đang dùng fixed system account chỉ để hợp thức hóa `PlatformFee`
+- [x] grep toàn bộ nơi assume `Transaction.UserId` luôn tồn tại
+- [x] map các transaction type nào thực sự là user-owned, expert-owned, platform-owned
+- [x] audit `TransactionService` / transaction APIs / reporting để xác định contract nào sẽ bị ảnh hưởng nếu `UserId` nullable
+- [x] audit seed/test data đang dùng fixed system account chỉ để hợp thức hóa `PlatformFee`
 
 Phase 8B. Decide and implement target model:
 
-- [ ] nếu chốt `Transaction.UserId` nullable, implement domain + DB + query changes tối thiểu để hỗ trợ `PlatformFee` không cần fake system account
-- [ ] nếu chưa implement ngay, ghi rõ technical debt và guardrail rằng hardcode hiện tại chỉ là tạm thời
-- [ ] cập nhật `money-aspect.changelog.md` nếu transaction API contract bị ảnh hưởng
+- [x] chốt `Transaction.UserId` nullable cho platform-owned ledger event
+- [x] implement domain + EF/query/test changes tối thiểu để hỗ trợ `PlatformFee` không cần fake system account
+- [x] cập nhật `money-aspect.changelog.md` cho transaction API contract mới
+
+Kết quả đã chốt:
+
+- `Transaction.UserId` chuyển thành nullable để model hỗ trợ platform-owned ledger event đúng semantic
+- `ConsultationPaymentService` không còn hardcode platform/system account id cho `PlatformFee`
+- `PlatformFee` consultation được ghi với:
+  - `UserId = null`
+  - `ReferenceId = consultationId`
+- `TransactionService` vẫn trả được `PlatformFee` trong `transType=consultation`, nhưng:
+  - `UserName = null`
+  - `FullName = null`
+  cho platform-owned entry
+- các call site đang assume user-owned transaction bắt buộc có `UserId` đã được guard explicit thay vì ngầm rely vào type non-null
+- test fixture consultation không còn seed fake `platform.ledger` account chỉ để hợp thức hóa `PlatformFee`
 
 ### Phase 9. Money stage input contract normalization
 
@@ -988,7 +1002,7 @@ Phase 9B. Normalize naming and helper contracts:
 - Phase 6: `DONE`
 - Phase 6 corrective review: `DONE`
 - Phase 7: `DONE`
-- Phase 8: `TODO`
+- Phase 8: `DONE`
 - Phase 9: `TODO`
 
 ### Latest confirmed findings
@@ -1029,7 +1043,8 @@ Phase 9B. Normalize naming and helper contracts:
 - Phase 7 decision đã chốt rounding ưu tiên expert: làm tròn lên `expertNetAmount`, phí nền tảng là phần còn lại
 - Phase 7 decision đã chốt client cần fee breakdown khi có response/contract liên quan consultation payout hoặc transaction detail
 - Phase 6E đã xóa `EscrowHold` / `EscrowRelease` khỏi enum và khỏi `TransactionService` system grouping sau khi production logic không còn sử dụng
-- Phase 8 mở mới để xử lý bài toán platform-owned transaction modeling, đặc biệt là việc `PlatformFee` hiện bị ép phải mang `UserId` và đang tạm dùng hardcode system/platform account để unblock Phase 7B
+- Phase 8 đã chốt `Transaction.UserId` nullable cho platform-owned ledger event; `PlatformFee` consultation không còn gắn hardcoded platform/system account
+- Phase 8 đã cập nhật `TransactionService` để transaction response cho platform-owned entry có thể trả `UserName = null` và `FullName = null`
 - Phase 9 là phase cũ của việc chuẩn hóa money stage input contract giữa các flow sau khi Phase 6D và Phase 7 làm rõ đủ mapping `ReferenceId`
 
 ## Resume Guide

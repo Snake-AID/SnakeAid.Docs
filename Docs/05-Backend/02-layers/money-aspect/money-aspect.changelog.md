@@ -90,6 +90,9 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
 **Response behavior**
 
 - `ConsultationPaymentResponse.SystemWalletBalanceAfter` đã bị xóa khỏi response contract
+- `GET /api/transactions?transType=consultation` vẫn có thể trả `PlatformFee`, nhưng entry này là platform-owned nên:
+  - `UserName` có thể là `null`
+  - `FullName` có thể là `null`
 
 **What breaks in mobile**
 
@@ -98,6 +101,7 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
 - UI dùng `EscrowHold` / `EscrowRelease` để mô tả consultation escrow state
 - UI hoặc reporting đang assume consultation kết thúc thì expert nhận 100% amount
 - code filter `transType=consultation` nhưng chưa expect `PlatformFee`
+- code transaction list/detail đang assume mọi item đều có `UserName` và `FullName`
 
 **What mobile must do**
 
@@ -112,6 +116,7 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
   - `PlatformFee` là phần giữ lại cho nền tảng
   - không còn logic `gross amount = expert payout`
 - nếu app dùng `GET /api/transactions?transType=consultation`, phải expect thêm `PlatformFee` trong consultation transaction group
+- với `PlatformFee`, không được assume transaction response luôn có owner user; `UserName` và `FullName` có thể `null`
 
 **Client call order**
 
