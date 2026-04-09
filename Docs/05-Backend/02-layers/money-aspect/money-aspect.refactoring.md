@@ -891,9 +891,9 @@ Phase 7C. Tests and reporting:
 - [x] cập nhật `ConsultationPaymentIntegrationTests.SettleConsultationEscrowAsync_ShouldBeIdempotent` để assert expert wallet nhận net amount
 - [x] assert tạo đúng 1 `PlatformFee` transaction và 1 `ExpertPayout` transaction
 - [x] assert tổng `PlatformFee + ExpertPayout` bằng original `ConsultationPayment`
-- [ ] cập nhật `TransactionService` grouping nếu cần để `PlatformFee` vẫn xuất hiện trong group phù hợp
-- [ ] nếu response trả fee breakdown mới thì update `money-aspect.changelog.md` với `grossAmount`, `platformFeePercent`, `platformFeeAmount`, `expertNetAmount`
-- [ ] cập nhật `money-aspect.changelog.md` như breaking-change note cho mobile dev, cảnh báo consultation settlement không còn là `gross -> expert 100%`, và nêu rõ field/transaction/response nào đổi contract
+- [x] cập nhật `TransactionService` grouping nếu cần để `PlatformFee` vẫn xuất hiện trong group phù hợp
+- [x] current implementation không thêm response fee breakdown mới; `money-aspect.changelog.md` được cập nhật theo hướng transaction/settlement contract change thay vì response-field change
+- [x] cập nhật `money-aspect.changelog.md` như breaking-change note cho mobile dev, cảnh báo consultation settlement không còn là `gross -> expert 100%`, và nêu rõ field/transaction/response nào đổi contract
 
 Phase 7D. Compatibility cleanup after consultation fee rollout:
 
@@ -903,7 +903,45 @@ Phase 7D. Compatibility cleanup after consultation fee rollout:
 - [ ] dọn test fixture consultation còn seed/assert `system.wallet` chỉ để giữ di tích cũ, miễn là không làm mất regression value
 - [ ] chốt lại `money-aspect.changelog.md` sau cleanup để mobile dev thấy rõ contract cuối cùng của consultation payout/settlement
 
-### Phase 8. Money stage input contract normalization
+### Phase 8. Platform-owned transaction modeling
+
+Trạng thái: `TODO`
+
+Vấn đề cần xử lý:
+
+- `Transaction.UserId` hiện là required, nhưng `PlatformFee` về semantic là platform-owned ledger event chứ không phải user-owned event
+- nếu tiếp tục gắn `PlatformFee` vào một fixed system account thì chỉ lặp lại mô hình `system wallet` với tên khác
+- consultation Phase 7B hiện tạm giữ hardcode platform/system account id để unblock settlement split
+- cần một phase riêng để quyết định rõ model đích cho transaction thuộc nền tảng:
+  - cho phép `Transaction.UserId` nullable
+  - hoặc một model thay thế có semantic rõ hơn cho platform-owned entries
+
+Mục tiêu:
+
+- quyết định có cho phép `Transaction.UserId` nullable cho `PlatformFee` và các platform-owned ledger event hay không
+- nếu có, xác định full blast radius:
+  - domain model
+  - EF mapping / migration
+  - service query đang `Include(t => t.User)` và assume non-null
+  - `TransactionService` / transaction APIs / response contracts
+  - tests, seed data, reporting
+- nếu không, phải ghi rõ vì sao fixed platform account không bị coi là quay lại `system wallet`
+- chốt target-state trước khi tiếp tục cleanup compatibility ở các phase sau
+
+Phase 8A. Audit transaction ownership assumptions:
+
+- [ ] grep toàn bộ nơi assume `Transaction.UserId` luôn tồn tại
+- [ ] map các transaction type nào thực sự là user-owned, expert-owned, platform-owned
+- [ ] audit `TransactionService` / transaction APIs / reporting để xác định contract nào sẽ bị ảnh hưởng nếu `UserId` nullable
+- [ ] audit seed/test data đang dùng fixed system account chỉ để hợp thức hóa `PlatformFee`
+
+Phase 8B. Decide and implement target model:
+
+- [ ] nếu chốt `Transaction.UserId` nullable, implement domain + DB + query changes tối thiểu để hỗ trợ `PlatformFee` không cần fake system account
+- [ ] nếu chưa implement ngay, ghi rõ technical debt và guardrail rằng hardcode hiện tại chỉ là tạm thời
+- [ ] cập nhật `money-aspect.changelog.md` nếu transaction API contract bị ảnh hưởng
+
+### Phase 9. Money stage input contract normalization
 
 Trạng thái: `TODO`
 
@@ -921,21 +959,21 @@ Mục tiêu:
 - quyết định stage nào dùng domain aggregate id, stage nào dùng payment reference id, stage nào cần cả hai
 - chuẩn hóa naming cho các private helper params, ví dụ `paymentReferenceId`, `settlementReferenceId`, `domainReferenceId`
 - nếu cần, tạo value object/internal context để truyền stage input thay vì truyền nhiều `Guid` rời rạc
-- không đổi endpoint/request DTO nếu không cần; Phase 8 ưu tiên làm sạch service-internal contract
+- không đổi endpoint/request DTO nếu không cần; Phase 9 ưu tiên làm sạch service-internal contract
 
-Phase 8A. Audit current stage inputs:
+Phase 9A. Audit current stage inputs:
 
 - [ ] map consultation stage inputs: escrow in, refund, settlement, platform fee
 - [ ] map snakebite incident stage inputs: payment into system/platform, refund
 - [ ] map snake catching stage inputs sau Phase 6D: payment into system/platform, refund, any internal admin/accounting settlement nếu có
 - [ ] ghi rõ mỗi stage đang dùng `ReferenceId` nào trong `Transaction`
 
-Phase 8B. Normalize naming and helper contracts:
+Phase 9B. Normalize naming and helper contracts:
 
 - [ ] đổi tên param private helper để phân biệt payment reference và domain reference rõ ràng
 - [ ] nếu helper cần nhiều reference id, gom vào context object có tên rõ thay vì truyền `Guid` rời rạc
 - [ ] thêm/giữ tests khóa mapping ReferenceId để tránh regression
-- [ ] kiểm tra frontend/mobile changelog gate: nếu Phase 8 chỉ đổi internal helper contract thì ghi `NO CLIENT-VISIBLE CONTRACT CHANGE`; nếu bất kỳ endpoint/request/response bị ảnh hưởng thì ghi rõ vào `money-aspect.changelog.md`
+- [ ] kiểm tra frontend/mobile changelog gate: nếu Phase 9 chỉ đổi internal helper contract thì ghi `NO CLIENT-VISIBLE CONTRACT CHANGE`; nếu bất kỳ endpoint/request/response bị ảnh hưởng thì ghi rõ vào `money-aspect.changelog.md`
 
 ## Tracking Progress
 
@@ -951,6 +989,7 @@ Phase 8B. Normalize naming and helper contracts:
 - Phase 6 corrective review: `DONE`
 - Phase 7: `TODO`
 - Phase 8: `TODO`
+- Phase 9: `TODO`
 
 ### Latest confirmed findings
 
@@ -990,7 +1029,8 @@ Phase 8B. Normalize naming and helper contracts:
 - Phase 7 decision đã chốt rounding ưu tiên expert: làm tròn lên `expertNetAmount`, phí nền tảng là phần còn lại
 - Phase 7 decision đã chốt client cần fee breakdown khi có response/contract liên quan consultation payout hoặc transaction detail
 - Phase 6E đã xóa `EscrowHold` / `EscrowRelease` khỏi enum và khỏi `TransactionService` system grouping sau khi production logic không còn sử dụng
-- Phase 8 mở mới để xử lý vấn đề các money stage như escrow in, escrow out, refund, payout, fee đang dùng input param khác nhau giữa các flow; mục tiêu là chuẩn hóa service-internal stage input contract sau khi Phase 6D và Phase 7 làm rõ đủ mapping `ReferenceId`
+- Phase 8 mở mới để xử lý bài toán platform-owned transaction modeling, đặc biệt là việc `PlatformFee` hiện bị ép phải mang `UserId` và đang tạm dùng hardcode system/platform account để unblock Phase 7B
+- Phase 9 là phase cũ của việc chuẩn hóa money stage input contract giữa các flow sau khi Phase 6D và Phase 7 làm rõ đủ mapping `ReferenceId`
 
 ## Resume Guide
 

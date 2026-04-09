@@ -2,7 +2,7 @@
 
 ## Purpose
 
-File này là note migration cho frontend/mobile sau Phase 6.
+File này là note migration cho frontend/mobile sau Phase 6 và các breaking change contract tiếp theo của consultation ở Phase 7.
 
 Mục tiêu:
 
@@ -14,9 +14,10 @@ File này không phải roadmap nội bộ.
 
 ## Release Scope
 
-Phase 6 là một breaking change lớn cho toàn bộ money semantics:
+Phase 6 là một breaking change lớn cho toàn bộ money semantics, và Phase 7 tiếp tục tạo thêm breaking change cho consultation settlement/reporting:
 
 - consultation vẫn là escrow, nhưng không còn biểu diễn bằng `system wallet`
+- consultation settlement không còn là `gross -> expert 100%`; escrow release giờ tách thành `PlatformFee + ExpertPayout`
 - snakebite incident không còn là escrow flow; chuyển thành ledger-only system revenue
 - snake catching không còn là escrow-to-rescuer flow; chuyển thành ledger-only system revenue
 - escrow transitional transaction types đã bị xóa khỏi backend:
@@ -38,7 +39,7 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
 
 | Flow | New contract |
 |---|---|
-| Consultation | vẫn là escrow; escrow phải được suy ra từ domain transactions; `SystemWalletBalanceAfter` vẫn tồn tại nhưng trả `null` |
+| Consultation | vẫn là escrow; escrow phải được suy ra từ domain transactions; settlement không còn trả 100% cho expert mà tách thành `PlatformFee + ExpertPayout`; `SystemWalletBalanceAfter` vẫn tồn tại nhưng trả `null` |
 | Snakebite Incident | payment/refund là ledger-only system revenue; wallet payment status là `Paid`; `SystemWalletBalance*` là nullable semantic field và trả `null` |
 | Snake Catching | payment/refund là ledger-only system revenue; `transfer-to-rescuer` chỉ còn compatibility no-op; không còn rescuer transfer thật |
 
@@ -78,6 +79,10 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
 
 - consultation vẫn là escrow flow
 - nhưng backend không còn tạo/update `system wallet` để biểu diễn escrow
+- consultation settlement không còn trả toàn bộ gross amount cho expert
+- consultation settlement giờ tạo:
+  - `PlatformFee`
+  - `ExpertPayout`
 - consultation không còn tạo:
   - `EscrowHold`
   - `EscrowRelease`
@@ -91,6 +96,8 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
 
 - code dùng `SystemWalletBalanceAfter` để hiển thị escrow amount
 - UI dùng `EscrowHold` / `EscrowRelease` để mô tả consultation escrow state
+- UI hoặc reporting đang assume consultation kết thúc thì expert nhận 100% amount
+- code filter `transType=consultation` nhưng chưa expect `PlatformFee`
 
 **What mobile must do**
 
@@ -101,6 +108,11 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
   - payment method đã chọn (`WalletBalance` hoặc `PayOs`)
   - booking/consultation status do consultation APIs trả về
   - không tự tính escrow amount từ `system wallet`
+- nếu hiển thị consultation settlement/result sau khi phiên kết thúc, phải hiểu:
+  - `ExpertPayout` là số tiền expert thực nhận
+  - `PlatformFee` là phần giữ lại cho nền tảng
+  - không còn logic `gross amount = expert payout`
+- nếu app dùng `GET /api/transactions?transType=consultation`, phải expect thêm `PlatformFee` trong consultation transaction group
 
 **Client call order**
 
@@ -128,6 +140,7 @@ Sau Phase 6, mobile/frontend không được tiếp tục assume:
 - không chờ một endpoint escrow riêng
 - không chờ một endpoint settlement riêng
 - không build UI state theo kiểu `system wallet increased => escrowed`
+- không assume consultation settlement = chỉ có một `ExpertPayout` bằng toàn bộ gross amount
 
 ### 3. Snakebite Incident is no longer an escrow flow
 
