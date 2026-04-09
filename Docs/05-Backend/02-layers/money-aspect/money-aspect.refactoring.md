@@ -866,6 +866,18 @@ Phase 7A. Fee configuration:
 - [x] làm tròn lên `expertNetAmount` theo đơn vị VND rồi tính `feeAmount` bằng phần còn lại để ưu tiên expert
 - [x] validate percent trong khoảng an toàn, ví dụ `0 <= percent < 1`
 
+Note triển khai `SystemSetting` cho key mới:
+
+- `SettingKey`: `Consultation:PlatformFeePercent`
+- `Value`: giá trị phần trăm dạng số thập phân trong khoảng `0 <= x < 1`
+- `Description`: mô tả tiếng Việt rõ đây là tỷ lệ phí nền tảng áp dụng khi quyết toán escrow consultation; ví dụ `0.2` tương ứng `20%`
+- `ValueType`: kiểu số thập phân, phải tương thích với cách `ISystemSettingService.GetSetting<decimal>` đang đọc
+- `CreatedAt` / `UpdatedAt`: điền theo chuẩn audit timestamp hiện tại của bảng
+
+Ví dụ semantic mong muốn:
+
+- `Value = 0.2` nghĩa là consultation platform fee mặc định 20%
+
 Phase 7B. Settlement behavior:
 
 - [ ] cập nhật `TransferEscrowToExpertAsync` để tính fee và net amount
