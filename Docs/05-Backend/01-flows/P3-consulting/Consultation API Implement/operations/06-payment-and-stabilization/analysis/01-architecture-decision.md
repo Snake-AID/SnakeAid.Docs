@@ -19,6 +19,8 @@ affects:
 
 # ADR: Consultation Payment Current Graph and PayOS Readiness
 
+> Historical note: this ADR captures the pre-merge snapshot before consultation adopted the money-aspect ledger-driven escrow and `PlatformFee + ExpertPayout` settlement model. Current truth is documented in `plan.md`, `analysis/04-money-aspect-consultation-merge.md`, `consultation.sourcecode.md`, and `consultation.payment.md`.
+
 ## Problem
 
 Flow 3 consultation đã có payment orchestration chạy được cho `WalletBalance`, nhưng chưa có external gateway path cho consultation. Trước khi nối PayOS, cần chốt rõ:

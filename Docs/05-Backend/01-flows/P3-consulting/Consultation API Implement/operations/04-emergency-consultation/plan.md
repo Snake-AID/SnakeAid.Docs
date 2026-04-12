@@ -1,6 +1,6 @@
 ---
 doc_role: operation
-operation_id: 03-emergency-consultation
+operation_id: 04-FEAT-emergency-consultation
 type: FEAT
 status: done
 created_at: 2026-03-05
@@ -17,7 +17,7 @@ affects:
   - Tests/Unit/ExpertServiceTests.cs
 ---
 
-# Operation 03: Emergency Consultation Flow
+# Operation 04: Emergency Consultation Flow
 
 ## Mục tiêu
 

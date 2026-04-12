@@ -1,6 +1,6 @@
 ---
 doc_role: operation
-operation_id: 04-in-room-features
+operation_id: 05-FEAT-in-room-features
 type: FEAT
 status: completed
 created_at: 2026-03-05
@@ -12,7 +12,7 @@ affects:
   - Core/Domains/ChatMessage.cs
 ---
 
-# Operation 04: In-Room Consultation Features
+# Operation 05: In-Room Consultation Features
 
 ## Mục tiêu
 

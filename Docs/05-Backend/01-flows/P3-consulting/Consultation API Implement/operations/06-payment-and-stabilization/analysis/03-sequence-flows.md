@@ -15,6 +15,8 @@ affects:
 
 # Consultation Payment Sequence Flows
 
+> Historical note: these sequence diagrams describe the earlier system-wallet implementation path. The current consultation flow uses ledger-driven escrow and settlement split semantics; see `plan.md`, `analysis/04-money-aspect-consultation-merge.md`, `consultation.sourcecode.md`, and `consultation.payment.md`.
+
 ## 1. Scheduled Consultation Wallet Payment
 
 ```mermaid

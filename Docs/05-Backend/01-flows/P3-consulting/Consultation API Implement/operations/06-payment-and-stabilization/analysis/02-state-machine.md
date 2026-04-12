@@ -14,6 +14,8 @@ affects:
 
 # Consultation Payment State Machine
 
+> Historical note: this state machine reflects the earlier system-wallet-based escrow model. For the current consultation money semantics, use `plan.md`, `analysis/04-money-aspect-consultation-merge.md`, and the consultation baseline docs.
+
 ## 1. Scheduled Booking Payment State
 
 Entity chính:

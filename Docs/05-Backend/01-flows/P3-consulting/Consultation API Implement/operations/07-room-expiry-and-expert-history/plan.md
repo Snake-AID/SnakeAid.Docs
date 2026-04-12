@@ -1,6 +1,6 @@
 ---
 doc_role: operation
-operation_id: 06-room-expiry-and-expert-history
+operation_id: 07-FEAT-room-expiry-and-expert-history
 type: FEAT
 status: done
 created_at: 2026-03-30
@@ -18,7 +18,7 @@ affects:
   - Tests/Unit/RoomCleanupTests.cs
 ---
 
-# Operation 06: LiveKit Room Expiry & Expert Consultation History
+# Operation 07: LiveKit Room Expiry & Expert Consultation History
 
 ## Mục tiêu
 

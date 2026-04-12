@@ -1,7 +1,7 @@
 ---
 doc_role: operation
-operation_id: 01-expert-directory
-type: INIT
+operation_id: 02-FEAT-expert-directory
+type: FEAT
 status: done
 created_at: 2026-03-05
 merged_from: [00-Analysis, 01-INIT-expert-directory, 02-TEST-expert-directory]
@@ -18,7 +18,7 @@ affects:
   - Tests/Unit/ExpertServiceTests.cs
 ---
 
-# Operation 01: Expert Directory & Availability
+# Operation 02: Expert Directory & Availability
 
 ## Mục tiêu
 
@@ -42,18 +42,18 @@ Xây dựng nền tảng expert directory: expert settings, weekly time slot gen
 - `ExpertTimeSlot` có unique composite index (`ExpertId`, `StartTime`, `EndTime`)
 - Expert directory trả paginated list, chỉ hiện verified experts
 
-### Test Coverage (từ Operation 02 gốc)
+### Test Coverage (từ Operation 03 gốc)
 
 - Integration: bulk time slot creation (UTC valid + non-UTC reject), reviews filter `Consultation` only, time slots filter future + available
 - Unit: in-request overlap dedup, existing-slot skip, UTC enforcement, composite index assertion
 
-## Giới hạn tại thời điểm Operation 01
+## Giới hạn tại thời điểm Operation 02
 
 Các gap sau đã được đóng bởi operations sau:
 
-- Profile stats (`TotalConsultations`, `AverageResponseTimeMinutes`, `SuccessRate`) → đóng bởi Op 05-payment-and-stabilization
-- Dual pricing (`ScheduledConsultationFee`, `EmergencyConsultationFee`) → đóng bởi Op 05-payment-and-stabilization
-- Directory filter/sort (`specialization`, `isOnline`, `sortBy`, `sortOrder`) → đóng bởi Op 03-emergency-consultation
+- Profile stats (`TotalConsultations`, `AverageResponseTimeMinutes`, `SuccessRate`) → đóng bởi Op 06-FEAT-payment-and-stabilization
+- Dual pricing (`ScheduledConsultationFee`, `EmergencyConsultationFee`) → đóng bởi Op 06-FEAT-payment-and-stabilization
+- Directory filter/sort (`specialization`, `isOnline`, `sortBy`, `sortOrder`) → đóng bởi Op 04-FEAT-emergency-consultation
 - `IsVerified` → deferred khỏi MVP
 
 ## Tham chiếu

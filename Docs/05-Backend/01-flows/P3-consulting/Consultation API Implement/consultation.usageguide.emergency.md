@@ -127,9 +127,9 @@ PendingPayment → (payment) → PendingExpertResponse → AcceptedByExpert → 
 
 ## Money Flow
 
-- Payment success → escrow vào system wallet
+- Payment success → consultation enters ledger-driven escrow
 - Reject/Expired → refund escrow → member wallet
-- Consultation complete → settle escrow → expert wallet
+- Consultation complete → settle escrow thành `PlatformFee + ExpertPayout`
 
 ## Room Expiry (auto-complete khi hết 30 phút)
 

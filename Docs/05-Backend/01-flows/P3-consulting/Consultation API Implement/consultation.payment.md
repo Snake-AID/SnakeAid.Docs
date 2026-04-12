@@ -1,11 +1,11 @@
 ---
 doc_role: operation-specific
 module: consultation.payment
-operation: 05-payment-and-stabilization
+operation: 06-FEAT-payment-and-stabilization
 kind: flow
 doc_type: usageguide
 status: active
-last_updated: 2026-03-21
+last_updated: 2026-04-12
 api_version: v1
 owners: [backend-team, mobile-team]
 ---
@@ -14,7 +14,7 @@ owners: [backend-team, mobile-team]
 
 ## Overview
 
-Tài liệu này dành cho mobile dev tích hợp payment cho consultation flow.
+Tài liệu này dành cho mobile/frontend tích hợp payment cho consultation flow.
 
 Backend hiện hỗ trợ 2 cách thanh toán cho consultation:
 
@@ -26,7 +26,8 @@ Phạm vi tài liệu:
 - scheduled consultation booking payment
 - emergency consultation request payment
 - consultation PayOS manual confirm
-- hành vi callback của PayOS mà mobile cần biết để build flow
+- callback/return behavior mà client cần biết
+- money semantics sau khi consultation payment thành công
 
 Tiền quy ước:
 
@@ -87,7 +88,7 @@ Response error:
   "data": null,
   "error": {
     "errorCode": "CONFLICT",
-    "timestamp": "2026-03-21T11:30:00Z",
+    "timestamp": "2026-04-12T11:30:00Z",
     "validationErrors": null
   }
 }
@@ -98,14 +99,14 @@ Response error:
 ### Wallet flow
 
 1. Mobile gọi payment endpoint với `paymentMethod = "WalletBalance"`.
-2. Backend trừ tiền ví user ngay lập tức và đưa tiền vào escrow.
-3. API trả về `status = "Escrowed"`.
+2. Backend trừ tiền ví user ngay lập tức.
+3. Backend ghi `ConsultationPayment` transaction và trả `status = "Escrowed"`.
 4. Mobile có thể coi payment đã thành công, không cần mở external checkout.
 
 ### PayOS flow
 
 1. Mobile gọi payment endpoint với `paymentMethod = "PayOs"`.
-2. Backend tạo pending transaction và trả về `status = "Pending"`.
+2. Backend tạo pending transaction và trả `status = "Pending"`.
 3. Response có `checkoutUrl`, `orderCode`, `paymentLinkId`.
 4. Mobile mở `checkoutUrl` trong webview hoặc browser.
 5. Sau khi user thanh toán:
@@ -113,6 +114,34 @@ Response error:
    - browser của user sẽ đi qua `return`
 6. Backend sẽ tự động cố gắng confirm payment.
 7. Nếu mobile cần fallback chủ động, gọi `POST /api/consultations/payments/confirm` với `transactionId`.
+8. Sau confirm thành công, consultation chuyển sang trạng thái escrowed.
+
+## Consultation Money Semantics
+
+### Escrow
+
+- consultation vẫn là escrow flow
+- escrow không còn được biểu diễn bằng `system wallet`
+- escrow được suy ra từ transaction thật của consultation
+- transaction giữ vai trò escrow hold là `ConsultationPayment`
+- transaction đóng vai trò sink của escrow là:
+  - `ExpertPayout`
+  - `ConsultationRefund`
+  - `PlatformFee`
+
+### Settlement
+
+- consultation kết thúc không còn đồng nghĩa với expert nhận 100% gross amount
+- settlement tạo:
+  - `ExpertPayout`: phần expert thực nhận
+  - `PlatformFee`: phần nền tảng giữ lại
+- khi client đọc transaction/reporting theo consultation, phải expect `PlatformFee`
+
+### Breaking contract already applied
+
+- `ConsultationPaymentResponse.SystemWalletBalanceAfter` đã bị xóa khỏi contract
+- client không được suy luận escrow amount từ balance của `system wallet`
+- với transaction `PlatformFee`, `UserName` và `FullName` có thể là `null`
 
 ## Endpoints
 
@@ -159,8 +188,7 @@ Hoặc:
 |-------|------|----------|-------------|-------------|
 | paymentMethod | string | Yes | `WalletBalance` hoặc `PayOs` | Payment option user chọn |
 
-**Success Response** (`200 OK`, wallet)  
-Payment đã vào escrow ngay:
+**Success Response** (`200 OK`, wallet)
 
 ```json
 {
@@ -176,8 +204,7 @@ Payment đã vào escrow ngay:
     "paymentMethod": "WalletBalance",
     "status": "Escrowed",
     "userWalletBalanceAfter": 350000,
-    "systemWalletBalanceAfter": 2150000,
-    "paidAtUtc": "2026-03-21T11:45:10Z",
+    "paidAtUtc": "2026-04-12T11:45:10Z",
     "provider": "Wallet",
     "checkoutUrl": null,
     "orderCode": null,
@@ -187,8 +214,7 @@ Payment đã vào escrow ngay:
 }
 ```
 
-**Success Response** (`200 OK`, PayOS)  
-Payment mới ở trạng thái chờ thanh toán:
+**Success Response** (`200 OK`, PayOS)
 
 ```json
 {
@@ -204,7 +230,6 @@ Payment mới ở trạng thái chờ thanh toán:
     "paymentMethod": "PayOs",
     "status": "Pending",
     "userWalletBalanceAfter": null,
-    "systemWalletBalanceAfter": null,
     "paidAtUtc": null,
     "provider": "PayOS",
     "checkoutUrl": "https://pay.payos.vn/web/3b1d7d1f6b0d4d84b72b2b2f6f3a9f91",
@@ -260,8 +285,7 @@ Payment mới ở trạng thái chờ thanh toán:
     "paymentMethod": "WalletBalance",
     "status": "Escrowed",
     "userWalletBalanceAfter": 100000,
-    "systemWalletBalanceAfter": 2400000,
-    "paidAtUtc": "2026-03-21T11:50:00Z",
+    "paidAtUtc": "2026-04-12T11:50:00Z",
     "provider": "Wallet",
     "checkoutUrl": null,
     "orderCode": null,
@@ -287,7 +311,6 @@ Payment mới ở trạng thái chờ thanh toán:
     "paymentMethod": "PayOs",
     "status": "Pending",
     "userWalletBalanceAfter": null,
-    "systemWalletBalanceAfter": null,
     "paidAtUtc": null,
     "provider": "PayOS",
     "checkoutUrl": "https://pay.payos.vn/web/421fdde4d0bb4a3ca0a2ea43d93cf921",
@@ -343,8 +366,7 @@ Payment mới ở trạng thái chờ thanh toán:
     "paymentMethod": "PayOs",
     "status": "Escrowed",
     "userWalletBalanceAfter": 350000,
-    "systemWalletBalanceAfter": 2150000,
-    "paidAtUtc": "2026-03-21T11:52:30Z",
+    "paidAtUtc": "2026-04-12T11:52:30Z",
     "provider": "PayOS",
     "checkoutUrl": null,
     "orderCode": 240321000123,
@@ -364,26 +386,10 @@ Payment mới ở trạng thái chờ thanh toán:
 
 **Usage note for mobile**
 
-- Không phải REST JSON endpoint cho app parse.
-- Endpoint trả về HTML page.
-- Thường được mở thông qua webview hoặc browser sau khi user complete checkout.
-- Mobile nên coi đây là browser callback, không phải data API.
-
-**Query Parameters**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| code | string | Yes | PayOS result code |
-| id | string | Yes | PayOS transaction id |
-| cancel | bool | Yes | User có hủy thanh toán hay không |
-| status | string | Yes | Ví dụ `PAID` |
-| orderCode | int64 | Yes | Order code đã nhận từ response `Pending` |
-
-**Success Response**
-
-- HTTP `200 OK`
-- Content-Type: `text/html`
-- Hiển thị trang thành công hoặc thất bại
+- không phải REST JSON endpoint cho app parse
+- endpoint trả về HTML page
+- thường được mở thông qua webview hoặc browser sau khi user complete checkout
+- mobile nên coi đây là browser callback, không phải data API
 
 ### `POST /api/v1/PayOs/webhook`
 
@@ -395,9 +401,9 @@ Payment mới ở trạng thái chờ thanh toán:
 
 **Usage note for mobile**
 
-- Mobile app không gọi endpoint này.
-- Đây là callback từ PayOS vào backend.
-- Sau webhook thành công, mobile có thể refresh UI hoặc dùng manual confirm nếu cần.
+- mobile app không gọi endpoint này
+- đây là callback từ PayOS vào backend
+- sau webhook thành công, mobile có thể refresh UI hoặc dùng manual confirm nếu cần
 
 ## Data Models
 
@@ -418,8 +424,7 @@ Payment mới ở trạng thái chờ thanh toán:
 | currency | string | Yes | Hiện tại luôn là `VND` |
 | paymentMethod | string | Yes | `WalletBalance` hoặc `PayOs` |
 | status | string | Yes | `Pending` hoặc `Escrowed` |
-| userWalletBalanceAfter | decimal \| null | No | Số dư ví user sau giao dịch wallet hoặc confirm |
-| systemWalletBalanceAfter | decimal \| null | No | Số dư escrow hệ thống sau giao dịch |
+| userWalletBalanceAfter | decimal \| null | No | Số dư ví user sau giao dịch wallet hoặc sau confirm |
 | paidAtUtc | datetime \| null | No | Thời điểm backend ghi nhận payment thành công |
 | provider | string \| null | No | `Wallet` hoặc `PayOS` |
 | checkoutUrl | string \| null | No | URL checkout PayOS, chỉ có khi `status = "Pending"` |
@@ -449,26 +454,44 @@ Payment mới ở trạng thái chờ thanh toán:
 | 409 | CONFLICT | PayOS reports status '...'. Payment cannot be confirmed. | Manual confirm được gọi khi PayOS chưa báo thành công | Chờ webhook hoặc return hoặc đợi user thanh toán xong |
 | 500 | INTERNAL_SERVER_ERROR | An unexpected error occurred | Lỗi hệ thống ngoài dự kiến | Retry sau, nếu lặp lại thì escalate backend |
 
-## Webhooks & Return Handling
+## Transaction / Reporting Notes For Client
 
-### Webhook behavior
+- nếu app dùng `GET /api/transactions?transType=consultation`, phải expect thêm `PlatformFee`
+- không assume consultation settlement chỉ có một `ExpertPayout` bằng toàn bộ gross amount
+- với `PlatformFee`, transaction response có thể không có owner user:
+  - `UserName` có thể `null`
+  - `FullName` có thể `null`
 
-- PayOS webhook được route qua `POST /api/v1/PayOs/webhook`
-- Backend tự detect order code này thuộc consultation hay snake-catching
-- Nếu là consultation, backend sẽ cập nhật payment và move money vào escrow
+## Mobile Integration Pattern
 
-### Return behavior
+### Scheduled consultation, wallet
 
-- Browser return đi qua `GET /api/v1/PayOs/return`
-- Nếu query cho thấy thanh toán thành công, backend tự auto-confirm
-- Response là HTML, không phải JSON
+1. `POST /api/consultations/scheduled/{bookingId}/payments`
+2. không cần gọi confirm endpoint
+3. khi consultation kết thúc, gọi `POST /api/consultations/{consultationId}/end`
+4. backend tự settle escrow sau bước end
 
-### Mobile recommendation
+### Scheduled consultation, PayOS
 
-- Sau khi đóng webview hoặc browser, mobile nên refresh consultation state
-- Nếu UI vẫn chưa thấy payment thành công, gọi:
-  - `POST /api/consultations/payments/confirm`
-- Dùng `transactionId` đã nhận từ response `Pending`
+1. `POST /api/consultations/scheduled/{bookingId}/payments`
+2. user hoàn tất PayOS
+3. backend confirm qua PayOS return/webhook; nếu app đang dùng fallback thủ công thì gọi `POST /api/consultations/payments/confirm`
+4. khi consultation kết thúc, gọi `POST /api/consultations/{consultationId}/end`
+5. backend tự settle escrow sau bước end
+
+### Instant consultation
+
+1. `POST /api/consultations/instant/{requestId}/payments`
+2. confirm nếu là PayOS
+3. `POST /api/consultations/{consultationId}/end` khi kết thúc
+4. backend tự settle escrow
+
+### What mobile must stop doing
+
+- không parse hoặc map `ConsultationPaymentResponse.SystemWalletBalanceAfter`
+- không build UI state kiểu `system wallet increased => escrowed`
+- không dùng `EscrowHold` / `EscrowRelease` để mô tả consultation escrow state
+- không assume consultation settlement = chỉ có một `ExpertPayout` bằng toàn bộ gross amount
 
 ## Examples
 
@@ -519,26 +542,8 @@ curl -X POST "https://api.example.com/api/consultations/payments/confirm" \
 
 ## Current Limits
 
-- Chưa có dedicated endpoint để query payment status riêng cho consultation
+- chưa có dedicated endpoint để query payment status riêng cho consultation
 - `GET /api/v1/PayOs/return` trả HTML, không phải JSON contract cho mobile
-- Mobile nên lưu `transactionId`, `orderCode`, `checkoutUrl` ngay khi nhận response `Pending`
+- mobile nên lưu `transactionId`, `orderCode`, `checkoutUrl` ngay khi nhận response `Pending`
 
-## Recommended Mobile Integration Pattern
-
-### Cho wallet
-
-- user bấm pay
-- gọi payment endpoint
-- nếu `status = "Escrowed"` thì hiển thị payment success ngay
-
-### Cho PayOS
-
-- user bấm pay
-- gọi payment endpoint
-- lưu `transactionId`
-- mở `checkoutUrl`
-- khi app focus lại:
-  - refresh consultation screen
-  - nếu chưa thấy state mới, gọi manual confirm
-
-Tài liệu này nên được dùng như contract để mobile build payment option selector cho consultation flow.
+Tài liệu này nên được dùng như contract để mobile/frontend build payment option selector, payment status handling, và consultation settlement reporting đúng semantic hiện tại.

@@ -1,6 +1,6 @@
 ---
 doc_role: operation
-operation_id: 02-scheduled-consultation
+operation_id: 03-FEAT-scheduled-consultation
 type: FEAT
 status: done
 created_at: 2026-03-05
@@ -17,7 +17,7 @@ affects:
   - Tests/Unit/BookingServiceConcurrencyTests.cs
 ---
 
-# Operation 02: Scheduled Consultation Flow
+# Operation 03: Scheduled Consultation Flow
 
 ## Mục tiêu
 
@@ -47,8 +47,8 @@ Implement luồng đặt lịch tư vấn: user chọn slot → tạo booking �
 ### Money Flow
 
 1. Booking created → `PendingPayment`
-2. Payment success → escrow vào system wallet → `Confirmed`
-3. Consultation complete → settle escrow → expert wallet
+2. Payment success → consultation enters escrow → `Confirmed`
+3. Consultation complete → settle escrow thành `PlatformFee + ExpertPayout`
 4. Auto-complete: background service sweep mỗi 30s cho slots đã hết giờ
 
 ### Expert Inbox
