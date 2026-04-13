@@ -139,9 +139,6 @@ Canonical business states used in this feature:
 
 #### ***3.3.1 Class Diagram***
 
-Diagram reference: [drawio/consultation-class-diagram.drawio](drawio/consultation-class-diagram.drawio)
-
-Note: draw.io class diagram artifact is pending. Use the class specifications and sequence narratives in this section as the canonical source for diagram authoring.
 
 ***Class Specifications***
 
@@ -176,35 +173,28 @@ Main flow:
 
 Output: Expert list with real-time online/offline synchronization.
 
-#### ***3.3.3 Sequence Diagram Create Scheduled Booking***
+#### ***3.3.3 Sequence Diagram Create and Pay Scheduled Booking***
 
 Main flow:
 
 1. Member App calls POST /api/consultations/scheduled with timeSlotId and problemDescription.
 2. BookingService validates slot availability and concurrency version.
 3. BookingService creates ConsultationBooking in PendingPayment state.
-4. API returns ConsultationBookingResponse.
-
-Output: Booking is created, waiting for payment.
-
-#### ***3.3.4 Sequence Diagram Pay Scheduled Booking***
-
-Main flow:
-
-1. Member App calls POST /api/consultations/scheduled/{bookingId}/payments.
-2. ConsultationPaymentService validates booking ownership and PendingPayment state.
-3. Branch A - WalletBalance:
+4. API returns ConsultationBookingResponse and booking waits for payment.
+5. Member App calls POST /api/consultations/scheduled/{bookingId}/payments.
+6. ConsultationPaymentService validates booking ownership and PendingPayment state.
+7. Branch A - WalletBalance:
 	1. Service charges user wallet and writes ConsultationPayment transaction to the ledger.
 	2. Booking moves to Confirmed and consultationId + roomId are generated.
 	3. API returns ConsultationPaymentResponse with status Escrowed.
-4. Branch B - PayOS:
+8. Branch B - PayOS:
 	1. Service creates a pending payment transaction and returns checkoutUrl/orderCode/paymentLinkId with status Pending.
 	2. User completes checkout; backend confirms payment via PayOS return/webhook, or client-triggered fallback POST /api/consultations/payments/confirm.
 	3. After confirmed payment, booking moves to Confirmed and consultationId + roomId are generated; payment status becomes Escrowed.
 
 Output: Booking becomes ready for consultation only after payment is Escrowed. WalletBalance is immediate; PayOS requires a confirm step after Pending.
 
-#### ***3.3.5 Sequence Diagram Create Emergency Consultation Request***
+#### ***3.3.4 Sequence Diagram Create, Pay, and Notify Emergency Consultation Request***
 
 Main flow:
 
@@ -212,29 +202,23 @@ Main flow:
 2. EmergencyConsultationService validates target expert availability.
 3. Service creates emergency request in PendingPayment state.
 4. Member joins request room via JoinEmergencyRequestRoom(requestId).
-
-Output: Emergency request is created and requester is subscribed for request status updates.
-
-#### ***3.3.6 Sequence Diagram Pay Emergency Request and Notify Expert***
-
-Main flow:
-
-1. Member App calls POST /api/consultations/instant/{requestId}/payments.
-2. ConsultationPaymentService validates request ownership, PendingPayment state, and expert availability.
-3. Branch A - WalletBalance:
+5. Emergency request is created and requester is subscribed for request status updates.
+6. Member App calls POST /api/consultations/instant/{requestId}/payments.
+7. ConsultationPaymentService validates request ownership, PendingPayment state, and expert availability.
+8. Branch A - WalletBalance:
 	1. Service charges wallet and writes ConsultationPayment transaction.
 	2. Payment result is Escrowed.
-4. Branch B - PayOS:
+9. Branch B - PayOS:
 	1. Service creates pending transaction and returns checkoutUrl/orderCode/paymentLinkId with status Pending.
 	2. User completes checkout; backend confirms via PayOS return/webhook, or client-triggered fallback POST /api/consultations/payments/confirm.
 	3. Payment result becomes Escrowed after confirm.
-5. After payment is Escrowed (both branches), request transitions to PendingExpertResponse and ExpiresAt (TTL 2 minutes) is set.
-6. EmergencyConsultationService pushes EmergencyConsultationRequest to targeted expert via ExpertHub.
-7. Member receives EmergencyRequestStatusChanged event.
+10. After payment is Escrowed (both branches), request transitions to PendingExpertResponse and ExpiresAt (TTL 2 minutes) is set.
+11. EmergencyConsultationService pushes EmergencyConsultationRequest to targeted expert via ExpertHub.
+12. Member receives EmergencyRequestStatusChanged event.
 
 Output: Request enters expert decision queue only after payment reaches Escrowed.
 
-#### ***3.3.7 Sequence Diagram Expert Accept or Reject Emergency Request***
+#### ***3.3.5 Sequence Diagram Expert Accept or Reject Emergency Request***
 
 Main flow:
 
@@ -270,7 +254,7 @@ Timeout completion:
 
 Output: Request reaches terminal state (AcceptedByExpert, DeclinedByExpert, or Expired), and member is informed in real time.
 
-#### ***3.3.8 Sequence Diagram Generate Video Token and Join Room***
+#### ***3.3.6 Sequence Diagram Join Consultation Room and In-Room Interaction***
 
 Main flow:
 
@@ -279,23 +263,16 @@ Main flow:
 3. LiveKitService generates token for room consultation-{consultationId}.
 4. API returns token, wsUrl, and roomName.
 5. Client joins LiveKit room.
+6. Sender uploads image via media API (optional) and receives secureUrl.
+7. Sender invokes ConsultationHub.ReceiveMessage(content, attachmentUrl).
+8. Hub validates participant and applies message rate limit.
+9. Hub persists ChatMessage.
+10. Hub broadcasts MessageReceived to both participants.
+11. Client can also send UI signal through ConsultationHub.Signal.
 
-Output: Authenticated participant can enter consultation video room.
+Output: Authenticated participant can enter consultation video room, exchange text/media messages, and send real-time UI signals.
 
-#### ***3.3.9 Sequence Diagram In-Room Chat with Attachment***
-
-Main flow:
-
-1. Sender uploads image via media API (optional) and receives secureUrl.
-2. Sender invokes ConsultationHub.ReceiveMessage(content, attachmentUrl).
-3. Hub validates participant and applies message rate limit.
-4. Hub persists ChatMessage.
-5. Hub broadcasts MessageReceived to both participants.
-6. Client can also send UI signal through ConsultationHub.Signal.
-
-Output: Real-time text/media communication is delivered and stored for consultation context.
-
-#### ***3.3.10 Sequence Diagram End Consultation and Settlement (Narrative)***
+#### ***3.3.7 Sequence Diagram End Consultation and Settlement (Narrative)***
 
 Main flow:
 
@@ -314,7 +291,7 @@ Lifecycle fallback:
 
 Output: Consultation is closed consistently and money flow is finalized.
 
-#### ***3.3.11 Sequence Diagram Create Consultation Review (Narrative)***
+#### ***3.3.8 Sequence Diagram Create Consultation Review (Narrative)***
 
 Main flow:
 
