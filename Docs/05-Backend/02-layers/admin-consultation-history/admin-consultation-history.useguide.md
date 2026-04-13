@@ -39,6 +39,7 @@ Client-visible goals:
 
 Important business notes:
 - scheduled and emergency consultations currently come from different data sources
+- admin history is `booking/ping-first` and then falls back to `Consultation` for edge cases
 - `price` for scheduled and emergency consultations is derived differently
 - default sort order is newest `StartTime` first
 
@@ -176,6 +177,7 @@ Field notes:
 - `bookingId` is expected only for scheduled consultations
 - `emergencyRequestId` is expected only for emergency consultations
 - `slotStartTime` and `slotEndTime` are expected only for scheduled consultations
+- if linked booking/ping data is missing, the consultation may still be returned from `Consultation` fallback with related fields set to `null`
 - scheduled `price` comes from `ConsultationBooking.Price`
 - emergency `price` is resolved from `Transaction`:
   - prefer `TransactionType = ConsultationPayment` with `ReferenceId = ConsultationPingRequest.Id`
@@ -200,6 +202,7 @@ Field notes:
 
 - The list screen should branch layout by `type`
 - Do not assume `problemDescription` is always present
+- Do not assume `bookingId` or `emergencyRequestId` is always present for every item of that type
 - Do not assume `price` is always present for emergency items
 - Use `meta.total_items`, `meta.total_pages`, `meta.current_page`, `meta.page_size` for pagination
 
@@ -277,3 +280,4 @@ Code-verified related endpoints that already exist:
 - Implemented and verified `GET /api/admin/consultations`
 - Confirmed active response shape for both scheduled and emergency items
 - Documented emergency price resolution order used by the backend
+- Clarified booking/ping-first mapping with `Consultation` fallback for edge cases

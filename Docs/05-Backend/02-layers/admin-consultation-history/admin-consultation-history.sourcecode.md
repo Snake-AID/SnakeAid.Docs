@@ -157,6 +157,11 @@ sequenceDiagram
         Service->>Service: map to AdminConsultationResponse
     end
 
+    alt emergency consultation fallback
+        Service->>PingRepo: verify no linked ping request exists
+        Service->>Service: map from Consultation + Caller + Callee
+    end
+
     Service->>Service: merge scheduled + emergency
     Service->>Service: sort by StartTime desc
     Service->>Service: paginate and build PagingResponse
@@ -224,6 +229,20 @@ Primary mapping:
 - `Price` <- `null`
 - `BookingId` <- `null`
 
+### Orphan Emergency Consultation
+
+Sources:
+- `Consultation`
+- `Account Caller`
+- `Account Callee`
+- `Transaction`
+
+Primary mapping:
+- included only when `Consultation.Type = Emergency`
+- included only when there is no matching `ConsultationPingRequest`
+- `EmergencyRequestId` <- `null`
+- `Price` <- latest `ExpertPayout` by `Consultation.Id` when available, otherwise `null`
+
 ## 6. Implementation Notes
 
 1. The new controller does not need to be added into `ConsultationsController`
@@ -241,6 +260,8 @@ Primary mapping:
   - scheduled item maps `BookingId`, slot times, and problem description correctly
   - emergency item maps `EmergencyRequestId` correctly
   - emergency price prefers `ConsultationPayment` and falls back to `ExpertPayout`
+  - orphan emergency consultation is still returned through `Consultation` fallback
+  - no duplicate item is returned when a consultation already exists in the main path
   - sort uses `StartTime desc`
   - `PageNumber`, `PageSize`, `TotalItems`, `TotalPages` are correct
 - `AdminConsultationsControllerTests`

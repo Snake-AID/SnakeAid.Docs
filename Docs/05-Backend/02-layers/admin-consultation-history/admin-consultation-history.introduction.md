@@ -67,6 +67,9 @@ Current consultation history is assembled from multiple sources:
 The implemented admin history service keeps these characteristics:
 
 - Scheduled and Emergency consultations are queried separately, then merged into one list
+- Admin history is `booking/ping-first`:
+  - Scheduled uses `ConsultationBooking` as the main source
+  - Emergency uses `ConsultationPingRequest` as the main source
 - Current sort order is `StartTime desc`
 - Current pagination is calculated after merging the list in memory
 - Scheduled price comes from `ConsultationBooking.Price`
@@ -74,6 +77,7 @@ The implemented admin history service keeps these characteristics:
   - admin history: prefer `TransactionType = ConsultationPayment`, `ReferenceId = ConsultationPingRequest.Id`
   - admin history fallback: `TransactionType = ExpertPayout`, `ReferenceId = Consultation.Id`
 - Admin history includes edge-case handling for scheduled consultations that have a `Consultation` record but no `ConsultationBooking`
+- Admin history includes edge-case handling for emergency consultations that have a `Consultation` record but no `ConsultationPingRequest`
 
 ## Implemented Design
 
@@ -95,8 +99,10 @@ Implemented v1 direction:
 4. Extend `IConsultationService`
    - add `GetAllConsultationsForAdminAsync(...)`
 5. Implement service logic using the existing pattern
-   - query scheduled consultations
-   - query emergency consultations
+   - query scheduled consultations from `ConsultationBooking`
+   - query emergency consultations from `ConsultationPingRequest`
+   - add `Consultation` fallback for scheduled edge cases
+   - add `Consultation` fallback for emergency edge cases
    - map to `AdminConsultationResponse`
    - merge, sort, paginate
 6. Add tests
@@ -156,6 +162,9 @@ Out of scope:
      - `AllAbsent`
 4. Route convention
    - implemented consistently with the existing `api/admin/...` pattern used in the repo
+5. Admin god-eye behavior is pragmatic, not consultation-first
+   - main path still follows business sources first
+   - edge cases are backfilled from `Consultation`
 
 ## Delivered Artifacts
 
@@ -164,3 +173,4 @@ Out of scope:
 - `admin-consultation-history.useguide.md`
 - implementation code
 - test coverage for service and controller surface
+- booking/ping-first admin history with consultation fallback for edge cases
