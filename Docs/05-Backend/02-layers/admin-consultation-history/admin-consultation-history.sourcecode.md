@@ -5,6 +5,7 @@ kind: layer
 doc_type: sourcecode
 status: implemented
 last_updated: 2026-04-14
+last_updated: 2026-04-15
 owners: [backend-team]
 verification_status: code-verified
 ---
@@ -13,30 +14,51 @@ verification_status: code-verified
 
 ## 1. Relevant Classes
 
-- `ConsultationsController`
-- `ExpertController`
+- `AdminConsultationsController`
 - `IConsultationService`
 - `ConsultationService`
+- `AdminConsultationsQueryRequest`
+- `AdminConsultationResponse`
+- `AdminConsultationMapper`
 - `Consultation`
 - `ConsultationBooking`
 - `ConsultationPingRequest`
+- `ExpertTimeSlot`
 - `Transaction`
-- `MyConsultationsQueryRequest`
-- `MyConsultationResponse`
-- `ExpertConsultationResponse`
-- `AdminConsultationsController`
-- `AdminConsultationsQueryRequest`
-- `AdminConsultationResponse`
 - `AdminConsultationHistoryIntegrationTests`
 - `AdminConsultationsControllerTests`
 
-## 2. Implemented New Classes
+## 2. Implemented Backend Surface
 
-- `AdminConsultationsController`
-- `AdminConsultationsQueryRequest`
+### Controller
+
+- `GET /api/admin/consultations`
+- `GET /api/admin/consultations/{consultationId}`
+
+### Service
+
+- `GetAllConsultationsForAdminAsync(AdminConsultationsQueryRequest query)`
+- `GetConsultationByIdForAdminAsync(Guid consultationId)`
+
+### Mapping
+
+- `AdminConsultationMapper`
+- `MapsterConfig.RegisterMappings()`
+
+### Shared Response Contract
+
+Both endpoints use:
+
 - `AdminConsultationResponse`
 
-## 3. Target Class Diagram
+The difference is only payload cardinality:
+
+- list endpoint:
+  - `ApiResponse<PagingResponse<AdminConsultationResponse>>`
+- single-item endpoint:
+  - `ApiResponse<AdminConsultationResponse>`
+
+## 3. Class Diagram
 
 ```mermaid
 classDiagram
@@ -46,8 +68,6 @@ classDiagram
     }
 
     class IConsultationService {
-        +GetMyConsultationsAsync(userId, query)
-        +GetExpertConsultationsAsync(expertId, query)
         +GetAllConsultationsForAdminAsync(query)
         +GetConsultationByIdForAdminAsync(consultationId)
     }
@@ -80,7 +100,16 @@ classDiagram
         +decimal? Price
         +string? ProblemDescription
         +Guid? BookingId
+        +string? BookingStatus
+        +DateTime? BookedAt
+        +DateTime? PaymentDeadline
+        +DateTime? CancelledAt
+        +string? CancellationReason
         +Guid? EmergencyRequestId
+        +string? EmergencyRequestStatus
+        +DateTime? RequestedAt
+        +DateTime? RespondedAt
+        +DateTime? ExpiresAt
         +DateTime? SlotStartTime
         +DateTime? SlotEndTime
     }
@@ -101,6 +130,11 @@ classDiagram
         +Guid UserId
         +Guid ExpertId
         +decimal Price
+        +DateTime BookedAt
+        +DateTime? PaymentDeadline
+        +BookingStatus Status
+        +DateTime? CancelledAt
+        +string? CancellationReason
         +string? ProblemDescription
         +Guid? ConsultationId
         +Guid TimeSlotId
@@ -111,27 +145,40 @@ classDiagram
         +Guid RescuerId
         +Guid ExpertId
         +ConsultationPingStatus Status
+        +DateTime RequestedAt
+        +DateTime? RespondedAt
+        +DateTime? ExpiresAt
         +Guid? ConsultationId
+    }
+
+    class ExpertTimeSlot {
+        +Guid Id
+        +DateTime StartTime
+        +DateTime EndTime
     }
 
     class Transaction {
         +Guid ReferenceId
         +TransactionType TransactionType
         +decimal Amount
+        +DateTime CreatedAt
     }
 
     AdminConsultationsController --> IConsultationService
     ConsultationService ..|> IConsultationService
+    ConsultationService --> Consultation
     ConsultationService --> ConsultationBooking
     ConsultationService --> ConsultationPingRequest
-    ConsultationService --> Consultation
+    ConsultationService --> ExpertTimeSlot
     ConsultationService --> Transaction
+    ConsultationService --> AdminConsultationMapper
     AdminConsultationsController --> AdminConsultationsQueryRequest
-    ConsultationService --> AdminConsultationsQueryRequest
     ConsultationService --> AdminConsultationResponse
 ```
 
-## 4. Admin List Sequence Diagram
+## 4. Retrieval Flows
+
+### 4.1 List Flow
 
 ```mermaid
 sequenceDiagram
@@ -140,142 +187,38 @@ sequenceDiagram
     participant Service as ConsultationService
     participant BookingRepo as ConsultationBooking Repo
     participant PingRepo as ConsultationPingRequest Repo
+    participant ConsultationRepo as Consultation Repo
     participant TxRepo as Transaction Repo
 
-    AdminApp->>Controller: GET /api/admin/consultations?status=Completed&type=Emergency&pageNumber=1&pageSize=10
-    Controller->>Controller: Authorize Admin role
+    AdminApp->>Controller: GET /api/admin/consultations
     Controller->>Service: GetAllConsultationsForAdminAsync(query)
 
     alt include Scheduled
-        Service->>BookingRepo: Get scheduled bookings with Consultation + User + Expert + TimeSlot
+        Service->>BookingRepo: Load bookings + user + expert + slot + consultation
         BookingRepo-->>Service: scheduled rows
-        Service->>Service: map to AdminConsultationResponse
+        Service->>Service: adapt consultation + booking via Mapster
+        Service->>ConsultationRepo: Load orphan scheduled consultations
+        ConsultationRepo-->>Service: orphan scheduled rows
+        Service->>Service: backfill scheduled fallback rows
     end
 
     alt include Emergency
-        Service->>PingRepo: Get accepted emergency requests with Consultation + Rescuer + Expert
+        Service->>PingRepo: Load ping requests + rescuer + expert + consultation
         PingRepo-->>Service: emergency rows
-        Service->>TxRepo: Get matching transactions for emergency pricing
+        Service->>TxRepo: Load consultation payments + expert payouts
         TxRepo-->>Service: transaction rows
-        Service->>Service: map to AdminConsultationResponse
+        Service->>Service: adapt consultation + request via Mapster
+        Service->>ConsultationRepo: Load orphan emergency consultations
+        ConsultationRepo-->>Service: orphan emergency rows
+        Service->>Service: backfill emergency fallback rows
     end
 
-    alt emergency consultation fallback
-        Service->>PingRepo: verify no linked ping request exists
-        Service->>Service: map from Consultation + Caller + Callee
-    end
-
-    Service->>Service: merge scheduled + emergency
-    Service->>Service: sort by StartTime desc
-    Service->>Service: paginate and build PagingResponse
+    Service->>Service: merge + sort + paginate
     Service-->>Controller: PagingResponse<AdminConsultationResponse>
     Controller-->>AdminApp: ApiResponse<PagingResponse<AdminConsultationResponse>>
 ```
 
-## 5. Mapping Rules
-
-### Scheduled Consultation
-
-Sources:
-- `ConsultationBooking`
-- `Consultation`
-- `Account User`
-- `Account Expert`
-- `ExpertTimeSlot`
-
-Primary mapping:
-- `ConsultationId` <- `ConsultationBooking.ConsultationId`
-- `Type` <- `"Scheduled"`
-- `Status` <- `Consultation.Status.ToString()`
-- `UserId` <- `ConsultationBooking.UserId`
-- `UserName` <- `ConsultationBooking.User.FullName`
-- `ExpertId` <- `ConsultationBooking.ExpertId`
-- `ExpertName` <- `ConsultationBooking.Expert.FullName`
-- `Price` <- `ConsultationBooking.Price`
-- `ProblemDescription` <- `ConsultationBooking.ProblemDescription`
-- `BookingId` <- `ConsultationBooking.Id`
-- `SlotStartTime` <- `TimeSlot.StartTime`
-- `SlotEndTime` <- `TimeSlot.EndTime`
-
-### Emergency Consultation
-
-Sources:
-- `ConsultationPingRequest`
-- `Consultation`
-- `Account Rescuer`
-- `Account Expert`
-- `Transaction`
-
-Primary mapping:
-- `ConsultationId` <- `Consultation.Id`
-- `Type` <- `"Emergency"`
-- `Status` <- `Consultation.Status.ToString()`
-- `UserId` <- `ConsultationPingRequest.RescuerId`
-- `UserName` <- `ConsultationPingRequest.Rescuer.FullName`
-- `ExpertId` <- `ConsultationPingRequest.ExpertId`
-- `ExpertName` <- `ConsultationPingRequest.Expert.FullName`
-- `EmergencyRequestId` <- `ConsultationPingRequest.Id`
-- `Price` <- first matching transaction by rule:
-  - prefer `TransactionType = ConsultationPayment`, `ReferenceId = ConsultationPingRequest.Id`
-  - fallback `TransactionType = ExpertPayout`, `ReferenceId = Consultation.Id`
-
-### Orphan Scheduled Consultation
-
-Sources:
-- `Consultation`
-- `Account Caller`
-- `Account Callee`
-
-Primary mapping:
-- included only when `Consultation.Type = Scheduled`
-- included only when there is no matching `ConsultationBooking`
-- `Price` <- `null`
-- `BookingId` <- `null`
-
-### Orphan Emergency Consultation
-
-Sources:
-- `Consultation`
-- `Account Caller`
-- `Account Callee`
-- `Transaction`
-
-Primary mapping:
-- included only when `Consultation.Type = Emergency`
-- included only when there is no matching `ConsultationPingRequest`
-- `EmergencyRequestId` <- `null`
-- `Price` <- latest `ExpertPayout` by `Consultation.Id` when available, otherwise `null`
-
-## 6. Implementation Notes
-
-1. The new controller does not need to be added into `ConsultationsController`
-   - existing admin modules in the repo prefer separate controllers such as `AdminWithdrawalsController`
-2. Admin response should not be forced into an actor-specific shape
-   - that would lose half of the context
-3. Status filter should parse from the domain enum `ConsultationStatus`
-4. Type filter should parse from `ConsultationType`
-5. Pagination should continue to use `PaginationRequest`
-6. Pagination helper and status parsing are shared across admin/user/expert history methods in `ConsultationService`
-
-## 7. Implemented Extension - Get One Consultation
-
-### Implemented Members
-
-```mermaid
-classDiagram
-    class AdminConsultationsController {
-        +GetAllConsultations(query)
-        +GetConsultationById(consultationId)
-    }
-
-    class IConsultationService {
-        +GetAllConsultationsForAdminAsync(query)
-        +GetConsultationByIdForAdminAsync(consultationId)
-    }
-
-```
-
-### Detail Sequence Diagram
+### 4.2 Single-Item Flow
 
 ```mermaid
 sequenceDiagram
@@ -288,65 +231,139 @@ sequenceDiagram
     participant TxRepo as Transaction Repo
 
     AdminApp->>Controller: GET /api/admin/consultations/{consultationId}
-    Controller->>Controller: Authorize Admin role
     Controller->>Service: GetConsultationByIdForAdminAsync(consultationId)
-    Service->>ConsultationRepo: Load Consultation + Caller + Callee
+    Service->>ConsultationRepo: Load consultation + caller + callee
     ConsultationRepo-->>Service: consultation or null
 
     alt consultation not found
         Service-->>Controller: throw NotFoundException("Consultation not found.")
     else scheduled consultation
-        Service->>BookingRepo: Load booking by ConsultationId
+        Service->>BookingRepo: Load booking + user + expert + slot
         BookingRepo-->>Service: booking or null
-        Service->>Service: map detail response
+        Service->>Service: adapt scheduled response via Mapster
     else emergency consultation
-        Service->>PingRepo: Load ping request by ConsultationId
-        PingRepo-->>Service: ping or null
-        Service->>TxRepo: Resolve price
+        Service->>PingRepo: Load ping request + rescuer + expert
+        PingRepo-->>Service: request or null
+        Service->>TxRepo: Resolve emergency price
         TxRepo-->>Service: matching transactions
-        Service->>Service: map detail response
+        Service->>Service: adapt emergency response via Mapster
     end
 
     Service-->>Controller: AdminConsultationResponse
     Controller-->>AdminApp: ApiResponse<AdminConsultationResponse>
 ```
 
-### Mapping Direction
+## 5. Mapping Rules
 
-For detail, the implemented lookup order is different from list:
+### 5.1 Shared Base Fields
 
-1. Start from `Consultation`
-2. Branch by `Consultation.Type`
-3. Enrich from `ConsultationBooking` or `ConsultationPingRequest`
-4. Derive price using the same pricing rules already implemented for list
+All admin responses normalize these fields from `Consultation` plus related records:
 
-Reason:
-- detail lookup is keyed by `consultationId`
-- direct lookup is simpler and avoids reusing a merged list pipeline for a single item
+- `ConsultationId`
+- `Type`
+- `Status`
+- `UserId`
+- `UserName`
+- `ExpertId`
+- `ExpertName`
+- `RoomId`
+- `StartTime`
+- `EndTime`
+- `Price`
 
-### Not-Found Behavior
+### 5.2 Scheduled Consultation
 
-- service throws `NotFoundException("Consultation not found.")`
-- controller stays thin and follows existing consultation module behavior
+Sources:
 
-## 8. Code-Verified Tests
+- `Consultation`
+- `ConsultationBooking`
+- `Account User`
+- `Account Expert`
+- `ExpertTimeSlot`
+
+Primary mapping:
+
+- `ProblemDescription` <- `ConsultationBooking.ProblemDescription`
+- `BookingId` <- `ConsultationBooking.Id`
+- `BookingStatus` <- `ConsultationBooking.Status.ToString()`
+- `BookedAt` <- `ConsultationBooking.BookedAt`
+- `PaymentDeadline` <- `ConsultationBooking.PaymentDeadline`
+- `CancelledAt` <- `ConsultationBooking.CancelledAt`
+- `CancellationReason` <- `ConsultationBooking.CancellationReason`
+- `SlotStartTime` <- `ExpertTimeSlot.StartTime`
+- `SlotEndTime` <- `ExpertTimeSlot.EndTime`
+- `Price` <- `ConsultationBooking.Price`
+
+Fallback behavior:
+
+- if `ConsultationBooking` is missing, the consultation is still returned
+- booking-related fields become `null`
+
+### 5.3 Emergency Consultation
+
+Sources:
+
+- `Consultation`
+- `ConsultationPingRequest`
+- `Account Rescuer`
+- `Account Expert`
+- `Transaction`
+
+Primary mapping:
+
+- `EmergencyRequestId` <- `ConsultationPingRequest.Id`
+- `EmergencyRequestStatus` <- `ConsultationPingRequest.Status.ToString()`
+- `RequestedAt` <- `ConsultationPingRequest.RequestedAt`
+- `RespondedAt` <- `ConsultationPingRequest.RespondedAt`
+- `ExpiresAt` <- `ConsultationPingRequest.ExpiresAt`
+
+Emergency price resolution:
+
+1. prefer latest `TransactionType = ConsultationPayment` by `ConsultationPingRequest.Id`
+2. fallback latest `TransactionType = ExpertPayout` by `Consultation.Id`
+3. otherwise `Price = null`
+
+Fallback behavior:
+
+- if `ConsultationPingRequest` is missing, the consultation is still returned
+- emergency-request-related fields become `null`
+
+## 6. Implementation Notes
+
+1. The controller is separate from `ConsultationsController`
+   - consistent with the existing `api/admin/...` module style
+2. The admin contract is intentionally actor-neutral
+   - unlike `MyConsultationResponse` and `ExpertConsultationResponse`
+3. List and single-item endpoints now share one DTO
+   - frontend can reuse one model for list rows and detail views
+4. List and single-item retrieval strategies are different
+   - list is merged-source-first
+   - single item is consultation-first
+5. The API contract stays normalized even though source systems differ
+6. Base and enrichment field mapping are registered in `SnakeAid.Core/Mappings/AdminConsultationMapper.cs`
+   - `ConsultationService` still owns fallback logic and emergency price resolution
+   - Mapster is used to reduce property-assignment boilerplate, not to replace business branching
+
+## 7. Code-Verified Tests
 
 - `AdminConsultationHistoryIntegrationTests`
-  - scheduled item maps `BookingId`, slot times, and problem description correctly
-  - emergency item maps `EmergencyRequestId` correctly
-  - emergency price prefers `ConsultationPayment` and falls back to `ExpertPayout`
-  - orphan emergency consultation is still returned through `Consultation` fallback
-  - no duplicate item is returned when a consultation already exists in the main path
-  - sort uses `StartTime desc`
-  - `PageNumber`, `PageSize`, `TotalItems`, `TotalPages` are correct
-  - scheduled detail maps booking detail fields correctly
-  - emergency detail maps request detail fields and payout fallback correctly
-  - orphan emergency detail returns null request metadata
+  - merged list is sorted by `StartTime desc`
+  - scheduled list mapping includes booking and slot fields
+  - emergency list mapping includes request fields and price fallback
+  - orphan emergency consultations are still returned
+  - pagination metadata is correct
+  - invalid type throws validation error
+  - scheduled single-item mapping includes booking detail fields
+  - emergency single-item mapping includes request detail fields
   - missing consultation throws `NotFoundException`
+
 - `AdminConsultationsControllerTests`
   - route is `api/admin/consultations`
   - controller requires role `Admin`
-  - action exposes `HttpGet`
-  - action returns `ApiResponse<PagingResponse<AdminConsultationResponse>>`
+  - list action exposes `HttpGet`
+  - list action returns `ApiResponse<PagingResponse<AdminConsultationResponse>>`
   - detail action exposes `HttpGet("{consultationId:guid}")`
   - detail action returns `ApiResponse<AdminConsultationResponse>`
+    class AdminConsultationMapper {
+        +Register(config)
+    }

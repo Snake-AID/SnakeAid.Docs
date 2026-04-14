@@ -4,7 +4,8 @@ module: admin-consultation-history
 kind: layer
 doc_type: introduction
 status: implemented
-last_updated: 2026-04-13
+last_updated: 2026-04-14
+last_updated: 2026-04-15
 owners: [backend-team]
 verification_status: code-verified
 ---
@@ -13,225 +14,158 @@ verification_status: code-verified
 
 ## Goal
 
-This document defines the implemented backend scope for the `admin get all consultations in the system` use case.
+This document defines the implemented backend scope for the admin consultation history module.
 
 Business goal:
-- Admin can view consultation history across the whole system through a single endpoint
-- Admin can filter by `status` and `type`
-- Admin can see enough operational data:
-  - user information
-  - expert information
-  - consultation type
-  - consultation status
-  - start / end timestamps
-  - consultation price when available
-  - related booking or emergency request
+- Admin can browse consultations across the whole system
+- Admin can open one consultation and inspect the same normalized data shape in more depth
+- Admin can work with both scheduled and emergency consultations without switching API contracts
 
 ## Current Codebase Status
 
-The codebase already has 2 related history API groups:
+The codebase already has two actor-specific consultation history APIs:
 
-- User history:
-  - `GET /api/users/me/consultations`
-  - `ConsultationsController.GetMyConsultations(...)`
-  - `IConsultationService.GetMyConsultationsAsync(...)`
-- Expert history:
-  - `GET /api/experts/me/consultations`
-  - `ExpertController.GetMyConsultations(...)`
-  - `IConsultationService.GetExpertConsultationsAsync(...)`
+- `GET /api/users/me/consultations`
+- `GET /api/experts/me/consultations`
 
-The codebase now has:
+The admin module now adds a dedicated admin surface:
+
 - `GET /api/admin/consultations`
+- `GET /api/admin/consultations/{consultationId}`
 - `AdminConsultationsController`
-- `GetAllConsultationsForAdminAsync(...)` in `IConsultationService`
-- dedicated request DTO / response DTO for admin consultation history
-- service integration tests and controller attribute/response tests for admin consultation history
+- `IConsultationService.GetAllConsultationsForAdminAsync(...)`
+- `IConsultationService.GetConsultationByIdForAdminAsync(...)`
+- one shared admin DTO: `AdminConsultationResponse`
+- Mapster registration in `SnakeAid.Core/Mappings/AdminConsultationMapper.cs`
+
+## Implemented Contract Shape
+
+The admin module uses one normalized response model:
+
+- `AdminConsultationResponse`
+
+This shape is shared by:
+
+- the list endpoint, wrapped in `PagingResponse`
+- the single-item endpoint, returned directly in `ApiResponse<T>`
+
+This means:
+
+- `GetAll` and `GetOne` expose the same consultation fields
+- the only payload difference is collection vs single item
+- booking and emergency-request metadata are available in both endpoints when related data exists
 
 ## Code-Verified Data Sources
 
-Current consultation history is assembled from multiple sources:
+Admin consultation data is assembled from these sources:
 
 1. `Consultation`
-   - central record for room, type, status, start/end time
+   - canonical source for consultation identity, type, status, room, start/end time
 2. `ConsultationBooking`
-   - source for scheduled consultation data
-   - contains `Price`, `ProblemDescription`, `TimeSlotId`, `UserId`, `ExpertId`
+   - scheduled consultation enrichment
+   - source for price, problem description, booking metadata, slot metadata
 3. `ConsultationPingRequest`
-   - source for emergency consultation data
-   - links the consultation created after expert acceptance
+   - emergency consultation enrichment
+   - source for emergency request metadata
 4. `Transaction`
-   - used to derive `Price` for emergency consultation records
+   - source for emergency pricing resolution
 
-## Important Current Behavior
+## Implemented Behavior
 
-The implemented admin history service keeps these characteristics:
+The current implementation has two retrieval modes, but one unified contract:
 
-- Scheduled and Emergency consultations are queried separately, then merged into one list
-- Admin history is `booking/ping-first`:
-  - Scheduled uses `ConsultationBooking` as the main source
-  - Emergency uses `ConsultationPingRequest` as the main source
-- Current sort order is `StartTime desc`
-- Current pagination is calculated after merging the list in memory
-- Scheduled price comes from `ConsultationBooking.Price`
-- Emergency price comes from `Transaction`:
-  - admin history: prefer `TransactionType = ConsultationPayment`, `ReferenceId = ConsultationPingRequest.Id`
-  - admin history fallback: `TransactionType = ExpertPayout`, `ReferenceId = Consultation.Id`
-- Admin history includes edge-case handling for scheduled consultations that have a `Consultation` record but no `ConsultationBooking`
-- Admin history includes edge-case handling for emergency consultations that have a `Consultation` record but no `ConsultationPingRequest`
+### List
 
-## Implemented Design
+- Scheduled and emergency consultations are queried separately
+- Results are merged in memory
+- Sort order is `StartTime desc`
+- Pagination is applied after merge
 
-Implemented v1 direction:
+### Single Item
 
-1. Add a dedicated admin endpoint
-   - proposed route: `GET /api/admin/consultations`
-   - role: `Admin`
-2. Add a dedicated query DTO
-   - `AdminConsultationsQueryRequest : PaginationRequest`
-   - minimum fields:
-     - `Status`
-     - `Type`
-3. Add a dedicated admin response DTO
-   - do not reuse `MyConsultationResponse` or `ExpertConsultationResponse`
-   - reason:
-     - admin needs both `User` and `Expert`
-     - admin needs one normalized shape for scheduled and emergency records
-4. Extend `IConsultationService`
-   - add `GetAllConsultationsForAdminAsync(...)`
-5. Implement service logic using the existing pattern
-   - query scheduled consultations from `ConsultationBooking`
-   - query emergency consultations from `ConsultationPingRequest`
-   - add `Consultation` fallback for scheduled edge cases
-   - add `Consultation` fallback for emergency edge cases
-   - map to `AdminConsultationResponse`
-   - merge, sort, paginate
-6. Add tests
-   - controller route/auth attributes + response envelope
-   - service mapping / filter / pagination / sort
+- Lookup starts from `Consultation`
+- Enrichment then branches by `Consultation.Type`
+- Scheduled consultations are enriched from `ConsultationBooking`
+- Emergency consultations are enriched from `ConsultationPingRequest`
+- Emergency price uses the same resolution rule as the list endpoint
 
-## Why A Separate Admin DTO
+## Mapping Implementation
 
-`MyConsultationResponse` and `ExpertConsultationResponse` are both actor-specific:
+Admin consultation response mapping is now split between:
 
-- user view only returns `ExpertId`, `ExpertName`
-- expert view only returns `UserId`, `UserName`
+- `SnakeAid.Core/Mappings/AdminConsultationMapper.cs`
+  - base mapping from `Consultation`
+  - enrichment mapping from `ConsultationBooking`
+  - enrichment mapping from `ConsultationPingRequest`
+- `ConsultationService`
+  - source selection
+  - orphan fallback handling
+  - emergency price resolution
+  - final protection of consultation-owned semantics such as consultation `Status`
 
-Admin view needs:
-- `UserId`, `UserName`
-- `ExpertId`, `ExpertName`
-- `Type`
-- `Status`
-- `RoomId`
-- `StartTime`, `EndTime`
-- `Price`
-- `ProblemDescription` for scheduled consultation when available
-- `BookingId` for scheduled consultation
-- `EmergencyRequestId` for emergency consultation
-- `SlotStartTime`, `SlotEndTime` for scheduled consultation
+## Important Mapping Rules
+
+### Scheduled Consultation
+
+- base fields come from `Consultation`
+- booking fields come from `ConsultationBooking`
+- slot fields come from `ExpertTimeSlot`
+- `Price` comes from `ConsultationBooking.Price`
+
+### Emergency Consultation
+
+- base fields come from `Consultation`
+- request fields come from `ConsultationPingRequest`
+- `Price` is resolved from `Transaction`
+  - prefer `TransactionType = ConsultationPayment` by `ConsultationPingRequest.Id`
+  - fallback `TransactionType = ExpertPayout` by `Consultation.Id`
+
+### Orphan Consultation Handling
+
+The module still returns consultations even when the expected business-side record is missing:
+
+- orphan scheduled consultation:
+  - consultation exists but booking is missing
+  - booking fields are `null`
+- orphan emergency consultation:
+  - consultation exists but ping request is missing
+  - emergency-request fields are `null`
+
+## Design Direction Now Closed
+
+The codebase originally considered separating admin list and admin detail into different response shapes.
+
+That is no longer the chosen direction.
+
+The implemented contract now standardizes on:
+
+- one shared DTO for admin consultation payloads
+- one list endpoint
+- one single-item endpoint
+- consistent field names across both entry points
 
 ## Scope Boundary
 
 In scope:
-- admin list consultations across the whole system
+
+- admin list consultations across the system
+- admin get one consultation by `consultationId`
 - pagination
 - filters by `status` and `type`
-- API contract for admin app / mobile developers to read
+- normalized scheduled + emergency response contract
 
 Out of scope:
-- admin get consultation detail in the current implemented scope
-- admin update consultation status
-- CSV / Excel export
+
+- admin update consultation state
+- export
 - free-text search
-- analytics / dashboard aggregates
-
-## Next Planned Scope
-
-The next additive scope for this module is:
-
-- `GET /api/admin/consultations/{consultationId}`
-
-Goal:
-- Admin can open one consultation from the list screen and retrieve a richer detail payload for that specific consultation
-
-Why this is a separate step:
-- the current list endpoint is optimized for merged history browsing
-- a detail endpoint should be `consultation-first`, not `list-first`
-- detail view can safely expose more source-specific metadata than the list payload
-
-## Planned Direction For Get One Consultation
-
-Recommended route:
-- `GET /api/admin/consultations/{consultationId}`
-
-Recommended service surface:
-- add `GetConsultationByIdForAdminAsync(Guid consultationId)`
-
-Recommended response shape:
-- do not reuse `AdminConsultationResponse` directly as the final detail shape
-- prefer a dedicated detail DTO such as `AdminConsultationDetailResponse`
-
-Reason:
-- the current list DTO is intentionally compact
-- a detail endpoint can include source-specific fields that should not bloat the list response
-
-Recommended detail-only fields to consider:
-- `BookingStatus`
-- `BookedAt`
-- `PaymentDeadline`
-- `CancelledAt`
-- `CancellationReason`
-- `EmergencyRequestStatus`
-- `RequestedAt`
-- `RespondedAt`
-- `ExpiresAt`
-
-## Key Design Insight
-
-The list endpoint is currently `booking/ping-first` and only falls back to `Consultation` for orphan cases.
-
-The detail endpoint should invert that:
-
-1. load `Consultation` by `consultationId` first
-2. inspect `Consultation.Type`
-3. enrich from the matching `ConsultationBooking` or `ConsultationPingRequest`
-4. derive price using the same source rules already documented for the list endpoint
-
-This keeps the detail implementation direct and avoids scanning the entire merged history pipeline just to return one record.
-
-## Remaining Risks
-
-1. In-memory merge + paginate
-   - acceptable for v1
-   - should be monitored when consultation volume grows
-2. Emergency price source differs from scheduled price source
-   - must be documented clearly to avoid incorrect mapping
-3. Actual status enum is broader than the comment in `MyConsultationsQueryRequest`
-   - current domain enum includes:
-     - `Scheduled`
-     - `Ongoing`
-     - `Completed`
-     - `Cancelled`
-     - `UserAbsent`
-     - `ExpertAbsent`
-     - `AllAbsent`
-4. Route convention
-   - implemented consistently with the existing `api/admin/...` pattern used in the repo
-5. Admin god-eye behavior is pragmatic, not consultation-first
-   - main path still follows business sources first
-   - edge cases are backfilled from `Consultation`
-6. Detail contract creep
-   - adding too many source-specific fields to the existing list DTO would make the list endpoint heavier and less stable
-   - the detail endpoint should isolate that expansion in a separate response type
+- analytics / aggregates
 
 ## Delivered Artifacts
 
+- `admin-consultation-history.introduction.md`
 - `admin-consultation-history.roadmap.md`
 - `admin-consultation-history.sourcecode.md`
 - `admin-consultation-history.useguide.md`
-- implementation code
-- test coverage for service and controller surface
-- booking/ping-first admin history with consultation fallback for edge cases
-
-## Planned Follow-Up Artifact
-
-- implementation plan for `GET /api/admin/consultations/{consultationId}`
+- backend implementation
+- service and controller test coverage

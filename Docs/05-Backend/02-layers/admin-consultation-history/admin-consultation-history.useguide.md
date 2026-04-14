@@ -5,18 +5,18 @@ kind: flow
 doc_type: usageguide
 status: active
 last_updated: 2026-04-14
+last_updated: 2026-04-15
 api_version: v1
 owners: [backend-team]
 verification_status: code-verified
 ---
-
 # Admin Consultation History API
 
 ## 1. Table Of Contents
 
 - [1. Table Of Contents](#1-table-of-contents)
 - [2. Overview](#2-overview)
-- [3. Authentication & Authorization](#3-authentication--authorization)
+- [3. Authentication &amp; Authorization](#3-authentication--authorization)
 - [4. Expert/Member Business + Expert/Member APIs](#4-expertmember-business--expertmember-apis)
 - [5. Admin Business + Admin APIs](#5-admin-business--admin-apis)
 - [6. Shared Data Models](#6-shared-data-models)
@@ -28,17 +28,20 @@ verification_status: code-verified
 This document defines the API contract for the admin use case to view all consultations across the system.
 
 Current status:
+
 - the admin consultation history endpoint `is implemented`
 - the admin consultation detail endpoint `is implemented`
 - the contract below is `code-verified` against the backend implementation
 
 Client-visible goals:
+
 - admin can list both scheduled and emergency consultations through a single endpoint
 - admin can filter by `status` and `type`
 - admin can see both `user` and `expert` information
 - response includes pagination metadata for admin list screens
 
 Important business notes:
+
 - scheduled and emergency consultations currently come from different data sources
 - admin history is `booking/ping-first` and then falls back to `Consultation` for edge cases
 - `price` for scheduled and emergency consultations is derived differently
@@ -46,31 +49,10 @@ Important business notes:
 
 ## 3. Authentication & Authorization
 
-### Expert/Member Operations
-
-- No new Expert/Member endpoint is introduced in this module
-- Existing consultation APIs for user/expert remain unchanged by this plan
-
 ### Admin Operations
 
 - JWT Bearer token is required
 - `Admin` role is required
-
-## 4. Expert/Member Business + Expert/Member APIs
-
-### 4.1 Business Scope
-
-There is no new API for `Expert` or `Member` in this module.
-
-This use case only introduces an admin read API for system-wide consultation history.
-
-### 4.2 Existing Related APIs
-
-For reference, the current codebase already has:
-- `GET /api/users/me/consultations`
-- `GET /api/experts/me/consultations`
-
-These two endpoints are `code-verified current behavior`, but they are not part of the new admin contract in this module.
 
 ## 5. Admin Business + Admin APIs
 
@@ -86,24 +68,27 @@ These two endpoints are `code-verified current behavior`, but they are not part 
 #### 5.2.1 `GET /api/admin/consultations`
 
 Purpose:
+
 - Admin retrieves a paged list of consultations across the whole system
 
 Status:
+
 - `Active`
 - Code-verified
 
 Auth:
+
 - JWT Bearer token is required
 - `Admin` role is required
 
 Query params:
 
-| Field | Type | Required | Notes |
-|------|------|----------|-------|
-| pageNumber | int | No | Default `1`, range `>= 1` |
-| pageSize | int | No | Default `10`, range `1..100` |
-| status | string | No | Supported domain statuses: `Scheduled`, `Ongoing`, `Completed`, `Cancelled`, `UserAbsent`, `ExpertAbsent`, `AllAbsent` |
-| type | string | No | `Scheduled` or `Emergency` |
+| Field      | Type   | Required | Notes                                                                                                                               |
+| ---------- | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| pageNumber | int    | No       | Default `1`, range `>= 1`                                                                                                       |
+| pageSize   | int    | No       | Default `10`, range `1..100`                                                                                                    |
+| status     | string | No       | Supported domain statuses:`Scheduled`, `Ongoing`, `Completed`, `Cancelled`, `UserAbsent`, `ExpertAbsent`, `AllAbsent` |
+| type       | string | No       | `Scheduled` or `Emergency`                                                                                                      |
 
 Example request:
 
@@ -113,6 +98,7 @@ Authorization: Bearer <admin-jwt>
 ```
 
 Success response:
+
 - `ApiResponse<PagingResponse<AdminConsultationResponse>>`
 
 Example response:
@@ -138,7 +124,16 @@ Example response:
         "price": 200000,
         "problemDescription": null,
         "bookingId": null,
+        "bookingStatus": null,
+        "bookedAt": null,
+        "paymentDeadline": null,
+        "cancelledAt": null,
+        "cancellationReason": null,
         "emergencyRequestId": "f61d7f73-17db-4fc8-a43e-0dd0d0f8a20d",
+        "emergencyRequestStatus": "AcceptedByExpert",
+        "requestedAt": "2026-04-10T08:55:00Z",
+        "respondedAt": "2026-04-10T08:56:00Z",
+        "expiresAt": "2026-04-10T09:05:00Z",
         "slotStartTime": null,
         "slotEndTime": null
       },
@@ -156,7 +151,16 @@ Example response:
         "price": 150000,
         "problemDescription": "Snakebite on finger",
         "bookingId": "ef54ec06-bb65-47d1-a7c5-db86aad6a49b",
+        "bookingStatus": "Completed",
+        "bookedAt": "2026-04-08T14:00:00Z",
+        "paymentDeadline": "2026-04-09T13:45:00Z",
+        "cancelledAt": null,
+        "cancellationReason": null,
         "emergencyRequestId": null,
+        "emergencyRequestStatus": null,
+        "requestedAt": null,
+        "respondedAt": null,
+        "expiresAt": null,
         "slotStartTime": "2026-04-09T14:00:00Z",
         "slotEndTime": "2026-04-09T14:30:00Z"
       }
@@ -173,10 +177,13 @@ Example response:
 ```
 
 Field notes:
+
 - `type` is the primary discriminator for admin app rendering
 - `problemDescription` is expected to be populated only for scheduled consultations
 - `bookingId` is expected only for scheduled consultations
+- `bookingStatus`, `bookedAt`, `paymentDeadline`, `cancelledAt`, `cancellationReason` are expected only for scheduled consultations
 - `emergencyRequestId` is expected only for emergency consultations
+- `emergencyRequestStatus`, `requestedAt`, `respondedAt`, `expiresAt` are expected only for emergency consultations
 - `slotStartTime` and `slotEndTime` are expected only for scheduled consultations
 - if linked booking/ping data is missing, the consultation may still be returned from `Consultation` fallback with related fields set to `null`
 - scheduled `price` comes from `ConsultationBooking.Price`
@@ -188,21 +195,24 @@ Field notes:
 #### 5.2.2 `GET /api/admin/consultations/{consultationId}`
 
 Purpose:
+
 - Admin retrieves one consultation detail by `consultationId`
 
 Status:
+
 - `Active`
 - Code-verified
 
 Auth:
+
 - JWT Bearer token is required
 - `Admin` role is required
 
 Route params:
 
-| Field | Type | Required | Notes |
-|------|------|----------|-------|
-| consultationId | guid | Yes | Existing `Consultation.Id` |
+| Field          | Type | Required | Notes                        |
+| -------------- | ---- | -------- | ---------------------------- |
+| consultationId | guid | Yes      | Existing `Consultation.Id` |
 
 Example request:
 
@@ -212,6 +222,7 @@ Authorization: Bearer <admin-jwt>
 ```
 
 Success response:
+
 - `ApiResponse<AdminConsultationResponse>`
 
 Example response:
@@ -253,6 +264,7 @@ Example response:
 ```
 
 Field notes:
+
 - detail starts from `Consultation` and then enriches from `ConsultationBooking` or `ConsultationPingRequest`
 - scheduled detail exposes `bookingStatus`, `bookedAt`, `paymentDeadline`, `cancelledAt`, `cancellationReason`
 - emergency detail exposes `emergencyRequestStatus`, `requestedAt`, `respondedAt`, `expiresAt`
@@ -286,68 +298,68 @@ Field notes:
 
 ### AdminConsultationsQueryRequest
 
-| Field | Type | Required | Constraints |
-|-------|------|----------|-------------|
-| pageNumber | int | No | `>= 1`, default `1` |
-| pageSize | int | No | `1..100`, default `10` |
-| status | string | No | must parse to `ConsultationStatus` |
-| type | string | No | `Scheduled` or `Emergency` |
+| Field      | Type   | Required | Constraints                          |
+| ---------- | ------ | -------- | ------------------------------------ |
+| pageNumber | int    | No       | `>= 1`, default `1`              |
+| pageSize   | int    | No       | `1..100`, default `10`           |
+| status     | string | No       | must parse to `ConsultationStatus` |
+| type       | string | No       | `Scheduled` or `Emergency`       |
 
 ### AdminConsultationResponse
 
-| Field | Type | Description |
-|-------|------|-------------|
-| consultationId | Guid | Consultation ID |
-| type | string | `Scheduled` or `Emergency` |
-| status | string | Consultation status |
-| userId | Guid | User / rescuer ID |
-| userName | string? | User full name |
-| expertId | Guid | Expert ID |
-| expertName | string? | Expert full name |
-| roomId | string? | Room code / room name |
-| startTime | datetime? | Consultation start time |
-| endTime | datetime? | Consultation end time |
-| price | decimal? | Consultation price when derivable |
-| problemDescription | string? | Scheduled consultation problem description |
-| bookingId | Guid? | Present for scheduled consultation |
-| bookingStatus | string? | Present for scheduled consultation when booking exists |
-| bookedAt | datetime? | Present for scheduled consultation when booking exists |
-| paymentDeadline | datetime? | Present for scheduled consultation when booking exists |
-| cancelledAt | datetime? | Present when scheduled booking was cancelled |
-| cancellationReason | string? | Present when scheduled booking was cancelled |
-| emergencyRequestId | Guid? | Present for emergency consultation |
-| emergencyRequestStatus | string? | Present for emergency consultation when ping request exists |
-| requestedAt | datetime? | Present for emergency consultation when ping request exists |
-| respondedAt | datetime? | Present for emergency consultation when ping request exists |
-| expiresAt | datetime? | Present for emergency consultation when ping request exists |
-| slotStartTime | datetime? | Present for scheduled consultation |
-| slotEndTime | datetime? | Present for scheduled consultation |
+| Field                  | Type      | Description                                                 |
+| ---------------------- | --------- | ----------------------------------------------------------- |
+| consultationId         | Guid      | Consultation ID                                             |
+| type                   | string    | `Scheduled` or `Emergency`                              |
+| status                 | string    | Consultation status                                         |
+| userId                 | Guid      | User / rescuer ID                                           |
+| userName               | string?   | User full name                                              |
+| expertId               | Guid      | Expert ID                                                   |
+| expertName             | string?   | Expert full name                                            |
+| roomId                 | string?   | Room code / room name                                       |
+| startTime              | datetime? | Consultation start time                                     |
+| endTime                | datetime? | Consultation end time                                       |
+| price                  | decimal?  | Consultation price when derivable                           |
+| problemDescription     | string?   | Scheduled consultation problem description                  |
+| bookingId              | Guid?     | Present for scheduled consultation                          |
+| bookingStatus          | string?   | Present for scheduled consultation when booking exists      |
+| bookedAt               | datetime? | Present for scheduled consultation when booking exists      |
+| paymentDeadline        | datetime? | Present for scheduled consultation when booking exists      |
+| cancelledAt            | datetime? | Present when scheduled booking was cancelled                |
+| cancellationReason     | string?   | Present when scheduled booking was cancelled                |
+| emergencyRequestId     | Guid?     | Present for emergency consultation                          |
+| emergencyRequestStatus | string?   | Present for emergency consultation when ping request exists |
+| requestedAt            | datetime? | Present for emergency consultation when ping request exists |
+| respondedAt            | datetime? | Present for emergency consultation when ping request exists |
+| expiresAt              | datetime? | Present for emergency consultation when ping request exists |
+| slotStartTime          | datetime? | Present for scheduled consultation                          |
+| slotEndTime            | datetime? | Present for scheduled consultation                          |
 
-### ApiResponse<T>
+### ApiResponse`<T>`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| status_code | int | HTTP-like status code in body |
-| message | string | Human-readable message |
-| is_success | bool | Success flag |
-| data | T | Payload |
-| error | object? | Error detail when request fails |
+| Field       | Type    | Description                     |
+| ----------- | ------- | ------------------------------- |
+| status_code | int     | HTTP-like status code in body   |
+| message     | string  | Human-readable message          |
+| is_success  | bool    | Success flag                    |
+| data        | T       | Payload                         |
+| error       | object? | Error detail when request fails |
 
-### PagingResponse<T>
+### PagingResponse`<T>`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| items | array | Current page items |
-| meta | object | Pagination metadata |
+| Field | Type   | Description         |
+| ----- | ------ | ------------------- |
+| items | array  | Current page items  |
+| meta  | object | Pagination metadata |
 
 ### PaginationMeta
 
-| Field | Type | Description |
-|-------|------|-------------|
-| total_pages | int | Total pages |
-| total_items | long | Total items |
-| current_page | int | Current page |
-| page_size | int | Requested page size |
+| Field        | Type | Description         |
+| ------------ | ---- | ------------------- |
+| total_pages  | int  | Total pages         |
+| total_items  | long | Total items         |
+| current_page | int  | Current page        |
+| page_size    | int  | Requested page size |
 
 ## 7. Verified Endpoint List
 
@@ -373,3 +385,7 @@ Code-verified related endpoints that already exist:
 - Implemented and verified `GET /api/admin/consultations/{consultationId}`
 - Unified admin list/detail contract on `AdminConsultationResponse`
 - Clarified scheduled booking detail fields and emergency request detail fields
+
+### 2026-04-15
+
+- Updated list example to reflect the unified `AdminConsultationResponse` shape used by both list and single-item endpoints
