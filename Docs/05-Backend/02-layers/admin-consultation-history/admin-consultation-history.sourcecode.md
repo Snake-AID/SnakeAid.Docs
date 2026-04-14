@@ -4,7 +4,7 @@ module: admin-consultation-history
 kind: layer
 doc_type: sourcecode
 status: implemented
-last_updated: 2026-04-13
+last_updated: 2026-04-14
 owners: [backend-team]
 verification_status: code-verified
 ---
@@ -42,18 +42,21 @@ verification_status: code-verified
 classDiagram
     class AdminConsultationsController {
         +GetAllConsultations(query)
+        +GetConsultationById(consultationId)
     }
 
     class IConsultationService {
         +GetMyConsultationsAsync(userId, query)
         +GetExpertConsultationsAsync(expertId, query)
         +GetAllConsultationsForAdminAsync(query)
+        +GetConsultationByIdForAdminAsync(consultationId)
     }
 
     class ConsultationService {
         -IUnitOfWork _unitOfWork
         -ILogger _logger
         +GetAllConsultationsForAdminAsync(query)
+        +GetConsultationByIdForAdminAsync(consultationId)
     }
 
     class AdminConsultationsQueryRequest {
@@ -254,7 +257,79 @@ Primary mapping:
 5. Pagination should continue to use `PaginationRequest`
 6. Pagination helper and status parsing are shared across admin/user/expert history methods in `ConsultationService`
 
-## 7. Code-Verified Tests
+## 7. Implemented Extension - Get One Consultation
+
+### Implemented Members
+
+```mermaid
+classDiagram
+    class AdminConsultationsController {
+        +GetAllConsultations(query)
+        +GetConsultationById(consultationId)
+    }
+
+    class IConsultationService {
+        +GetAllConsultationsForAdminAsync(query)
+        +GetConsultationByIdForAdminAsync(consultationId)
+    }
+
+```
+
+### Detail Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant AdminApp as Admin App
+    participant Controller as AdminConsultationsController
+    participant Service as ConsultationService
+    participant ConsultationRepo as Consultation Repo
+    participant BookingRepo as ConsultationBooking Repo
+    participant PingRepo as ConsultationPingRequest Repo
+    participant TxRepo as Transaction Repo
+
+    AdminApp->>Controller: GET /api/admin/consultations/{consultationId}
+    Controller->>Controller: Authorize Admin role
+    Controller->>Service: GetConsultationByIdForAdminAsync(consultationId)
+    Service->>ConsultationRepo: Load Consultation + Caller + Callee
+    ConsultationRepo-->>Service: consultation or null
+
+    alt consultation not found
+        Service-->>Controller: throw NotFoundException("Consultation not found.")
+    else scheduled consultation
+        Service->>BookingRepo: Load booking by ConsultationId
+        BookingRepo-->>Service: booking or null
+        Service->>Service: map detail response
+    else emergency consultation
+        Service->>PingRepo: Load ping request by ConsultationId
+        PingRepo-->>Service: ping or null
+        Service->>TxRepo: Resolve price
+        TxRepo-->>Service: matching transactions
+        Service->>Service: map detail response
+    end
+
+    Service-->>Controller: AdminConsultationResponse
+    Controller-->>AdminApp: ApiResponse<AdminConsultationResponse>
+```
+
+### Mapping Direction
+
+For detail, the implemented lookup order is different from list:
+
+1. Start from `Consultation`
+2. Branch by `Consultation.Type`
+3. Enrich from `ConsultationBooking` or `ConsultationPingRequest`
+4. Derive price using the same pricing rules already implemented for list
+
+Reason:
+- detail lookup is keyed by `consultationId`
+- direct lookup is simpler and avoids reusing a merged list pipeline for a single item
+
+### Not-Found Behavior
+
+- service throws `NotFoundException("Consultation not found.")`
+- controller stays thin and follows existing consultation module behavior
+
+## 8. Code-Verified Tests
 
 - `AdminConsultationHistoryIntegrationTests`
   - scheduled item maps `BookingId`, slot times, and problem description correctly
@@ -264,8 +339,14 @@ Primary mapping:
   - no duplicate item is returned when a consultation already exists in the main path
   - sort uses `StartTime desc`
   - `PageNumber`, `PageSize`, `TotalItems`, `TotalPages` are correct
+  - scheduled detail maps booking detail fields correctly
+  - emergency detail maps request detail fields and payout fallback correctly
+  - orphan emergency detail returns null request metadata
+  - missing consultation throws `NotFoundException`
 - `AdminConsultationsControllerTests`
   - route is `api/admin/consultations`
   - controller requires role `Admin`
   - action exposes `HttpGet`
   - action returns `ApiResponse<PagingResponse<AdminConsultationResponse>>`
+  - detail action exposes `HttpGet("{consultationId:guid}")`
+  - detail action returns `ApiResponse<AdminConsultationResponse>`

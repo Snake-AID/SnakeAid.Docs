@@ -4,7 +4,7 @@ module: admin-consultation-history
 kind: flow
 doc_type: usageguide
 status: active
-last_updated: 2026-04-13
+last_updated: 2026-04-14
 api_version: v1
 owners: [backend-team]
 verification_status: code-verified
@@ -29,6 +29,7 @@ This document defines the API contract for the admin use case to view all consul
 
 Current status:
 - the admin consultation history endpoint `is implemented`
+- the admin consultation detail endpoint `is implemented`
 - the contract below is `code-verified` against the backend implementation
 
 Client-visible goals:
@@ -184,6 +185,81 @@ Field notes:
   - fallback to `TransactionType = ExpertPayout` with `ReferenceId = Consultation.Id`
   - may still be `null` if source data is insufficient
 
+#### 5.2.2 `GET /api/admin/consultations/{consultationId}`
+
+Purpose:
+- Admin retrieves one consultation detail by `consultationId`
+
+Status:
+- `Active`
+- Code-verified
+
+Auth:
+- JWT Bearer token is required
+- `Admin` role is required
+
+Route params:
+
+| Field | Type | Required | Notes |
+|------|------|----------|-------|
+| consultationId | guid | Yes | Existing `Consultation.Id` |
+
+Example request:
+
+```http
+GET /api/admin/consultations/8ce96758-71b5-4310-bc35-d83525b2c54f
+Authorization: Bearer <admin-jwt>
+```
+
+Success response:
+- `ApiResponse<AdminConsultationResponse>`
+
+Example response:
+
+```json
+{
+  "status_code": 200,
+  "message": "Operation successful",
+  "is_success": true,
+  "data": {
+    "consultationId": "8ce96758-71b5-4310-bc35-d83525b2c54f",
+    "type": "Scheduled",
+    "status": "Completed",
+    "userId": "9f5d88cd-09a4-4fe6-b6d3-84fe67fe7dbf",
+    "userName": "Le Van C",
+    "expertId": "ba833fc7-6856-48b2-b032-9c5d985729d1",
+    "expertName": "Pham Thi D",
+    "roomId": "consultation-8ce96758-71b5-4310-bc35-d83525b2c54f",
+    "startTime": "2026-04-09T14:00:00Z",
+    "endTime": "2026-04-09T14:30:00Z",
+    "price": 150000,
+    "problemDescription": "Snakebite on finger",
+    "bookingId": "ef54ec06-bb65-47d1-a7c5-db86aad6a49b",
+    "bookingStatus": "Completed",
+    "bookedAt": "2026-04-08T14:00:00Z",
+    "paymentDeadline": "2026-04-09T13:45:00Z",
+    "cancelledAt": null,
+    "cancellationReason": null,
+    "emergencyRequestId": null,
+    "emergencyRequestStatus": null,
+    "requestedAt": null,
+    "respondedAt": null,
+    "expiresAt": null,
+    "slotStartTime": "2026-04-09T14:00:00Z",
+    "slotEndTime": "2026-04-09T14:30:00Z"
+  },
+  "error": null
+}
+```
+
+Field notes:
+- detail starts from `Consultation` and then enriches from `ConsultationBooking` or `ConsultationPingRequest`
+- scheduled detail exposes `bookingStatus`, `bookedAt`, `paymentDeadline`, `cancelledAt`, `cancellationReason`
+- emergency detail exposes `emergencyRequestStatus`, `requestedAt`, `respondedAt`, `expiresAt`
+- orphan scheduled consultations still return successfully with booking-related fields as `null`
+- orphan emergency consultations still return successfully with emergency-request-related fields as `null`
+- `price` follows the same derivation rules as the admin list endpoint
+
 ### 5.3 Expected Failure Behavior
 
 #### Validation
@@ -234,7 +310,16 @@ Field notes:
 | price | decimal? | Consultation price when derivable |
 | problemDescription | string? | Scheduled consultation problem description |
 | bookingId | Guid? | Present for scheduled consultation |
+| bookingStatus | string? | Present for scheduled consultation when booking exists |
+| bookedAt | datetime? | Present for scheduled consultation when booking exists |
+| paymentDeadline | datetime? | Present for scheduled consultation when booking exists |
+| cancelledAt | datetime? | Present when scheduled booking was cancelled |
+| cancellationReason | string? | Present when scheduled booking was cancelled |
 | emergencyRequestId | Guid? | Present for emergency consultation |
+| emergencyRequestStatus | string? | Present for emergency consultation when ping request exists |
+| requestedAt | datetime? | Present for emergency consultation when ping request exists |
+| respondedAt | datetime? | Present for emergency consultation when ping request exists |
+| expiresAt | datetime? | Present for emergency consultation when ping request exists |
 | slotStartTime | datetime? | Present for scheduled consultation |
 | slotEndTime | datetime? | Present for scheduled consultation |
 
@@ -271,6 +356,7 @@ Code-verified related endpoints that already exist:
 - `GET /api/users/me/consultations`
 - `GET /api/experts/me/consultations`
 - `GET /api/admin/consultations`
+- `GET /api/admin/consultations/{consultationId}`
 
 ## 8. Changelog
 
@@ -281,3 +367,9 @@ Code-verified related endpoints that already exist:
 - Confirmed active response shape for both scheduled and emergency items
 - Documented emergency price resolution order used by the backend
 - Clarified booking/ping-first mapping with `Consultation` fallback for edge cases
+
+### 2026-04-14
+
+- Implemented and verified `GET /api/admin/consultations/{consultationId}`
+- Unified admin list/detail contract on `AdminConsultationResponse`
+- Clarified scheduled booking detail fields and emergency request detail fields
