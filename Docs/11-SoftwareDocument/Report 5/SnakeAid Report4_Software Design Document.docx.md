@@ -719,6 +719,10 @@ participant ExpertController
 participant ExpertService
 participant ExpertProfileRepository
 participant ExpertHub
+activate ExpertController
+activate ExpertService
+activate ExpertProfileRepository
+activate ExpertHub
 
 MemberApp -> ExpertController: GET /api/experts
 ExpertController -> ExpertService: GetExpertsAsync(request)
@@ -733,6 +737,10 @@ ExpertHub --> MemberApp: OnlineExpertsSnapshot
 
 ExpertApp -> ExpertHub: JoinAsExpert()
 ExpertHub --> MemberApp: ExpertPresenceChanged(ExpertId, IsOnline=true, ChangedAtUtc)
+deactivate ExpertHub
+deactivate ExpertProfileRepository
+deactivate ExpertService
+deactivate ExpertController
 @enduml
 ```
 
@@ -762,6 +770,15 @@ sequenceDiagram
     participant ConsultationPaymentService
     participant ConsultationBookingRepository
     participant PaymentGateway
+    activate ConsultationScheduledController
+    activate BookingService
+    activate ExpertTimeSlotRepository
+    activate ExpertProfileRepository
+    activate ConsultationRepository
+    activate ConsultationPaymentsController
+    activate ConsultationPaymentService
+    activate ConsultationBookingRepository
+    activate PaymentGateway
 
     MemberApp->>ConsultationScheduledController: POST /api/consultations/scheduled
     ConsultationScheduledController->>BookingService: CreateScheduledBookingAsync(userId, request)
@@ -818,6 +835,15 @@ participant ConsultationPaymentsController
 participant ConsultationPaymentService
 participant ConsultationBookingRepository
 participant PaymentGateway
+activate ConsultationScheduledController
+activate BookingService
+activate ExpertTimeSlotRepository
+activate ExpertProfileRepository
+activate ConsultationRepository
+activate ConsultationPaymentsController
+activate ConsultationPaymentService
+activate ConsultationBookingRepository
+activate PaymentGateway
 
 MemberApp -> ConsultationScheduledController: POST /api/consultations/scheduled
 ConsultationScheduledController -> BookingService: CreateScheduledBookingAsync(userId, request)
@@ -860,6 +886,15 @@ else PayOs
   ConsultationPaymentService -> ConsultationBookingRepository: FirstOrDefaultAsync(Id == transaction.ReferenceId, include Consultation, asNoTracking:false)
   ConsultationPaymentService -> ConsultationBookingRepository: Update(booking.Status = Confirmed)
 end
+deactivate PaymentGateway
+deactivate ConsultationBookingRepository
+deactivate ConsultationPaymentService
+deactivate ConsultationPaymentsController
+deactivate ConsultationRepository
+deactivate ExpertProfileRepository
+deactivate ExpertTimeSlotRepository
+deactivate BookingService
+deactivate ConsultationScheduledController
 @enduml
 ```
 
@@ -896,6 +931,14 @@ sequenceDiagram
     participant ConsultationPingRequestRepository
     participant PaymentGateway
     participant ExpertNotificationService
+    activate ConsultationInstantController
+    activate EmergencyConsultationService
+    activate ExpertHub
+    activate ConsultationPaymentsController
+    activate ConsultationPaymentService
+    activate ConsultationPingRequestRepository
+    activate PaymentGateway
+    activate ExpertNotificationService
 
     MemberApp->>ConsultationInstantController: POST /api/consultations/instant
     ConsultationInstantController->>EmergencyConsultationService: CreateEmergencyRequestAsync(requesterId, request)
@@ -957,6 +1000,14 @@ participant ConsultationPaymentService
 participant ConsultationPingRequestRepository
 participant PaymentGateway
 participant ExpertNotificationService
+activate ConsultationInstantController
+activate EmergencyConsultationService
+activate ExpertHub
+activate ConsultationPaymentsController
+activate ConsultationPaymentService
+activate ConsultationPingRequestRepository
+activate PaymentGateway
+activate ExpertNotificationService
 
 MemberApp -> ConsultationInstantController: POST /api/consultations/instant
 ConsultationInstantController -> EmergencyConsultationService: CreateEmergencyRequestAsync(requesterId, request)
@@ -1005,6 +1056,14 @@ else PayOs
   ConsultationPaymentService -> ExpertNotificationService: SendEmergencyRequestAsync(...)
   ExpertNotificationService --> ExpertHub: EmergencyConsultationRequest
 end
+deactivate ExpertNotificationService
+deactivate PaymentGateway
+deactivate ConsultationPingRequestRepository
+deactivate ConsultationPaymentService
+deactivate ConsultationPaymentsController
+deactivate ExpertHub
+deactivate EmergencyConsultationService
+deactivate ConsultationInstantController
 @enduml
 ```
 
@@ -1045,6 +1104,15 @@ sequenceDiagram
     participant ConsultationPingRequestRepository
     participant ConsultationRepository
     participant ExpertTimeSlotRepository
+    activate ExpertHub
+    activate ConsultationInstantController
+    activate EmergencyConsultationService
+    activate ExpertNotificationService
+    activate ConsultationPaymentService
+    activate ConsultationLifecycleBackgroundService
+    activate ConsultationPingRequestRepository
+    activate ConsultationRepository
+    activate ExpertTimeSlotRepository
 
     ExpertHub-->>ExpertApp: EmergencyConsultationRequest
     alt Accept
@@ -1100,6 +1168,15 @@ participant ConsultationLifecycleBackgroundService
 participant ConsultationPingRequestRepository
 participant ConsultationRepository
 participant ExpertTimeSlotRepository
+activate ExpertHub
+activate ConsultationInstantController
+activate EmergencyConsultationService
+activate ExpertNotificationService
+activate ConsultationPaymentService
+activate ConsultationLifecycleBackgroundService
+activate ConsultationPingRequestRepository
+activate ConsultationRepository
+activate ExpertTimeSlotRepository
 
 ExpertHub --> ExpertApp: EmergencyConsultationRequest
 alt Accept
@@ -1140,6 +1217,15 @@ else Timeout sweep
   ExpertNotificationService --> ExpertHub: EmergencyRequestStatusChanged(status=Expired)
   ExpertHub --> MemberApp: EmergencyRequestStatusChanged(status=Expired)
 end
+deactivate ExpertTimeSlotRepository
+deactivate ConsultationRepository
+deactivate ConsultationPingRequestRepository
+deactivate ConsultationLifecycleBackgroundService
+deactivate ConsultationPaymentService
+deactivate ExpertNotificationService
+deactivate EmergencyConsultationService
+deactivate ConsultationInstantController
+deactivate ExpertHub
 @enduml
 ```
 
@@ -1193,6 +1279,13 @@ sequenceDiagram
     participant ConsultationHub
     participant MediaController
     participant ChatMessageRepository
+    activate VideoCallController
+    activate ConsultationRepository
+    activate LiveKitService
+    activate LiveKitCloud
+    activate ConsultationHub
+    activate MediaController
+    activate ChatMessageRepository
 
     ParticipantApp->>VideoCallController: POST /api/consultations/{consultationId}/video-token
     VideoCallController->>ConsultationRepository: FirstOrDefaultAsync(c.Id == consultationId)
@@ -1229,6 +1322,13 @@ participant LiveKitCloud
 participant ConsultationHub
 participant MediaController
 participant ChatMessageRepository
+activate VideoCallController
+activate ConsultationRepository
+activate LiveKitService
+activate LiveKitCloud
+activate ConsultationHub
+activate MediaController
+activate ChatMessageRepository
 
 ParticipantApp -> VideoCallController: POST /api/consultations/{consultationId}/video-token
 VideoCallController -> ConsultationRepository: FirstOrDefaultAsync(c.Id == consultationId)
@@ -1253,6 +1353,13 @@ ConsultationHub --> ParticipantApp: ReceiveMessage
 
 ParticipantApp -> ConsultationHub: Signal(eventType, payload)
 ConsultationHub --> ParticipantApp: Signal
+deactivate ChatMessageRepository
+deactivate MediaController
+deactivate ConsultationHub
+deactivate LiveKitCloud
+deactivate LiveKitService
+deactivate ConsultationRepository
+deactivate VideoCallController
 @enduml
 ```
 
@@ -1287,6 +1394,15 @@ sequenceDiagram
     participant ConsultationRepository
     participant ConsultationBookingRepository
     participant ExpertTimeSlotRepository
+    activate ConsultationsController
+    activate ConsultationService
+    activate ConsultationPaymentService
+    activate ConsultationLifecycleBackgroundService
+    activate BookingService
+    activate LiveKitService
+    activate ConsultationRepository
+    activate ConsultationBookingRepository
+    activate ExpertTimeSlotRepository
 
     alt Explicit end
         ParticipantApp->>ConsultationsController: POST /api/consultations/{consultationId}/end
@@ -1334,6 +1450,15 @@ participant LiveKitService
 participant ConsultationRepository
 participant ConsultationBookingRepository
 participant ExpertTimeSlotRepository
+activate ConsultationsController
+activate ConsultationService
+activate ConsultationPaymentService
+activate ConsultationLifecycleBackgroundService
+activate BookingService
+activate LiveKitService
+activate ConsultationRepository
+activate ConsultationBookingRepository
+activate ExpertTimeSlotRepository
 
 alt Explicit end
   ParticipantApp -> ConsultationsController: POST /api/consultations/{consultationId}/end
@@ -1367,6 +1492,15 @@ else Lifecycle fallback - emergency
   BookingService -> ConsultationPaymentService: SettleConsultationEscrowAsync(consultationId, cancellationToken)
   ConsultationPaymentService --> BookingService: ExpertPayout + PlatformFee persisted
 end
+deactivate ExpertTimeSlotRepository
+deactivate ConsultationBookingRepository
+deactivate ConsultationRepository
+deactivate LiveKitService
+deactivate BookingService
+deactivate ConsultationLifecycleBackgroundService
+deactivate ConsultationPaymentService
+deactivate ConsultationService
+deactivate ConsultationsController
 @enduml
 ```
 
@@ -1397,6 +1531,11 @@ sequenceDiagram
     participant ConsultationRepository
     participant UserFeedbackRepository
     participant ExpertProfileRepository
+    activate ConsultationsController
+    activate ConsultationService
+    activate ConsultationRepository
+    activate UserFeedbackRepository
+    activate ExpertProfileRepository
 
     MemberApp->>ConsultationsController: POST /api/consultations/{consultationId}/reviews
     ConsultationsController->>ConsultationService: CreateConsultationReviewAsync(consultationId, raterId, request)
@@ -1418,6 +1557,11 @@ participant ConsultationService
 participant ConsultationRepository
 participant UserFeedbackRepository
 participant ExpertProfileRepository
+activate ConsultationsController
+activate ConsultationService
+activate ConsultationRepository
+activate UserFeedbackRepository
+activate ExpertProfileRepository
 
 MemberApp -> ConsultationsController: POST /api/consultations/{consultationId}/reviews
 ConsultationsController -> ConsultationService: CreateConsultationReviewAsync(consultationId, raterId, request)
@@ -1429,6 +1573,11 @@ ConsultationService -> ExpertProfileRepository: FirstOrDefaultAsync(AccountId ==
 ConsultationService -> ExpertProfileRepository: Update(RatingCount, Rating)
 ConsultationService --> ConsultationsController: UserFeedbackResponse + UpdatedAverageRating + UpdatedRatingCount
 ConsultationsController --> MemberApp: 200 OK
+deactivate ExpertProfileRepository
+deactivate UserFeedbackRepository
+deactivate ConsultationRepository
+deactivate ConsultationService
+deactivate ConsultationsController
 @enduml
 ```
 
