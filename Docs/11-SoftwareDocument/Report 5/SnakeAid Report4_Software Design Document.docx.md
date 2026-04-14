@@ -140,7 +140,7 @@ Canonical business states used in this feature:
 #### ***3.3.1 Class Diagram***
 
 ```mermaid
-    classDiagram
+classDiagram
         class IExpertService {
             <<interface>>
             +UpdateSettingsAsync(expertId, request)
@@ -431,7 +431,6 @@ Canonical business states used in this feature:
 
 ```mermaid
 sequenceDiagram
-    autonumber
     actor MemberApp
     actor ExpertApp
     participant ExpertController
@@ -440,27 +439,29 @@ sequenceDiagram
     participant ExpertHub
 
     MemberApp->>ExpertController: GET /api/experts
-    ExpertController->>ExpertService: GetExpertDirectory(query)
-    ExpertService->>ExpertProfileRepository: Query experts + availability summary
-    ExpertProfileRepository-->>ExpertService: ExpertProfiles + PagingMeta
-    ExpertService-->>ExpertController: ExpertDirectoryResponse
+    ExpertController->>ExpertService: GetExpertsAsync(request)
+    ExpertService->>ExpertProfileRepository: GetPagingListAsync(predicate, include, orderBy, page, size)
+    ExpertProfileRepository-->>ExpertService: PagingResponse<ExpertProfile>
+    ExpertService->>ExpertService: MapExpertProfilesAsync(pagedData.Items)
+    ExpertService-->>ExpertController: PagingResponse<ExpertProfileResponse>
     ExpertController-->>MemberApp: ApiResponse<PagingResponse<ExpertProfileResponse>>
 
     MemberApp->>ExpertHub: JoinAsMember()
     ExpertHub-->>MemberApp: OnlineExpertsSnapshot
 
     ExpertApp->>ExpertHub: JoinAsExpert()
-    ExpertHub-->>MemberApp: ExpertPresenceChanged(expertId, isOnline=true)
+    ExpertHub-->>MemberApp: ExpertPresenceChanged(ExpertId, IsOnline=true, ChangedAtUtc)
 ```
 
 Main flow:
 
 1. Member App calls GET /api/experts.
-2. ExpertController delegates query/filter/paging to ExpertService.
-3. ExpertService loads experts and availability summary from repository.
+2. `ExpertController.GetExperts` delegates to `ExpertService.GetExpertsAsync`.
+3. `ExpertService.GetExpertsAsync` loads paged `ExpertProfile` data through `GetPagingListAsync(...)` and maps items by `MapExpertProfilesAsync(...)`.
 4. API returns expert list to Member App.
-5. Member App connects ExpertHub and invokes JoinAsMember.
-6. Member App receives OnlineExpertsSnapshot and ExpertPresenceChanged events for live status update.
+5. Member App connects `ExpertHub` and invokes `JoinAsMember()`.
+6. Expert App connects `ExpertHub` and invokes `JoinAsExpert()`.
+7. Member App receives `OnlineExpertsSnapshot` first, then `ExpertPresenceChanged` when an expert connection changes online state.
 
 Output: Expert list with real-time online/offline synchronization.
 
@@ -468,67 +469,86 @@ Output: Expert list with real-time online/offline synchronization.
 
 ```mermaid
 sequenceDiagram
-    autonumber
     actor MemberApp
-    participant ConsultationBookingsController
+    participant ConsultationScheduledController
     participant BookingService
+    participant ExpertTimeSlotRepository
+    participant ExpertProfileRepository
+    participant ConsultationRepository
     participant ConsultationPaymentsController
     participant ConsultationPaymentService
     participant ConsultationBookingRepository
     participant PaymentGateway
 
-    MemberApp->>ConsultationBookingsController: POST /api/consultations/scheduled
-    ConsultationBookingsController->>BookingService: CreateScheduledBooking(payload)
-    BookingService->>ConsultationBookingRepository: Validate slot + create PendingPayment booking
-    ConsultationBookingRepository-->>BookingService: ConsultationBooking
-    BookingService-->>ConsultationBookingsController: ConsultationBookingResponse
-    ConsultationBookingsController-->>MemberApp: Booking created (PendingPayment)
+    MemberApp->>ConsultationScheduledController: POST /api/consultations/scheduled
+    ConsultationScheduledController->>BookingService: CreateScheduledBookingAsync(userId, request)
+    BookingService->>ExpertTimeSlotRepository: FirstOrDefaultAsync(slotId, asNoTracking:false)
+    BookingService->>ExpertProfileRepository: FirstOrDefaultAsync(AccountId == slot.ExpertId)
+    BookingService->>ConsultationRepository: InsertAsync(new Consultation { RoomId = "consultation-{consultationId}", Status = Scheduled, Type = Scheduled })
+    BookingService->>ConsultationBookingRepository: InsertAsync(new ConsultationBooking { Status = PendingPayment, ConsultationId, TimeSlotId, PaymentDeadline })
+    BookingService->>ExpertTimeSlotRepository: Update(slot.Status = Reserved)
+    BookingService-->>ConsultationScheduledController: ConsultationBookingResponse
+    ConsultationScheduledController-->>MemberApp: Booking created (PendingPayment, ConsultationId, RoomId)
 
     MemberApp->>ConsultationPaymentsController: POST /api/consultations/scheduled/{bookingId}/payments
-    ConsultationPaymentsController->>ConsultationPaymentService: PayScheduledBooking(userId, bookingId, paymentMethod)
-    ConsultationPaymentService->>ConsultationBookingRepository: Validate owner + PendingPayment state
+    ConsultationPaymentsController->>ConsultationPaymentService: PayScheduledBookingAsync(userId, bookingId, request, cancellationToken)
     alt WalletBalance
-        ConsultationPaymentService->>ConsultationBookingRepository: Write ConsultationPayment + mark Confirmed
-        ConsultationBookingRepository-->>ConsultationPaymentService: Booking confirmed + consultationId + roomId
+        ConsultationPaymentService->>ConsultationPaymentService: PayScheduledBookingWithWalletAsync(userId, bookingId, request, cancellationToken)
+        ConsultationPaymentService->>ConsultationBookingRepository: FirstOrDefaultAsync(Id == bookingId, include Consultation, asNoTracking:false)
+        ConsultationPaymentService->>ConsultationPaymentService: MoveMoneyToEscrowAsync(userId, booking.Id, booking.Price, ConsultationPayment, Wallet, ...)
+        ConsultationPaymentService->>ConsultationBookingRepository: Update(booking.Status = Confirmed)
         ConsultationPaymentService-->>ConsultationPaymentsController: ConsultationPaymentResponse(status=Escrowed)
         ConsultationPaymentsController-->>MemberApp: 200 OK Escrowed
     else PayOs
-        ConsultationPaymentService->>PaymentGateway: Create payment intent
+        ConsultationPaymentService->>ConsultationPaymentService: CreateScheduledBookingPayOsIntentAsync(userId, bookingId, request, cancellationToken)
+        ConsultationPaymentService->>ConsultationBookingRepository: FirstOrDefaultAsync(Id == bookingId, include Consultation, asNoTracking:false)
+        ConsultationPaymentService->>ConsultationPaymentService: PreparePendingPayOsTransactionAsync(userId, booking.Id, booking.Price, ...)
+        ConsultationPaymentService->>PaymentGateway: CreatePayOsLinkAsync(orderCode, booking.Price, ...)
         PaymentGateway-->>ConsultationPaymentService: checkoutUrl + orderCode + paymentLinkId
         ConsultationPaymentService-->>ConsultationPaymentsController: ConsultationPaymentResponse(status=Pending)
         ConsultationPaymentsController-->>MemberApp: 200 OK Pending
         MemberApp->>PaymentGateway: Complete PayOS checkout
-        PaymentGateway-->>ConsultationPaymentService: Return/Webhook/Confirm payment
-        ConsultationPaymentService->>ConsultationBookingRepository: Mark Confirmed + assign consultationId + roomId
-        ConsultationBookingRepository-->>ConsultationPaymentService: Booking confirmed
+        alt Client fallback confirm
+            MemberApp->>ConsultationPaymentsController: POST /api/consultations/payments/confirm
+            ConsultationPaymentsController->>ConsultationPaymentService: ConfirmConsultationPaymentAsync(transactionId, cancellationToken)
+            ConsultationPaymentService->>PaymentGateway: GetPaymentLinkInformationAsync(orderCode, cancellationToken)
+            ConsultationPaymentService->>ConsultationPaymentService: ProcessConfirmedPayOsPaymentAsync(webhookData, cancellationToken)
+        else PayOS webhook
+            PaymentGateway->>ConsultationPaymentService: ProcessConsultationWebhookAsync(request, cancellationToken)
+            ConsultationPaymentService->>ConsultationPaymentService: ProcessConfirmedPayOsPaymentAsync(webhookData, cancellationToken)
+        end
+        ConsultationPaymentService->>ConsultationPaymentService: MoveMoneyToEscrowAsync(payerUserId, transaction.ReferenceId, transaction.Amount, ConsultationPayment, PayOS, ..., skipExistingPaymentInsert:true)
+        ConsultationPaymentService->>ConsultationBookingRepository: FirstOrDefaultAsync(Id == transaction.ReferenceId, include Consultation, asNoTracking:false)
+        ConsultationPaymentService->>ConsultationBookingRepository: Update(booking.Status = Confirmed)
     end
 ```
 
 Main flow:
 
 1. Member App calls POST /api/consultations/scheduled with timeSlotId and problemDescription.
-2. BookingService validates slot availability and concurrency version.
-3. BookingService creates ConsultationBooking in PendingPayment state.
-4. API returns ConsultationBookingResponse and booking waits for payment.
+2. `ConsultationScheduledController.CreateBooking` calls `BookingService.CreateScheduledBookingAsync`.
+3. `BookingService.CreateScheduledBookingAsync` validates the selected `ExpertTimeSlot`, loads `ExpertProfile`, creates `Consultation` immediately, creates `ConsultationBooking` in `PendingPayment`, and marks the slot as `Reserved`.
+4. API returns `ConsultationBookingResponse` containing the already-created `ConsultationId` and `RoomId`.
 5. Member App calls POST /api/consultations/scheduled/{bookingId}/payments.
-6. ConsultationPaymentService validates booking ownership and PendingPayment state.
+6. `ConsultationPaymentsController.PayScheduledBooking` calls `ConsultationPaymentService.PayScheduledBookingAsync`.
 7. Branch A - WalletBalance:
-	1. Service charges user wallet and writes ConsultationPayment transaction to the ledger.
-	2. Booking moves to Confirmed and consultationId + roomId are generated.
-	3. API returns ConsultationPaymentResponse with status Escrowed.
+    1. `PayScheduledBookingWithWalletAsync` validates owner and `PendingPayment`.
+    2. `MoveMoneyToEscrowAsync(...)` writes the `ConsultationPayment` transaction and deducts wallet balance.
+    3. Booking status changes to `Confirmed`.
+    4. API returns `ConsultationPaymentResponse` with status `Escrowed`.
 8. Branch B - PayOS:
-	1. Service creates a pending payment transaction and returns checkoutUrl/orderCode/paymentLinkId with status Pending.
-	2. User completes checkout; backend confirms payment via PayOS return/webhook, or client-triggered fallback POST /api/consultations/payments/confirm.
-	3. After confirmed payment, booking moves to Confirmed and consultationId + roomId are generated; payment status becomes Escrowed.
+    1. `CreateScheduledBookingPayOsIntentAsync` creates a pending PayOS transaction and returns `checkoutUrl/orderCode/paymentLinkId` with status `Pending`.
+    2. User completes checkout; backend confirms through `ConfirmConsultationPaymentAsync(...)` or `ProcessConsultationWebhookAsync(...)`.
+    3. `ProcessConfirmedPayOsPaymentAsync(...)` moves money to escrow and updates booking status to `Confirmed`.
 
-Output: Booking becomes ready for consultation only after payment is Escrowed. WalletBalance is immediate; PayOS requires a confirm step after Pending.
+Output: Scheduled booking creates `Consultation` and `RoomId` before payment; payment only changes money state to `Escrowed` and booking state to `Confirmed`.
 
 #### ***3.3.4 Sequence Diagram Create, Pay, and Notify Emergency Consultation Request***
 
 ```mermaid
 sequenceDiagram
     actor MemberApp
-    participant ConsultationsController
+    participant ConsultationInstantController
     participant EmergencyConsultationService
     participant ExpertHub
     participant ConsultationPaymentsController
@@ -537,61 +557,74 @@ sequenceDiagram
     participant PaymentGateway
     participant ExpertNotificationService
 
-    MemberApp->>ConsultationsController: POST /api/consultations/instant
-    ConsultationsController->>EmergencyConsultationService: CreateEmergencyRequest(expertId)
-    EmergencyConsultationService->>ConsultationPingRequestRepository: Validate expert availability + create PendingPayment request
-    ConsultationPingRequestRepository-->>EmergencyConsultationService: EmergencyConsultationRequestResponse
-    EmergencyConsultationService-->>ConsultationsController: EmergencyConsultationRequestResponse
-    ConsultationsController-->>MemberApp: Request created (PendingPayment)
+    MemberApp->>ConsultationInstantController: POST /api/consultations/instant
+    ConsultationInstantController->>EmergencyConsultationService: CreateEmergencyRequestAsync(requesterId, request)
+    EmergencyConsultationService->>ConsultationPingRequestRepository: FirstOrDefaultAsync(active pending request check)
+    EmergencyConsultationService->>ConsultationPingRequestRepository: InsertAsync(new ConsultationPingRequest { Status = PendingPayment })
+    EmergencyConsultationService-->>ConsultationInstantController: EmergencyConsultationRequestResponse
+    ConsultationInstantController-->>MemberApp: Request created (PendingPayment)
 
     MemberApp->>ExpertHub: JoinEmergencyRequestRoom(requestId)
-    ExpertHub-->>MemberApp: Request room subscribed
+    ExpertHub-->>MemberApp: JoinedEmergencyRequestRoom(RequestId, GroupName)
 
     MemberApp->>ConsultationPaymentsController: POST /api/consultations/instant/{requestId}/payments
-    ConsultationPaymentsController->>ConsultationPaymentService: PayEmergencyRequest(userId, requestId, paymentMethod)
-    ConsultationPaymentService->>ConsultationPingRequestRepository: Validate owner + PendingPayment + expert availability
+    ConsultationPaymentsController->>ConsultationPaymentService: PayEmergencyRequestAsync(userId, requestId, request, cancellationToken)
     alt WalletBalance
-        ConsultationPaymentService->>ConsultationPingRequestRepository: Write ConsultationPayment + set PendingExpertResponse + ExpiresAt
-        ConsultationPingRequestRepository-->>ConsultationPaymentService: Request escrowed
+        ConsultationPaymentService->>ConsultationPaymentService: PayEmergencyRequestWithWalletAsync(userId, requestId, request, cancellationToken)
+        ConsultationPaymentService->>ConsultationPingRequestRepository: FirstOrDefaultAsync(Id == requestId, asNoTracking:false)
+        ConsultationPaymentService->>ExpertNotificationService: IsExpertConnected(ping.ExpertId.ToString())
+        ConsultationPaymentService->>ConsultationPaymentService: GetEmergencyFeeAsync(ping.ExpertId, cancellationToken)
+        ConsultationPaymentService->>ConsultationPaymentService: MoveMoneyToEscrowAsync(userId, ping.Id, emergencyFee, ConsultationPayment, Wallet, ...)
+        ConsultationPaymentService->>ConsultationPingRequestRepository: Update(ping.Status = PendingExpertResponse, RequestedAt = UtcNow, ExpiresAt = RequestedAt + EmergencyRequestTtl)
         ConsultationPaymentService->>ExpertNotificationService: SendEmergencyRequestAsync(...)
-        ExpertNotificationService-->>ExpertHub: Push EmergencyConsultationRequest
-        ExpertHub-->>MemberApp: EmergencyRequestStatusChanged
+        ExpertNotificationService-->>ExpertHub: EmergencyConsultationRequest
         ConsultationPaymentService-->>ConsultationPaymentsController: ConsultationPaymentResponse(status=Escrowed)
         ConsultationPaymentsController-->>MemberApp: 200 OK Escrowed
     else PayOs
-        ConsultationPaymentService->>PaymentGateway: Create payment intent
+        ConsultationPaymentService->>ConsultationPaymentService: CreateEmergencyRequestPayOsIntentAsync(userId, requestId, request, cancellationToken)
+        ConsultationPaymentService->>ConsultationPingRequestRepository: FirstOrDefaultAsync(Id == requestId, asNoTracking:false)
+        ConsultationPaymentService->>ExpertNotificationService: IsExpertConnected(ping.ExpertId.ToString())
+        ConsultationPaymentService->>ConsultationPaymentService: GetEmergencyFeeAsync(ping.ExpertId, cancellationToken)
+        ConsultationPaymentService->>ConsultationPaymentService: PreparePendingPayOsTransactionAsync(userId, ping.Id, emergencyFee, ...)
+        ConsultationPaymentService->>PaymentGateway: CreatePayOsLinkAsync(orderCode, emergencyFee, ...)
         PaymentGateway-->>ConsultationPaymentService: checkoutUrl + orderCode + paymentLinkId
         ConsultationPaymentService-->>ConsultationPaymentsController: ConsultationPaymentResponse(status=Pending)
         ConsultationPaymentsController-->>MemberApp: 200 OK Pending
         MemberApp->>PaymentGateway: Complete PayOS checkout
-        PaymentGateway-->>ConsultationPaymentService: Return/Webhook/Confirm payment
-        ConsultationPaymentService->>ConsultationPingRequestRepository: Set PendingExpertResponse + ExpiresAt
-        ConsultationPingRequestRepository-->>ConsultationPaymentService: Request escrowed
+        alt Client fallback confirm
+            MemberApp->>ConsultationPaymentsController: POST /api/consultations/payments/confirm
+            ConsultationPaymentsController->>ConsultationPaymentService: ConfirmConsultationPaymentAsync(transactionId, cancellationToken)
+            ConsultationPaymentService->>ConsultationPaymentService: ProcessConfirmedPayOsPaymentAsync(webhookData, cancellationToken)
+        else PayOS webhook
+            PaymentGateway->>ConsultationPaymentService: ProcessConsultationWebhookAsync(request, cancellationToken)
+            ConsultationPaymentService->>ConsultationPaymentService: ProcessConfirmedPayOsPaymentAsync(webhookData, cancellationToken)
+        end
+        ConsultationPaymentService->>ConsultationPingRequestRepository: FirstOrDefaultAsync(Id == transaction.ReferenceId, asNoTracking:false)
+        ConsultationPaymentService->>ConsultationPingRequestRepository: Update(ping.Status = PendingExpertResponse, RequestedAt = UtcNow, ExpiresAt = RequestedAt + EmergencyRequestTtl)
         ConsultationPaymentService->>ExpertNotificationService: SendEmergencyRequestAsync(...)
-        ExpertNotificationService-->>ExpertHub: Push EmergencyConsultationRequest
-        ExpertHub-->>MemberApp: EmergencyRequestStatusChanged
+        ExpertNotificationService-->>ExpertHub: EmergencyConsultationRequest
     end
 ```
 
 Main flow:
 
 1. Member App calls POST /api/consultations/instant with expertId.
-2. EmergencyConsultationService validates target expert availability.
-3. Service creates emergency request in PendingPayment state.
-4. Member joins request room via JoinEmergencyRequestRoom(requestId).
-5. Emergency request is created and requester is subscribed for request status updates.
+2. `ConsultationInstantController.CreateEmergencyConsultationRequest` calls `EmergencyConsultationService.CreateEmergencyRequestAsync`.
+3. `EmergencyConsultationService.CreateEmergencyRequestAsync` checks duplicate active request and inserts `ConsultationPingRequest` with status `PendingPayment`.
+4. Member joins request room via `ExpertHub.JoinEmergencyRequestRoom(requestId)`.
+5. Hub returns `JoinedEmergencyRequestRoom(RequestId, GroupName)`; this step only subscribes the requester to later status updates.
 6. Member App calls POST /api/consultations/instant/{requestId}/payments.
-7. ConsultationPaymentService validates request ownership, PendingPayment state, and expert availability.
+7. `ConsultationPaymentsController.PayEmergencyRequest` calls `ConsultationPaymentService.PayEmergencyRequestAsync`.
 8. Branch A - WalletBalance:
-	1. Service charges wallet and writes ConsultationPayment transaction.
-	2. Payment result is Escrowed.
+    1. `PayEmergencyRequestWithWalletAsync` validates owner, `PendingPayment`, and expert online presence via `IsExpertConnected(...)`.
+    2. `MoveMoneyToEscrowAsync(...)` writes the `ConsultationPayment` transaction.
+    3. Request status changes to `PendingExpertResponse`; `RequestedAt` and `ExpiresAt` are updated.
+    4. `SendEmergencyRequestAsync(...)` pushes `EmergencyConsultationRequest` to the expert connection.
 9. Branch B - PayOS:
-	1. Service creates pending transaction and returns checkoutUrl/orderCode/paymentLinkId with status Pending.
-	2. User completes checkout; backend confirms via PayOS return/webhook, or client-triggered fallback POST /api/consultations/payments/confirm.
-	3. Payment result becomes Escrowed after confirm.
-10. After payment is Escrowed (both branches), request transitions to PendingExpertResponse and ExpiresAt (TTL 2 minutes) is set.
-11. ConsultationPaymentService completes the payment flow, then the notification layer pushes EmergencyConsultationRequest to the targeted expert via ExpertHub.
-12. Member receives EmergencyRequestStatusChanged event for the subscribed request room.
+    1. `CreateEmergencyRequestPayOsIntentAsync` validates owner, `PendingPayment`, and expert online presence, then creates a pending PayOS transaction.
+    2. User completes checkout; backend confirms via `ConfirmConsultationPaymentAsync(...)` or `ProcessConsultationWebhookAsync(...)`.
+    3. `ProcessConfirmedPayOsPaymentAsync(...)` moves money to escrow, updates request status to `PendingExpertResponse`, and calls `SendEmergencyRequestAsync(...)`.
+10. There is no `EmergencyRequestStatusChanged` event sent to the member at payment time.
 
 Output: Request enters expert decision queue only after payment reaches Escrowed.
 
@@ -602,39 +635,53 @@ sequenceDiagram
     actor ExpertApp
     actor MemberApp
     participant ExpertHub
-    participant ConsultationsController
+    participant ConsultationInstantController
     participant EmergencyConsultationService
+    participant ExpertNotificationService
     participant ConsultationPaymentService
     participant ConsultationLifecycleBackgroundService
     participant ConsultationPingRequestRepository
+    participant ConsultationRepository
+    participant ExpertTimeSlotRepository
 
     ExpertHub-->>ExpertApp: EmergencyConsultationRequest
-    ExpertApp->>ConsultationsController: POST /api/consultations/instant/{requestId}/accept or /reject
-    ConsultationsController->>EmergencyConsultationService: AcceptOrReject(requestId, expertId)
-    EmergencyConsultationService->>ConsultationPingRequestRepository: Validate targeted expert + request state
     alt Accept
-        EmergencyConsultationService->>ConsultationPingRequestRepository: Create consultation + room metadata
-        EmergencyConsultationService->>ConsultationPingRequestRepository: Reserve overlapping slots
-        EmergencyConsultationService->>ConsultationPingRequestRepository: Mark AcceptedByExpert
-        ConsultationPingRequestRepository-->>EmergencyConsultationService: Accepted response
-        EmergencyConsultationService-->>ExpertHub: EmergencyRequestStatusChanged(AcceptedByExpert)
-        ExpertHub-->>MemberApp: EmergencyRequestStatusChanged(AcceptedByExpert)
-        EmergencyConsultationService-->>ConsultationsController: EmergencyConsultationRequestResponse
-        ConsultationsController-->>ExpertApp: 200 OK Accepted
+        ExpertApp->>ConsultationInstantController: POST /api/consultations/instant/{requestId}/accept
+        ConsultationInstantController->>EmergencyConsultationService: AcceptEmergencyRequestAsync(requestId, expertId)
+        EmergencyConsultationService->>ConsultationPingRequestRepository: FirstOrDefaultAsync(Id == requestId, asNoTracking:false)
+        EmergencyConsultationService->>EmergencyConsultationService: EnsurePendingStateForResponse(ping, now)
+        EmergencyConsultationService->>ConsultationRepository: InsertAsync(new Consultation { Status = Ongoing, Type = Emergency, RoomId = "consultation-{consultationId}" })
+        EmergencyConsultationService->>ExpertTimeSlotRepository: GetListAsync(overlapping available ExpertTimeSlot)
+        EmergencyConsultationService->>ConsultationPingRequestRepository: Update(ping.Status = AcceptedByExpert, RespondedAt = now, ConsultationId = consultationId)
+        EmergencyConsultationService->>ExpertTimeSlotRepository: Update(overlapping slots => Reserved)
+        EmergencyConsultationService->>ExpertNotificationService: NotifyEmergencyRequestStatusChangedAsync(requestId, result)
+        ExpertNotificationService-->>ExpertHub: EmergencyRequestStatusChanged(status=AcceptedByExpert)
+        ExpertHub-->>MemberApp: EmergencyRequestStatusChanged(status=AcceptedByExpert)
+        EmergencyConsultationService-->>ConsultationInstantController: EmergencyConsultationRequestResponse
+        ConsultationInstantController-->>ExpertApp: 200 OK Accepted
     else Reject
-        EmergencyConsultationService->>ConsultationPingRequestRepository: Mark DeclinedByExpert
-        EmergencyConsultationService->>ConsultationPaymentService: RefundEmergencyEscrow(requestId)
-        ConsultationPaymentService-->>EmergencyConsultationService: Refund completed
-        EmergencyConsultationService-->>ExpertHub: EmergencyRequestStatusChanged(DeclinedByExpert)
-        ExpertHub-->>MemberApp: EmergencyRequestStatusChanged(DeclinedByExpert)
-        EmergencyConsultationService-->>ConsultationsController: EmergencyConsultationRequestResponse
-        ConsultationsController-->>ExpertApp: 200 OK Declined
-    else Timeout
-        ConsultationLifecycleBackgroundService->>ConsultationPaymentService: ExpireEmergencyRequestsAsync()
-        ConsultationPaymentService->>ConsultationPingRequestRepository: Mark Expired + refund escrow
-        ConsultationPingRequestRepository-->>ConsultationPaymentService: Expired response
-        ConsultationPaymentService-->>ExpertHub: EmergencyRequestStatusChanged(Expired)
-        ExpertHub-->>MemberApp: EmergencyRequestStatusChanged(Expired)
+        ExpertApp->>ConsultationInstantController: POST /api/consultations/instant/{requestId}/reject
+        ConsultationInstantController->>EmergencyConsultationService: RejectEmergencyRequestAsync(requestId, expertId)
+        EmergencyConsultationService->>ConsultationPingRequestRepository: FirstOrDefaultAsync(Id == requestId, asNoTracking:false)
+        EmergencyConsultationService->>EmergencyConsultationService: EnsurePendingStateForResponse(ping, now)
+        EmergencyConsultationService->>ConsultationPingRequestRepository: Update(ping.Status = DeclinedByExpert, RespondedAt = now)
+        EmergencyConsultationService->>ConsultationPaymentService: RefundEmergencyEscrowAsync(requestId, reason)
+        ConsultationPaymentService-->>EmergencyConsultationService: refund completed
+        EmergencyConsultationService->>ExpertNotificationService: NotifyEmergencyRequestStatusChangedAsync(requestId, result)
+        ExpertNotificationService-->>ExpertHub: EmergencyRequestStatusChanged(status=DeclinedByExpert)
+        ExpertHub-->>MemberApp: EmergencyRequestStatusChanged(status=DeclinedByExpert)
+        EmergencyConsultationService-->>ConsultationInstantController: EmergencyConsultationRequestResponse
+        ConsultationInstantController-->>ExpertApp: 200 OK Declined
+    else Timeout sweep
+        ConsultationLifecycleBackgroundService->>ConsultationPaymentService: ExpireEmergencyRequestsAsync(stoppingToken)
+        ConsultationPaymentService->>ConsultationPingRequestRepository: GetListAsync(Status in PendingExpertResponse or PendingPayment, expired by ExpiresAt/RequestedAt)
+        ConsultationPaymentService->>ConsultationPingRequestRepository: Update(ping.Status = Expired, RespondedAt = now)
+        opt Request was PendingExpertResponse
+            ConsultationPaymentService->>ConsultationPaymentService: RefundEmergencyEscrowAsync(ping.Id, Emergency consultation request expired.)
+        end
+        ConsultationPaymentService->>ExpertNotificationService: NotifyEmergencyRequestStatusChangedAsync(ping.Id, statusData)
+        ExpertNotificationService-->>ExpertHub: EmergencyRequestStatusChanged(status=Expired)
+        ExpertHub-->>MemberApp: EmergencyRequestStatusChanged(status=Expired)
     end
 ```
 
@@ -642,33 +689,37 @@ Main flow:
 
 1. Expert receives EmergencyConsultationRequest event.
 2. Expert App calls accept or reject endpoint.
-3. EmergencyConsultationService validates targeted expert and request state.
+3. `ConsultationInstantController` delegates to `AcceptEmergencyRequestAsync(...)` or `RejectEmergencyRequestAsync(...)`.
 
 Alternative A - Accept:
 
-1. Create consultation session and room metadata.
-2. Reserve overlapping slots (Slot Paradox guard).
-3. Update request status to AcceptedByExpert.
+1. Service loads the request, checks targeted expert ownership, and runs `EnsurePendingStateForResponse(...)`.
+2. Service creates `Consultation` with `Status = Ongoing`, `Type = Emergency`, and `RoomId = consultation-{consultationId}`.
+3. Service reserves overlapping `ExpertTimeSlot` rows for the next 30 minutes.
+4. Request status changes to `AcceptedByExpert`, then `NotifyEmergencyRequestStatusChangedAsync(...)` pushes the status to the requester room.
 
 Alternative B - Reject:
 
-1. Update request status to DeclinedByExpert.
-2. Trigger escrow refund to member wallet.
+1. Service loads the request, checks ownership, and runs `EnsurePendingStateForResponse(...)`.
+2. Request status changes to `DeclinedByExpert`.
+3. `RefundEmergencyEscrowAsync(...)` refunds the escrow to the member wallet.
+4. `NotifyEmergencyRequestStatusChangedAsync(...)` pushes the new status to the requester room.
 
 Alternative C - Timeout (No Expert Response):
 
-1. ConsultationLifecycleBackgroundService detects ExpiresAt elapsed while request is still PendingExpertResponse.
-2. Update request status to Expired.
-3. Trigger escrow refund to member wallet.
+1. `ConsultationLifecycleBackgroundService.ExecuteAsync` calls `ExpireEmergencyRequestsAsync(...)`.
+2. `ExpireEmergencyRequestsAsync(...)` expires requests in either `PendingExpertResponse` or `PendingPayment` once TTL has elapsed.
+3. Refund is triggered only for requests that were already `PendingExpertResponse`.
+4. `NotifyEmergencyRequestStatusChangedAsync(...)` pushes `Expired` to the requester room.
 
 Common completion (expert decision):
 
-1. Push EmergencyRequestStatusChanged to member room.
-2. Return EmergencyConsultationRequestResponse to expert client.
+1. Push `EmergencyRequestStatusChanged` to the requester room.
+2. Return `EmergencyConsultationRequestResponse` to the expert client.
 
 Timeout completion:
 
-1. Push EmergencyRequestStatusChanged to member room with status Expired.
+1. Push `EmergencyRequestStatusChanged` with status `Expired`.
 
 Output: Request reaches terminal state (AcceptedByExpert, DeclinedByExpert, or Expired), and member is informed in real time.
 
@@ -678,6 +729,7 @@ Output: Request reaches terminal state (AcceptedByExpert, DeclinedByExpert, or E
 sequenceDiagram
     actor ParticipantApp
     participant VideoCallController
+    participant ConsultationRepository
     participant LiveKitService
     participant LiveKitCloud
     participant ConsultationHub
@@ -685,42 +737,43 @@ sequenceDiagram
     participant ChatMessageRepository
 
     ParticipantApp->>VideoCallController: POST /api/consultations/{consultationId}/video-token
-    VideoCallController->>LiveKitService: GenerateConsultationToken(consultationId, participantId)
-    LiveKitService-->>VideoCallController: token + wsUrl + roomName
-    VideoCallController-->>ParticipantApp: ApiResponse<LiveKitTokenResponse>
-    ParticipantApp->>LiveKitCloud: Join room consultation-{consultationId}
+    VideoCallController->>ConsultationRepository: FirstOrDefaultAsync(c.Id == consultationId)
+    VideoCallController->>LiveKitService: GenerateAccessToken(identity, roomName, grants, metadata)
+    LiveKitService-->>VideoCallController: token
+    VideoCallController-->>ParticipantApp: ApiResponse<VideoTokenResponse>
+    ParticipantApp->>LiveKitCloud: Join room consultation.RoomId
 
     ParticipantApp->>ConsultationHub: Connect /hubs/consultation?consultationId={consultationId}
     ConsultationHub-->>ParticipantApp: Authorized participant connection
 
     opt Upload image attachment
         ParticipantApp->>MediaController: POST /api/media/upload-image
-        MediaController-->>ParticipantApp: secureUrl
+        MediaController-->>ParticipantApp: ApiResponse<upload result>
     end
 
     ParticipantApp->>ConsultationHub: ReceiveMessage(content, attachmentUrl)
-    ConsultationHub->>ConsultationHub: Validate participant + rate limit
+    ConsultationHub->>ConsultationHub: GetConsultationIdFromQuery() + GetCurrentUserId() + CheckRateLimit()
     ConsultationHub->>ChatMessageRepository: Persist ChatMessage
     ChatMessageRepository-->>ConsultationHub: ChatMessage saved
-    ConsultationHub-->>ParticipantApp: MessageReceived
+    ConsultationHub-->>ParticipantApp: ReceiveMessage
 
     ParticipantApp->>ConsultationHub: Signal(eventType, payload)
-    ConsultationHub-->>ParticipantApp: SignalReceived
+    ConsultationHub-->>ParticipantApp: Signal
 ```
 
 Main flow:
 
 1. Participant calls POST /api/consultations/{consultationId}/video-token.
-2. Controller verifies caller is consultation participant.
-3. LiveKitService generates token for room consultation-{consultationId}.
+2. `VideoCallController.GenerateVideoToken` loads `Consultation` directly from repository, verifies participant/admin access, then reads `consultation.RoomId`.
+3. `ILiveKitService.GenerateAccessToken(...)` generates the token; the controller builds `VideoTokenResponse` with `Token`, `WsUrl`, and `RoomName`.
 4. API returns token, wsUrl, and roomName.
 5. Client joins LiveKit room.
 6. Client connects ConsultationHub at /hubs/consultation?consultationId={consultationId}; OnConnectedAsync verifies participant authorization.
 7. Sender uploads image via media API (optional) and receives secureUrl.
 8. Sender invokes ConsultationHub.ReceiveMessage(content, attachmentUrl).
-9. Hub validates participant and applies message rate limit.
+9. Hub resolves `consultationId` from query string, resolves current user from token, and applies `CheckRateLimit()`.
 10. Hub persists ChatMessage.
-11. Hub broadcasts MessageReceived to both participants.
+11. Hub broadcasts the `ReceiveMessage` event to the consultation group.
 12. Client can also send UI signal through ConsultationHub.Signal.
 
 Output: Authenticated participant can enter consultation video room, exchange text/media messages, and send real-time UI signals.
@@ -734,44 +787,60 @@ sequenceDiagram
     participant ConsultationService
     participant ConsultationPaymentService
     participant ConsultationLifecycleBackgroundService
-    participant ConsultationHub
+    participant BookingService
     participant LiveKitService
     participant ConsultationRepository
+    participant ConsultationBookingRepository
+    participant ExpertTimeSlotRepository
 
     alt Explicit end
         ParticipantApp->>ConsultationsController: POST /api/consultations/{consultationId}/end
-        ConsultationsController->>ConsultationService: EndConsultation(actorId, consultationId)
-        ConsultationService->>ConsultationRepository: Validate participant + active state
-        ConsultationService->>ConsultationRepository: Mark consultation Completed
-        ConsultationRepository-->>ConsultationService: Completion persisted
-        ConsultationService->>ConsultationPaymentService: SettleConsultationEscrow(consultationId)
+        ConsultationsController->>ConsultationService: EndConsultationAsync(consultationId, actorId)
+        ConsultationService->>ConsultationRepository: FirstOrDefaultAsync(c.Id == consultationId, asNoTracking:false)
+        ConsultationService->>ConsultationRepository: Update(consultation.Status = Completed, EndTime = UtcNow)
+        opt Linked scheduled booking exists
+            ConsultationService->>ConsultationBookingRepository: FirstOrDefaultAsync(b.ConsultationId == consultationId, asNoTracking:false)
+            ConsultationService->>ConsultationBookingRepository: Update(booking.Status = Completed)
+            ConsultationService->>ExpertTimeSlotRepository: FirstOrDefaultAsync(s.Id == booking.TimeSlotId, asNoTracking:false)
+            ConsultationService->>ExpertTimeSlotRepository: Update(slot.Status = Booked)
+        end
+        ConsultationService->>ConsultationPaymentService: SettleConsultationEscrowAsync(consultationId)
         ConsultationPaymentService-->>ConsultationService: ExpertPayout + PlatformFee persisted
         ConsultationService-->>ConsultationsController: End completed
         ConsultationsController-->>ParticipantApp: 200 OK
-    else Lifecycle fallback
-        ConsultationLifecycleBackgroundService->>ConsultationRepository: Query elapsed scheduled/emergency consultations
-        ConsultationLifecycleBackgroundService-->>ConsultationHub: RoomExpiring
-        ConsultationLifecycleBackgroundService->>LiveKitService: Delete room consultation-{consultationId}
-        ConsultationLifecycleBackgroundService->>ConsultationRepository: Mark Completed + set EndTime
-        ConsultationLifecycleBackgroundService->>ConsultationPaymentService: SettleConsultationEscrow(consultationId)
-        ConsultationPaymentService-->>ConsultationLifecycleBackgroundService: ExpertPayout + PlatformFee persisted
+    else Lifecycle fallback - scheduled
+        ConsultationLifecycleBackgroundService->>BookingService: AutoCompleteElapsedScheduledConsultationsAsync(stoppingToken)
+        BookingService->>ConsultationRepository: Query confirmed bookings whose slot has elapsed and consultation not completed
+        BookingService-->>ParticipantApp: RoomExpiring (SignalR group consultation:{consultationId})
+        BookingService->>LiveKitService: DeleteRoomAsync(consultation-{consultationId})
+        BookingService->>ConsultationRepository: Update(booking.Status = Completed, consultation.Status = Completed, consultation.EndTime = slot.EndTime)
+        BookingService->>ConsultationPaymentService: SettleConsultationEscrowAsync(consultationId, cancellationToken)
+        ConsultationPaymentService-->>BookingService: ExpertPayout + PlatformFee persisted
+    else Lifecycle fallback - emergency
+        ConsultationLifecycleBackgroundService->>BookingService: AutoCompleteElapsedEmergencyConsultationsAsync(stoppingToken)
+        BookingService->>ConsultationRepository: Query ongoing emergency consultations older than 30 minutes
+        BookingService-->>ParticipantApp: RoomExpiring (SignalR group consultation:{consultationId})
+        BookingService->>LiveKitService: DeleteRoomAsync(consultation-{consultationId})
+        BookingService->>ConsultationRepository: Update(consultation.Status = Completed, consultation.EndTime = UtcNow)
+        BookingService->>ConsultationPaymentService: SettleConsultationEscrowAsync(consultationId, cancellationToken)
+        ConsultationPaymentService-->>BookingService: ExpertPayout + PlatformFee persisted
     end
 ```
 
 Main flow:
 
 1. Participant calls POST /api/consultations/{consultationId}/end.
-2. ConsultationService validates participant and active consultation state.
-3. Consultation status is updated to Completed.
-4. ConsultationPaymentService performs settlement from escrow to ExpertPayout and PlatformFee.
+2. `ConsultationsController.EndConsultation` calls `ConsultationService.EndConsultationAsync`.
+3. `ConsultationService.EndConsultationAsync` validates participant ownership, marks `Consultation.Status = Completed`, sets `EndTime`, updates linked scheduled booking if present, and then calls `SettleConsultationEscrowAsync(...)`.
+4. Explicit end does not delete the LiveKit room.
 
 Lifecycle fallback:
 
-1. ConsultationLifecycleBackgroundService periodically checks elapsed consultations.
-2. If consultation is elapsed and still open (Scheduled: slot end reached; Emergency: StartTime + 30 minutes reached), service sends RoomExpiring signal via ConsultationHub.
-3. Service deletes LiveKit room consultation-{consultationId} to disconnect participants.
-4. Service updates consultation status to Completed and sets EndTime (Scheduled uses slot end; Emergency uses current UTC time).
-5. ConsultationPaymentService performs settlement from escrow to ExpertPayout and PlatformFee.
+1. `ConsultationLifecycleBackgroundService.ExecuteAsync` orchestrates three sweeps every 30 seconds.
+2. Scheduled auto-complete lives in `BookingService.AutoCompleteElapsedScheduledConsultationsAsync(...)`.
+3. Emergency auto-complete lives in `BookingService.AutoCompleteElapsedEmergencyConsultationsAsync(...)`.
+4. Those `BookingService` methods send `RoomExpiring`, delete the LiveKit room, mark records `Completed`, and then call `SettleConsultationEscrowAsync(...)`.
+5. Settlement writes `ExpertPayout` and `PlatformFee` transactions.
 
 Output: Consultation is closed consistently and money flow is finalized.
 
@@ -782,25 +851,28 @@ sequenceDiagram
     actor MemberApp
     participant ConsultationsController
     participant ConsultationService
+    participant ConsultationRepository
     participant UserFeedbackRepository
     participant ExpertProfileRepository
 
     MemberApp->>ConsultationsController: POST /api/consultations/{consultationId}/reviews
-    ConsultationsController->>ConsultationService: CreateReview(userId, consultationId, payload)
-    ConsultationService->>ConsultationService: Validate completed consultation + ownership
-    ConsultationService->>UserFeedbackRepository: InsertUserFeedback(type=Consultation)
+    ConsultationsController->>ConsultationService: CreateConsultationReviewAsync(consultationId, raterId, request)
+    ConsultationService->>ConsultationRepository: FirstOrDefaultAsync(c.Id == consultationId, asNoTracking:false)
+    ConsultationService->>UserFeedbackRepository: FirstOrDefaultAsync(existing consultation feedback check)
+    ConsultationService->>UserFeedbackRepository: InsertAsync(new UserFeedback { Type = Consultation })
     UserFeedbackRepository-->>ConsultationService: UserFeedback
-    ConsultationService->>ExpertProfileRepository: RecalculateAverageRating(expertId)
-    ExpertProfileRepository-->>ConsultationService: updatedRatingStats
-    ConsultationService-->>ConsultationsController: UserFeedbackResponse + updatedRatingStats
-    ConsultationsController-->>MemberApp: 200 Created
+    ConsultationService->>ExpertProfileRepository: FirstOrDefaultAsync(AccountId == consultation.CalleeId, asNoTracking:false)
+    ConsultationService->>ExpertProfileRepository: Update(RatingCount, Rating)
+    ConsultationService-->>ConsultationsController: UserFeedbackResponse + UpdatedAverageRating + UpdatedRatingCount
+    ConsultationsController-->>MemberApp: 200 OK
 ```
 
 Main flow:
 
 1. User calls POST /api/consultations/{consultationId}/reviews.
-2. ConsultationService validates completed consultation and ownership.
-3. UserFeedback record is created.
-4. Expert aggregate rating (average/count) is recalculated.
+2. `ConsultationService.CreateConsultationReviewAsync` loads the consultation and validates that the caller is the booking user and the consultation is already `Completed`.
+3. Service rejects duplicate feedback by checking existing `UserFeedback` on `(RaterId, ReferenceId, Type=Consultation)`.
+4. Service inserts a new `UserFeedback` record.
+5. Service loads `ExpertProfile`, recalculates `RatingCount` and `Rating` directly in code, updates the profile, and commits.
 
 Output: Post-consultation feedback is persisted and reflected in expert profile statistics.
