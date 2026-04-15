@@ -3,10 +3,10 @@ doc_role: planning
 module: consultation-endcall-signalr
 kind: flow
 doc_type: roadmap
-status: proposed
+status: in_progress
 last_updated: 2026-04-15
 owners: [backend-team]
-verification_status: mixed-current-code-and-target-migration-plan
+verification_status: mixed-current-code-implemented-and-runtime-verification-pending
 ---
 
 # Consultation EndCall SignalR Roadmap
@@ -14,8 +14,8 @@ verification_status: mixed-current-code-and-target-migration-plan
 ## Current Status Snapshot
 
 - module status: `In Progress`
-- current backend event name: `RoomExpiring`
-- current Flutter event model: `ConsultationRoomExpiringEvent`
+- current backend event name: `ConsultationCallEnded`
+- current Flutter event model: `ConsultationCallEndedEvent`
 - target backend and Flutter event name: `ConsultationCallEnded`
 - migration mode: `Full migration without backward compatibility`
 - end-to-end expert auto-leave: `Not trusted`
@@ -26,10 +26,10 @@ This roadmap is written so work can resume from zero context.
 
 Current verified state:
 
-- backend timeout flows emit `RoomExpiring`
-- backend manual-end flow emits `RoomExpiring`
+- backend timeout flows emit `ConsultationCallEnded`
+- backend manual-end flow emits `ConsultationCallEnded`
 - backend manual-end flow attempts LiveKit room deletion
-- Flutter interprets `RoomExpiring` as a forced termination trigger
+- Flutter interprets `ConsultationCallEnded` as a forced termination trigger
 - member and expert active-call flows use the same video consultation screen
 
 Reported but not fully closed:
@@ -60,25 +60,24 @@ After this work is complete:
 
 ### Phase 1. Backend Naming Migration
 
-- [ ] Rename SignalR event from `RoomExpiring` to `ConsultationCallEnded`
-- [ ] Rename any event constants in backend hubs/realtime classes
-- [ ] Rename backend DTO/model to `ConsultationCallEndedEvent`
-- [ ] Rename notifier/helper APIs if they exist
-- [ ] Normalize timeout reason from `slot_elapsed` to `timeout`
-- [ ] Preserve manual-end reason as `participant_ended`
+- [x] Rename SignalR event from `RoomExpiring` to `ConsultationCallEnded`
+- [x] Rename event constants in backend realtime classes
+- [x] Normalize active backend contract around `ConsultationCallEnded`
+- [x] Normalize timeout reason from `slot_elapsed` to `timeout`
+- [x] Preserve manual-end reason as `participant_ended`
 
 ### Phase 2. Flutter Naming Migration
 
-- [ ] Rename `ConsultationRoomExpiringEvent` to `ConsultationCallEndedEvent`
-- [ ] Rename `roomExpiringStream` to `consultationCallEndedStream`
-- [ ] Rename `_handleRoomExpiringEvent(...)` to `_handleConsultationCallEndedEvent(...)`
-- [ ] Replace event parsing from `RoomExpiring` to `ConsultationCallEnded`
-- [ ] Replace `SignalReceived` event type mapping from `roomexpiring` to the new event name if still needed
+- [x] Rename `ConsultationRoomExpiringEvent` to `ConsultationCallEndedEvent`
+- [x] Rename `roomExpiringStream` to `consultationCallEndedStream`
+- [x] Rename `_handleRoomExpiringEvent(...)` to `_handleConsultationCallEndedEvent(...)`
+- [x] Replace event parsing from `RoomExpiring` to `ConsultationCallEnded`
+- [x] Replace `SignalReceived` event type mapping from `roomexpiring` to the new event name where still used
 
 ### Phase 3. Backend Tests
 
-- [ ] Update backend tests to assert `ConsultationCallEnded`
-- [ ] Update payload assertions for `reason = "timeout"` where applicable
+- [x] Update backend tests to assert `ConsultationCallEnded`
+- [x] Update payload assertions for `reason = "timeout"` where applicable
 - [ ] Keep manual-end integration coverage
 - [ ] Verify room deletion behavior still passes after rename
 
@@ -102,8 +101,8 @@ After this work is complete:
 
 ### Phase 6. Documentation Sync
 
-- [ ] Update `useguide` to remove `RoomExpiring` as active contract
-- [ ] Update `sourcecode` diagrams to the renamed event
+- [x] Update `useguide` to remove `RoomExpiring` as active contract
+- [x] Update `sourcecode` diagrams to the renamed event
 - [ ] Record final verified runtime behavior for both member and expert
 
 ## Candidate File Targets
@@ -165,7 +164,7 @@ Minimum verification before calling the migration complete:
 
 ### 2026-04-15
 
-- Replaced the previous `RoomExpiring`-retention direction with a full migration plan
-- Locked canonical event naming to `ConsultationCallEnded`
-- Recorded that backward compatibility will not be kept
+- Replaced the previous `RoomExpiring` contract with `ConsultationCallEnded` in backend and Flutter code
+- Kept backward compatibility disabled
+- Normalized timeout reason to `timeout`
 - Preserved the reported expert-not-auto-leaving runtime issue as a post-migration verification target

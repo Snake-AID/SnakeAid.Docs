@@ -3,10 +3,10 @@ doc_role: planning
 module: consultation-endcall-signalr
 kind: flow
 doc_type: sourcecode
-status: proposed
+status: in_progress
 last_updated: 2026-04-15
 owners: [backend-team]
-verification_status: mixed-current-code-and-target-migration-plan
+verification_status: mixed-current-code-implemented-and-runtime-verification-pending
 ---
 
 # Consultation EndCall SignalR Sourcecode
@@ -26,7 +26,7 @@ verification_status: mixed-current-code-and-target-migration-plan
 ### Mobile
 
 - `ConsultationChatSignalRService`
-- `ConsultationRoomExpiringEvent`
+- `ConsultationCallEndedEvent`
 - `VideoConsultationScreen`
 - `ExpertWaitingRoomScreen`
 - router path `/video-consultation/:consultationId`
@@ -42,11 +42,11 @@ verification_status: mixed-current-code-and-target-migration-plan
 
 - hub route: `/hubs/consultation`
 - consultation group format: `consultation:{consultationId}`
-- current event name: `RoomExpiring`
+- current event name: `ConsultationCallEnded`
 
 ### Current Timeout Emission
 
-`RoomExpiring` is currently emitted by:
+`ConsultationCallEnded` is currently emitted by:
 
 - `BookingService.AutoCompleteElapsedScheduledConsultationsAsync(...)`
 - `BookingService.AutoCompleteElapsedEmergencyConsultationsAsync(...)`
@@ -54,13 +54,13 @@ verification_status: mixed-current-code-and-target-migration-plan
 Current code-verified timeout payload:
 
 - `ConsultationId`
-- `Reason = "slot_elapsed"`
+- `Reason = "timeout"`
 
 ### Current Manual-End Status
 
 `ConsultationService.EndConsultationAsync(...)` currently:
 
-- emits `RoomExpiring` to consultation group `consultation:{consultationId}`
+- emits `ConsultationCallEnded` to consultation group `consultation:{consultationId}`
 - uses manual-end reason `participant_ended`
 - attempts `DeleteRoomAsync(...)` for the LiveKit room
 - validates actor participation
@@ -75,14 +75,14 @@ Current code-verified timeout payload:
 
 `ConsultationChatSignalRService` currently:
 
-- exposes `roomExpiringStream`
-- parses direct `RoomExpiring`
-- also maps `SignalReceived` with `roomexpiring` to the same event path
+- exposes `consultationCallEndedStream`
+- parses direct `ConsultationCallEnded`
+- also maps `SignalReceived` with `consultationcallended` to the same event path
 
 Current typed event:
 
 ```dart
-class ConsultationRoomExpiringEvent {
+class ConsultationCallEndedEvent {
   final String consultationId;
   final String reason;
 }
@@ -92,8 +92,8 @@ class ConsultationRoomExpiringEvent {
 
 `VideoConsultationScreen` currently:
 
-- subscribes to `roomExpiringStream`
-- uses `_handleRoomExpiringEvent(...)`
+- subscribes to `consultationCallEndedStream`
+- uses `_handleConsultationCallEndedEvent(...)`
 - is shared by both member and expert active-call flows
 
 Expert mode reaches this same screen through:
@@ -102,7 +102,7 @@ Expert mode reaches this same screen through:
 - router path `/video-consultation/:consultationId`
 - `isExpertMode: true`
 
-### Current Flutter Behavior On `RoomExpiring`
+### Current Flutter Behavior On `ConsultationCallEnded`
 
 Code-verified active-call behavior:
 
@@ -114,7 +114,7 @@ Code-verified active-call behavior:
 6. call backend `endConsultation(...)`
 7. navigate to completion screen
 
-This means Flutter already treats `RoomExpiring` as a hard termination event.
+This means Flutter already treats `ConsultationCallEnded` as a hard termination event.
 
 ## 4. Target Naming Surface
 
@@ -179,15 +179,15 @@ sequenceDiagram
     participant DB as Database
 
     BG->>Booking: AutoCompleteElapsed...()
-    Booking->>Hub: RoomExpiring({consultationId, reason="slot_elapsed"})
-    Hub-->>Flutter: RoomExpiring
+    Booking->>Hub: ConsultationCallEnded({consultationId, reason="timeout"})
+    Hub-->>Flutter: ConsultationCallEnded
     Flutter->>Flutter: endcall + leave room
     Booking->>LiveKit: DeleteRoomAsync(roomName)
     Booking->>DB: update business state
     Booking->>DB: CommitAsync()
 ```
 
-### 7.2 Target Timeout Flow
+### 7.2 Current Target-Aligned Timeout Flow
 
 ```mermaid
 sequenceDiagram
@@ -207,7 +207,7 @@ sequenceDiagram
     Booking->>DB: CommitAsync()
 ```
 
-### 7.3 Target Manual-End Flow
+### 7.3 Current Target-Aligned Manual-End Flow
 
 ```mermaid
 sequenceDiagram

@@ -3,10 +3,10 @@ doc_role: planning
 module: consultation-endcall-signalr
 kind: flow
 doc_type: introduction
-status: proposed
+status: in_progress
 last_updated: 2026-04-15
 owners: [backend-team]
-verification_status: mixed-current-code-and-target-migration-plan
+verification_status: mixed-current-code-implemented-and-runtime-verification-pending
 ---
 
 # Consultation EndCall SignalR Introduction
@@ -33,11 +33,11 @@ Target user-visible behavior remains unchanged:
 
 If this work must be resumed later without any memory of prior discussion, the current situation is:
 
-1. The current backend and Flutter code still use `RoomExpiring`.
-2. The current business behavior already matches a hard termination flow rather than a warning flow.
-3. Manual end is already implemented in backend and currently emits `RoomExpiring`.
-4. The new task is not behavior expansion first. The new task is coordinated naming migration.
-5. The migration must be applied across backend and Flutter in one compatible release because no backward path will be kept.
+1. The backend and Flutter code in the current workspace now use `ConsultationCallEnded` as the active termination event name.
+2. The current business behavior remains a hard termination flow rather than a warning flow.
+3. Timeout reason has been normalized to `timeout`.
+4. Manual-end reason remains `participant_ended`.
+5. This was implemented as a coordinated full migration with no backward path.
 6. A reported runtime edge case still exists:
    - after manual-end-triggered termination signaling, expert may still fail to auto-leave the room
 
@@ -56,32 +56,32 @@ The current backend workspace contains:
 
 Code-verified current naming:
 
-- timeout flows emit `RoomExpiring`
-- manual end emits `RoomExpiring`
-- manual-end reason value is currently `participant_ended`
-- timeout reason value is currently `slot_elapsed`
+- timeout flows emit `ConsultationCallEnded`
+- manual end emits `ConsultationCallEnded`
+- manual-end reason value is `participant_ended`
+- timeout reason value is `timeout`
 
 ### Mobile
 
 The current mobile workspace contains:
 
 - `ConsultationChatSignalRService`
-- typed event model `ConsultationRoomExpiringEvent`
-- active-call subscription to `roomExpiringStream`
-- handler `_handleRoomExpiringEvent(...)`
+- typed event model `ConsultationCallEndedEvent`
+- active-call subscription to `consultationCallEndedStream`
+- handler `_handleConsultationCallEndedEvent(...)`
 - shared active-call screen for both member and expert mode
 
 Code-verified Flutter behavior:
 
-- Flutter listens for direct `RoomExpiring`
+- Flutter listens for direct `ConsultationCallEnded`
 - Flutter also maps `SignalReceived` with `roomexpiring` to the same handling path
 - the active video consultation screen handles the event as a forced termination flow
 
-This means the business behavior is already correct, but the naming is not.
+This means the business behavior and naming are now aligned in code.
 
 ## Naming Problem Statement
 
-`RoomExpiring` is no longer an accurate business name.
+`RoomExpiring` was no longer an accurate business name.
 
 Why it is incorrect:
 
@@ -113,18 +113,18 @@ Canonical reason values:
 - `timeout`
 - `participant_ended`
 
-This means `slot_elapsed` should also be normalized during migration.
+This normalization has been implemented in the current workspace.
 
 ## Migration Strategy
 
-This is a coordinated full migration.
+This has been implemented as a coordinated full migration.
 
 Rules:
 
-- backend and Flutter must be updated in the same implementation wave
-- no dual-event emission
-- no compatibility alias for `RoomExpiring`
-- no mixed contract where backend emits one name and Flutter listens for another
+- backend and Flutter were updated in the same implementation wave
+- there is no dual-event emission
+- there is no compatibility alias for `RoomExpiring`
+- there is no mixed contract where backend emits one name and Flutter listens for another
 
 Required outcome:
 

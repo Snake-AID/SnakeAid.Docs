@@ -7,7 +7,7 @@ status: active
 last_updated: 2026-04-15
 api_version: v1
 owners: [backend-team]
-verification_status: mixed-current-code-and-target-migration-plan
+verification_status: mixed-current-code-implemented-and-runtime-verification-pending
 ---
 
 # Consultation EndCall SignalR Useguide
@@ -25,21 +25,9 @@ verification_status: mixed-current-code-and-target-migration-plan
 
 ## 2. Overview
 
-This document records both the current verified consultation termination contract and the target contract for the full naming migration.
-
-Chosen direction:
-
-- replace `RoomExpiring` with `ConsultationCallEnded`
-- migrate backend and Flutter together
-- do not keep backward compatibility
+This document records the current verified consultation termination contract after the full naming migration.
 
 Current verified contract:
-
-- timeout flow emits `RoomExpiring`
-- manual-end flow emits `RoomExpiring`
-- Flutter treats `RoomExpiring` as a forced endcall trigger
-
-Target contract:
 
 - timeout flow emits `ConsultationCallEnded`
 - manual-end flow emits `ConsultationCallEnded`
@@ -118,7 +106,7 @@ Auth:
 
 Current code-verified backend behavior:
 
-- emits `RoomExpiring` to the consultation SignalR group
+- emits `ConsultationCallEnded` to the consultation SignalR group
 - attempts to close the LiveKit room
 - completes consultation state
 - completes booking/slot state when applicable
@@ -129,7 +117,7 @@ Current code-verified backend event payload:
 - `consultationId`
 - `reason = "participant_ended"`
 
-Target behavior after migration:
+Current active behavior:
 
 - emits `ConsultationCallEnded` to the consultation SignalR group
 - keeps room shutdown and business completion behavior
@@ -177,11 +165,11 @@ Connection notes:
 
 ### 4.5 Server-To-Client Termination Event
 
-#### 4.5.1 Current Event: `RoomExpiring`
+#### 4.5.1 Active Event: `ConsultationCallEnded`
 
 Purpose:
 
-- current active server push used to terminate the consultation call on Flutter
+- canonical server push that terminates the consultation call on Flutter after the migration
 
 Current backend source:
 
@@ -190,27 +178,6 @@ Current backend source:
 - manual end via `POST /api/consultations/{consultationId}/end`
 
 Current example payload:
-
-```json
-{
-  "consultationId": "550e8400-e29b-41d4-a716-446655440000",
-  "reason": "slot_elapsed"
-}
-```
-
-#### 4.5.2 Target Event: `ConsultationCallEnded`
-
-Purpose:
-
-- canonical server push that terminates the consultation call on Flutter after the migration
-
-Target backend source:
-
-- scheduled timeout cleanup
-- emergency timeout cleanup
-- manual end via `POST /api/consultations/{consultationId}/end`
-
-Target example payload:
 
 ```json
 {
@@ -254,19 +221,12 @@ There is no admin-specific consultation termination contract in scope here.
 | data | T | Payload |
 | error | object? | Error detail when the request fails |
 
-### Current `RoomExpiring` Payload
+### Active `ConsultationCallEnded` Payload
 
 | Field | Type | Description |
 |------|------|-------------|
 | consultationId | Guid | Consultation ID |
-| reason | string | Current verified values: `slot_elapsed`, `participant_ended` |
-
-### Target `ConsultationCallEnded` Payload
-
-| Field | Type | Description |
-|------|------|-------------|
-| consultationId | Guid | Consultation ID |
-| reason | string | Target values: `timeout`, `participant_ended` |
+| reason | string | Current verified values: `timeout`, `participant_ended` |
 
 ## 7. Verified Endpoint List
 
@@ -278,7 +238,6 @@ There is no admin-specific consultation termination contract in scope here.
 
 ### 2026-04-15
 
-- Replaced the previous `RoomExpiring`-retention direction with a full rename plan
-- Recorded the target server event as `ConsultationCallEnded`
-- Recorded that backward compatibility will not be kept
+- Recorded `ConsultationCallEnded` as the active consultation termination event
+- Recorded `timeout` and `participant_ended` as the active reason values
 - Preserved the reported expert-not-auto-leaving runtime issue for post-migration verification
