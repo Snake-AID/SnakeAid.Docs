@@ -6,17 +6,17 @@ doc_type: roadmap
 status: proposed
 last_updated: 2026-04-15
 owners: [backend-team]
-verification_status: mixed-current-code-and-reported-runtime-behavior
+verification_status: mixed-current-code-implemented-and-reported-runtime-behavior
 ---
 
 # Consultation EndCall SignalR Roadmap
 
 ## Current Status Snapshot
 
-- module status: `Proposed`
+- module status: `In Progress`
 - chosen event name: `RoomExpiring`
 - timeout backend signal: `Implemented`
-- manual-end backend signal in current workspace: `Missing`
+- manual-end backend signal in current workspace: `Implemented`
 - Flutter `RoomExpiring` handling: `Implemented`
 - end-to-end manual-end expert auto-leave: `Not trusted`
 
@@ -27,7 +27,8 @@ This roadmap is written so work can resume from zero context.
 Current verified state:
 
 - backend timeout flows already emit `RoomExpiring`
-- backend manual-end service path does not emit `RoomExpiring` in the current checkout
+- backend manual-end service path emits `RoomExpiring` in the current checkout
+- backend manual-end service path attempts LiveKit room deletion in the current checkout
 - Flutter already interprets `RoomExpiring` as a forced termination trigger
 - member and expert active-call flows use the same video consultation screen
 
@@ -56,23 +57,24 @@ After this work is complete:
 
 ### Phase 1. Backend Manual-End Alignment
 
-- [ ] Add SignalR emission to `ConsultationService.EndConsultationAsync(...)`
-- [ ] Use event name `RoomExpiring`
-- [ ] Reuse consultation group `consultation:{consultationId}`
-- [ ] Choose and document the manual-end `reason` value
+- [x] Add SignalR emission to `ConsultationService.EndConsultationAsync(...)`
+- [x] Use event name `RoomExpiring`
+- [x] Reuse consultation group `consultation:{consultationId}`
+- [x] Choose and document the manual-end `reason` value: `participant_ended`
 - [ ] Decide exact ordering:
   - signal before room delete
   - signal before or after DB commit
 
 ### Phase 2. Backend Room Shutdown
 
-- [ ] Add LiveKit room shutdown to manual-end flow
+- [x] Add LiveKit room shutdown to manual-end flow
 - [ ] Keep timeout/manual-end ordering consistent enough for debugging
 - [ ] Confirm idempotency when consultation is already `Completed`
 
 ### Phase 3. Backend Tests
 
-- [ ] Unit test manual-end emits `RoomExpiring`
+- [x] Integration test manual-end emits `RoomExpiring`
+- [x] Integration test manual-end attempts room deletion
 - [ ] Unit test manual-end preserves chosen operation order
 - [ ] Unit test manual-end still completes business state when SignalR send fails
 - [ ] Unit test manual-end still behaves safely when room deletion fails
@@ -97,7 +99,7 @@ After this work is complete:
 
 ### Phase 6. Documentation Sync
 
-- [ ] Update `useguide` after backend manual-end signal becomes active
+- [x] Update `useguide` after backend manual-end signal becomes active
 - [ ] Update `sourcecode` diagrams after final order is implemented
 - [ ] Record final verified runtime behavior for both member and expert
 
@@ -107,10 +109,10 @@ After this work is complete:
 
 - [ ] `SnakeAid.Service/Interfaces/IConsultationRealtimeNotifier.cs`
 - [ ] `SnakeAid.Service/Implements/ConsultationRealtimeNotifier.cs`
-- [ ] `SnakeAid.Service/Implements/ConsultationService.cs`
+- [x] `SnakeAid.Service/Implements/ConsultationService.cs`
 - [ ] `SnakeAid.Service/Implements/BookingService.cs`
 - [ ] `SnakeAid.Tests/Unit/RoomCleanupTests.cs`
-- [ ] `SnakeAid.Tests/Integration/ScheduledConsultationIntegrationTests.cs`
+- [x] `SnakeAid.Tests/Integration/ScheduledConsultationIntegrationTests.cs`
 
 ### Mobile
 
@@ -152,9 +154,9 @@ Minimum verification before calling the work complete:
 
 ## Open Questions
 
-1. What exact `reason` value should manual end use?
-2. Should manual end signal before commit or after commit?
-3. After backend manual-end emission is added, does the expert-not-leaving issue still reproduce?
+1. Should manual end signal before commit or after commit?
+2. Should timeout and manual-end room shutdown ordering be normalized further?
+3. After the backend patch, does the expert-not-leaving issue still reproduce?
 
 ## Change Log
 
@@ -162,5 +164,5 @@ Minimum verification before calling the work complete:
 
 - Rewrote roadmap to preserve current truth for resume-from-scratch work
 - Locked the direction to upgrade `RoomExpiring`
-- Recorded that manual-end backend emission is missing in the current workspace
+- Recorded that manual-end backend emission and room deletion are now implemented in the current workspace
 - Preserved the reported expert-not-auto-leaving runtime issue as a verification target

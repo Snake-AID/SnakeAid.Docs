@@ -6,7 +6,7 @@ doc_type: sourcecode
 status: proposed
 last_updated: 2026-04-15
 owners: [backend-team]
-verification_status: mixed-current-code-and-reported-runtime-behavior
+verification_status: mixed-current-code-implemented-and-reported-runtime-behavior
 ---
 
 # Consultation EndCall SignalR Sourcecode
@@ -59,17 +59,20 @@ Current code-verified timeout payload:
 
 `ConsultationService.EndConsultationAsync(...)` currently:
 
+- emits `RoomExpiring` to consultation group `consultation:{consultationId}`
+- uses manual-end reason `participant_ended`
+- attempts `DeleteRoomAsync(...)` for the LiveKit room
 - validates actor participation
 - completes consultation state
 - completes booking and slot state when applicable
 - commits business state
 - settles escrow
 
-It currently does **not**:
+Current implementation notes:
 
-- emit `RoomExpiring`
-- inject `IHubContext<ConsultationHub>`
-- delete the LiveKit room
+- `IHubContext<ConsultationHub>` is injected into `ConsultationService`
+- `ILiveKitService` is injected into `ConsultationService`
+- SignalR send and room deletion are both best-effort with logging
 
 ## 3. Code-Verified Current Mobile Surface
 
@@ -127,8 +130,8 @@ Reported runtime finding that must remain visible in this document:
 Interpretation rule for future readers:
 
 - this is a reported runtime finding
-- it is not fully explained by the current checked-out backend code
-- it must be re-verified after manual-end backend emission is added to the workspace
+- it is not yet explained by the current checked-out backend code alone
+- it must now be re-verified against the patched backend workspace
 
 ## 5. Planned Backend Surface
 
@@ -146,7 +149,7 @@ Planned `RoomExpiring` payload:
 Reason values:
 
 - current timeout value: `slot_elapsed`
-- planned manual-end value: to be finalized during implementation
+- current manual-end value: `participant_ended`
 
 ## 6. Diagrams
 
@@ -170,7 +173,7 @@ sequenceDiagram
     Booking->>DB: CommitAsync()
 ```
 
-### 6.2 Planned Manual-End Flow
+### 6.2 Current Manual-End Flow
 
 ```mermaid
 sequenceDiagram
@@ -184,7 +187,7 @@ sequenceDiagram
 
     App->>API: POST /api/consultations/{consultationId}/end
     API->>Service: EndConsultationAsync(...)
-    Service->>Hub: RoomExpiring({consultationId, reason=manual_end_reason})
+    Service->>Hub: RoomExpiring({consultationId, reason="participant_ended"})
     Hub-->>Flutter: RoomExpiring
     Flutter->>Flutter: endcall + leave room
     Service->>LiveKit: DeleteRoomAsync(roomName)
@@ -196,12 +199,13 @@ sequenceDiagram
 
 1. The main issue is not event naming anymore.
 2. Flutter already provides the correct termination behavior for `RoomExpiring`.
-3. The backend manual-end path must first be aligned with the timeout path.
-4. Only after that alignment should the reported expert-side issue be diagnosed as delivery, subscription, or navigation failure.
+3. The backend manual-end path is now aligned with the timeout path at the event-contract level.
+4. The next unknown is whether the reported expert-side issue is delivery, subscription, group-membership, or navigation failure.
 
 ## 8. Test Focus
 
 - backend manual-end emission exists
+- backend manual-end attempts LiveKit room deletion
 - backend manual-end emission reaches the consultation group
 - backend timeout and manual-end use one event name
 - member active-call client leaves room on `RoomExpiring`

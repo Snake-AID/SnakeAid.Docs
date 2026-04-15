@@ -6,7 +6,7 @@ doc_type: introduction
 status: proposed
 last_updated: 2026-04-15
 owners: [backend-team]
-verification_status: mixed-current-code-and-reported-runtime-behavior
+verification_status: mixed-current-code-implemented-and-reported-runtime-behavior
 ---
 
 # Consultation EndCall SignalR Introduction
@@ -33,10 +33,10 @@ If this work must be resumed later without any memory of prior discussion, the c
 
 1. Flutter already treats `RoomExpiring` as a forced call-termination event.
 2. Timeout cleanup in backend already emits `RoomExpiring`.
-3. In the current backend workspace, manual end does **not** emit `RoomExpiring`.
+3. In the current backend workspace, manual end now emits `RoomExpiring` and triggers LiveKit room shutdown.
 4. A reported runtime edge case exists:
    - when a user calls `{consultationId}/end`, SignalR may emit `RoomExpiring`, but the expert still does not automatically leave the room
-5. Because the checked-out backend code does not yet emit `RoomExpiring` for manual end, the first implementation priority is to add that backend path and then re-verify the reported expert-side issue.
+5. The backend manual-end path is now aligned in code, so the next priority is end-to-end verification of member and expert runtime behavior.
 
 ## Code-Verified Workspace Status
 
@@ -59,9 +59,10 @@ Code-verified timeout behavior:
 
 Code-verified manual-end behavior in the current workspace:
 
-- `ConsultationService.EndConsultationAsync(...)` completes consultation state and settlement
-- it does **not** emit `RoomExpiring`
-- it does **not** close the LiveKit room
+- `ConsultationService.EndConsultationAsync(...)` emits `RoomExpiring` to SignalR group `consultation:{consultationId}`
+- it attempts to close the LiveKit room before final business completion
+- it then completes consultation state, related booking state, and settlement
+- current manual-end reason value is `participant_ended`
 
 ### Mobile
 
@@ -93,13 +94,13 @@ There is one important reported runtime finding that must be preserved for futur
 Status of this finding:
 
 - `reported runtime behavior`
-- `not fully reproducible from the current backend workspace alone`
+- `not yet re-verified end-to-end after the backend patch in this workspace`
 
 Why this matters:
 
-- the current backend checkout does not yet emit `RoomExpiring` in the manual-end service path
-- therefore the runtime issue may belong to a deployed version, another branch, or an uncommitted local state
-- the issue must still be tracked because it defines the next validation target after backend manual-end emission is implemented
+- the current backend checkout now emits `RoomExpiring` for manual end, so the remaining uncertainty is delivery/runtime behavior rather than missing service logic
+- the issue may still belong to a deployed version, another branch, stale mobile state, or hub membership/runtime timing
+- the issue must still be tracked because it is now the primary end-to-end validation target
 
 ## Problem Statement
 
@@ -107,8 +108,8 @@ The actual problem is now narrow and concrete:
 
 1. Backend timeout flow already uses `RoomExpiring`.
 2. Flutter already treats `RoomExpiring` as a hard end-call signal.
-3. Manual-end backend path is not yet aligned with timeout flow in the checked-out code.
-4. Even when manual-end-triggered `RoomExpiring` is reported to happen in runtime, expert auto-leave is not yet trusted end-to-end.
+3. Manual-end backend path is now aligned with timeout flow at the SignalR event-name level.
+4. Even with the backend patch in place, expert auto-leave is not yet trusted end-to-end.
 
 So the remaining work is not naming. The remaining work is implementation and verification.
 
@@ -121,7 +122,7 @@ The current chosen direction is final unless explicitly changed later:
   - timeout flow
   - manual-end flow
 - keep Flutter on one parsing path
-- investigate expert-not-leaving only after backend manual-end emission is code-complete
+- investigate expert-not-leaving now that backend manual-end emission is code-complete
 
 ## Scope Boundary
 
@@ -131,6 +132,7 @@ In scope:
 - timeout/manual-end contract alignment
 - room shutdown ordering
 - expert/member active-call verification
+- backend integration coverage for manual end
 - documentation that preserves workspace truth and runtime findings separately
 
 Out of scope:

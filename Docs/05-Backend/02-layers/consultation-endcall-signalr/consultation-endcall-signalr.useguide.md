@@ -7,7 +7,7 @@ status: active
 last_updated: 2026-04-15
 api_version: v1
 owners: [backend-team]
-verification_status: mixed-current-code-and-reported-runtime-behavior
+verification_status: mixed-current-code-implemented-and-reported-runtime-behavior
 ---
 
 # Consultation EndCall SignalR Useguide
@@ -36,7 +36,8 @@ Current direction:
 Current truth:
 
 - timeout flow already emits `RoomExpiring`
-- manual-end flow in the current backend workspace does not yet emit `RoomExpiring`
+- manual-end flow in the current backend workspace now emits `RoomExpiring`
+- manual-end flow in the current backend workspace now attempts LiveKit room shutdown
 - Flutter already treats `RoomExpiring` as a forced endcall trigger
 
 Reported runtime finding to preserve:
@@ -112,14 +113,16 @@ Auth:
 
 Current code-verified backend behavior:
 
+- emits `RoomExpiring` to the consultation SignalR group
+- attempts to close the LiveKit room
 - completes consultation state
 - completes booking/slot state when applicable
 - settles escrow
 
-Current code-verified backend limitation:
+Current code-verified backend event payload:
 
-- does not currently emit `RoomExpiring`
-- does not currently close the LiveKit room in this workspace
+- `consultationId`
+- `reason = "participant_ended"`
 
 Request:
 
@@ -140,11 +143,9 @@ Success response:
 }
 ```
 
-Target behavior after implementation:
+Important runtime note:
 
-- emit `RoomExpiring`
-- close the active room
-- keep business completion behavior
+- expert auto-leave on manual-end-triggered `RoomExpiring` is still not trusted until it is re-verified end-to-end
 
 ### 4.4 `GET /hubs/consultation?consultationId={consultationId}`
 
@@ -175,6 +176,10 @@ Current backend source:
 
 - scheduled timeout cleanup
 - emergency timeout cleanup
+
+Current manual-end backend source:
+
+- `POST /api/consultations/{consultationId}/end`
 
 Target backend source:
 
@@ -238,7 +243,7 @@ There is no admin-specific consultation termination contract in scope here.
 | Field | Type | Description |
 |------|------|-------------|
 | consultationId | Guid | Consultation ID |
-| reason | string | Should support both timeout and manual-end semantics |
+| reason | string | Current verified values: `slot_elapsed`, `participant_ended` |
 
 ## 7. Verified Endpoint List
 
@@ -252,5 +257,5 @@ There is no admin-specific consultation termination contract in scope here.
 
 - Rewrote useguide to distinguish current verified behavior from target behavior
 - Preserved that timeout already emits `RoomExpiring`
-- Preserved that manual-end backend emission is still missing in the current workspace
+- Updated current workspace status: manual-end now emits `RoomExpiring` and attempts room shutdown
 - Preserved the reported expert-not-auto-leaving runtime issue for later verification
