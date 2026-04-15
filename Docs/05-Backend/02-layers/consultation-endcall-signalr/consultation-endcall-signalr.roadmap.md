@@ -6,7 +6,7 @@ doc_type: roadmap
 status: proposed
 last_updated: 2026-04-15
 owners: [backend-team]
-verification_status: mixed-current-code-implemented-and-reported-runtime-behavior
+verification_status: mixed-current-code-and-target-migration-plan
 ---
 
 # Consultation EndCall SignalR Roadmap
@@ -14,11 +14,11 @@ verification_status: mixed-current-code-implemented-and-reported-runtime-behavio
 ## Current Status Snapshot
 
 - module status: `In Progress`
-- chosen event name: `RoomExpiring`
-- timeout backend signal: `Implemented`
-- manual-end backend signal in current workspace: `Implemented`
-- Flutter `RoomExpiring` handling: `Implemented`
-- end-to-end manual-end expert auto-leave: `Not trusted`
+- current backend event name: `RoomExpiring`
+- current Flutter event model: `ConsultationRoomExpiringEvent`
+- target backend and Flutter event name: `ConsultationCallEnded`
+- migration mode: `Full migration without backward compatibility`
+- end-to-end expert auto-leave: `Not trusted`
 
 ## Current Truth To Resume From
 
@@ -26,69 +26,72 @@ This roadmap is written so work can resume from zero context.
 
 Current verified state:
 
-- backend timeout flows already emit `RoomExpiring`
-- backend manual-end service path emits `RoomExpiring` in the current checkout
-- backend manual-end service path attempts LiveKit room deletion in the current checkout
-- Flutter already interprets `RoomExpiring` as a forced termination trigger
+- backend timeout flows emit `RoomExpiring`
+- backend manual-end flow emits `RoomExpiring`
+- backend manual-end flow attempts LiveKit room deletion
+- Flutter interprets `RoomExpiring` as a forced termination trigger
 - member and expert active-call flows use the same video consultation screen
 
-Reported but not fully code-verified-from-this-checkout:
+Reported but not fully closed:
 
-- a runtime edge case exists where manual end may trigger `RoomExpiring`, but expert still does not automatically leave the room
+- a runtime edge case exists where manual-end-triggered termination signaling may still fail to auto-remove expert from the room
 
 ## Target Outcome
 
 After this work is complete:
 
-1. timeout flow emits `RoomExpiring` consistently
-2. manual-end flow also emits `RoomExpiring`
-3. Flutter member client auto-leaves active call on `RoomExpiring`
-4. Flutter expert client auto-leaves active call on `RoomExpiring`
-5. the event contract remains single-name and single-path
+1. timeout flow emits `ConsultationCallEnded`
+2. manual-end flow emits `ConsultationCallEnded`
+3. backend no longer emits `RoomExpiring`
+4. Flutter no longer listens for `RoomExpiring`
+5. Flutter member client auto-leaves active call on `ConsultationCallEnded`
+6. Flutter expert client auto-leaves active call on `ConsultationCallEnded`
+7. reason values are normalized to business terms
 
 ## Locked Decisions
 
-- [x] Keep `RoomExpiring` as the single consultation termination event
-- [x] Do not introduce `ConsultationCallTerminated`
-- [x] Treat Flutter’s existing `RoomExpiring` handling as the base contract
-- [x] Prioritize backend manual-end emission before deeper expert-side diagnosis
+- [x] Do full migration from `RoomExpiring`
+- [x] Use canonical event name `ConsultationCallEnded`
+- [x] Do not keep backward compatibility
+- [x] Rename both backend and Flutter internals to match the new contract
+- [x] Normalize timeout reason naming to `timeout`
 
 ## Implementation Checklist
 
-### Phase 1. Backend Manual-End Alignment
+### Phase 1. Backend Naming Migration
 
-- [x] Add SignalR emission to `ConsultationService.EndConsultationAsync(...)`
-- [x] Use event name `RoomExpiring`
-- [x] Reuse consultation group `consultation:{consultationId}`
-- [x] Choose and document the manual-end `reason` value: `participant_ended`
-- [ ] Decide exact ordering:
-  - signal before room delete
-  - signal before or after DB commit
+- [ ] Rename SignalR event from `RoomExpiring` to `ConsultationCallEnded`
+- [ ] Rename any event constants in backend hubs/realtime classes
+- [ ] Rename backend DTO/model to `ConsultationCallEndedEvent`
+- [ ] Rename notifier/helper APIs if they exist
+- [ ] Normalize timeout reason from `slot_elapsed` to `timeout`
+- [ ] Preserve manual-end reason as `participant_ended`
 
-### Phase 2. Backend Room Shutdown
+### Phase 2. Flutter Naming Migration
 
-- [x] Add LiveKit room shutdown to manual-end flow
-- [ ] Keep timeout/manual-end ordering consistent enough for debugging
-- [ ] Confirm idempotency when consultation is already `Completed`
+- [ ] Rename `ConsultationRoomExpiringEvent` to `ConsultationCallEndedEvent`
+- [ ] Rename `roomExpiringStream` to `consultationCallEndedStream`
+- [ ] Rename `_handleRoomExpiringEvent(...)` to `_handleConsultationCallEndedEvent(...)`
+- [ ] Replace event parsing from `RoomExpiring` to `ConsultationCallEnded`
+- [ ] Replace `SignalReceived` event type mapping from `roomexpiring` to the new event name if still needed
 
 ### Phase 3. Backend Tests
 
-- [x] Integration test manual-end emits `RoomExpiring`
-- [x] Integration test manual-end attempts room deletion
-- [ ] Unit test manual-end preserves chosen operation order
-- [ ] Unit test manual-end still completes business state when SignalR send fails
-- [ ] Unit test manual-end still behaves safely when room deletion fails
+- [ ] Update backend tests to assert `ConsultationCallEnded`
+- [ ] Update payload assertions for `reason = "timeout"` where applicable
+- [ ] Keep manual-end integration coverage
+- [ ] Verify room deletion behavior still passes after rename
 
 ### Phase 4. Mobile Verification
 
-- [ ] Verify member active-call screen receives manual-end-triggered `RoomExpiring`
-- [ ] Verify expert active-call screen receives manual-end-triggered `RoomExpiring`
+- [ ] Verify member active-call screen receives `ConsultationCallEnded`
+- [ ] Verify expert active-call screen receives `ConsultationCallEnded`
 - [ ] Verify both modes disconnect the room and navigate away
-- [ ] Verify duplicate delivery does not break due to `_isHandlingRoomExpiry`
+- [ ] Verify duplicate delivery does not break due to the in-screen guard
 
 ### Phase 5. Edge Case Resolution
 
-- [ ] Reproduce the reported expert-not-auto-leaving issue after backend manual-end emission exists in code
+- [ ] Reproduce the reported expert-not-auto-leaving issue after full rename
 - [ ] Determine whether failure is in:
   - backend event delivery
   - consultation group membership
@@ -99,20 +102,19 @@ After this work is complete:
 
 ### Phase 6. Documentation Sync
 
-- [x] Update `useguide` after backend manual-end signal becomes active
-- [ ] Update `sourcecode` diagrams after final order is implemented
+- [ ] Update `useguide` to remove `RoomExpiring` as active contract
+- [ ] Update `sourcecode` diagrams to the renamed event
 - [ ] Record final verified runtime behavior for both member and expert
 
 ## Candidate File Targets
 
 ### Backend
 
-- [ ] `SnakeAid.Service/Interfaces/IConsultationRealtimeNotifier.cs`
-- [ ] `SnakeAid.Service/Implements/ConsultationRealtimeNotifier.cs`
-- [x] `SnakeAid.Service/Implements/ConsultationService.cs`
+- [ ] `SnakeAid.Service/Hubs/ConsultationRealtimeEvents.cs`
+- [ ] `SnakeAid.Service/Implements/ConsultationService.cs`
 - [ ] `SnakeAid.Service/Implements/BookingService.cs`
-- [ ] `SnakeAid.Tests/Unit/RoomCleanupTests.cs`
-- [x] `SnakeAid.Tests/Integration/ScheduledConsultationIntegrationTests.cs`
+- [ ] related hub/notifier abstractions if present
+- [ ] `SnakeAid.Tests/Integration/ScheduledConsultationIntegrationTests.cs`
 
 ### Mobile
 
@@ -129,18 +131,18 @@ After this work is complete:
 
 ## Verification Strategy
 
-Minimum verification before calling the work complete:
+Minimum verification before calling the migration complete:
 
 1. scheduled timeout:
-   - `RoomExpiring` sent
+   - `ConsultationCallEnded` sent
    - room closes
    - consultation state completes
 2. emergency timeout:
-   - `RoomExpiring` sent
+   - `ConsultationCallEnded` sent
    - room closes
    - consultation state completes
 3. manual end:
-   - `RoomExpiring` sent
+   - `ConsultationCallEnded` sent
    - room closes
    - consultation state completes
 4. Flutter member active call:
@@ -151,18 +153,19 @@ Minimum verification before calling the work complete:
    - receives event
    - disconnects room
    - navigates away
+6. no active runtime dependency remains on `RoomExpiring`
 
 ## Open Questions
 
-1. Should manual end signal before commit or after commit?
-2. Should timeout and manual-end room shutdown ordering be normalized further?
-3. After the backend patch, does the expert-not-leaving issue still reproduce?
+1. Should backend expose the renamed event through a dedicated notifier abstraction now or later?
+2. Should `SignalReceived` remain as an indirection path on Flutter, or should the hub send the direct event only?
+3. After the full rename, does the expert-not-leaving issue still reproduce?
 
 ## Change Log
 
 ### 2026-04-15
 
-- Rewrote roadmap to preserve current truth for resume-from-scratch work
-- Locked the direction to upgrade `RoomExpiring`
-- Recorded that manual-end backend emission and room deletion are now implemented in the current workspace
-- Preserved the reported expert-not-auto-leaving runtime issue as a verification target
+- Replaced the previous `RoomExpiring`-retention direction with a full migration plan
+- Locked canonical event naming to `ConsultationCallEnded`
+- Recorded that backward compatibility will not be kept
+- Preserved the reported expert-not-auto-leaving runtime issue as a post-migration verification target

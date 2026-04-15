@@ -7,7 +7,7 @@ status: active
 last_updated: 2026-04-15
 api_version: v1
 owners: [backend-team]
-verification_status: mixed-current-code-implemented-and-reported-runtime-behavior
+verification_status: mixed-current-code-and-target-migration-plan
 ---
 
 # Consultation EndCall SignalR Useguide
@@ -25,24 +25,29 @@ verification_status: mixed-current-code-implemented-and-reported-runtime-behavio
 
 ## 2. Overview
 
-This document records the consultation termination contract as it exists today and the exact target state that should be implemented next.
+This document records both the current verified consultation termination contract and the target contract for the full naming migration.
 
-Current direction:
+Chosen direction:
 
-- keep `RoomExpiring`
-- reuse it for both timeout and manual end
-- do not introduce a second termination event name
+- replace `RoomExpiring` with `ConsultationCallEnded`
+- migrate backend and Flutter together
+- do not keep backward compatibility
 
-Current truth:
+Current verified contract:
 
-- timeout flow already emits `RoomExpiring`
-- manual-end flow in the current backend workspace now emits `RoomExpiring`
-- manual-end flow in the current backend workspace now attempts LiveKit room shutdown
-- Flutter already treats `RoomExpiring` as a forced endcall trigger
+- timeout flow emits `RoomExpiring`
+- manual-end flow emits `RoomExpiring`
+- Flutter treats `RoomExpiring` as a forced endcall trigger
+
+Target contract:
+
+- timeout flow emits `ConsultationCallEnded`
+- manual-end flow emits `ConsultationCallEnded`
+- Flutter treats `ConsultationCallEnded` as the single forced endcall trigger
 
 Reported runtime finding to preserve:
 
-- when manual end triggers `RoomExpiring`, expert may still fail to auto-leave the room
+- expert may still fail to auto-leave after manual-end-triggered termination signaling
 
 ## 3. Authentication & Authorization
 
@@ -124,6 +129,12 @@ Current code-verified backend event payload:
 - `consultationId`
 - `reason = "participant_ended"`
 
+Target behavior after migration:
+
+- emits `ConsultationCallEnded` to the consultation SignalR group
+- keeps room shutdown and business completion behavior
+- keeps `reason = "participant_ended"` for manual end
+
 Request:
 
 ```http
@@ -145,7 +156,7 @@ Success response:
 
 Important runtime note:
 
-- expert auto-leave on manual-end-triggered `RoomExpiring` is still not trusted until it is re-verified end-to-end
+- expert auto-leave after manual-end-triggered termination signaling is still not trusted until it is re-verified end-to-end
 
 ### 4.4 `GET /hubs/consultation?consultationId={consultationId}`
 
@@ -164,24 +175,15 @@ Connection notes:
 - required query string: `consultationId`
 - group format: `consultation:{consultationId}`
 
-### 4.5 Current Server-To-Client Termination Event
+### 4.5 Server-To-Client Termination Event
 
-#### 4.5.1 `RoomExpiring`
+#### 4.5.1 Current Event: `RoomExpiring`
 
 Purpose:
 
-- force the active consultation call to terminate on Flutter
+- current active server push used to terminate the consultation call on Flutter
 
 Current backend source:
-
-- scheduled timeout cleanup
-- emergency timeout cleanup
-
-Current manual-end backend source:
-
-- `POST /api/consultations/{consultationId}/end`
-
-Target backend source:
 
 - scheduled timeout cleanup
 - emergency timeout cleanup
@@ -196,7 +198,28 @@ Current example payload:
 }
 ```
 
-Current Flutter behavior on receipt:
+#### 4.5.2 Target Event: `ConsultationCallEnded`
+
+Purpose:
+
+- canonical server push that terminates the consultation call on Flutter after the migration
+
+Target backend source:
+
+- scheduled timeout cleanup
+- emergency timeout cleanup
+- manual end via `POST /api/consultations/{consultationId}/end`
+
+Target example payload:
+
+```json
+{
+  "consultationId": "550e8400-e29b-41d4-a716-446655440000",
+  "reason": "timeout"
+}
+```
+
+Current Flutter behavior on receipt of the termination event:
 
 - shows termination feedback
 - disconnects room
@@ -205,7 +228,7 @@ Current Flutter behavior on receipt:
 
 Known reported issue:
 
-- expert may still fail to auto-leave after manual-end-triggered `RoomExpiring`
+- expert may still fail to auto-leave after manual-end-triggered termination signaling
 
 ## 5. Admin Business + Admin APIs
 
@@ -236,14 +259,14 @@ There is no admin-specific consultation termination contract in scope here.
 | Field | Type | Description |
 |------|------|-------------|
 | consultationId | Guid | Consultation ID |
-| reason | string | Current verified value: `slot_elapsed` |
+| reason | string | Current verified values: `slot_elapsed`, `participant_ended` |
 
-### Target `RoomExpiring` Payload
+### Target `ConsultationCallEnded` Payload
 
 | Field | Type | Description |
 |------|------|-------------|
 | consultationId | Guid | Consultation ID |
-| reason | string | Current verified values: `slot_elapsed`, `participant_ended` |
+| reason | string | Target values: `timeout`, `participant_ended` |
 
 ## 7. Verified Endpoint List
 
@@ -255,7 +278,7 @@ There is no admin-specific consultation termination contract in scope here.
 
 ### 2026-04-15
 
-- Rewrote useguide to distinguish current verified behavior from target behavior
-- Preserved that timeout already emits `RoomExpiring`
-- Updated current workspace status: manual-end now emits `RoomExpiring` and attempts room shutdown
-- Preserved the reported expert-not-auto-leaving runtime issue for later verification
+- Replaced the previous `RoomExpiring`-retention direction with a full rename plan
+- Recorded the target server event as `ConsultationCallEnded`
+- Recorded that backward compatibility will not be kept
+- Preserved the reported expert-not-auto-leaving runtime issue for post-migration verification

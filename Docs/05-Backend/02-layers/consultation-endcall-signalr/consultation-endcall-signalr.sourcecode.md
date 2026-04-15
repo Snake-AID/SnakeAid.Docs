@@ -6,7 +6,7 @@ doc_type: sourcecode
 status: proposed
 last_updated: 2026-04-15
 owners: [backend-team]
-verification_status: mixed-current-code-implemented-and-reported-runtime-behavior
+verification_status: mixed-current-code-and-target-migration-plan
 ---
 
 # Consultation EndCall SignalR Sourcecode
@@ -20,6 +20,7 @@ verification_status: mixed-current-code-implemented-and-reported-runtime-behavio
 - `BookingService`
 - `ConsultationLifecycleBackgroundService`
 - `ConsultationHub`
+- `ConsultationRealtimeEvents`
 - `LiveKitService`
 
 ### Mobile
@@ -41,11 +42,11 @@ verification_status: mixed-current-code-implemented-and-reported-runtime-behavio
 
 - hub route: `/hubs/consultation`
 - consultation group format: `consultation:{consultationId}`
-- timeout event name: `RoomExpiring`
+- current event name: `RoomExpiring`
 
 ### Current Timeout Emission
 
-`RoomExpiring` is emitted by:
+`RoomExpiring` is currently emitted by:
 
 - `BookingService.AutoCompleteElapsedScheduledConsultationsAsync(...)`
 - `BookingService.AutoCompleteElapsedEmergencyConsultationsAsync(...)`
@@ -67,12 +68,6 @@ Current code-verified timeout payload:
 - completes booking and slot state when applicable
 - commits business state
 - settles escrow
-
-Current implementation notes:
-
-- `IHubContext<ConsultationHub>` is injected into `ConsultationService`
-- `ILiveKitService` is injected into `ConsultationService`
-- SignalR send and room deletion are both best-effort with logging
 
 ## 3. Code-Verified Current Mobile Surface
 
@@ -119,41 +114,60 @@ Code-verified active-call behavior:
 6. call backend `endConsultation(...)`
 7. navigate to completion screen
 
-This means Flutter already treats `RoomExpiring` as a termination event, not as a soft warning.
+This means Flutter already treats `RoomExpiring` as a hard termination event.
 
-## 4. Reported Runtime Finding
+## 4. Target Naming Surface
+
+The target naming surface after migration is:
+
+### Backend
+
+- SignalR event name: `ConsultationCallEnded`
+- DTO/model: `ConsultationCallEndedEvent`
+- optional notifier method: `NotifyConsultationCallEndedAsync(...)`
+- reason type: `ConsultationCallEndReason`
+
+### Mobile
+
+- model: `ConsultationCallEndedEvent`
+- stream: `consultationCallEndedStream`
+- parser helper: `_emitConsultationCallEndedFromMap(...)`
+- handler: `_handleConsultationCallEndedEvent(...)`
+
+### Reason Values
+
+- timeout: `timeout`
+- manual end: `participant_ended`
+
+## 5. Migration Notes
+
+This migration is full-cutover and coordinated.
+
+Rules:
+
+- do not keep `RoomExpiring` as a compatibility alias
+- do not dual-emit both event names
+- do not leave backend and Flutter on different contracts between commits intended for release
+
+Implication:
+
+- backend and Flutter patches must be prepared together and validated together
+
+## 6. Reported Runtime Finding
 
 Reported runtime finding that must remain visible in this document:
 
-- when a user calls `{consultationId}/end`, SignalR may emit `RoomExpiring`, but expert does not automatically leave the room
+- when a user triggers manual end, expert may still fail to automatically leave the room
 
 Interpretation rule for future readers:
 
 - this is a reported runtime finding
-- it is not yet explained by the current checked-out backend code alone
-- it must now be re-verified against the patched backend workspace
+- it is separate from the naming problem
+- it must be re-verified after the full rename is complete
 
-## 5. Planned Backend Surface
+## 7. Diagrams
 
-The planned backend surface is intentionally conservative:
-
-- keep event name: `RoomExpiring`
-- add manual-end emission to `ConsultationService.EndConsultationAsync(...)`
-- optionally introduce a notifier abstraction to avoid duplicating SignalR send logic across `BookingService` and `ConsultationService`
-
-Planned `RoomExpiring` payload:
-
-- `consultationId`
-- `reason`
-
-Reason values:
-
-- current timeout value: `slot_elapsed`
-- current manual-end value: `participant_ended`
-
-## 6. Diagrams
-
-### 6.1 Current Timeout Flow
+### 7.1 Current Timeout Flow
 
 ```mermaid
 sequenceDiagram
@@ -173,7 +187,27 @@ sequenceDiagram
     Booking->>DB: CommitAsync()
 ```
 
-### 6.2 Current Manual-End Flow
+### 7.2 Target Timeout Flow
+
+```mermaid
+sequenceDiagram
+    participant BG as ConsultationLifecycleBackgroundService
+    participant Booking as BookingService
+    participant Hub as ConsultationHub Group
+    participant Flutter as Flutter Client
+    participant LiveKit as LiveKitService
+    participant DB as Database
+
+    BG->>Booking: AutoCompleteElapsed...()
+    Booking->>Hub: ConsultationCallEnded({consultationId, reason="timeout"})
+    Hub-->>Flutter: ConsultationCallEnded
+    Flutter->>Flutter: endcall + leave room
+    Booking->>LiveKit: DeleteRoomAsync(roomName)
+    Booking->>DB: update business state
+    Booking->>DB: CommitAsync()
+```
+
+### 7.3 Target Manual-End Flow
 
 ```mermaid
 sequenceDiagram
@@ -187,27 +221,27 @@ sequenceDiagram
 
     App->>API: POST /api/consultations/{consultationId}/end
     API->>Service: EndConsultationAsync(...)
-    Service->>Hub: RoomExpiring({consultationId, reason="participant_ended"})
-    Hub-->>Flutter: RoomExpiring
+    Service->>Hub: ConsultationCallEnded({consultationId, reason="participant_ended"})
+    Hub-->>Flutter: ConsultationCallEnded
     Flutter->>Flutter: endcall + leave room
     Service->>LiveKit: DeleteRoomAsync(roomName)
     Service->>DB: update business state
     Service->>DB: CommitAsync()
 ```
 
-## 7. Design Notes
+## 8. Design Notes
 
-1. The main issue is not event naming anymore.
-2. Flutter already provides the correct termination behavior for `RoomExpiring`.
-3. The backend manual-end path is now aligned with the timeout path at the event-contract level.
-4. The next unknown is whether the reported expert-side issue is delivery, subscription, group-membership, or navigation failure.
+1. The current behavior is already correct enough for a termination event.
+2. The main remaining problem is domain naming consistency across backend and Flutter.
+3. The migration should also normalize timeout reason naming.
+4. The expert-side runtime issue still requires verification after rename.
 
-## 8. Test Focus
+## 9. Test Focus
 
-- backend manual-end emission exists
-- backend manual-end attempts LiveKit room deletion
-- backend manual-end emission reaches the consultation group
-- backend timeout and manual-end use one event name
-- member active-call client leaves room on `RoomExpiring`
-- expert active-call client leaves room on `RoomExpiring`
+- backend emits `ConsultationCallEnded`
+- backend no longer emits `RoomExpiring`
+- timeout reason uses `timeout`
+- manual-end reason uses `participant_ended`
+- Flutter member active-call client leaves room on `ConsultationCallEnded`
+- Flutter expert active-call client leaves room on `ConsultationCallEnded`
 - reported runtime issue is either reproduced or closed with evidence
