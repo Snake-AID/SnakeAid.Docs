@@ -32,6 +32,7 @@ Current verified contract:
 - timeout flow emits `ConsultationCallEnded`
 - manual-end flow emits `ConsultationCallEnded`
 - Flutter treats `ConsultationCallEnded` as the single forced endcall trigger
+- the canonical termination contract is the direct hub event `ConsultationCallEnded`
 
 Reported runtime finding to preserve:
 
@@ -162,6 +163,8 @@ Connection notes:
 - hub route: `/hubs/consultation`
 - required query string: `consultationId`
 - group format: `consultation:{consultationId}`
+- current backend auto-adds the connection to group `consultation:{consultationId}` during hub connection
+- current backend does not require an explicit join hub method for consultation membership
 
 ### 4.5 Server-To-Client Termination Event
 
@@ -170,6 +173,8 @@ Connection notes:
 Purpose:
 
 - canonical server push that terminates the consultation call on Flutter after the migration
+- this is the primary realtime contract for consultation call termination
+- clients should not depend on generic `Signal` as the primary termination path when integrating with the current backend
 
 Current backend source:
 
@@ -186,12 +191,27 @@ Current example payload:
 }
 ```
 
+Manual-end example payload:
+
+```json
+{
+  "consultationId": "550e8400-e29b-41d4-a716-446655440000",
+  "reason": "participant_ended"
+}
+```
+
 Current Flutter behavior on receipt of the termination event:
 
 - shows termination feedback
 - disconnects room
 - calls `endConsultation(...)`
 - navigates away from active call
+
+Expected mobile behavior on current backend:
+
+- when `reason = "timeout"`, client should immediately endcall and leave the LiveKit room
+- when `reason = "participant_ended"`, client should immediately endcall and leave the LiveKit room
+- client should treat both reasons as final termination states, not reminder states
 
 Known reported issue:
 
