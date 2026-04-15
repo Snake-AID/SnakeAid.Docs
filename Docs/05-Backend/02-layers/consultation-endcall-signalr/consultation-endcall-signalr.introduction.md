@@ -6,137 +6,139 @@ doc_type: introduction
 status: proposed
 last_updated: 2026-04-15
 owners: [backend-team]
-verification_status: mixed-current-code-and-target-design
+verification_status: mixed-current-code-and-reported-runtime-behavior
 ---
 
 # Consultation EndCall SignalR Introduction
 
 ## Goal
 
-This module defines the implementation plan for evolving the existing `RoomExpiring` consultation SignalR contract so it becomes the single forced-endcall trigger for Flutter.
+This module defines the implementation direction for consultation end-call signaling.
 
-- when a consultation reaches its time limit, the backend should emit `RoomExpiring` to both `member` and `expert`; Flutter will receive that push and perform `endcall`, then the backend will close the LiveKit room
-- when a participant calls `POST /api/consultations/{consultationId}/end`, the backend should also emit `RoomExpiring`; Flutter should receive that push and perform `endcall`, then the backend should close the LiveKit room
+The chosen direction is:
 
-Backend goals:
+- keep `RoomExpiring` as the single consultation termination SignalR event
+- upgrade `RoomExpiring` so it is used by both timeout flow and manual-end flow
+- do not introduce a second event such as `ConsultationCallTerminated`
 
-- provide one stable event contract for Flutter to consume
-- avoid splitting call-termination logic across `BookingService`, `ConsultationService`, and the hub
-- preserve a clear operation order: `broadcast -> Flutter endcall/leave room -> backend room shutdown`
+Target user-visible behavior:
 
-## Current Codebase Status
+- when timeout ends a consultation, backend emits `RoomExpiring`
+- when `POST /api/consultations/{consultationId}/end` ends a consultation, backend also emits `RoomExpiring`
+- Flutter receives the push, disconnects the active call, and navigates to the completion flow
 
-The current codebase already contains the required building blocks:
+## Resume Summary
 
-- `ConsultationHub` is mapped at `"/hubs/consultation"`
-- the consultation SignalR group format is `consultation:{consultationId}`
-- the LiveKit room name format is `consultation-{consultationId}`
-- `POST /api/consultations/{consultationId}/end` already exists and calls `ConsultationService.EndConsultationAsync(...)`
-- `POST /api/consultations/{consultationId}/video-token` already exists so participants can join the LiveKit room
-- `ConsultationLifecycleBackgroundService` runs a sweep every `30s`
-- both scheduled-timeout and emergency-timeout flows in `BookingService` already send `RoomExpiring` before `DeleteRoomAsync(...)`
+If this work must be resumed later without any memory of prior discussion, the current situation is:
 
-## Code-Verified Current Behavior
+1. Flutter already treats `RoomExpiring` as a forced call-termination event.
+2. Timeout cleanup in backend already emits `RoomExpiring`.
+3. In the current backend workspace, manual end does **not** emit `RoomExpiring`.
+4. A reported runtime edge case exists:
+   - when a user calls `{consultationId}/end`, SignalR may emit `RoomExpiring`, but the expert still does not automatically leave the room
+5. Because the checked-out backend code does not yet emit `RoomExpiring` for manual end, the first implementation priority is to add that backend path and then re-verify the reported expert-side issue.
 
-### Timeout Flow
+## Code-Verified Workspace Status
 
-The current timeout methods are:
+### Backend
 
-- `BookingService.AutoCompleteElapsedScheduledConsultationsAsync(...)`
-- `BookingService.AutoCompleteElapsedEmergencyConsultationsAsync(...)`
+The current backend workspace contains:
 
-Both currently do the following:
+- `ConsultationHub` mapped at `"/hubs/consultation"`
+- consultation SignalR group format: `consultation:{consultationId}`
+- LiveKit room name format: `consultation-{consultationId}`
+- `POST /api/consultations/{consultationId}/end`
+- `POST /api/consultations/{consultationId}/video-token`
+- `ConsultationLifecycleBackgroundService`
 
-1. `SendAsync("RoomExpiring", { consultationId, reason = "slot_elapsed" })` to the consultation group
-2. `DeleteRoomAsync("consultation-{consultationId}")`
-3. update DB state to `Completed`
-4. `CommitAsync()`
-5. settle escrow
+Code-verified timeout behavior:
 
-The current behavior is unit-test verified:
+- `BookingService.AutoCompleteElapsedScheduledConsultationsAsync(...)` emits `RoomExpiring`
+- `BookingService.AutoCompleteElapsedEmergencyConsultationsAsync(...)` emits `RoomExpiring`
+- both timeout flows then delete the LiveKit room and complete business state
 
-- the SignalR send happens before `CommitAsync`
-- `DeleteRoomAsync` happens before `CommitAsync`
-- the current `RoomExpiring` payload only includes `ConsultationId` and `Reason`
+Code-verified manual-end behavior in the current workspace:
 
-### Manual End Flow
+- `ConsultationService.EndConsultationAsync(...)` completes consultation state and settlement
+- it does **not** emit `RoomExpiring`
+- it does **not** close the LiveKit room
 
-`ConsultationService.EndConsultationAsync(...)` currently:
+### Mobile
 
-- verifies the actor is either `Caller` or `Callee`
-- sets `Consultation.Status = Completed`
-- sets `Consultation.EndTime = UtcNow`
-- if a booking exists, sets `BookingStatus = Completed`
-- if a reserved slot exists, changes `TimeSlotStatus = Booked`
-- calls `CommitAsync()`
-- calls `SettleConsultationEscrowAsync(...)`
+The current mobile workspace contains:
 
-This flow currently does not:
+- `ConsultationChatSignalRService`
+- typed event model `ConsultationRoomExpiringEvent`
+- active-call subscription to `roomExpiringStream`
+- shared active-call screen for both member and expert mode
 
-- emit a SignalR event announcing call termination
-- close the LiveKit room
-- align its realtime contract with the timeout flow
+Code-verified Flutter behavior:
+
+- Flutter listens for direct `RoomExpiring`
+- Flutter also maps `SignalReceived` with `roomexpiring` to the same handling path
+- the active video consultation screen handles `RoomExpiring` by:
+  - showing a snackbar
+  - disconnecting the active room
+  - calling backend `endConsultation(...)`
+  - navigating to completion UI
+
+This means Flutter already behaves as if `RoomExpiring` were the final consultation termination trigger.
+
+## Reported Runtime Finding
+
+There is one important reported runtime finding that must be preserved for future resume:
+
+- when a user calls `{consultationId}/end`, SignalR may emit `RoomExpiring`, but the expert does not automatically leave the room
+
+Status of this finding:
+
+- `reported runtime behavior`
+- `not fully reproducible from the current backend workspace alone`
+
+Why this matters:
+
+- the current backend checkout does not yet emit `RoomExpiring` in the manual-end service path
+- therefore the runtime issue may belong to a deployed version, another branch, or an uncommitted local state
+- the issue must still be tracked because it defines the next validation target after backend manual-end emission is implemented
 
 ## Problem Statement
 
-Current gaps:
+The actual problem is now narrow and concrete:
 
-- the timeout flow already has a usable SignalR event, but its payload is still too thin for the long-term Flutter endcall trigger contract
-- the manual-end flow needs to reuse `RoomExpiring` instead of introducing a second event name
-- consultation termination broadcasting is implemented directly inside `BookingService` and is not reusable from `ConsultationService`
-- there is an observed integration edge case: when `POST /api/consultations/{consultationId}/end` triggers `RoomExpiring`, the expert does not automatically leave the room in practice
+1. Backend timeout flow already uses `RoomExpiring`.
+2. Flutter already treats `RoomExpiring` as a hard end-call signal.
+3. Manual-end backend path is not yet aligned with timeout flow in the checked-out code.
+4. Even when manual-end-triggered `RoomExpiring` is reported to happen in runtime, expert auto-leave is not yet trusted end-to-end.
 
-## Proposed Direction
+So the remaining work is not naming. The remaining work is implementation and verification.
 
-Recommended implementation direction:
+## Chosen Direction
 
-1. Create a shared abstraction, for example:
-   - `IConsultationRealtimeNotifier`
-   - `ConsultationRealtimeNotifier`
-2. Keep `RoomExpiring` as the single server-to-client forced-endcall trigger, because Flutter already treats it as a termination signal today
-3. Upgrade the `RoomExpiring` payload only where it adds real value:
-   - `consultationId`
-   - `reason`
-4. Both the timeout path and the manual-end path should call the same notifier because both pushes are intended to make Flutter perform `endcall`
-5. The timeout path should preserve the order `broadcast -> delete room -> update status`
-6. The manual-end path should send SignalR before the room is closed, then delete the room and commit state
+The current chosen direction is final unless explicitly changed later:
 
-## Observed Integration Finding
-
-Observed finding from current integration behavior:
-
-- when a user calls `POST /api/consultations/{consultationId}/end`, SignalR may emit `RoomExpiring`, but the expert still does not automatically leave the room
-
-Current interpretation:
-
-- Flutter already treats `RoomExpiring` as a hard termination trigger in the live consultation screen
-- therefore the main risk is not event naming anymore
-- the main risk is end-to-end delivery and handling consistency for the manual-end path, especially on the expert side
-
-## Assumptions To Lock During Implementation
-
-To avoid ambiguity, this module uses the following assumptions:
-
-- `RoomExpiring` remains the only forced-endcall event for consultation termination
-- Flutter should not need a second event name for the same endcall action
-- the current manual-end expert-not-leaving issue is treated as an implementation/integration bug, not as evidence that a new event name is required
+- keep event name: `RoomExpiring`
+- reuse that event for:
+  - timeout flow
+  - manual-end flow
+- keep Flutter on one parsing path
+- investigate expert-not-leaving only after backend manual-end emission is code-complete
 
 ## Scope Boundary
 
 In scope:
 
-- timeout signals for scheduled and emergency consultations
-- manual-end signal for the existing `POST /api/consultations/{consultationId}/end`
-- LiveKit room shutdown after broadcast
-- test coverage for ordering, payload, and resiliency
-- backend and mobile-facing documentation
+- manual-end `RoomExpiring` emission
+- timeout/manual-end contract alignment
+- room shutdown ordering
+- expert/member active-call verification
+- documentation that preserves workspace truth and runtime findings separately
 
 Out of scope:
 
-- changing settlement or pricing business rules
-- changing `ConsultationHub` authentication
-- changing Flutter UI implementation
-- adding a new endpoint if the existing one is sufficient
+- renaming the event
+- introducing `ConsultationCallTerminated`
+- changing Flutter route structure unless verification proves it is necessary
+- changing consultation business rules unrelated to termination signaling
 
 ## Delivered Artifacts
 

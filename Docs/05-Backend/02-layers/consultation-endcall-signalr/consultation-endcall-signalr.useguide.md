@@ -7,7 +7,7 @@ status: active
 last_updated: 2026-04-15
 api_version: v1
 owners: [backend-team]
-verification_status: code-verified
+verification_status: mixed-current-code-and-reported-runtime-behavior
 ---
 
 # Consultation EndCall SignalR Useguide
@@ -25,63 +25,56 @@ verification_status: code-verified
 
 ## 2. Overview
 
-This document only describes consultation call contracts that are verified in the current codebase.
+This document records the consultation termination contract as it exists today and the exact target state that should be implemented next.
 
-Current client-visible behavior:
+Current direction:
 
-- a participant can get a LiveKit token through `POST /api/consultations/{consultationId}/video-token`
-- a participant can connect to `ConsultationHub` to join the consultation SignalR group
-- a participant can end the consultation through `POST /api/consultations/{consultationId}/end`
-- the timeout flow can currently emit the server-to-client event `RoomExpiring`
+- keep `RoomExpiring`
+- reuse it for both timeout and manual end
+- do not introduce a second termination event name
 
-Important notes:
+Current truth:
 
-- `RoomExpiring` is currently emitted only by the auto-complete timeout flow
-- `POST /api/consultations/{consultationId}/end` does not currently emit a SignalR call-termination event
-- the planned SignalR trigger for Flutter is tracked in:
-  - `consultation-endcall-signalr.introduction.md`
-  - `consultation-endcall-signalr.roadmap.md`
-  - `consultation-endcall-signalr.sourcecode.md`
+- timeout flow already emits `RoomExpiring`
+- manual-end flow in the current backend workspace does not yet emit `RoomExpiring`
+- Flutter already treats `RoomExpiring` as a forced endcall trigger
 
-Planned direction:
+Reported runtime finding to preserve:
 
-- both timeout-triggered and manual-end-triggered pushes are intended to be consumed by Flutter for the same action: `endcall` and leave the LiveKit room
-- the chosen direction is to upgrade `RoomExpiring` rather than introduce a second termination event name
-- observed finding: when manual end triggers `RoomExpiring`, the expert still does not automatically leave the room in practice
+- when manual end triggers `RoomExpiring`, expert may still fail to auto-leave the room
 
 ## 3. Authentication & Authorization
 
 ### Expert/Member Operations
 
 - JWT Bearer token is required
-- the user must be a participant of the consultation to connect to the hub or get a video token
+- the user must be a consultation participant to connect to the hub
+- the user must be a consultation participant or `Admin` to request a video token
 
 ### Admin Operations
 
-- an admin can get a video token when the role is `Admin`
-- this module currently has no admin-specific end-consultation endpoint
+- admin can request a video token
+- this module does not currently define an admin-specific termination API
 
 ## 4. Expert/Member Business + Expert/Member APIs
 
 ### 4.1 Business Scope
 
-- join the consultation room through a LiveKit token
-- join the consultation realtime group through the SignalR hub
-- exchange chat messages through the hub
-- send volatile UI signals through the hub
-- end a consultation through the HTTP endpoint
-- receive a timeout event from the backend when the room has elapsed
+- join LiveKit consultation room
+- join consultation SignalR hub
+- receive forced termination pushes
+- end consultation through HTTP API
 
 ### 4.2 `POST /api/consultations/{consultationId}/video-token`
 
 Purpose:
 
-- generate a LiveKit access token for the authenticated user to join the consultation room
+- generate a LiveKit access token for a consultation room
 
 Auth:
 
 - JWT Bearer token is required
-- the user must be a consultation participant or `Admin`
+- caller must be consultation participant or `Admin`
 
 Request:
 
@@ -91,10 +84,6 @@ Authorization: Bearer <jwt>
 ```
 
 Success response:
-
-- `ApiResponse<VideoTokenResponse>`
-
-Example response:
 
 ```json
 {
@@ -110,22 +99,27 @@ Example response:
 }
 ```
 
-Field notes:
-
-- `roomName` comes from `Consultation.RoomId`
-- if the consultation does not have `RoomId`, the backend returns a validation error
-- Flutter should use `token + wsUrl + roomName` to join LiveKit
-
 ### 4.3 `POST /api/consultations/{consultationId}/end`
 
 Purpose:
 
-- allow a participant to end a consultation
+- end a consultation from the backend business perspective
 
 Auth:
 
 - JWT Bearer token is required
-- the actor must be either `Caller` or `Callee` of the consultation
+- actor must be consultation participant
+
+Current code-verified backend behavior:
+
+- completes consultation state
+- completes booking/slot state when applicable
+- settles escrow
+
+Current code-verified backend limitation:
+
+- does not currently emit `RoomExpiring`
+- does not currently close the LiveKit room in this workspace
 
 Request:
 
@@ -146,93 +140,49 @@ Success response:
 }
 ```
 
-Business notes:
+Target behavior after implementation:
 
-- if the consultation is already `Completed`, the service returns idempotently
-- for a scheduled consultation, the service updates:
-  - `Consultation.Status = Completed`
-  - `Consultation.EndTime = UtcNow`
-  - `ConsultationBooking.Status = Completed`
-  - `ExpertTimeSlot.Status = Booked` when it is currently `Reserved`
-- after commit, the backend settles escrow
-- this endpoint does not currently close the LiveKit room or emit a SignalR termination event
+- emit `RoomExpiring`
+- close the active room
+- keep business completion behavior
 
 ### 4.4 `GET /hubs/consultation?consultationId={consultationId}`
 
 Purpose:
 
-- establish a SignalR connection to the consultation realtime group
+- establish consultation realtime connection
 
 Auth:
 
-- the hub has `[Authorize]`
-- the user must be a participant of the consultation
+- hub requires authorization
+- user must be consultation participant
 
 Connection notes:
 
 - hub route: `/hubs/consultation`
 - required query string: `consultationId`
-- the backend adds the connection to group `consultation:{consultationId}`
+- group format: `consultation:{consultationId}`
 
-Current hub methods the client can call:
+### 4.5 Current Server-To-Client Termination Event
 
-- `ReceiveMessage(content, attachmentUrl?)`
-- `Signal(eventType, payload)`
-
-### 4.5 Current Server-To-Client Events
-
-#### 4.5.1 `ReceiveMessage`
+#### 4.5.1 `RoomExpiring`
 
 Purpose:
 
-- broadcast a chat message after it has been saved to the database
+- force the active consultation call to terminate on Flutter
 
-Example payload:
+Current backend source:
 
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440111",
-  "content": "Hello",
-  "attachmentUrl": null,
-  "senderId": "550e8400-e29b-41d4-a716-446655440001",
-  "sentAt": "2026-04-14T08:15:00Z"
-}
-```
+- scheduled timeout cleanup
+- emergency timeout cleanup
 
-#### 4.5.2 `Signal`
+Target backend source:
 
-Purpose:
+- scheduled timeout cleanup
+- emergency timeout cleanup
+- manual end via `POST /api/consultations/{consultationId}/end`
 
-- broadcast volatile UI state to the consultation group
-
-Example payload:
-
-```json
-{
-  "eventType": "camera_toggled",
-  "payload": "{\"enabled\":false}",
-  "senderId": "550e8400-e29b-41d4-a716-446655440001",
-  "timestamp": "2026-04-14T08:16:00Z"
-}
-```
-
-#### 4.5.3 `RoomExpiring`
-
-Purpose:
-
-- notify participants that the consultation must terminate and the client should leave the active call
-
-Current source:
-
-- `BookingService.AutoCompleteElapsedScheduledConsultationsAsync(...)`
-- `BookingService.AutoCompleteElapsedEmergencyConsultationsAsync(...)`
-
-Target source after implementation:
-
-- timeout flow
-- manual-end flow through `POST /api/consultations/{consultationId}/end`
-
-Example payload:
+Current example payload:
 
 ```json
 {
@@ -241,16 +191,20 @@ Example payload:
 }
 ```
 
-Field notes:
+Current Flutter behavior on receipt:
 
-- this event is currently best-effort
-- after this event, the backend calls `DeleteRoomAsync("consultation-{consultationId}")`
-- this event currently uses a minimal payload and Flutter already treats it as a forced-endcall trigger
-- this event is not yet documented by the backend as the final Flutter endcall contract
+- shows termination feedback
+- disconnects room
+- calls `endConsultation(...)`
+- navigates away from active call
+
+Known reported issue:
+
+- expert may still fail to auto-leave after manual-end-triggered `RoomExpiring`
 
 ## 5. Admin Business + Admin APIs
 
-There is currently no admin-specific API contract within the scope of the consultation endcall module.
+There is no admin-specific consultation termination contract in scope here.
 
 ## 6. Shared Data Models
 
@@ -277,7 +231,14 @@ There is currently no admin-specific API contract within the scope of the consul
 | Field | Type | Description |
 |------|------|-------------|
 | consultationId | Guid | Consultation ID |
-| reason | string | Current verified value: `slot_elapsed`; target values should also include a manual-end reason |
+| reason | string | Current verified value: `slot_elapsed` |
+
+### Target `RoomExpiring` Payload
+
+| Field | Type | Description |
+|------|------|-------------|
+| consultationId | Guid | Consultation ID |
+| reason | string | Should support both timeout and manual-end semantics |
 
 ## 7. Verified Endpoint List
 
@@ -289,9 +250,7 @@ There is currently no admin-specific API contract within the scope of the consul
 
 ### 2026-04-15
 
-- Initialized the current-state useguide for consultation endcall-related contracts
-- Documented the verified `video-token`, `end`, and `ConsultationHub` connection contract
-- Documented that the current timeout flow emits `RoomExpiring`
-- Documented that the manual-end flow does not yet emit a consultation termination SignalR event
-- Recorded the chosen direction to upgrade `RoomExpiring`
-- Recorded the observed edge case where expert does not automatically leave the room after manual-end-triggered `RoomExpiring`
+- Rewrote useguide to distinguish current verified behavior from target behavior
+- Preserved that timeout already emits `RoomExpiring`
+- Preserved that manual-end backend emission is still missing in the current workspace
+- Preserved the reported expert-not-auto-leaving runtime issue for later verification
