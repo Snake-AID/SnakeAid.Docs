@@ -16,6 +16,7 @@ verification_status: mixed-current-code-and-target-design
 - module status: `Proposed`
 - current timeout signal: `Implemented`
 - current manual-end signal: `Missing`
+- current strategic direction: `Upgrade RoomExpiring`
 - current timeout payload standardization: `Partial`
 - current Flutter endcall contract: `Not formalized in backend docs`
 
@@ -23,8 +24,8 @@ verification_status: mixed-current-code-and-target-design
 
 After implementation:
 
-1. consultation timeout for both scheduled and emergency consultations will broadcast one clear termination event to both participants, and Flutter will use that push to perform `endcall`
-2. `POST /api/consultations/{consultationId}/end` will broadcast a termination event before the room is closed, and Flutter will use that push to perform `endcall`
+1. consultation timeout for both scheduled and emergency consultations will broadcast `RoomExpiring` to both participants, and Flutter will use that push to perform `endcall`
+2. `POST /api/consultations/{consultationId}/end` will also broadcast `RoomExpiring` before the room is closed, and Flutter will use that push to perform `endcall`
 3. Flutter will be able to listen on `ConsultationHub` and perform:
    - end call
    - leave LiveKit room
@@ -34,21 +35,17 @@ After implementation:
 
 Recommended decision:
 
-- use one shared server-to-client event name:
-  - `ConsultationCallTerminated`
+- keep the existing server-to-client event name:
+  - `RoomExpiring`
 - distinguish the cause through payload values:
   - `reason = "timeout"` for auto-complete
   - `reason = "participant_ended"` for manual end
-- also send:
-  - `endedByUserId`
-  - `endedByRole`
-  - `shouldLeaveCall`
 
 Reasoning:
 
-- Flutter does not need to branch on multiple event names
+- Flutter already has a working `RoomExpiring` handling path
 - timeout flow and manual-end flow can use the same parser because both pushes drive the same endcall action
-- UI wording can remain a client concern instead of being hard-coded in the backend
+- a second event name would duplicate semantics without solving the observed expert-side manual-end issue
 
 ## Implementation Checklist
 
@@ -57,7 +54,7 @@ Reasoning:
 - [ ] Finalize the server-to-client event name
 - [ ] Finalize enum/string values for `reason`
 - [ ] Finalize the payload fields required for Flutter endcall
-- [ ] Decide whether to keep `RoomExpiring` for backward compatibility
+- [x] Keep `RoomExpiring` as the single event name
 - [ ] Finalize the operation order for timeout and manual-end flows
 
 ### Phase 2. Shared Realtime Abstraction
@@ -71,14 +68,14 @@ Reasoning:
 
 - [ ] Refactor `AutoCompleteElapsedScheduledConsultationsAsync(...)`
 - [ ] Refactor `AutoCompleteElapsedEmergencyConsultationsAsync(...)`
-- [ ] Broadcast the termination event to both participants
+- [ ] Broadcast upgraded `RoomExpiring` to both participants
 - [ ] Preserve `DeleteRoomAsync(...)` in the timeout path
 - [ ] Preserve best-effort behavior when SignalR send fails
 
 ### Phase 4. Manual End Flow
 
 - [ ] Refactor `ConsultationService.EndConsultationAsync(...)`
-- [ ] Broadcast the termination event to the consultation group
+- [ ] Broadcast `RoomExpiring` to the consultation group
 - [ ] Delete the LiveKit room after broadcast
 - [ ] Keep the flow idempotent when the consultation is already `Completed`
 - [ ] Preserve existing business rules for booking, slot, and settlement
@@ -90,6 +87,7 @@ Reasoning:
 - [ ] Unit test that manual-end flow emits the event before room shutdown
 - [ ] Unit test that manual-end flow still completes DB state when SignalR send fails
 - [ ] Unit test that manual-end flow still closes the room when event send fails
+- [ ] End-to-end verify that the expert client automatically leaves the room after manual-end-triggered `RoomExpiring`
 - [ ] Integration test `POST /api/consultations/{id}/end` for scheduled consultation
 - [ ] Integration test `POST /api/consultations/{id}/end` for emergency consultation if the flow is allowed
 
@@ -106,7 +104,6 @@ Reasoning:
 
 - [ ] `SnakeAid.Service/Interfaces/IConsultationRealtimeNotifier.cs`
 - [ ] `SnakeAid.Service/Implements/ConsultationRealtimeNotifier.cs`
-- [ ] `SnakeAid.Core/Responses/Consultation/ConsultationCallTerminationSignal.cs`
 - [ ] `SnakeAid.Service/Implements/BookingService.cs`
 - [ ] `SnakeAid.Service/Implements/ConsultationService.cs`
 - [ ] `SnakeAid.Api/Program.cs`
@@ -140,16 +137,17 @@ Minimum verification before closing the task:
    - consultation status is correct
 3. manual end:
    - only a valid actor can end the consultation
-   - event is sent to the consultation group
+   - `RoomExpiring` is sent to the consultation group
    - room is closed
    - consultation status is correct
    - booking and slot statuses are correct for scheduled consultations
+   - expert client actually leaves the room after the event
 
 ## Open Questions
 
-1. Should the backend emit the same termination event to an admin participant if an admin joined the room through the video-token endpoint?
-2. Does Flutter need explicit values such as `member_ended` and `expert_ended`, or is `participant_ended` plus `endedByRole` sufficient when both pushes are used only to trigger `endcall`?
-3. Should the backend emit both `RoomExpiring` and `ConsultationCallTerminated` during a rollout period to avoid breaking older clients?
+1. Does the backend manual-end path actually deliver `RoomExpiring` to every active participant connection in the consultation group?
+2. Why does the expert client fail to auto-leave after the manual-end-triggered `RoomExpiring` in the observed edge case?
+3. Is the issue caused by backend delivery, expert-screen subscription state, or room-disconnect timing?
 
 ## Change Log
 
@@ -157,4 +155,5 @@ Minimum verification before closing the task:
 
 - Initialized the roadmap for consultation end-call SignalR flow
 - Captured the code-verified current state of timeout and manual-end flows
-- Proposed a shared termination event for Flutter
+- Chose to upgrade `RoomExpiring` instead of introducing a second event name
+- Added the observed manual-end edge case where expert does not automatically leave the room

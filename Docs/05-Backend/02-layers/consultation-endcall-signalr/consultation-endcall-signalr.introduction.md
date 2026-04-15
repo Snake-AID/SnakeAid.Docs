@@ -13,10 +13,10 @@ verification_status: mixed-current-code-and-target-design
 
 ## Goal
 
-This module defines the implementation plan for two additions to the consultation flow:
+This module defines the implementation plan for evolving the existing `RoomExpiring` consultation SignalR contract so it becomes the single forced-endcall trigger for Flutter.
 
-- when a consultation reaches its time limit, the backend should emit a SignalR trigger to both `member` and `expert`; Flutter will receive that push and perform `endcall`, then the backend will close the LiveKit room
-- when a participant calls `POST /api/consultations/{consultationId}/end`, the backend should emit a SignalR trigger; Flutter will receive that push and perform `endcall`, then the backend will close the LiveKit room
+- when a consultation reaches its time limit, the backend should emit `RoomExpiring` to both `member` and `expert`; Flutter will receive that push and perform `endcall`, then the backend will close the LiveKit room
+- when a participant calls `POST /api/consultations/{consultationId}/end`, the backend should also emit `RoomExpiring`; Flutter should receive that push and perform `endcall`, then the backend should close the LiveKit room
 
 Backend goals:
 
@@ -81,10 +81,10 @@ This flow currently does not:
 
 Current gaps:
 
-- the timeout flow already has a SignalR event, but its event name and payload are not sufficient for the long-term Flutter endcall trigger contract
-- the manual-end flow does not emit a SignalR trigger to the other participant
+- the timeout flow already has a usable SignalR event, but its payload is still too thin for the long-term Flutter endcall trigger contract
+- the manual-end flow needs to reuse `RoomExpiring` instead of introducing a second event name
 - consultation termination broadcasting is implemented directly inside `BookingService` and is not reusable from `ConsultationService`
-- the UI wording may vary by participant, but the backend currently does not expose `endedByRole` or `endedByUserId`
+- there is an observed integration edge case: when `POST /api/consultations/{consultationId}/end` triggers `RoomExpiring`, the expert does not automatically leave the room in practice
 
 ## Proposed Direction
 
@@ -93,29 +93,33 @@ Recommended implementation direction:
 1. Create a shared abstraction, for example:
    - `IConsultationRealtimeNotifier`
    - `ConsultationRealtimeNotifier`
-2. Standardize one termination event for Flutter, preferably one neutral event for both timeout and manual end, because both pushes serve the same client action:
-   - proposed name: `ConsultationCallTerminated`
-3. Proposed payload:
+2. Keep `RoomExpiring` as the single server-to-client forced-endcall trigger, because Flutter already treats it as a termination signal today
+3. Upgrade the `RoomExpiring` payload only where it adds real value:
    - `consultationId`
-   - `roomName`
    - `reason`
-   - `endedByUserId`
-   - `endedByRole`
-   - `triggeredAtUtc`
-   - `shouldLeaveCall = true`
 4. Both the timeout path and the manual-end path should call the same notifier because both pushes are intended to make Flutter perform `endcall`
 5. The timeout path should preserve the order `broadcast -> delete room -> update status`
 6. The manual-end path should send SignalR before the room is closed, then delete the room and commit state
+
+## Observed Integration Finding
+
+Observed finding from current integration behavior:
+
+- when a user calls `POST /api/consultations/{consultationId}/end`, SignalR may emit `RoomExpiring`, but the expert still does not automatically leave the room
+
+Current interpretation:
+
+- Flutter already treats `RoomExpiring` as a hard termination trigger in the live consultation screen
+- therefore the main risk is not event naming anymore
+- the main risk is end-to-end delivery and handling consistency for the manual-end path, especially on the expert side
 
 ## Assumptions To Lock During Implementation
 
 To avoid ambiguity, this module uses the following assumptions:
 
-- the backend emits one neutral event instead of hard-coding UI copy such as "expert stopped the consultation"
-- Flutter renders the final message based on `endedByRole` and `endedByUserId`
-- if backward compatibility is required, the backend may temporarily emit both:
-  - the existing event `RoomExpiring`
-  - the new event `ConsultationCallTerminated`
+- `RoomExpiring` remains the only forced-endcall event for consultation termination
+- Flutter should not need a second event name for the same endcall action
+- the current manual-end expert-not-leaving issue is treated as an implementation/integration bug, not as evidence that a new event name is required
 
 ## Scope Boundary
 

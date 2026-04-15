@@ -46,6 +46,8 @@ Important notes:
 Planned direction:
 
 - both timeout-triggered and manual-end-triggered pushes are intended to be consumed by Flutter for the same action: `endcall` and leave the LiveKit room
+- the chosen direction is to upgrade `RoomExpiring` rather than introduce a second termination event name
+- observed finding: when manual end triggers `RoomExpiring`, the expert still does not automatically leave the room in practice
 
 ## 3. Authentication & Authorization
 
@@ -218,12 +220,17 @@ Example payload:
 
 Purpose:
 
-- notify participants that the consultation has elapsed in the backend timeout flow
+- notify participants that the consultation must terminate and the client should leave the active call
 
 Current source:
 
 - `BookingService.AutoCompleteElapsedScheduledConsultationsAsync(...)`
 - `BookingService.AutoCompleteElapsedEmergencyConsultationsAsync(...)`
+
+Target source after implementation:
+
+- timeout flow
+- manual-end flow through `POST /api/consultations/{consultationId}/end`
 
 Example payload:
 
@@ -238,7 +245,7 @@ Field notes:
 
 - this event is currently best-effort
 - after this event, the backend calls `DeleteRoomAsync("consultation-{consultationId}")`
-- this event does not currently include `roomName`, `endedByRole`, or `shouldLeaveCall`
+- this event currently uses a minimal payload and Flutter already treats it as a forced-endcall trigger
 - this event is not yet documented by the backend as the final Flutter endcall contract
 
 ## 5. Admin Business + Admin APIs
@@ -270,7 +277,7 @@ There is currently no admin-specific API contract within the scope of the consul
 | Field | Type | Description |
 |------|------|-------------|
 | consultationId | Guid | Consultation ID |
-| reason | string | Current verified value: `slot_elapsed` |
+| reason | string | Current verified value: `slot_elapsed`; target values should also include a manual-end reason |
 
 ## 7. Verified Endpoint List
 
@@ -286,3 +293,5 @@ There is currently no admin-specific API contract within the scope of the consul
 - Documented the verified `video-token`, `end`, and `ConsultationHub` connection contract
 - Documented that the current timeout flow emits `RoomExpiring`
 - Documented that the manual-end flow does not yet emit a consultation termination SignalR event
+- Recorded the chosen direction to upgrade `RoomExpiring`
+- Recorded the observed edge case where expert does not automatically leave the room after manual-end-triggered `RoomExpiring`
