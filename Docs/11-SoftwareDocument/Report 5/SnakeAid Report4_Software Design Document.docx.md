@@ -82,24 +82,222 @@ M, D | In charge | Change Description |
 
 ## **3\. Detailed Design**
 
-### **3.1 \<Feature/Function Name1\>**
-
-*\[Provide the detailed design for the feature \<Feature Name1\>. It includes Class Diagram, Class Specifications, and Sequence Diagram(s); **For the features/functions with the same structure of class & sequence diagrams, you need to provide the diagrams once for one feature/function and refer to those diagrams from other features/functions**\]*
+### **3.1 Snakebite Incident Emergency** {#3.1-snakebite-incident-emergency}
 
 #### ***3.1.1 Class Diagram***
 
-*\[This part presents the class diagram for the relevant feature\]*
+```mermaid
+classDiagram
+    class SnakebiteIncidentController {
+        +CreateSnakebiteIncident(request)
+        +ConfirmIncident(incidentId)
+        +MarkFalseAlarm(incidentId, request)
+        +ReportNoAnswer(incidentId, request)
+        +DispatchIncident(incidentId, request)
+        +CancelDispatchRequest(requestId)
+        +GetDispatchRequests(incidentId)
+    }
 
-![][image3]
+    class ISnakebiteIncidentService {
+        <<interface>>
+        +CreateIncidentAsync(request, userId)
+        +ConfirmIncidentAsync(incidentId, operatorId)
+        +MarkIncidentFalseAlarmAsync(incidentId, operatorId, reason)
+        +ReportIncidentNoAnswerAsync(incidentId, operatorId, continueCalling, note)
+        +DispatchIncidentAsync(incidentId, rescuerId, operatorId)
+        +AcceptDispatchRequestAsync(requestId, rescuerId)
+        +DeclineDispatchRequestAsync(requestId, rescuerId, reason)
+        +CancelDispatchRequestAsync(requestId, operatorId)
+        +GetDispatchRequestsAsync(incidentId)
+    }
 
-***3.1.2 \<Sequence Diagram Name1\>***
+    class SnakebiteIncidentService {
+        -IUnitOfWork~SnakeAidDbContext~ _unitOfWork
+        -IOperatorRealtimeNotificationService _operatorRealtimeNotificationService
+        -IRescueNotificationService _rescueNotificationService
+        -IMissionNotificationService _missionNotificationService
+        -ISnakeRescueMissionService _snakeRescueMissionService
+        +CreateIncidentAsync(request, userId)
+        +ConfirmIncidentAsync(incidentId, operatorId)
+        +MarkIncidentFalseAlarmAsync(incidentId, operatorId, reason)
+        +ReportIncidentNoAnswerAsync(incidentId, operatorId, continueCalling, note)
+        +DispatchIncidentAsync(incidentId, rescuerId, operatorId)
+        +AcceptDispatchRequestAsync(requestId, rescuerId)
+        +DeclineDispatchRequestAsync(requestId, rescuerId, reason)
+        +CancelDispatchRequestAsync(requestId, operatorId)
+        +GetDispatchRequestsAsync(incidentId)
+    }
 
-*\[Provide the sequence diagram(s) for the feature, see the sample below\]*
-![][image4]
+    class IUnitOfWork~TContext~ {
+        <<interface>>
+        +ExecuteInTransactionAsync(operation)
+        +CommitAsync()
+        +GetRepository()
+    }
 
-#### ***3.1.3 \<Sequence Diagram Name2\>***
+    class IOperatorRealtimeNotificationService {
+        <<interface>>
+        +NotifyNewIncidentCreatedAsync(...)
+        +NotifyIncidentClaimedAsync(...)
+        +NotifyIncidentFalseAlarmAsync(...)
+        +NotifyIncidentNoAnswerAsync(...)
+        +NotifyDispatchRequestedAsync(...)
+        +NotifyRescuerDispatchedAsync(...)
+        +NotifyRescuerDeclinedAsync(...)
+        +NotifyIncidentCompletedAsync(...)
+    }
 
-#### ***3.1.4 …***
+    class IRescueNotificationService {
+        <<interface>>
+        +NotifyDispatchRequestedAsync(...)
+        +NotifyRescuerAcceptedAsync(...)
+        +NotifyRescuerDeclinedAsync(...)
+        +NotifyRequestCancelledAsync(...)
+    }
+
+    class IMissionNotificationService {
+        <<interface>>
+        +NotifyRescuerAcceptedAsync(...)
+        +NotifyMissionStartedAsync(...)
+        +NotifyRescuerArrivedAsync(...)
+        +NotifyMissionCompletedAsync(...)
+        +NotifyMissionCancelledAsync(...)
+        +NotifyMissionAbortedAsync(...)
+    }
+
+    class ISnakeRescueMissionService {
+        <<interface>>
+        +CreateMissionAsync(incidentId, rescuerId)
+        +UpdateMissionStatusAsync(missionId, status)
+        +CompleteMissionAsync(missionId, evidenceMediaIds, completionNotes)
+        +RescuerAbortMissionAsync(missionId, reason)
+        +GetMissionDetailAsync(missionId)
+    }
+
+    class SnakebiteIncident {
+        +Guid Id
+        +Guid UserId
+        +SnakebiteIncidentStatus Status
+        +Guid? HandlingOperatorId
+        +DateTime? ConfirmedAt
+        +DateTime? DispatchedAt
+        +DateTime? AssignedAt
+        +Guid? AssignedRescuerId
+        +string? OperatorNotes
+        +string? CancellationReason
+        +int? SeverityLevel
+        +DateTime? IncidentOccurredAt
+    }
+
+    class RescuerRequest {
+        +Guid Id
+        +Guid IncidentId
+        +Guid RescuerId
+        +Guid? OperatorId
+        +RescueRequestStatus Status
+        +DateTime DispatchedAt
+        +DateTime? ResponseAt
+        +string? DeclineReason
+    }
+
+    class RescueMission {
+        +Guid Id
+        +Guid IncidentId
+        +Guid RescuerId
+        +RescueMissionStatus Status
+        +decimal Price
+        +decimal? DistanceFromCenterKm
+        +decimal? CostFromCenter
+        +DateTime? StartedAt
+        +DateTime? ArrivedAt
+        +DateTime? CompletedAt
+        +string? Notes
+        +string? CancellationReason
+        +decimal? ActualCost
+    }
+
+    class RescuerProfile {
+        +Guid AccountId
+        +bool IsOnline
+        +bool IsAvailable
+        +RescuerType Type
+        +Point? LastLocation
+        +DateTime? LastLocationUpdate
+        +int TotalMissions
+        +int CompletedMissions
+    }
+
+    class ShiftAssignment {
+        +Guid Id
+        +Guid RescuerId
+        +Guid ShiftId
+        +DateTime ShiftStartLocal
+        +DateTime ShiftEndLocal
+        +ShiftAssignmentStatus Status
+    }
+
+    class Account {
+        +Guid Id
+        +string FullName
+        +AccountRole Role
+        +bool IsActive
+    }
+
+    class MemberProfile {
+        +Guid AccountId
+        +float Rating
+        +int RatingCount
+        +List~string~ EmergencyContacts
+        +bool HasUnderlyingDisease
+    }
+
+    SnakebiteIncidentController --> ISnakebiteIncidentService : uses
+    SnakebiteIncidentService ..|> ISnakebiteIncidentService : implements
+    SnakebiteIncidentService --> IUnitOfWork~SnakeAidDbContext~ : uses
+    SnakebiteIncidentService --> IOperatorRealtimeNotificationService : notifies
+    SnakebiteIncidentService --> IRescueNotificationService : notifies
+    SnakebiteIncidentService --> IMissionNotificationService : notifies
+    SnakebiteIncidentService --> ISnakeRescueMissionService : creates mission
+
+    MemberProfile --> Account : profile of
+    RescuerProfile --> Account : profile of
+
+    SnakebiteIncident --> MemberProfile : user
+    SnakebiteIncident --> Account : handlingOperator
+    SnakebiteIncident --> RescuerProfile : assignedRescuer
+    SnakebiteIncident "1" --> "0..*" RescuerRequest : dispatchRequests
+    SnakebiteIncident "1" --> "0..*" RescueMission : missions
+
+    RescuerRequest --> SnakebiteIncident : incident
+    RescuerRequest --> RescuerProfile : rescuer
+    RescuerRequest --> Account : operator
+
+    RescueMission --> SnakebiteIncident : incident
+    RescueMission --> RescuerProfile : rescuer
+    ShiftAssignment --> RescuerProfile : scheduled rescuer
+```
+
+The verified design centers on `SnakebiteIncidentService`, which owns the emergency incident lifecycle: create incident, operator confirm/false alarm/no answer handling, dispatch creation, rescuer response handling, and mission handoff. `SnakebiteIncident` is the aggregate root; `RescuerRequest` records each dispatch attempt, while `RescueMission` is created only after a rescuer accepts a pending dispatch request.
+
+***3.1.2 Sequence Diagram Create new SnakeBiteIncident***
+
+#### ***3.1.3 Sequence Diagram Verify SnakebiteIncident***
+
+#### ***3.1.4 Sequence Diagram False Alarm SnakebiteIncident***
+
+#### ***3.1.5 Sequence Diagram Dispatch RescueRequest***
+
+#### ***3.1.6 Sequence Diagram Accepts RescueRequest***
+
+#### ***3.1.7 Sequence Diagram Decline RescueRequest***
+
+#### ***3.1.8 Sequence Diagram Mark RescueMission Start***
+
+#### ***3.1.8 Sequence Diagram Mark RescueMission Arrived***
+
+#### ***3.1.9 Sequence Diagram Mark RescueMission Complete***
+
+#### ***3.1.10 Sequence Diagram Cancel SnakebiteIncident***
 
 ### **3.2 Snake Capture**
 
