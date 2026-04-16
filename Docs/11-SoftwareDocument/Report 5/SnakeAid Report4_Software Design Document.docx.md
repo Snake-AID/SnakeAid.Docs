@@ -89,195 +89,163 @@ M, D | In charge | Change Description |
 ```mermaid
 classDiagram
     class SnakebiteIncidentController {
-        +CreateSnakebiteIncident(request)
-        +ConfirmIncident(incidentId)
-        +MarkFalseAlarm(incidentId, request)
-        +ReportNoAnswer(incidentId, request)
-        +DispatchIncident(incidentId, request)
-        +CancelDispatchRequest(requestId)
-        +GetDispatchRequests(incidentId)
+        +CreateSnakebiteIncident()
+        +ConfirmIncident()
+        +MarkFalseAlarm()
+        +ReportNoAnswer()
+        +DispatchIncident()
+        +CancelIncident()
     }
 
     class ISnakebiteIncidentService {
         <<interface>>
-        +CreateIncidentAsync(request, userId)
-        +ConfirmIncidentAsync(incidentId, operatorId)
-        +MarkIncidentFalseAlarmAsync(incidentId, operatorId, reason)
-        +ReportIncidentNoAnswerAsync(incidentId, operatorId, continueCalling, note)
-        +DispatchIncidentAsync(incidentId, rescuerId, operatorId)
-        +AcceptDispatchRequestAsync(requestId, rescuerId)
-        +DeclineDispatchRequestAsync(requestId, rescuerId, reason)
-        +CancelDispatchRequestAsync(requestId, operatorId)
-        +GetDispatchRequestsAsync(incidentId)
+        +CreateIncidentAsync()
+        +ConfirmIncidentAsync()
+        +MarkIncidentFalseAlarmAsync()
+        +ReportIncidentNoAnswerAsync()
+        +DispatchIncidentAsync()
+        +AcceptDispatchRequestAsync()
+        +DeclineDispatchRequestAsync()
+        +CancelIncidentAsync()
     }
 
     class SnakebiteIncidentService {
-        -IUnitOfWork~SnakeAidDbContext~ _unitOfWork
-        -IOperatorRealtimeNotificationService _operatorRealtimeNotificationService
-        -IRescueNotificationService _rescueNotificationService
-        -IMissionNotificationService _missionNotificationService
-        -ISnakeRescueMissionService _snakeRescueMissionService
-        +CreateIncidentAsync(request, userId)
-        +ConfirmIncidentAsync(incidentId, operatorId)
-        +MarkIncidentFalseAlarmAsync(incidentId, operatorId, reason)
-        +ReportIncidentNoAnswerAsync(incidentId, operatorId, continueCalling, note)
-        +DispatchIncidentAsync(incidentId, rescuerId, operatorId)
-        +AcceptDispatchRequestAsync(requestId, rescuerId)
-        +DeclineDispatchRequestAsync(requestId, rescuerId, reason)
-        +CancelDispatchRequestAsync(requestId, operatorId)
-        +GetDispatchRequestsAsync(incidentId)
+        +CreateIncidentAsync()
+        +ConfirmIncidentAsync()
+        +MarkIncidentFalseAlarmAsync()
+        +ReportIncidentNoAnswerAsync()
+        +DispatchIncidentAsync()
+        +AcceptDispatchRequestAsync()
+        +DeclineDispatchRequestAsync()
+        +CancelIncidentAsync()
     }
 
-    class IUnitOfWork~TContext~ {
-        <<interface>>
-        +ExecuteInTransactionAsync(operation)
-        +CommitAsync()
-        +GetRepository()
-    }
-
-    class IOperatorRealtimeNotificationService {
-        <<interface>>
-        +NotifyNewIncidentCreatedAsync(...)
-        +NotifyIncidentClaimedAsync(...)
-        +NotifyIncidentFalseAlarmAsync(...)
-        +NotifyIncidentNoAnswerAsync(...)
-        +NotifyDispatchRequestedAsync(...)
-        +NotifyRescuerDispatchedAsync(...)
-        +NotifyRescuerDeclinedAsync(...)
-        +NotifyIncidentCompletedAsync(...)
+    class RescuerHub {
+        +JoinAsRescuer()
+        +AcceptDispatchRequest()
+        +DeclineDispatchRequest()
+        +UpdateLocation()
     }
 
     class IRescueNotificationService {
         <<interface>>
-        +NotifyDispatchRequestedAsync(...)
-        +NotifyRescuerAcceptedAsync(...)
-        +NotifyRescuerDeclinedAsync(...)
-        +NotifyRequestCancelledAsync(...)
+        +NotifyDispatchRequestedAsync()
+        +NotifyRescuerAcceptedAsync()
+        +NotifyRescuerDeclinedAsync()
+        +NotifyRequestCancelledAsync()
     }
 
-    class IMissionNotificationService {
+    class SignalRRescueNotificationService {
+        +NotifyDispatchRequestedAsync()
+        +NotifyRescuerAcceptedAsync()
+        +NotifyRescuerDeclinedAsync()
+        +NotifyRequestCancelledAsync()
+    }
+
+    class IOperatorRealtimeNotificationService {
         <<interface>>
-        +NotifyRescuerAcceptedAsync(...)
-        +NotifyMissionStartedAsync(...)
-        +NotifyRescuerArrivedAsync(...)
-        +NotifyMissionCompletedAsync(...)
-        +NotifyMissionCancelledAsync(...)
-        +NotifyMissionAbortedAsync(...)
+        +NotifyNewIncidentCreatedAsync()
+        +NotifyIncidentClaimedAsync()
+        +NotifyIncidentFalseAlarmAsync()
+        +NotifyIncidentNoAnswerAsync()
+        +NotifyDispatchRequestedAsync()
+        +NotifyRescuerDispatchedAsync()
+        +NotifyRescuerDeclinedAsync()
+        +NotifyRescuerAbortedAsync()
+        +NotifyIncidentCompletedAsync()
+    }
+
+    class SignalROperatorRealtimeNotificationService {
+        +NotifyNewIncidentCreatedAsync()
+        +NotifyIncidentClaimedAsync()
+        +NotifyIncidentFalseAlarmAsync()
+        +NotifyIncidentNoAnswerAsync()
+        +NotifyDispatchRequestedAsync()
+        +NotifyRescuerDispatchedAsync()
+        +NotifyRescuerDeclinedAsync()
+        +NotifyRescuerAbortedAsync()
+        +NotifyIncidentCompletedAsync()
+    }
+
+    class RescueMissionController {
+        +GetMissionDetails()
+        +StartMission()
+        +ArriveAtLocation()
+        +CompleteMission()
+        +AbortMission()
+        +TransferToHospital()
     }
 
     class ISnakeRescueMissionService {
         <<interface>>
-        +CreateMissionAsync(incidentId, rescuerId)
-        +UpdateMissionStatusAsync(missionId, status)
-        +CompleteMissionAsync(missionId, evidenceMediaIds, completionNotes)
-        +RescuerAbortMissionAsync(missionId, reason)
-        +GetMissionDetailAsync(missionId)
+        +CreateMissionAsync()
+        +UpdateMissionStatusAsync()
+        +CompleteMissionAsync()
+        +RescuerAbortMissionAsync()
+        +GetMissionDetailAsync()
+        +ReportHospitalTransferAsync()
     }
 
-    class SnakebiteIncident {
-        +Guid Id
-        +Guid UserId
-        +SnakebiteIncidentStatus Status
-        +Guid? HandlingOperatorId
-        +DateTime? ConfirmedAt
-        +DateTime? DispatchedAt
-        +DateTime? AssignedAt
-        +Guid? AssignedRescuerId
-        +string? OperatorNotes
-        +string? CancellationReason
-        +int? SeverityLevel
-        +DateTime? IncidentOccurredAt
+    class SnakeRescueMissionService {
+        +CreateMissionAsync()
+        +UpdateMissionStatusAsync()
+        +CompleteMissionAsync()
+        +RescuerAbortMissionAsync()
+        +GetMissionDetailAsync()
+        +ReportHospitalTransferAsync()
     }
 
-    class RescuerRequest {
-        +Guid Id
-        +Guid IncidentId
-        +Guid RescuerId
-        +Guid? OperatorId
-        +RescueRequestStatus Status
-        +DateTime DispatchedAt
-        +DateTime? ResponseAt
-        +string? DeclineReason
+    class MissionHub {
+        +OnConnectedAsync()
+        +UpdateLocation()
+        +OnDisconnectedAsync()
     }
 
-    class RescueMission {
-        +Guid Id
-        +Guid IncidentId
-        +Guid RescuerId
-        +RescueMissionStatus Status
-        +decimal Price
-        +decimal? DistanceFromCenterKm
-        +decimal? CostFromCenter
-        +DateTime? StartedAt
-        +DateTime? ArrivedAt
-        +DateTime? CompletedAt
-        +string? Notes
-        +string? CancellationReason
-        +decimal? ActualCost
+    class IMissionNotificationService {
+        <<interface>>
+        +NotifyRescuerAcceptedAsync()
+        +NotifyMissionStartedAsync()
+        +NotifyRescuerArrivedAsync()
+        +NotifyMissionCompletedAsync()
+        +NotifyMissionCancelledAsync()
+        +NotifyMissionAbortedAsync()
     }
 
-    class RescuerProfile {
-        +Guid AccountId
-        +bool IsOnline
-        +bool IsAvailable
-        +RescuerType Type
-        +Point? LastLocation
-        +DateTime? LastLocationUpdate
-        +int TotalMissions
-        +int CompletedMissions
+    class SignalRMissionNotificationService {
+        +NotifyRescuerAcceptedAsync()
+        +NotifyMissionStartedAsync()
+        +NotifyRescuerArrivedAsync()
+        +NotifyMissionCompletedAsync()
+        +NotifyMissionCancelledAsync()
+        +NotifyMissionAbortedAsync()
     }
 
-    class ShiftAssignment {
-        +Guid Id
-        +Guid RescuerId
-        +Guid ShiftId
-        +DateTime ShiftStartLocal
-        +DateTime ShiftEndLocal
-        +ShiftAssignmentStatus Status
-    }
+    SnakebiteIncidentController --> ISnakebiteIncidentService : handles incident flow
+    RescueMissionController --> ISnakeRescueMissionService : handles mission flow
+    RescuerHub --> ISnakebiteIncidentService : handles rescuer response
+    MissionHub --> SignalRMissionNotificationService : tracks live mission
 
-    class Account {
-        +Guid Id
-        +string FullName
-        +AccountRole Role
-        +bool IsActive
-    }
-
-    class MemberProfile {
-        +Guid AccountId
-        +float Rating
-        +int RatingCount
-        +List~string~ EmergencyContacts
-        +bool HasUnderlyingDisease
-    }
-
-    SnakebiteIncidentController --> ISnakebiteIncidentService : uses
     SnakebiteIncidentService ..|> ISnakebiteIncidentService : implements
-    SnakebiteIncidentService --> IUnitOfWork~SnakeAidDbContext~ : uses
-    SnakebiteIncidentService --> IOperatorRealtimeNotificationService : notifies
-    SnakebiteIncidentService --> IRescueNotificationService : notifies
-    SnakebiteIncidentService --> IMissionNotificationService : notifies
-    SnakebiteIncidentService --> ISnakeRescueMissionService : creates mission
+    SnakeRescueMissionService ..|> ISnakeRescueMissionService : implements
 
-    MemberProfile --> Account : profile of
-    RescuerProfile --> Account : profile of
+    SnakebiteIncidentService --> IOperatorRealtimeNotificationService : informs operator dashboard
+    SnakebiteIncidentService --> IRescueNotificationService : sends dispatch to rescuer
+    SnakebiteIncidentService --> IMissionNotificationService : informs member
+    SnakebiteIncidentService --> ISnakeRescueMissionService : hands over accepted case
 
-    SnakebiteIncident --> MemberProfile : user
-    SnakebiteIncident --> Account : handlingOperator
-    SnakebiteIncident --> RescuerProfile : assignedRescuer
-    SnakebiteIncident "1" --> "0..*" RescuerRequest : dispatchRequests
-    SnakebiteIncident "1" --> "0..*" RescueMission : missions
+    SnakeRescueMissionService --> IMissionNotificationService : updates member and rescuer
+    SnakeRescueMissionService --> IOperatorRealtimeNotificationService : updates operator dashboard
 
-    RescuerRequest --> SnakebiteIncident : incident
-    RescuerRequest --> RescuerProfile : rescuer
-    RescuerRequest --> Account : operator
+    SignalROperatorRealtimeNotificationService ..|> IOperatorRealtimeNotificationService : implements
+    SignalRRescueNotificationService ..|> IRescueNotificationService : implements
+    SignalRMissionNotificationService ..|> IMissionNotificationService : implements
 
-    RescueMission --> SnakebiteIncident : incident
-    RescueMission --> RescuerProfile : rescuer
-    ShiftAssignment --> RescuerProfile : scheduled rescuer
+    SignalROperatorRealtimeNotificationService --> RescuerHub : pushes operator-side realtime events
+    SignalRRescueNotificationService --> RescuerHub : pushes dispatch response events
+    SignalRMissionNotificationService --> MissionHub : pushes mission realtime events
 ```
 
-The verified design centers on `SnakebiteIncidentService`, which owns the emergency incident lifecycle: create incident, operator confirm/false alarm/no answer handling, dispatch creation, rescuer response handling, and mission handoff. `SnakebiteIncident` is the aggregate root; `RescuerRequest` records each dispatch attempt, while `RescueMission` is created only after a rescuer accepts a pending dispatch request.
+This optimized diagram focuses on the business story of the emergency flow. `SnakebiteIncidentService` owns the incident lifecycle from SOS creation to operator verification and dispatch, `SnakeRescueMissionService` owns the mission lifecycle after a rescuer accepts, and the SignalR notification classes exist only as delivery channels so each actor sees the right business event at the right time. Technical persistence and infrastructure details are intentionally hidden so BA readers can follow the operational journey more easily.
 
 ***3.1.2 Sequence Diagram Create new SnakeBiteIncident***
 
