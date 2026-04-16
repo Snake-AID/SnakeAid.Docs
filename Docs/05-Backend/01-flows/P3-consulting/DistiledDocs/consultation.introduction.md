@@ -53,6 +53,8 @@ It is intentionally limited to behavior that is verified in code.
 - `ExpertHub` at `/hubs/expert` handles presence and emergency request routing.
 - `ConsultationHub` at `/hubs/consultation` handles in-room chat and signaling.
 - The implemented room-end event is `ConsultationCallEnded`.
+- Timeout cleanup emits reason `timeout`.
+- Manual end emits reason `participant_ended`.
 - There is no implemented `RoomExpiring` SignalR event in the current codebase.
 
 ## Read This Folder In Order

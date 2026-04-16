@@ -77,6 +77,7 @@ owners: [backend-team]
   - `JoinEmergencyRequestRoom`
 - `SnakeAid.Service/Hubs/ConsultationHub.cs`
   - Query-string gated consultation connection
+  - Auto-joins group `consultation:{consultationId}`
   - `ReceiveMessage`
   - `Signal`
 
@@ -96,6 +97,13 @@ owners: [backend-team]
 - `SnakeAid.Core/Responses/Consultation/AdminConsultationResponse.cs`
 - `SnakeAid.Core/Responses/LiveKit/VideoTokenResponse.cs`
 
+## Mapping And Realtime Support Types
+
+- `SnakeAid.Core/Mappings/AdminConsultationMapper.cs`
+  - base and enrichment mappings for admin consultation responses
+- `SnakeAid.Core/Constants/ConsultationRealtimeEvents.cs`
+  - realtime event names and end-call reason values
+
 ## Domain Enums Worth Reading Before Editing Contracts
 
 - `SnakeAid.Core/Domains/Consultation.cs`
@@ -110,3 +118,5 @@ owners: [backend-team]
 
 - The usage guide is the canonical contract document.
 - This file exists to show where contract behavior is implemented in code.
+- Admin list and admin detail both use `AdminConsultationResponse`.
+- Emergency admin price is resolved from `Transaction`, not from `ConsultationPingRequest`.

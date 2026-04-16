@@ -522,6 +522,7 @@ Verified behavior:
 
 - service checks the current user as actor
 - best-effort SignalR event `ConsultationCallEnded` is sent to `consultation:{consultationId}`
+- manual end reason is `participant_ended`
 - escrow settlement is triggered
 
 #### `POST /api/consultations/{consultationId}/reviews`
@@ -632,6 +633,8 @@ Important rules:
 
 - connection query string must contain valid `consultationId`
 - caller must be a consultation participant
+- server auto-adds the connection to group `consultation:{consultationId}` during connect
+- there is no explicit consultation join method
 - message requires either non-empty `content` or `attachmentUrl`
 - rate limit is 10 messages per minute per user
 
@@ -658,6 +661,20 @@ Broadcast payload for `Signal`:
 }
 ```
 
+Forced termination payload for `ConsultationCallEnded`:
+
+```json
+{
+  "consultationId": "44444444-4444-4444-4444-444444444444",
+  "reason": "timeout"
+}
+```
+
+Current verified reason values:
+
+- `timeout`
+- `participant_ended`
+
 ## Admin Business + Admin APIs
 
 ### `GET /api/admin/consultations`
@@ -677,9 +694,25 @@ Response type:
 
 - `PagingResponse<AdminConsultationResponse>`
 
+Current implementation behavior:
+
+- scheduled and emergency consultations are loaded separately
+- results are merged in memory
+- final sort order is `StartTime desc`
+- pagination is applied after merge
+- orphan scheduled consultations can still be returned when the linked booking row is missing
+- orphan emergency consultations can still be returned when the linked ping request row is missing
+
 ### `GET /api/admin/consultations/{consultationId}`
 
 Admin detail endpoint for a single consultation.
+
+Current implementation behavior:
+
+- lookup starts from `Consultation`
+- scheduled detail is enriched from `ConsultationBooking`
+- emergency detail is enriched from `ConsultationPingRequest`
+- related booking or ping fields can be `null` when the side record is missing
 
 `AdminConsultationResponse` fields:
 
@@ -710,6 +743,15 @@ Admin detail endpoint for a single consultation.
 | `expiresAt` |
 | `slotStartTime` |
 | `slotEndTime` |
+
+Important admin field rules:
+
+- scheduled price comes from `ConsultationBooking.Price`
+- emergency price prefers latest `TransactionType = ConsultationPayment` by `EmergencyRequestId`
+- emergency price falls back to latest `TransactionType = ExpertPayout` by `ConsultationId`
+- `problemDescription` is expected only for scheduled consultations
+- booking metadata fields are expected only for scheduled consultations
+- emergency request metadata fields are expected only for emergency consultations
 
 ## Shared Data Models
 
@@ -755,6 +797,8 @@ Admin detail endpoint for a single consultation.
 - Emergency history price is resolved from consultation payment transactions.
 - Scheduled history price comes from `ConsultationBooking.Price`.
 - The current implementation emits `ConsultationCallEnded`, not `RoomExpiring`.
+- Timeout cleanup emits `ConsultationCallEnded` with `reason = "timeout"`.
+- Manual end emits `ConsultationCallEnded` with `reason = "participant_ended"`.
 
 ## Verified Endpoint List
 
@@ -791,3 +835,4 @@ Admin detail endpoint for a single consultation.
 ## Changelog
 
 - `2026-04-17`: Rebuilt this folder as a code-verified reference set. Removed roadmap, quicknote, operation, and split-guide documents that described planning history or outdated implementation.
+- `2026-04-17`: Merged verified implementation details from `consultation-endcall-signalr` and `admin-consultation-history` into the distilled source-of-truth set.
