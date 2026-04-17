@@ -40,7 +40,7 @@ When resuming:
 - [x] Reviewed Consultation-related tests for evidence sources.
 - [x] Created planning documents in `Controller`.
 - [x] Updated workbook-mirror metadata for Consultation.
-- [ ] Created Consultation Markdown sheet files.
+- [x] Created Consultation Markdown sheet files.
 - [ ] Populated Consultation matrix content.
 - [ ] Performed cross-sheet consistency pass.
 - [ ] Wrote final Consultation section back into workbook.
@@ -115,50 +115,50 @@ Lock the workbook-mirror structure before authoring any Consultation matrix cont
 
 ## Phase 2. Create Empty Consultation Sheet Files
 
-Status: `Pending`
+Status: `Completed`
 
 Goal:
 Create the full Markdown skeleton for every Consultation sheet so content work can resume file-by-file without ambiguity.
 
 ### Phase 2 checklist
 
-- [ ] Create `21-getexperts.md`
-- [ ] Create `22-getexpertprofile.md`
-- [ ] Create `23-getexpertreviews.md`
-- [ ] Create `24-getexperttimeslots.md`
-- [ ] Create `25-updateexpertsettings.md`
-- [ ] Create `26-createbulktimeslots.md`
-- [ ] Create `27-getexpertconsultations.md`
-- [ ] Create `28-createconsultationbooking.md`
-- [ ] Create `29-getmyscheduledbookings.md`
-- [ ] Create `30-getexpertscheduledbookings.md`
-- [ ] Create `31-payscheduledbooking.md`
-- [ ] Create `32-createemergencyconsultationrequest.md`
-- [ ] Create `33-payemergencyrequest.md`
-- [ ] Create `34-acceptemergencyconsultationrequest.md`
-- [ ] Create `35-rejectemergencyconsultationrequest.md`
-- [ ] Create `36-confirmconsultationpayment.md`
-- [ ] Create `37-getmyconsultations.md`
-- [ ] Create `38-generatevideotoken.md`
-- [ ] Create `39-endconsultation.md`
-- [ ] Create `40-createconsultationreview.md`
-- [ ] Create `41-getconsultationreview.md`
-- [ ] Create `42-getallconsultations.md`
-- [ ] Create `43-getconsultationbyid.md`
+- [x] Create `21-getexperts.md`
+- [x] Create `22-getexpertprofile.md`
+- [x] Create `23-getexpertreviews.md`
+- [x] Create `24-getexperttimeslots.md`
+- [x] Create `25-updateexpertsettings.md`
+- [x] Create `26-createbulktimeslots.md`
+- [x] Create `27-getexpertconsultations.md`
+- [x] Create `28-createconsultationbooking.md`
+- [x] Create `29-getmyscheduledbookings.md`
+- [x] Create `30-getexpertscheduledbookings.md`
+- [x] Create `31-payscheduledbooking.md`
+- [x] Create `32-createemergencyconsultationrequest.md`
+- [x] Create `33-payemergencyrequest.md`
+- [x] Create `34-acceptemergencyconsultationrequest.md`
+- [x] Create `35-rejectemergencyconsultationrequest.md`
+- [x] Create `36-confirmconsultationpayment.md`
+- [x] Create `37-getmyconsultations.md`
+- [x] Create `38-generatevideotoken.md`
+- [x] Create `39-endconsultation.md`
+- [x] Create `40-createconsultationreview.md`
+- [x] Create `41-getconsultationreview.md`
+- [x] Create `42-getallconsultations.md`
+- [x] Create `43-getconsultationbyid.md`
 
 ### Per-file skeleton checklist
 
 For each new file created:
 
-- [ ] Add title line in the same style as existing sheets.
-- [ ] Add source workbook line.
-- [ ] Add sheet name line.
-- [ ] Add used range line as placeholder if final range is not known yet.
-- [ ] Add matrix table skeleton with row/column headers matching workbook style.
+- [x] Add title line in the same style as existing sheets.
+- [x] Add source workbook line.
+- [x] Add sheet name line.
+- [x] Add used range line as placeholder if final range is not known yet.
+- [x] Add matrix table skeleton with row/column headers matching workbook style.
 
 ### Phase 2 exit check
 
-- [ ] All `21` to `43` Markdown files exist before detailed matrix authoring begins.
+- [x] All `21` to `43` Markdown files exist before detailed matrix authoring begins.
 
 ## Phase 3. Author Batch 1: Expert Discovery and Setup
 
