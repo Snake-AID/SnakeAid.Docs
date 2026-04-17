@@ -41,7 +41,7 @@ When resuming:
 - [x] Confirmed that backend docs are only partially reliable.
 - [x] Created planning documents in `Report 4/Controller`.
 - [x] Extracted the full table inventory from the ERD.
-- [ ] Grouped tables into documentation batches.
+- [x] Grouped tables into documentation batches.
 - [ ] Drafted all table descriptions.
 - [ ] Inserted the completed descriptions into the Report 4 Markdown file.
 - [ ] Performed final consistency review.
@@ -89,29 +89,29 @@ Create a complete list of all tables present in the ERD so no table is missed la
 
 ## Phase 3. Group Tables Into Writing Batches
 
-Status: `Pending`
+Status: `Completed`
 
 Goal:
 Reduce context switching by grouping related tables before drafting descriptions.
 
 ### Suggested batches
 
-- [ ] Identity, profiles, notifications, and system tables
-- [ ] Consultation, bookings, chat, and expert domain tables
-- [ ] Snakebite incident and rescue dispatch tables
-- [ ] Snake catching request and mission tables
-- [ ] Snake knowledge, antivenom, venom, and region mapping tables
-- [ ] AI, media, transaction, wallet, and operational tables
+- [x] Identity, profiles, notifications, and system tables
+- [x] Consultation, bookings, chat, and expert domain tables
+- [x] Snakebite incident and rescue dispatch tables
+- [x] Snake catching request and mission tables
+- [x] Snake knowledge, antivenom, venom, and region mapping tables
+- [x] AI, media, transaction, wallet, and operational tables
 
 ### Phase 3 checklist
 
-- [ ] Assign every table to exactly one batch.
-- [ ] Mark any cross-domain tables that need extra care.
-- [ ] Decide batch order for authoring.
+- [x] Assign every table to exactly one batch.
+- [x] Mark any cross-domain tables that need extra care.
+- [x] Decide batch order for authoring.
 
 ### Phase 3 exit check
 
-- [ ] Every ERD table is assigned to a drafting batch.
+- [x] Every ERD table is assigned to a drafting batch.
 
 ## Phase 4. Draft Descriptions Batch by Batch
 
@@ -207,6 +207,7 @@ Check quality, consistency, and completeness before considering the task done.
 - [x] Use the ERD as the primary database-design source.
 - [x] Treat non-consultation backend docs as potentially outdated supporting material.
 - [x] Record the ERD inventory in `Controller/table-inventory.md` before starting table description writing.
+- [x] Record batch assignments in `Controller/table-batches.md` before drafting final report wording.
 
 ## Blockers / Notes
 
