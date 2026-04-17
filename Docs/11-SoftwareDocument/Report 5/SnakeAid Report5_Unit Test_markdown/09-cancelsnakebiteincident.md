@@ -1,46 +1,52 @@
-# 09 - CancelSnakebiteIncident
+﻿# 09 - CancelSnakebiteIncident
 
 - Source workbook: [SnakeAid Report5_Unit Test.xlsx](D:/SourceCode/Snake_AID/SnakeAid.Docs/Docs/11-SoftwareDocument/Report 5/SnakeAid Report5_Unit Test.xlsx)
 - Sheet: `CancelSnakebiteIncident`
 - Used range: `A2:O39`
 
-| Row | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2 | Function Code |  | Function1 |  |  | Function Name |  |  |  |  |  | CreateSnakeCatchingRequest |  |  |  |
-| 3 | Created By |  | NhanNP |  |  | Executed By |  |  |  |  |  |  |  |  |  |
-| 4 | Lines  of code |  | 100.0 |  |  | Lack of test cases |  |  |  |  |  | 5 |  |  |  |
-| 5 | Test requirement |  | <Brief description about requirements which are tested in this function> |  |  |  |  |  |  |  |  |  |  |  |  |
-| 6 | Passed |  | Failed |  |  | Untested |  |  |  |  |  | N/A/B |  |  | Total Test Cases |
-| 7 | 5 |  | 0 |  |  | 0 |  |  |  |  |  | 3 | 2 | 0 | 5 |
-| 8 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 9 |  |  |  |  |  | UTCID01 | UTCID02 | UTCID03 | UTCID04 | UTCID05 |  |  |  |  |  |
-| 10 | Condition | Precondition |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 11 |  |  |  | Can connect with server |  | O | O | O | O | O |  |  |  |  |  |
-| 12 |  |  |  | Logged in as Member |  | O | O | O |  | O |  |  |  |  |  |
-| 13 |  |  |  | SnakebiteIncident exist |  | O |  | O | O | O |  |  |  |  |  |
-| 14 |  |  |  | Incident in valid status |  | O |  |  | O | O |  |  |  |  |  |
-| 15 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 16 |  | incidentId |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 17 |  |  |  | Valid Guid (exist) |  | O |  | O | O | O |  |  |  |  |  |
-| 18 |  |  |  | Valid Guid (not exist) |  |  | O |  |  |  |  |  |  |  |  |
-| 19 |  | Reason |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 20 |  |  |  | Valid (not null) |  | O | O | O | O |  |  |  |  |  |  |
-| 21 |  |  |  | null |  |  |  |  |  | O |  |  |  |  |  |
-| 22 | Confirm | Return |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 23 |  |  |  | HTTP 200 |  | O |  |  |  |  |  |  |  |  |  |
-| 24 |  |  |  | HTTP 404 |  |  | O |  |  |  |  |  |  |  |  |
-| 25 |  |  |  | HTTP 400 |  |  |  | O |  |  |  |  |  |  |  |
-| 26 |  |  |  | HTTP 422 |  |  |  |  |  | O |  |  |  |  |  |
-| 27 |  |  |  | HTTP 401 |  |  |  |  | O |  |  |  |  |  |  |
-| 28 |  | Exception |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 29 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 30 |  | Log message |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 31 |  |  |  | "Incident cancelled successfully" |  | O |  |  |  |  |  |  |  |  |  |
-| 32 |  |  |  | "Incident not found" |  |  | O |  |  |  |  |  |  |  |  |
-| 33 |  |  |  | "Cannot cancel incident with status {invalid status}" |  |  |  | O |  |  |  |  |  |  |  |
-| 34 |  |  |  | Validation failed |  |  |  |  |  | O |  |  |  |  |  |
-| 35 |  |  |  | "Unauthorized" |  |  |  |  | O |  |  |  |  |  |  |
-| 36 | Result | Type(N : Normal, A : Abnormal, B : Boundary) |  |  |  | N | A | N | N | A |  |  |  |  |  |
-| 37 |  | Passed/Failed |  |  |  | P | P | P | P | P |  |  |  |  |  |
-| 38 |  | Executed Date |  |  |  | 2026-04-16 00:00:00 | 2026-04-16 00:00:00 | 2026-04-16 00:00:00 | 2026-04-16 00:00:00 | 2026-04-16 00:00:00 |  |  |  |  |  |
-| 39 |  | Defect ID |  |  |  |  |  |  |  | DFID002 |  |  |  |  |  |
+**Summary**
+
+| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Function Code |  | Function1 |  |  | Function Name |  |  |  |  |  | CreateSnakeCatchingRequest |  |  |  |
+| Created By |  | NhanNP |  |  | Executed By |  |  |  |  |  |  |  |  |  |
+| Lines  of code |  | 100.0 |  |  | Lack of test cases |  |  |  |  |  | 5 |  |  |  |
+| Test requirement |  | <Brief description about requirements which are tested in this function> |  |  |  |  |  |  |  |  |  |  |  |  |
+| Passed |  | Failed |  |  | Untested |  |  |  |  |  | N/A/B |  |  | Total Test Cases |
+| 5 |  | 0 |  |  | 0 |  |  |  |  |  | 3 | 2 | 0 | 5 |
+
+**Matrix**
+
+| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|  |  |  |  |  | UTCID01 | UTCID02 | UTCID03 | UTCID04 | UTCID05 |  |  |  |  |  |
+| Condition | Precondition |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | Can connect with server |  | O | O | O | O | O |  |  |  |  |  |
+|  |  |  | Logged in as Member |  | O | O | O |  | O |  |  |  |  |  |
+|  |  |  | SnakebiteIncident exist |  | O |  | O | O | O |  |  |  |  |  |
+|  |  |  | Incident in valid status |  | O |  |  | O | O |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  | incidentId |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | Valid Guid (exist) |  | O |  | O | O | O |  |  |  |  |  |
+|  |  |  | Valid Guid (not exist) |  |  | O |  |  |  |  |  |  |  |  |
+|  | Reason |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | Valid (not null) |  | O | O | O | O |  |  |  |  |  |  |
+|  |  |  | null |  |  |  |  |  | O |  |  |  |  |  |
+| Confirm | Return |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | HTTP 200 |  | O |  |  |  |  |  |  |  |  |  |
+|  |  |  | HTTP 404 |  |  | O |  |  |  |  |  |  |  |  |
+|  |  |  | HTTP 400 |  |  |  | O |  |  |  |  |  |  |  |
+|  |  |  | HTTP 422 |  |  |  |  |  | O |  |  |  |  |  |
+|  |  |  | HTTP 401 |  |  |  |  | O |  |  |  |  |  |  |
+|  | Exception |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  | Log message |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | "Incident cancelled successfully" |  | O |  |  |  |  |  |  |  |  |  |
+|  |  |  | "Incident not found" |  |  | O |  |  |  |  |  |  |  |  |
+|  |  |  | "Cannot cancel incident with status {invalid status}" |  |  |  | O |  |  |  |  |  |  |  |
+|  |  |  | Validation failed |  |  |  |  |  | O |  |  |  |  |  |
+|  |  |  | "Unauthorized" |  |  |  |  | O |  |  |  |  |  |  |
+| Result | Type(N : Normal, A : Abnormal, B : Boundary) |  |  |  | N | A | N | N | A |  |  |  |  |  |
+|  | Passed/Failed |  |  |  | P | P | P | P | P |  |  |  |  |  |
+|  | Executed Date |  |  |  | 2026-04-16 00:00:00 | 2026-04-16 00:00:00 | 2026-04-16 00:00:00 | 2026-04-16 00:00:00 | 2026-04-16 00:00:00 |  |  |  |  |  |
+|  | Defect ID |  |  |  |  |  |  |  | DFID002 |  |  |  |  |  |
