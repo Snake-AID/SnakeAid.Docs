@@ -44,6 +44,9 @@ M, D | In charge | Change Description |
 
 ## **2\. Database Design**
 
+*\[Redered picture of ERD diagram placeholder, cloud be reference to Docs\11-SoftwareDocument\Report 4\Database Design\SnakeAid Physical ERD.mermaid.md\]*
+
+
 *\[Provide the files description, database table relationship & table descriptions like example below\]*
 
 ***Table Descriptions***
