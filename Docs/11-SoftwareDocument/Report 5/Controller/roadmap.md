@@ -204,41 +204,41 @@ For each Batch 1 file:
 
 ## Phase 4. Author Batch 2: Scheduled Consultation Flow
 
-Status: `Pending`
+Status: `Completed`
 
 Goal:
 Complete scheduled booking creation, scheduled list retrieval, and scheduled payment coverage.
 
 ### Batch 2 target files
 
-- [ ] `28-createconsultationbooking.md`
-- [ ] `29-getmyscheduledbookings.md`
-- [ ] `30-getexpertscheduledbookings.md`
-- [ ] `31-payscheduledbooking.md`
-- [ ] `36-confirmconsultationpayment.md`
+- [x] `28-createconsultationbooking.md`
+- [x] `29-getmyscheduledbookings.md`
+- [x] `30-getexpertscheduledbookings.md`
+- [x] `31-payscheduledbooking.md`
+- [x] `36-confirmconsultationpayment.md`
 
 ### Batch 2 content checklist
 
-- [ ] Capture slot existence cases.
-- [ ] Capture slot availability cases.
-- [ ] Capture started/past-slot cases.
-- [ ] Capture auth and role cases.
-- [ ] Capture wallet payment happy path.
-- [ ] Capture PayOS pending path.
-- [ ] Capture payment confirmation path.
-- [ ] Capture invalid ID / not found cases.
-- [ ] Capture list filtering behavior where verified in code/tests.
+- [x] Capture slot existence cases.
+- [x] Capture slot availability cases.
+- [x] Capture started/past-slot cases.
+- [x] Capture auth and role cases.
+- [x] Capture wallet payment happy path.
+- [x] Capture PayOS pending path.
+- [x] Capture payment confirmation path.
+- [x] Capture invalid ID / not found cases.
+- [x] Capture list filtering behavior where verified in code/tests.
 
 ### Batch 2 verification checklist
 
-- [ ] Scheduled booking matrix aligns with `BookingStatus.PendingPayment` initial state.
-- [ ] Payment matrix reflects wallet vs PayOS differences.
-- [ ] Confirm-payment matrix does not duplicate scheduled payment matrix without purpose.
-- [ ] Expert scheduled list matrix reflects code-verified filter behavior.
+- [x] Scheduled booking matrix aligns with `BookingStatus.PendingPayment` initial state.
+- [x] Payment matrix reflects wallet vs PayOS differences.
+- [x] Confirm-payment matrix does not duplicate scheduled payment matrix without purpose.
+- [x] Expert scheduled list matrix reflects code-verified filter behavior.
 
 ### Phase 4 exit check
 
-- [ ] All Batch 2 files are complete and aligned with distilled docs and tests.
+- [x] All Batch 2 files are complete and aligned with distilled docs and tests.
 
 ## Phase 5. Author Batch 3: Emergency Consultation Flow
 

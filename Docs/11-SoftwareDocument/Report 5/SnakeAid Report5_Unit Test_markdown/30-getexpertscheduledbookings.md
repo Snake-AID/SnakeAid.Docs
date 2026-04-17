@@ -1,61 +1,44 @@
-﻿# 30 - GetExpertScheduledBookings
+# 30 - GetExpertScheduledBookings
 
 - Source workbook: [SnakeAid Report5_Unit Test.xlsx](D:/SourceCode/Snake_AID/SnakeAid.Docs/Docs/11-SoftwareDocument/Report 5/SnakeAid Report5_Unit Test.xlsx)
 - Sheet: `GetExpertScheduledBookings`
-- Used range: `A2:T48`
+- Used range: `A2:Q45`
 
 **Summary**
 
-| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Function Code |  |  |  |  | Function Name |  |  |  |  |  | GetExpertScheduledBookings |  |  |  |  |  |  |  |  |
-| Created By |  |  |  |  | Executed By |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Lines  of code |  | TBD |  |  | Lack of test cases |  |  |  |  |  | TBD |  |  |  |  |  |  |  |  |
-| Test requirement |  | Expert can view their scheduled consultation bookings |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Passed |  | Failed |  |  | Untested |  |  |  |  |  | N/A/B |  |  | Total Test Cases |  |  |  |  |  |
-| 0 |  | 0 |  |  | 0 |  |  |  |  |  | 0 | 0 | 0 | 0 |  |  |  |  |  |
+| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Function Code |  | Function1 |  |  | Function Name |  |  |  |  |  | GetExpertScheduledBookings |  |  |  |  |  |
+| Created By |  | Codex |  |  | Executed By |  |  |  |  |  |  |  |  |  |  |  |
+| Lines  of code |  | 31 |  |  | Lack of test cases |  |  |  |  |  | 0 |  |  |  |  |  |
+| Test requirement |  | Expert retrieves only their confirmed or completed scheduled bookings in slot-start ascending order |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Passed |  | Failed |  |  | Untested |  |  |  |  |  | N/A/B |  |  | Total Test Cases |  |  |
+| 0 |  | 0 |  |  | 4 |  |  |  |  |  | 0 | 2 | 2 | 4 |  |  |
 
 **Matrix**
 
-| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-|  |  |  |  |  | UTCID01 | UTCID02 | UTCID03 | UTCID04 | UTCID05 | UTCID06 | UTCID07 | UTCID08 | UTCID09 | UTCID10 |  |  |  |  |  |
-| Condition | Precondition |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Can connect with server |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Input |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Confirm | Return |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | HTTP status TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Response shape TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | List/filter behavior TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Exception |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Exception handling TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Log message |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Log/message expectation TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Result | Type(N : Normal, A : Abnormal, B : Boundary) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Passed/Failed |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Executed Date |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Defect ID |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|  |  |  |  |  | UTCID01 | UTCID02 | UTCID03 | UTCID04 |  |  |  |  |  |  |  |  |
+| Condition | Precondition |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | Can connect with server |  | O | O | O | O |  |  |  |  |  |  |  |  |
+|  |  |  | Booking data prepared |  | O | O | O | O |  |  |  |  |  |  |  |  |
+|  | auth context |  |  |  | Expert | Expert | public | User |  |  |  |  |  |  |  |  |
+|  | current expert rows |  |  |  | Confirmed + Completed + PendingPayment + foreign expert | no Confirmed/Completed rows | has rows | has rows |  |  |  |  |  |  |  |  |
+| Confirm | Return |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | HTTP 200 |  | O | O |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | HTTP 401 |  |  |  | O |  |  |  |  |  |  |  |  |  |
+|  |  |  | HTTP 403 |  |  |  |  | O |  |  |  |  |  |  |  |  |
+|  |  |  | expertId = current expert only |  | O |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | statuses in {Confirmed, Completed} |  | O |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | excludes PendingPayment rows |  | O |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | sorted by SlotStartTime asc |  | O |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | roomId not blank |  | O |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | size = 0 |  |  | O |  |  |  |  |  |  |  |  |  |  |
+|  | Log message |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | "Operation successful" |  | O | O |  |  |  |  |  |  |  |  |  |  |
+| Result | Type(N : Normal, A : Abnormal, B : Boundary) |  |  |  | N | B | A | A |  |  |  |  |  |  |  |  |
+|  | Passed/Failed |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  | Executed Date |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  | Defect ID |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+
