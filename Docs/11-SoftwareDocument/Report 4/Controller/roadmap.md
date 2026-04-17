@@ -43,6 +43,7 @@ When resuming:
 - [x] Extracted the full table inventory from the ERD.
 - [x] Grouped tables into documentation batches.
 - [x] Drafted all table descriptions.
+- [x] Verified ambiguous or potentially outdated areas.
 - [ ] Inserted the completed descriptions into the Report 4 Markdown file.
 - [ ] Performed final consistency review.
 
@@ -139,27 +140,27 @@ Write report-ready descriptions for every table using the agreed evidence order.
 
 ## Phase 5. Verify Ambiguous or Potentially Outdated Areas
 
-Status: `Pending`
+Status: `Completed`
 
 Goal:
 Resolve tables whose meaning cannot be safely inferred from the ERD alone.
 
 ### Verification triggers
 
-- [ ] Table name is too generic to infer purpose safely.
-- [ ] Supporting docs disagree with the ERD.
-- [ ] Docs appear stale for the relevant feature area.
-- [ ] FK patterns suggest a meaning that is not obvious from the name alone.
+- [x] Table name is too generic to infer purpose safely.
+- [x] Supporting docs disagree with the ERD.
+- [x] Docs appear stale for the relevant feature area.
+- [x] FK patterns suggest a meaning that is not obvious from the name alone.
 
 ### Phase 5 checklist
 
-- [ ] Use backend docs to clarify business context where still reliable.
-- [ ] Use current backend code for unresolved tables.
-- [ ] Normalize wording after verification so style stays consistent.
+- [x] Use backend docs to clarify business context where still reliable.
+- [x] Use current backend code for unresolved tables.
+- [x] Normalize wording after verification so style stays consistent.
 
 ### Phase 5 exit check
 
-- [ ] No table description depends on an unverified guess.
+- [x] No table description depends on an unverified guess.
 
 ## Phase 6. Insert Into Report 4 Markdown
 
