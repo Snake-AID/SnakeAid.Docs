@@ -9,7 +9,7 @@
 | A | B | C | D | E | F | G | H | I | J | K | L | M | N |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Function Code |  | Function1 |  |  | Function Name |  |  |  |  | GetExpertTimeSlots |  |  |  |
-| Created By |  | Codex |  |  | Executed By |  |  |  |  |  |  |  |  |
+| Created By |  | KhiemNVD |  |  | Executed By |  |  |  |  |  |  |  |  |
 | Lines  of code |  | 15 |  |  | Lack of test cases |  |  |  |  | 0 |  |  |  |
 | Test requirement |  | View available future time slots of one expert |  |  |  |  |  |  |  |  |  |  |  |
 | Passed |  | Failed |  |  | Untested |  |  |  |  | N/A/B |  | Total Test Cases |  |

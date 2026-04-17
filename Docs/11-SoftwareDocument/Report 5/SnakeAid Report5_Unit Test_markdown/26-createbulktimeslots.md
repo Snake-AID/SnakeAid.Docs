@@ -9,7 +9,7 @@
 | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Function Code |  | Function1 |  |  | Function Name |  |  |  |  |  | CreateBulkTimeSlots |  |  |  |  |  |
-| Created By |  | Codex |  |  | Executed By |  |  |  |  |  |  |  |  |  |  |  |
+| Created By |  | KhiemNVD |  |  | Executed By |  |  |  |  |  |  |  |  |  |  |  |
 | Lines  of code |  | 183 |  |  | Lack of test cases |  |  |  |  |  | 0 |  |  |  |  |  |
 | Test requirement |  | Expert creates weekly bulk time slots |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | Passed |  | Failed |  |  | Untested |  |  |  |  |  | N/A/B |  |  | Total Test Cases |  |  |

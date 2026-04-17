@@ -9,7 +9,7 @@
 | A | B | C | D | E | F | G | H | I | J | K | L | M |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Function Code |  | Function1 |  |  | Function Name |  |  |  | GetExpertProfile |  |  |  |
-| Created By |  | Codex |  |  | Executed By |  |  |  |  |  |  |  |
+| Created By |  | KhiemNVD |  |  | Executed By |  |  |  |  |  |  |  |
 | Lines  of code |  | 49 |  |  | Lack of test cases |  |  |  | 0 |  |  |  |
 | Test requirement |  | View one expert profile by id |  |  |  |  |  |  |  |  |  |  |
 | Passed |  | Failed |  |  | Untested |  |  |  | N/A/B |  | Total Test Cases |  |

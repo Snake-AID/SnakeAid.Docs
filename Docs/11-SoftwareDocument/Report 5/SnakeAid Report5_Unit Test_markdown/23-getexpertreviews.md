@@ -9,7 +9,7 @@
 | A | B | C | D | E | F | G | H | I | J | K | L | M | N |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Function Code |  | Function1 |  |  | Function Name |  |  |  |  | GetExpertReviews |  |  |  |
-| Created By |  | Codex |  |  | Executed By |  |  |  |  |  |  |  |  |
+| Created By |  | KhiemNVD |  |  | Executed By |  |  |  |  |  |  |  |  |
 | Lines  of code |  | 28 |  |  | Lack of test cases |  |  |  |  | 0 |  |  |  |
 | Test requirement |  | View consultation reviews of one expert |  |  |  |  |  |  |  |  |  |  |  |
 | Passed |  | Failed |  |  | Untested |  |  |  |  | N/A/B |  | Total Test Cases |  |
