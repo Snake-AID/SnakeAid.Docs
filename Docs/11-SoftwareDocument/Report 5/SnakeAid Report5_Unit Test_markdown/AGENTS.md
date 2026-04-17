@@ -25,7 +25,7 @@ Use it as the editing context before applying changes back into the workbook.
 - [01 - Guideline](./01-guideline.md)
 - [02 - Cover](./02-cover.md)
 - [03 - Functions](./03-functions.md)
-- [04 - nháp phần funtion](./04-nhap-phan-funtion.md)
+- [04 - nhÃ¡p pháº§n funtion](./04-nhap-phan-funtion.md)
 - [05 - Statistics](./05-statistics.md)
 - [06 - CreateSnakebiteIncident](./06-createsnakebiteincident.md)
 - [07 - GetIncidentDetail](./07-getincidentdetail.md)

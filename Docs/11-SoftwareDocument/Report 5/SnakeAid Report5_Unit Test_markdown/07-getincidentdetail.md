@@ -1,4 +1,4 @@
-﻿# 07 - GetIncidentDetail
+# 07 - GetIncidentDetail
 
 - Source workbook: [SnakeAid Report5_Unit Test.xlsx](D:/SourceCode/Snake_AID/SnakeAid.Docs/Docs/11-SoftwareDocument/Report 5/SnakeAid Report5_Unit Test.xlsx)
 - Sheet: `GetIncidentDetail`
@@ -6,43 +6,43 @@
 
 **Summary**
 
-| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Function Code |  | Function1 |  |  | Function Name |  |  |  |  |  | CreateSnakeCatchingRequest |  |  |  |
-| Created By |  | NhanNP |  |  | Executed By |  |  |  |  |  |  |  |  |  |
-| Lines  of code |  | 100.0 |  |  | Lack of test cases |  |  |  |  |  | 5 |  |  |  |
-| Test requirement |  | <Brief description about requirements which are tested in this function> |  |  |  |  |  |  |  |  |  |  |  |  |
-| Passed |  | Failed |  |  | Untested |  |  |  |  |  | N/A/B |  |  | Total Test Cases |
-| 5 |  | 0 |  |  | 0 |  |  |  |  |  | 2 | 3 | 0 | 5 |
+|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+|Function Code||Function1|||Function Name||||||CreateSnakeCatchingRequest||||
+|Created By||NhanNP|||Executed By||||||||||
+|Lines  of code||100.0|||Lack of test cases||||||5||||
+|Test requirement||<Brief description about requirements which are tested in this function>|||||||||||||
+|Passed||Failed|||Untested||||||N/A/B|||Total Test Cases|
+|5||0|||0||||||2|3|0|5|
 
 **Matrix**
 
-| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-|  |  |  |  |  | UTCID01 | UTCID02 | UTCID03 | UTCID04 | UTCID05 |  |  |  |  |  |
-| Condition | Precondition |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Can connect with server |  | O | O | O | O | O |  |  |  |  |  |
-|  |  |  | Logged in as Member |  | O | O | O | O |  |  |  |  |  |  |
-|  |  |  | SnakebiteIncident exist |  | O |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | incidentId |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Valid Guid (exist) |  | O |  |  |  | O |  |  |  |  |  |
-|  |  |  | Valid Guid (not exist) |  |  | O |  |  |  |  |  |  |  |  |
-|  |  |  | "abc" |  |  |  | O |  |  |  |  |  |  |  |
-|  |  |  | null |  |  |  |  | O |  |  |  |  |  |  |
-| Confirm | Return |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | HTTP 200 |  | O |  |  |  |  |  |  |  |  |  |
-|  |  |  | HTTP 404 |  |  | O |  |  |  |  |  |  |  |  |
-|  |  |  | HTTP 422 |  |  |  | O | O |  |  |  |  |  |  |
-|  |  |  | HTTP 401 |  |  |  |  |  | O |  |  |  |  |  |
-|  | Exception |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Log message |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | "Incident details retrieved successfully" |  | O |  |  |  |  |  |  |  |  |  |
-|  |  |  | "Incident not found" |  |  | O |  |  |  |  |  |  |  |  |
-|  |  |  | Validation failed |  |  |  | O | O |  |  |  |  |  |  |
-|  |  |  | "Unauthorized" |  |  |  |  |  | O |  |  |  |  |  |
-| Result | Type(N : Normal, A : Abnormal, B : Boundary) |  |  |  | N | N | A | A | A |  |  |  |  |  |
-|  | Passed/Failed |  |  |  | P | P | P | P | P |  |  |  |  |  |
-|  | Executed Date |  |  |  | 2026-04-16 00:00:00 | 2026-04-16 00:00:00 | 2026-04-16 00:00:00 | 2026-04-16 00:00:00 | 2026-04-16 00:00:00 |  |  |  |  |  |
-|  | Defect ID |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+||||||UTCID01|UTCID02|UTCID03|UTCID04|UTCID05||||||
+|Condition|Precondition||||||||||||||
+||||Can connect with server||O|O|O|O|O||||||
+||||Logged in as Member||O|O|O|O|||||||
+||||SnakebiteIncident exist||O||||||||||
+||||||||||||||||
+||incidentId||||||||||||||
+||||Valid Guid (exist)||O||||O||||||
+||||Valid Guid (not exist)|||O|||||||||
+||||"abc"||||O||||||||
+||||null|||||O|||||||
+|Confirm|Return||||||||||||||
+||||HTTP 200||O||||||||||
+||||HTTP 404|||O|||||||||
+||||HTTP 422||||O|O|||||||
+||||HTTP 401||||||O||||||
+||Exception||||||||||||||
+||||||||||||||||
+||Log message||||||||||||||
+||||"Incident details retrieved successfully"||O||||||||||
+||||"Incident not found"|||O|||||||||
+||||Validation failed||||O|O|||||||
+||||"Unauthorized"||||||O||||||
+|Result|Type(N : Normal, A : Abnormal, B : Boundary)||||N|N|A|A|A||||||
+||Passed/Failed||||P|P|P|P|P||||||
+||Executed Date||||2026-04-16 00:00:00|2026-04-16 00:00:00|2026-04-16 00:00:00|2026-04-16 00:00:00|2026-04-16 00:00:00||||||
+||Defect ID||||||||||||||

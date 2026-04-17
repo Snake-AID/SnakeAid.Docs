@@ -1,4 +1,4 @@
-﻿# 42 - GetAllConsultations
+# 42 - GetAllConsultations
 
 - Source workbook: [SnakeAid Report5_Unit Test.xlsx](D:/SourceCode/Snake_AID/SnakeAid.Docs/Docs/11-SoftwareDocument/Report 5/SnakeAid Report5_Unit Test.xlsx)
 - Sheet: `GetAllConsultations`
@@ -6,56 +6,56 @@
 
 **Summary**
 
-| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Function Code |  |  |  |  | Function Name |  |  |  |  |  | GetAllConsultations |  |  |  |  |  |  |  |  |
-| Created By |  |  |  |  | Executed By |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Lines  of code |  | TBD |  |  | Lack of test cases |  |  |  |  |  | TBD |  |  |  |  |  |  |  |  |
-| Test requirement |  | Admin can view the consultation list across scheduled and emergency flows |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Passed |  | Failed |  |  | Untested |  |  |  |  |  | N/A/B |  |  | Total Test Cases |  |  |  |  |  |
-| 0 |  | 0 |  |  | 0 |  |  |  |  |  | 0 | 0 | 0 | 0 |  |  |  |  |  |
+|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+|Function Code|||||Function Name||||||GetAllConsultations|||||||||
+|Created By|||||Executed By|||||||||||||||
+|Lines  of code||TBD|||Lack of test cases||||||TBD|||||||||
+|Test requirement||Admin can view the consultation list across scheduled and emergency flows||||||||||||||||||
+|Passed||Failed|||Untested||||||N/A/B|||Total Test Cases||||||
+|0||0|||0||||||0|0|0|0||||||
 
 **Matrix**
 
-| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-|  |  |  |  |  | UTCID01 | UTCID02 | UTCID03 | UTCID04 | UTCID05 | UTCID06 | UTCID07 | UTCID08 | UTCID09 | UTCID10 |  |  |  |  |  |
-| Condition | Precondition |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Can connect with server |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Input |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Confirm | Return |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | HTTP status TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Response shape TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Admin list/filter behavior TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Exception |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Exception handling TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Log message |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Log/message expectation TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Result | Type(N : Normal, A : Abnormal, B : Boundary) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Passed/Failed |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Executed Date |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Defect ID |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+||||||UTCID01|UTCID02|UTCID03|UTCID04|UTCID05|UTCID06|UTCID07|UTCID08|UTCID09|UTCID10||||||
+|Condition|Precondition|||||||||||||||||||
+||||Can connect with server|||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+||Input|||||||||||||||||||
+||||TBD|||||||||||||||||
+||||TBD|||||||||||||||||
+||||TBD|||||||||||||||||
+||||TBD|||||||||||||||||
+||||TBD|||||||||||||||||
+||||TBD|||||||||||||||||
+||||TBD|||||||||||||||||
+||||TBD|||||||||||||||||
+||||TBD|||||||||||||||||
+||||TBD|||||||||||||||||
+||||TBD|||||||||||||||||
+||||TBD|||||||||||||||||
+||||TBD|||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|Confirm|Return|||||||||||||||||||
+||||HTTP status TBD|||||||||||||||||
+||||Response shape TBD|||||||||||||||||
+||||Admin list/filter behavior TBD|||||||||||||||||
+||Exception|||||||||||||||||||
+||||Exception handling TBD|||||||||||||||||
+||Log message|||||||||||||||||||
+||||Log/message expectation TBD|||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
+|Result|Type(N : Normal, A : Abnormal, B : Boundary)|||||||||||||||||||
+||Passed/Failed|||||||||||||||||||
+||Executed Date|||||||||||||||||||
+||Defect ID|||||||||||||||||||
+|||||||||||||||||||||
+|||||||||||||||||||||
