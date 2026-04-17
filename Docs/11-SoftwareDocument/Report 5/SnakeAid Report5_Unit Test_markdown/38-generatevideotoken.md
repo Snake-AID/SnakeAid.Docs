@@ -1,61 +1,46 @@
-﻿# 38 - GenerateVideoToken
+# 38 - GenerateVideoToken
 
 - Source workbook: [SnakeAid Report5_Unit Test.xlsx](D:/SourceCode/Snake_AID/SnakeAid.Docs/Docs/11-SoftwareDocument/Report 5/SnakeAid Report5_Unit Test.xlsx)
 - Sheet: `GenerateVideoToken`
-- Used range: `A2:T48`
+- Used range: `A2:Q45`
 
 **Summary**
 
-| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Function Code |  |  |  |  | Function Name |  |  |  |  |  | GenerateVideoToken |  |  |  |  |  |  |  |  |
-| Created By |  |  |  |  | Executed By |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Lines  of code |  | TBD |  |  | Lack of test cases |  |  |  |  |  | TBD |  |  |  |  |  |  |  |  |
-| Test requirement |  | Participant or admin can generate a consultation video token |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Passed |  | Failed |  |  | Untested |  |  |  |  |  | N/A/B |  |  | Total Test Cases |  |  |  |  |  |
-| 0 |  | 0 |  |  | 0 |  |  |  |  |  | 0 | 0 | 0 | 0 |  |  |  |  |  |
+| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Function Code |  | Function1 |  |  | Function Name |  |  |  |  |  | GenerateVideoToken |  |  |  |  |  |
+| Created By |  | Codex |  |  | Executed By |  |  |  |  |  |  |  |  |  |  |  |
+| Lines  of code |  | 56 |  |  | Lack of test cases |  |  |  |  |  | 0 |  |  |  |  |  |
+| Test requirement |  | Participant or admin generates a LiveKit consultation token with consultation existence, room, and authorization checks |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Passed |  | Failed |  |  | Untested |  |  |  |  |  | N/A/B |  |  | Total Test Cases |  |  |
+| 0 |  | 0 |  |  | 6 |  |  |  |  |  | 0 | 2 | 4 | 6 |  |  |
 
 **Matrix**
 
-| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-|  |  |  |  |  | UTCID01 | UTCID02 | UTCID03 | UTCID04 | UTCID05 | UTCID06 | UTCID07 | UTCID08 | UTCID09 | UTCID10 |  |  |  |  |  |
-| Condition | Precondition |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Can connect with server |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Input |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Confirm | Return |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | HTTP status TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Response shape TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Authorization/token behavior TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Exception |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Exception handling TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Log message |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  | Log/message expectation TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| Result | Type(N : Normal, A : Abnormal, B : Boundary) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Passed/Failed |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Executed Date |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  | Defect ID |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+|  |  |  |  |  | UTCID01 | UTCID02 | UTCID03 | UTCID04 | UTCID05 | UTCID06 |  |  |  |  |  |  |
+| Condition | Precondition |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | Can connect with server |  | O | O | O | O | O | O |  |  |  |  |  |  |
+|  |  |  | Consultation data prepared |  | O | O | O | O | O | O |  |  |  |  |  |  |
+|  | auth context |  |  |  | participant User | Admin | public | other authenticated user | participant User | participant User |  |  |  |  |  |  |
+|  | consultationId |  |  |  | existing consultation with roomId | existing consultation with roomId | existing consultation with roomId | existing consultation with roomId | missing consultation | existing consultation with blank roomId |  |  |  |  |  |  |
+| Confirm | Return |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | HTTP 200 |  | O | O |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | HTTP 401 |  |  |  | O |  |  |  |  |  |  |  |  |  |
+|  |  |  | HTTP 403 |  |  |  |  | O |  |  |  |  |  |  |  |  |
+|  |  |  | HTTP 404 |  |  |  |  |  | O |  |  |  |  |  |  |  |
+|  |  |  | HTTP 422 |  |  |  |  |  |  | O |  |  |  |  |  |  |
+|  |  |  | token != null |  | O | O |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | roomName = consultation.RoomId |  | O | O |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | wsUrl != null |  | O | O |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | "You are not allowed to access this consultation room." |  |  |  |  | O |  |  |  |  |  |  |  |  |
+|  |  |  | "Consultation not found." |  |  |  |  |  | O |  |  |  |  |  |  |  |
+|  |  |  | "Consultation room is not initialized." |  |  |  |  |  |  | O |  |  |  |  |  |  |
+|  | Log message |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  |  |  | "Video token generated successfully" |  | O | O |  |  |  |  |  |  |  |  |  |  |
+| Result | Type(N : Normal, A : Abnormal, B : Boundary) |  |  |  | N | N | A | A | A | A |  |  |  |  |  |  |
+|  | Passed/Failed |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  | Executed Date |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+|  | Defect ID |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+

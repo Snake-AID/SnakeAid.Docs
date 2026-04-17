@@ -279,40 +279,40 @@ Complete the emergency request lifecycle from creation to payment to expert resp
 
 ## Phase 6. Author Batch 4: Active Consultation and Review Flow
 
-Status: `Pending`
+Status: `Completed`
 
 Goal:
 Complete the matrices for in-progress consultation usage and post-consultation review.
 
 ### Batch 4 target files
 
-- [ ] `37-getmyconsultations.md`
-- [ ] `38-generatevideotoken.md`
-- [ ] `39-endconsultation.md`
-- [ ] `40-createconsultationreview.md`
-- [ ] `41-getconsultationreview.md`
+- [x] `37-getmyconsultations.md`
+- [x] `38-generatevideotoken.md`
+- [x] `39-endconsultation.md`
+- [x] `40-createconsultationreview.md`
+- [x] `41-getconsultationreview.md`
 
 ### Batch 4 content checklist
 
-- [ ] Capture consultation history success path.
-- [ ] Capture filter and pagination cases.
-- [ ] Capture video token success path.
-- [ ] Capture participant/admin authorization rules for video token.
-- [ ] Capture room-not-initialized validation case.
-- [ ] Capture end consultation success path.
-- [ ] Capture review create validation rules.
-- [ ] Capture review retrieval with existing review.
-- [ ] Capture review retrieval with `data = null`.
+- [x] Capture consultation history success path.
+- [x] Capture filter and pagination cases.
+- [x] Capture video token success path.
+- [x] Capture participant/admin authorization rules for video token.
+- [x] Capture room-not-initialized validation case.
+- [x] Capture end consultation success path.
+- [x] Capture review create validation rules.
+- [x] Capture review retrieval with existing review.
+- [x] Capture review retrieval with `data = null`.
 
 ### Batch 4 verification checklist
 
-- [ ] Review matrix separates missing review from hard error.
-- [ ] Video token matrix distinguishes `404`, `403`, and validation cases.
-- [ ] End consultation matrix reflects current service-driven authorization behavior.
+- [x] Review matrix separates missing review from hard error.
+- [x] Video token matrix distinguishes `404`, `403`, and validation cases.
+- [x] End consultation matrix reflects current service-driven authorization behavior.
 
 ### Phase 6 exit check
 
-- [ ] All Batch 4 files are complete and evidence-backed.
+- [x] All Batch 4 files are complete and evidence-backed.
 
 ## Phase 7. Author Batch 5: Admin Monitoring
 
