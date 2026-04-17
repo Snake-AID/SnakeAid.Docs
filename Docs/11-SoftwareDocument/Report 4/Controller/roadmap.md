@@ -42,7 +42,7 @@ When resuming:
 - [x] Created planning documents in `Report 4/Controller`.
 - [x] Extracted the full table inventory from the ERD.
 - [x] Grouped tables into documentation batches.
-- [ ] Drafted all table descriptions.
+- [x] Drafted all table descriptions.
 - [ ] Inserted the completed descriptions into the Report 4 Markdown file.
 - [ ] Performed final consistency review.
 
@@ -115,27 +115,27 @@ Reduce context switching by grouping related tables before drafting descriptions
 
 ## Phase 4. Draft Descriptions Batch by Batch
 
-Status: `Pending`
+Status: `Completed`
 
 Goal:
 Write report-ready descriptions for every table using the agreed evidence order.
 
 ### Per-table drafting checklist
 
-- [ ] State what the table stores in one concise sentence.
-- [ ] State the primary key field(s).
-- [ ] State the foreign key field(s), if any.
-- [ ] Keep wording concise and suitable for report format.
-- [ ] Avoid unsupported business claims.
-- [ ] Mark tables that still need code verification.
+- [x] State what the table stores in one concise sentence.
+- [x] State the primary key field(s).
+- [x] State the foreign key field(s), if any.
+- [x] Keep wording concise and suitable for report format.
+- [x] Avoid unsupported business claims.
+- [x] Mark tables that still need code verification.
 
 ### Batch completion rule
 
-- [ ] A batch is complete only when every table in that batch has a usable description.
+- [x] A batch is complete only when every table in that batch has a usable description.
 
 ### Phase 4 exit check
 
-- [ ] All ERD tables have draft descriptions, even if some still need verification.
+- [x] All ERD tables have draft descriptions, even if some still need verification.
 
 ## Phase 5. Verify Ambiguous or Potentially Outdated Areas
 
