@@ -143,6 +143,11 @@ For each Consultation sheet:
 
 Non-negotiable formatting rule for workbook-mirror sheets:
 
+- Each report sheet must be rendered as exactly 2 Markdown tables:
+  - `Summary`: workbook rows `2` to `7`
+  - `Matrix`: workbook rows `9` onward
+- Do not keep one giant Markdown table that merges summary rows and matrix rows together.
+- Row numbers are workbook context only and should not be kept as a leading `Row` column in the Markdown tables.
 - Inside the matrix body, UTCID cells must use workbook-style marks only:
   - `O` for selected/applicable
   - blank for not selected
