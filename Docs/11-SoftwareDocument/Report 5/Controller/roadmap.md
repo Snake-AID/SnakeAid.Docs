@@ -39,7 +39,7 @@ When resuming:
 - [x] Verified Consultation controller/API surface from backend source.
 - [x] Reviewed Consultation-related tests for evidence sources.
 - [x] Created planning documents in `Controller`.
-- [ ] Updated workbook-mirror metadata for Consultation.
+- [x] Updated workbook-mirror metadata for Consultation.
 - [ ] Created Consultation Markdown sheet files.
 - [ ] Populated Consultation matrix content.
 - [ ] Performed cross-sheet consistency pass.
@@ -83,35 +83,35 @@ When resuming:
 
 ## Phase 1. Freeze Naming, Numbering, and Metadata
 
-Status: `Ready`
+Status: `Completed`
 
 Goal:
 Lock the workbook-mirror structure before authoring any Consultation matrix content.
 
 ### Phase 1 checklist
 
-- [ ] Confirm Consultation sheets start after current last sheet `20`.
-- [ ] Confirm final sheet numbering range is `21` to `43`.
-- [ ] Confirm final Markdown filenames match the agreed sheet names.
-- [ ] Update `03-functions.md` with Consultation function rows.
+- [x] Confirm Consultation sheets start after current last sheet `20`.
+- [x] Confirm final sheet numbering range is `21` to `43`.
+- [x] Confirm final Markdown filenames match the agreed sheet names.
+- [x] Update `03-functions.md` with Consultation function rows.
 - [ ] Ensure each new row includes:
-  - [ ] requirement name
-  - [ ] class name
-  - [ ] function name
-  - [ ] sheet name
-  - [ ] short description
-  - [ ] pre-condition summary
-- [ ] Check whether `05-statistics.md` needs a note for future formula expansion.
-- [ ] Record any numbering or naming deviations in the Decision Log section below.
+  - [x] requirement name
+  - [x] class name
+  - [x] function name
+  - [x] sheet name
+  - [x] short description
+  - [x] pre-condition summary
+- [x] Check whether `05-statistics.md` needs a note for future formula expansion.
+- [x] Record any numbering or naming deviations in the Decision Log section below.
 
 ### Phase 1 deliverables
 
-- [ ] `03-functions.md` contains all Consultation function entries.
-- [ ] Consultation filename list is stable.
+- [x] `03-functions.md` contains all Consultation function entries.
+- [x] Consultation filename list is stable.
 
 ### Phase 1 exit check
 
-- [ ] No Consultation sheet creation starts before `03-functions.md` is updated.
+- [x] No Consultation sheet creation starts before `03-functions.md` is updated.
 
 ## Phase 2. Create Empty Consultation Sheet Files
 
@@ -409,11 +409,11 @@ Use these evidence sources while authoring matrices:
 - [x] Include core Consultation business APIs in the first pass.
 - [x] Exclude helper endpoints and realtime hubs as standalone report sheets in the first pass.
 - [x] Start Consultation sheet numbering after current last sheet `20`.
-- [ ] Record any later deviation from the current `21` to `43` numbering plan here.
+- [x] No deviation recorded at Phase 1. Consultation Markdown filenames remain mapped to sheet numbers `21` to `43`.
 
 ## Blockers / Notes
 
-- [ ] None currently recorded.
+- [x] `05-statistics.md` currently contains existing `#REF!` values and will require formula review during Phase 9 workbook write-back.
 
 If a blocker appears, add it here in this format:
 
