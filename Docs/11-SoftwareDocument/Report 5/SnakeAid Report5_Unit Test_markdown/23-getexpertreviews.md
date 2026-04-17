@@ -2,54 +2,49 @@
 
 - Source workbook: [SnakeAid Report5_Unit Test.xlsx](D:/SourceCode/Snake_AID/SnakeAid.Docs/Docs/11-SoftwareDocument/Report 5/SnakeAid Report5_Unit Test.xlsx)
 - Sheet: `GetExpertReviews`
-- Used range: `A2:T48`
+- Used range: `A2:N43`
 
-| Row | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2 | Function Code |  |  |  |  | Function Name |  |  |  |  |  | GetExpertReviews |  |  |  |  |  |  |  |  |
-| 3 | Created By |  |  |  |  | Executed By |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 4 | Lines  of code |  | TBD |  |  | Lack of test cases |  |  |  |  |  | TBD |  |  |  |  |  |  |  |  |
-| 5 | Test requirement |  | User can view reviews of a specific expert |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 6 | Passed |  | Failed |  |  | Untested |  |  |  |  |  | N/A/B |  |  | Total Test Cases |  |  |  |  |  |
-| 7 | 0 |  | 0 |  |  | 0 |  |  |  |  |  | 0 | 0 | 0 | 0 |  |  |  |  |  |
-| 8 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 9 |  |  |  |  |  | UTCID01 | UTCID02 | UTCID03 | UTCID04 | UTCID05 | UTCID06 | UTCID07 | UTCID08 | UTCID09 | UTCID10 |  |  |  |  |  |
-| 10 | Condition | Precondition |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 11 |  |  |  | Can connect with server |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 12 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 13 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 14 |  | Input |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 15 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 16 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 17 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 18 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 19 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 20 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 21 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 22 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 23 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 24 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 25 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 26 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 27 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 28 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 29 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 30 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 31 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 32 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 33 | Confirm | Return |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 34 |  |  |  | HTTP status TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 35 |  |  |  | Response shape TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 36 |  |  |  | Empty-list behavior TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 37 |  | Exception |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 38 |  |  |  | Exception handling TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 39 |  | Log message |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 40 |  |  |  | Log/message expectation TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 41 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 42 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 43 | Result | Type(N : Normal, A : Abnormal, B : Boundary) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 44 |  | Passed/Failed |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 45 |  | Executed Date |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 46 |  | Defect ID |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 47 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 48 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Row | A | B | C | D | E | F | G | H | I | J | K | L | M | N |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2 | Function Code |  | Function1 |  |  | Function Name |  |  |  |  | GetExpertReviews |  |  |  |
+| 3 | Created By |  | Codex |  |  | Executed By |  |  |  |  |  |  |  |  |
+| 4 | Lines  of code |  | 28 |  |  | Lack of test cases |  |  |  |  | 0 |  |  |  |
+| 5 | Test requirement |  | View consultation reviews of one expert |  |  |  |  |  |  |  |  |  |  |  |
+| 6 | Passed |  | Failed |  |  | Untested |  |  |  |  | N/A/B |  | Total Test Cases |  |
+| 7 | 0 |  | 0 |  |  | 4 |  |  |  |  | 0 | 2 | 2 | 4 |
+| 8 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 9 |  |  |  |  |  | UTCID01 | UTCID02 | UTCID03 | UTCID04 |  |  |  |  |  |
+| 10 | Condition | Precondition |  |  |  |  |  |  |  |  |  |  |  |  |
+| 11 |  |  |  | Can connect with server |  | O | O | O | O |  |  |  |  |  |
+| 12 |  |  |  | Feedback data exists |  | O |  | O | O |  |  |  |  |  |
+| 13 |  | pageNumber |  |  |  | 1 | 1 | 0 | 1 |  |  |  |  |  |
+| 14 |  | pageSize |  |  |  | 10 | 10 | 10 | 0 |  |  |  |  |  |
+| 15 | Confirm | Return |  |  |  |  |  |  |  |  |  |  |  |  |
+| 16 |  |  |  | HTTP 200 |  | O | O |  |  |  |  |  |  |  |
+| 17 |  |  |  | HTTP 422 |  |  |  | O | O |  |  |  |  |  |
+| 18 |  |  |  | size > 0 |  | O |  |  |  |  |  |  |  |  |
+| 19 |  |  |  | size = 0 |  |  | O |  |  |  |  |  |  |  |
+| 20 |  |  |  | type = Consultation |  | O |  |  |  |  |  |  |  |  |
+| 21 |  |  |  | "The field PageNumber must be between 1 and 2147483647." |  |  |  | O |  |  |  |  |  |  |
+| 22 |  |  |  | "The field PageSize must be between 1 and 100." |  |  |  |  | O |  |  |  |  |  |
+| 23 |  | Log message |  |  |  |  |  |  |  |  |  |  |  |  |
+| 24 |  |  |  | "Operation successful" |  | O | O |  |  |  |  |  |  |  |
+| 25 | Result | Type(N : Normal, A : Abnormal, B : Boundary) |  |  |  | N | N | B | B |  |  |  |  |  |
+| 26 |  | Passed/Failed |  |  |  |  |  |  |  |  |  |  |  |  |
+| 27 |  | Executed Date |  |  |  |  |  |  |  |  |  |  |  |  |
+| 28 |  | Defect ID |  |  |  |  |  |  |  |  |  |  |  |  |
+| 29 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 30 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 31 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 32 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 33 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 34 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 35 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 36 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 37 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 38 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 39 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 40 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 41 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 42 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 43 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |

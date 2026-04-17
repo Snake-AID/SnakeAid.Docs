@@ -2,54 +2,49 @@
 
 - Source workbook: [SnakeAid Report5_Unit Test.xlsx](D:/SourceCode/Snake_AID/SnakeAid.Docs/Docs/11-SoftwareDocument/Report 5/SnakeAid Report5_Unit Test.xlsx)
 - Sheet: `GetExpertProfile`
-- Used range: `A2:T48`
+- Used range: `A2:M43`
 
-| Row | A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2 | Function Code |  |  |  |  | Function Name |  |  |  |  |  | GetExpertProfile |  |  |  |  |  |  |  |  |
-| 3 | Created By |  |  |  |  | Executed By |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 4 | Lines  of code |  | TBD |  |  | Lack of test cases |  |  |  |  |  | TBD |  |  |  |  |  |  |  |  |
-| 5 | Test requirement |  | User can view a specific expert profile |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 6 | Passed |  | Failed |  |  | Untested |  |  |  |  |  | N/A/B |  |  | Total Test Cases |  |  |  |  |  |
-| 7 | 0 |  | 0 |  |  | 0 |  |  |  |  |  | 0 | 0 | 0 | 0 |  |  |  |  |  |
-| 8 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 9 |  |  |  |  |  | UTCID01 | UTCID02 | UTCID03 | UTCID04 | UTCID05 | UTCID06 | UTCID07 | UTCID08 | UTCID09 | UTCID10 |  |  |  |  |  |
-| 10 | Condition | Precondition |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 11 |  |  |  | Can connect with server |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 12 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 13 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 14 |  | Input |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 15 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 16 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 17 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 18 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 19 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 20 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 21 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 22 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 23 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 24 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 25 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 26 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 27 |  |  |  | TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 28 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 29 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 30 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 31 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 32 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 33 | Confirm | Return |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 34 |  |  |  | HTTP status TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 35 |  |  |  | Response shape TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 36 |  |  |  | Not-found behavior TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 37 |  | Exception |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 38 |  |  |  | Exception handling TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 39 |  | Log message |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 40 |  |  |  | Log/message expectation TBD |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 41 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 42 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 43 | Result | Type(N : Normal, A : Abnormal, B : Boundary) |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 44 |  | Passed/Failed |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 45 |  | Executed Date |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 46 |  | Defect ID |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 47 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
-| 48 |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| Row | A | B | C | D | E | F | G | H | I | J | K | L | M |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 2 | Function Code |  | Function1 |  |  | Function Name |  |  |  | GetExpertProfile |  |  |  |
+| 3 | Created By |  | Codex |  |  | Executed By |  |  |  |  |  |  |  |
+| 4 | Lines  of code |  | 49 |  |  | Lack of test cases |  |  |  | 0 |  |  |  |
+| 5 | Test requirement |  | View one expert profile by id |  |  |  |  |  |  |  |  |  |  |
+| 6 | Passed |  | Failed |  |  | Untested |  |  |  | N/A/B |  | Total Test Cases |  |
+| 7 | 0 |  | 0 |  |  | 4 |  |  |  | 0 | 3 | 1 | 4 |
+| 8 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 9 |  |  |  |  |  | UTCID01 | UTCID02 | UTCID03 | UTCID04 |  |  |  |  |
+| 10 | Condition | Precondition |  |  |  |  |  |  |  |  |  |  |  |
+| 11 |  |  |  | Can connect with server |  | O | O | O | O |  |  |  |  |
+| 12 |  |  |  | Expert profile exists |  | O | O |  |  |  |  |  |  |
+| 13 |  |  |  | Account is active |  | O | O |  |  |  |  |  |  |
+| 14 |  | role |  |  |  | public | user | public | public |  |  |  |  |
+| 15 |  | expertId |  |  |  | valid existing id | valid existing id | valid missing id | inactive expert id |  |  |  |  |
+| 16 | Confirm | Return |  |  |  |  |  |  |  |  |  |  |  |
+| 17 |  |  |  | HTTP 200 |  | O | O |  |  |  |  |  |  |
+| 18 |  |  |  | HTTP 404 |  |  |  | O | O |  |  |  |  |
+| 19 |  |  |  | data != null |  | O | O |  |  |  |  |  |  |
+| 20 |  |  |  | data = null |  |  |  | O | O |  |  |  |  |
+| 21 |  |  |  | "Expert profile not found." |  |  |  | O | O |  |  |  |  |
+| 22 |  | Log message |  |  |  |  |  |  |  |  |  |  |  |
+| 23 |  |  |  | "Operation successful" |  | O | O |  |  |  |  |  |  |
+| 24 | Result | Type(N : Normal, A : Abnormal, B : Boundary) |  |  |  | N | N | A | B |  |  |  |  |
+| 25 |  | Passed/Failed |  |  |  |  |  |  |  |  |  |  |  |
+| 26 |  | Executed Date |  |  |  |  |  |  |  |  |  |  |  |
+| 27 |  | Defect ID |  |  |  |  |  |  |  |  |  |  |  |
+| 28 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 29 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 30 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 31 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 32 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 33 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 34 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 35 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 36 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 37 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 38 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 39 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 40 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 41 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 42 |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| 43 |  |  |  |  |  |  |  |  |  |  |  |  |  |

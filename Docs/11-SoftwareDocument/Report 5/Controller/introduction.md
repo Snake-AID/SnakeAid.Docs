@@ -139,6 +139,31 @@ For each Consultation sheet:
 - Include log/message expectations only where the current implementation or existing matrix style makes them stable enough to document.
 - Mark test type as `N`, `A`, or `B` consistently.
 
+### Matrix Body Formatting Rules
+
+Non-negotiable formatting rule for workbook-mirror sheets:
+
+- Inside the matrix body, UTCID cells must use workbook-style marks only:
+  - `O` for selected/applicable
+  - blank for not selected
+- Do not write prose sentences inside UTCID cells.
+- Do not use narrative phrases like:
+  - `Operation successful`
+  - `validation error`
+  - `sorted fee ascending`
+  - `none`
+- Put concrete values and expected outcomes on row labels only, following the existing workbook style.
+- Prefer row patterns like:
+  - condition name row
+  - concrete value rows under that condition
+  - confirm section rows such as `HTTP 200`, `HTTP 422`, exact log message text, `data = null`, `size > 0`
+- If an outcome needs explanation, keep that explanation outside the matrix body in planning notes, not in the matrix cells.
+
+In short:
+
+- Matrix rows may contain labels and concrete values.
+- Matrix UTCID intersections may contain only `O` or blank.
+
 ## Recommended Delivery Sequence
 
 Build the Consultation report in the following batches:

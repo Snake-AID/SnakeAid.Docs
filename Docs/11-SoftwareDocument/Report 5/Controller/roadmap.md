@@ -41,7 +41,7 @@ When resuming:
 - [x] Created planning documents in `Controller`.
 - [x] Updated workbook-mirror metadata for Consultation.
 - [x] Created Consultation Markdown sheet files.
-- [ ] Populated Consultation matrix content.
+- [x] Populated Consultation matrix content.
 - [ ] Performed cross-sheet consistency pass.
 - [ ] Wrote final Consultation section back into workbook.
 
@@ -162,45 +162,45 @@ For each new file created:
 
 ## Phase 3. Author Batch 1: Expert Discovery and Setup
 
-Status: `Pending`
+Status: `Completed`
 
 Goal:
 Complete the Consultation sheets related to expert browsing, expert profile, and expert-side setup/history.
 
 ### Batch 1 target files
 
-- [ ] `21-getexperts.md`
-- [ ] `22-getexpertprofile.md`
-- [ ] `23-getexpertreviews.md`
-- [ ] `24-getexperttimeslots.md`
-- [ ] `25-updateexpertsettings.md`
-- [ ] `26-createbulktimeslots.md`
-- [ ] `27-getexpertconsultations.md`
+- [x] `21-getexperts.md`
+- [x] `22-getexpertprofile.md`
+- [x] `23-getexpertreviews.md`
+- [x] `24-getexperttimeslots.md`
+- [x] `25-updateexpertsettings.md`
+- [x] `26-createbulktimeslots.md`
+- [x] `27-getexpertconsultations.md`
 
 ### Per-sheet authoring checklist
 
 For each Batch 1 file:
 
-- [ ] Fill header metadata.
-- [ ] Fill lines-of-code placeholder strategy or note.
-- [ ] Write a concrete test requirement summary.
-- [ ] Define precondition rows.
-- [ ] Define input condition rows.
-- [ ] Define confirmation rows.
-- [ ] Add UTCID columns.
-- [ ] Mark each test case type as `N`, `A`, or `B`.
-- [ ] Leave execution result rows in a state consistent with existing report convention.
+- [x] Fill header metadata.
+- [x] Fill lines-of-code placeholder strategy or note.
+- [x] Write a concrete test requirement summary.
+- [x] Define precondition rows.
+- [x] Define input condition rows.
+- [x] Define confirmation rows.
+- [x] Add UTCID columns.
+- [x] Mark each test case type as `N`, `A`, or `B`.
+- [x] Leave execution result rows in a state consistent with existing report convention.
 
 ### Batch 1 verification checklist
 
-- [ ] Public endpoints distinguish optional auth vs required auth correctly.
-- [ ] Expert-only endpoints distinguish `401` vs `403` cases where applicable.
-- [ ] Validation cases are based on verified request rules.
-- [ ] Pagination/filter cases are included where the endpoint supports them.
+- [x] Public endpoints distinguish optional auth vs required auth correctly.
+- [x] Expert-only endpoints distinguish `401` vs `403` cases where applicable.
+- [x] Validation cases are based on verified request rules.
+- [x] Pagination/filter cases are included where the endpoint supports them.
 
 ### Phase 3 exit check
 
-- [ ] All Batch 1 files have complete matrix content, not placeholders.
+- [x] All Batch 1 files have complete matrix content, not placeholders.
 
 ## Phase 4. Author Batch 2: Scheduled Consultation Flow
 
