@@ -242,40 +242,40 @@ Complete scheduled booking creation, scheduled list retrieval, and scheduled pay
 
 ## Phase 5. Author Batch 3: Emergency Consultation Flow
 
-Status: `Pending`
+Status: `Completed`
 
 Goal:
 Complete the emergency request lifecycle from creation to payment to expert response.
 
 ### Batch 3 target files
 
-- [ ] `32-createemergencyconsultationrequest.md`
-- [ ] `33-payemergencyrequest.md`
-- [ ] `34-acceptemergencyconsultationrequest.md`
-- [ ] `35-rejectemergencyconsultationrequest.md`
+- [x] `32-createemergencyconsultationrequest.md`
+- [x] `33-payemergencyrequest.md`
+- [x] `34-acceptemergencyconsultationrequest.md`
+- [x] `35-rejectemergencyconsultationrequest.md`
 
 ### Batch 3 content checklist
 
-- [ ] Capture request creation success path.
-- [ ] Capture expert existence or invalid target cases if verified.
-- [ ] Capture payment success path.
-- [ ] Capture offline expert blocking behavior.
-- [ ] Capture request status transition to `PendingExpertResponse`.
-- [ ] Capture accept success path.
-- [ ] Capture reject success path.
-- [ ] Capture wrong expert / forbidden cases.
-- [ ] Capture invalid request ID / not found cases.
-- [ ] Capture invalid status transition cases.
+- [x] Capture request creation success path.
+- [x] Capture expert existence or invalid target cases if verified.
+- [x] Capture payment success path.
+- [x] Capture offline expert blocking behavior.
+- [x] Capture request status transition to `PendingExpertResponse`.
+- [x] Capture accept success path.
+- [x] Capture reject success path.
+- [x] Capture wrong expert / forbidden cases.
+- [x] Capture invalid request ID / not found cases.
+- [x] Capture invalid status transition cases.
 
 ### Batch 3 verification checklist
 
-- [ ] Acceptance matrix reflects consultation creation and ongoing status.
-- [ ] Rejection matrix reflects refund behavior where appropriate.
-- [ ] Emergency TTL-dependent behaviors are only documented when code-verified.
+- [x] Acceptance matrix reflects consultation creation and ongoing status.
+- [x] Rejection matrix reflects refund behavior where appropriate.
+- [x] Emergency TTL-dependent behaviors are only documented when code-verified.
 
 ### Phase 5 exit check
 
-- [ ] All Batch 3 files are complete and internally consistent.
+- [x] All Batch 3 files are complete and internally consistent.
 
 ## Phase 6. Author Batch 4: Active Consultation and Review Flow
 
