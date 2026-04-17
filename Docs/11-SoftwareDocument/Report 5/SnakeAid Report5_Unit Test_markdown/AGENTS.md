@@ -1,6 +1,26 @@
-# SnakeAid Report5_Unit Test
+# AGENTS for SnakeAid Report5_Unit Test
 
-## Sheets
+## Purpose
+
+This folder is the Markdown working copy of the Excel report.
+Use it as the editing context before applying changes back into the workbook.
+
+## Source of Truth
+
+- Original workbook: [SnakeAid Report5_Unit Test.xlsx](D:/SourceCode/Snake_AID/SnakeAid.Docs/Docs/11-SoftwareDocument/Report 5/SnakeAid Report5_Unit Test.xlsx)
+- Each numbered Markdown file maps to exactly one sheet in the workbook.
+- The numeric prefix in the Markdown filename is the sheet order in the workbook.
+
+## Editing Rules
+
+- Preserve the numeric filename prefix because it defines sheet order.
+- Treat each Markdown file as one Excel sheet only; do not merge multiple sheets into one file.
+- Keep the sheet name and source workbook reference at the top of every sheet file.
+- Preserve row numbers and column letters unless the task explicitly requires restructuring.
+- Prefer additive edits that make future Excel write-back easier to track.
+- If consultation flow content is added later, place it in the correct sheet based on workbook order and sheet purpose.
+
+## Sheet Map
 
 - [01 - Guideline](./01-guideline.md)
 - [02 - Cover](./02-cover.md)
