@@ -44,7 +44,7 @@ When resuming:
 - [x] Grouped tables into documentation batches.
 - [x] Drafted all table descriptions.
 - [x] Verified ambiguous or potentially outdated areas.
-- [ ] Inserted the completed descriptions into the Report 4 Markdown file.
+- [x] Inserted the completed descriptions into the Report 4 Markdown file.
 - [ ] Performed final consistency review.
 
 ## Phase 1. Freeze Sources and Output Format
@@ -164,22 +164,22 @@ Resolve tables whose meaning cannot be safely inferred from the ERD alone.
 
 ## Phase 6. Insert Into Report 4 Markdown
 
-Status: `Pending`
+Status: `Completed`
 
 Goal:
 Replace the placeholder content in the Report 4 file with the completed `Table Descriptions` table.
 
 ### Phase 6 checklist
 
-- [ ] Preserve the existing report structure.
-- [ ] Replace the example placeholder rows.
-- [ ] Insert all finalized table rows.
-- [ ] Keep numbering continuous.
-- [ ] Keep table formatting readable in Markdown.
+- [x] Preserve the existing report structure.
+- [x] Replace the example placeholder rows.
+- [x] Insert all finalized table rows.
+- [x] Keep numbering continuous.
+- [x] Keep table formatting readable in Markdown.
 
 ### Phase 6 exit check
 
-- [ ] The Report 4 Markdown file contains a complete non-placeholder `Table Descriptions` section.
+- [x] The Report 4 Markdown file contains a complete non-placeholder `Table Descriptions` section.
 
 ## Phase 7. Final Review
 
