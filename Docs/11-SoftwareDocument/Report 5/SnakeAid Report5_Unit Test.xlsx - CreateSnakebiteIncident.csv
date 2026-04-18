@@ -1,0 +1,49 @@
+,,,,,,,,,,,,,,,,,
+Function Code,,Function1,,,Function Name,,,,,,CreateSnakeCatchingRequest,,,,,,
+Created By,,NhanNP,,,Executed By,,,,,,,,,,,,
+Lines  of code,,100,,,Lack of test cases,,,,,,-3,,,,,,
+Test requirement,,<Brief description about requirements which are tested in this function>,,,,,,,,,,,,,,,
+Passed,,Failed,,,Untested,,,,,,N/A/B,,,Total Test Cases,,,
+11,,2,,,0,,,,,,2,7,4,13,,,
+,,,,,,,,,,,,,,,,,
+,,,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06,UTCID07,UTCID08,UTCID09,UTCID11,UTCID12,UTCID13,UTCID14
+Condition,Precondition ,,,,,,,,,,,,,,,,
+,,,Can connect with server,,O,O,O,O,O,O,O,O,O,O,O,O,O
+,,,Logged in as Member,,O,O,O,O,O,O,O,O,O,O,O,O,
+,,,,,,,,,,,,,,,,,
+,lng,,,,,,,,,,,,,,,,
+,,,106,,O,,,O,O,,,O,O,O,,O,O
+,,,-181,,,O,,,,,,,,,,,
+,,,181,,,,O,,,,,,,,,,
+,,,180,,,,,,,O,,,,,,,
+,,,-180,,,,,,,,O,,,,,,
+,,,null,,,,,,,,,,,,O,,
+,lat,,,,,,,,,,,,,,,,
+,,,10,,O,O,O,,,O,O,,,O,O,,O
+,,,-91,,,,,O,,,,,,,,,
+,,,91,,,,,,O,,,,,,,,
+,,,-90,,,,,,,,,O,,,,,
+,,,90,,,,,,,,,,O,,,,
+,,,null,,,,,,,,,,,,,O,
+,Address,,,,,,,,,,,,,,,,
+,,,"""Lê Văn Việt, Tp. Thủ Đức, Hồ Chí Minh""",,O,O,O,O,O,O,O,O,O,,O,O,O
+,,,"""""",,,,,,,,,,,O,,,
+Confirm,Return,,,,,,,,,,,,,,,,
+,,,HTTP 200,,O,,,,,O,O,O,O,O,,,
+,,,HTTP 422,,,O,O,O,O,,,,,,O,O,
+,,,HTTP 400,,,,,,,,,,,,,,
+,,,HTTP 401,,,,,,,,,,,,,,O
+,,,,,,,,,,,,,,,,,
+,Exception,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,Log message,,,,,,,,,,,,,,,,
+,,,"""Snakebite incident created""",,O,,,,,O,O,O,O,O,,,
+,,,"""The field Lng must be a valid number. (-180 to 180)""",,,O,O,,,,,,,,,,
+,,,"""The field Lat must be a valid number. (-90 to 90)""",,,,,O,O,,,,,,,,
+,,,The field Lng is Required,,,,,,,,,,,,O,,
+,,,The field Lat is Required,,,,,,,,,,,,,O,
+,,,"""Unauthorized""",,,,,,,,,,,,,,O
+Result,"Type(N : Normal, A : Abnormal, B : Boundary)",,,,N,A,A,A,A,B,B,B,B,N,A,A,A
+,Passed/Failed,,,,P,P,P,P,P,F,F,P,P,P,P,P,P
+,Executed Date,,,,04/16,04/16,04/16,04/16,04/16,04/16,04/16,04/16,04/16,04/16,04/16,04/16,04/16
+,Defect ID,,,,,,,,,DFID002,DFID004,DFID005,DFID006,DFID007,DFID007,DFID007,DFID007
