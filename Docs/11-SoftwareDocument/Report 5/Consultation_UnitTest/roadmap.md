@@ -32,9 +32,9 @@ Dùng file này để:
 ## Current Status
 
 - Current phase: `3.3 Consultation`
-- Current progress: `12 testcase sheets done`
-- Last completed sheet: `12 NotifyEmergencyRequest.csv`
-- Next recommended sheet: `13 AcceptEmergencyConsultationRequest`
+- Current progress: `16 testcase sheets done`
+- Last completed sheet: `16 NotifyEmergencyRequestStatusChanged.csv`
+- Next recommended sheet: `17 GenerateConsultationVideoToken`
 
 ## Execution Rules
 
@@ -79,10 +79,10 @@ Dùng file này để:
 
 | No. | Function | Planned File | Status | Notes |
 | --- | --- | --- | --- | --- |
-| 13 | AcceptEmergencyConsultationRequest | `13 AcceptEmergencyConsultationRequest.csv` | TODO | expert accepts |
-| 14 | RejectEmergencyConsultationRequest | `14 RejectEmergencyConsultationRequest.csv` | TODO | expert rejects |
-| 15 | ExpireEmergencyConsultationRequest | `15 ExpireEmergencyConsultationRequest.csv` | TODO | timeout sweep |
-| 16 | NotifyEmergencyRequestStatusChanged | `16 NotifyEmergencyRequestStatusChanged.csv` | TODO | accepted / declined / expired notification |
+| 13 | AcceptEmergencyConsultationRequest | `13 AcceptEmergencyConsultationRequest.csv` | DONE | expert accepts |
+| 14 | RejectEmergencyConsultationRequest | `14 RejectEmergencyConsultationRequest.csv` | DONE | expert rejects |
+| 15 | ExpireEmergencyConsultationRequest | `15 ExpireEmergencyConsultationRequest.csv` | DONE | timeout sweep |
+| 16 | NotifyEmergencyRequestStatusChanged | `16 NotifyEmergencyRequestStatusChanged.csv` | DONE | accepted / declined / expired notification |
 
 ### 3.3.6 Sequence Diagram Join Consultation Room and In-Room Interaction
 
@@ -129,3 +129,4 @@ Khi resume:
 - `2026-04-18`: Completed sheet `3 CreateScheduledBooking.csv`.
 - `2026-04-18`: Completed phase `3.3.3` with sheets `4 PayScheduledBookingWithWallet.csv`, `5 PayScheduledBookingWithPayOS.csv`, and `6 ConfirmScheduledBookingPayment.csv`.
 - `2026-04-18`: Completed phase `3.3.4` with sheets `7 CreateEmergencyConsultationRequest.csv` to `12 NotifyEmergencyRequest.csv`.
+- `2026-04-18`: Completed phase `3.3.5` with sheets `13 AcceptEmergencyConsultationRequest.csv` to `16 NotifyEmergencyRequestStatusChanged.csv`.

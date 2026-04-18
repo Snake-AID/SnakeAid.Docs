@@ -66,3 +66,17 @@ Name",Class Name,Function Name,Function Code(Optional),Sheet Name,Description,Pr
 - Transaction payment method is PayOs"
 12,REQ-CONSULTATION-EMERGENCY-012,ExpertEmergencyNotification,NotifyEmergencyRequest,FC22,NotifyEmergencyRequest,System push an emergency consultation request notification to the selected expert,"- Expert connection may exist in SignalR memory
 - Emergency request payload is prepared"
+13,REQ-CONSULTATION-EMERGENCY-013,ConsultationInstant,AcceptEmergencyConsultationRequest,FC23,AcceptEmergencyConsultationRequest,Expert accept a pending emergency consultation request and create an ongoing consultation room,"- Can connect with server
+- Logged in as Expert
+- Emergency request exists
+- Request belongs to current expert
+- Request status is PendingExpertResponse"
+14,REQ-CONSULTATION-EMERGENCY-014,ConsultationInstant,RejectEmergencyConsultationRequest,FC24,RejectEmergencyConsultationRequest,Expert reject a pending emergency consultation request and refund escrow to the requester,"- Can connect with server
+- Logged in as Expert
+- Emergency request exists
+- Request belongs to current expert
+- Request status is PendingExpertResponse"
+15,REQ-CONSULTATION-EMERGENCY-015,ConsultationPayment,ExpireEmergencyConsultationRequest,FC25,ExpireEmergencyConsultationRequest,System background sweep expires stale emergency consultation requests and refunds escrow when needed,"- At least one expired emergency request may exist
+- Notification service is available"
+16,REQ-CONSULTATION-EMERGENCY-016,ExpertEmergencyNotification,NotifyEmergencyRequestStatusChanged,FC26,NotifyEmergencyRequestStatusChanged,System broadcast emergency request status changes to the request room participants,"- Emergency request id is available
+- Status payload is prepared"
