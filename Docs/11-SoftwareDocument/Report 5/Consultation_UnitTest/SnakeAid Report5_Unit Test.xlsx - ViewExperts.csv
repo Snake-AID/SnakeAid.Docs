@@ -1,0 +1,50 @@
+,,,,,,,,,,,,
+Function Code,,FC11,,,Function Name,,,,,,ViewExperts
+Created By,,,,Executed By,,,,,,KhiemNVD,,
+Lines  of code,,57,,,Lack of test cases,,,,,,0
+Test requirement,,Member browse the expert directory with filter and sorting options while validating query parameters.,,,,,,,,,,
+Passed,,Failed,,,Untested,,,,,,N/A/B,,,Total Test Cases
+6,,0,,,0,,,,,,2,2,2,6
+,,,,,,,,,,,,
+,,,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06
+Condition,Precondition ,,,,,,,
+,,,Can connect with server,,O,O,O,O,O,O
+,,,Expert profile data exists,,O,O,,,,
+,,,,,,,,,,,,
+,PageNumber,,,,,,,,,,
+,,,1,,O,O,O,O,,O
+,,,0,,,,,,O,
+,PageSize,,,,,,,,,,
+,,,10,,O,O,O,O,O,
+,,,101,,,,,,,O
+,IsOnline,,,,,,,,,,
+,,,true,,O,,,,,
+,,,null,,,O,O,O,O,O
+,Specialization,,,,,,,,,,
+,,,"""Doc""",,O,,,,,
+,,,null,,,O,O,O,O,O
+,SortBy,,,,,,,,,,
+,,,null,,O,,,,,
+,,,"""consultationFee""",,,O,,,,
+,,,"""price""",,,,O,,,
+,,,"""rating""",,,,,O,,
+,SortOrder,,,,,,,,,,
+,,,null,,O,,,,,
+,,,"""asc""",,,O,O,,,
+,,,"""upward""",,,,,O,,
+Confirm,Return,,,,,,,,,,
+,,,HTTP 200,,O,O,,,,
+,,,HTTP 422,,,,O,O,O,O
+,,,,,,,,,,,,
+,Exception,,,,,,,,,,
+,,,,,,,,,,,,
+,Log message,,,,,,,,,,
+,,,"""Operation completed successfully""",,O,O,,,,
+,,,"""SortBy must be one of: isOnline, rating, consultationFee.""",,,,O,,,
+,,,"""SortOrder must be either asc or desc.""",,,,,O,,
+,,,"""The field PageNumber must be between 1 and 2147483647.""",,,,,,O,
+,,,"""The field PageSize must be between 1 and 100.""",,,,,,,O
+Result,"Type(N : Normal, A : Abnormal, B : Boundary)",,,,,N,N,A,A,B,B
+,Passed/Failed,,,,,P,P,P,P,P,P
+,Executed Date,,,,,04/06,04/07,04/09,04/10,04/12,04/14
+,Defect ID,,,,,,,,,,
