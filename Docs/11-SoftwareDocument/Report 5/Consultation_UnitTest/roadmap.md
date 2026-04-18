@@ -32,9 +32,9 @@ Dùng file này để:
 ## Current Status
 
 - Current phase: `3.3 Consultation`
-- Current progress: `25 testcase sheets done`
-- Last completed sheet: `25 AutoCompleteEmergencyConsultation.csv`
-- Next recommended sheet: `26 CreateConsultationReview`
+- Current progress: `27 testcase sheets done`
+- Last completed sheet: `27 UpdateExpertRatingAfterReview.csv`
+- Next recommended sheet: `DONE - full Consultation scope completed`
 
 ## Execution Rules
 
@@ -107,8 +107,8 @@ Dùng file này để:
 
 | No. | Function | Planned File | Status | Notes |
 | --- | --- | --- | --- | --- |
-| 26 | CreateConsultationReview | `26 CreateConsultationReview.csv` | TODO | create review |
-| 27 | UpdateExpertRatingAfterReview | `27 UpdateExpertRatingAfterReview.csv` | TODO | rating update |
+| 26 | CreateConsultationReview | `26 CreateConsultationReview.csv` | DONE | create review |
+| 27 | UpdateExpertRatingAfterReview | `27 UpdateExpertRatingAfterReview.csv` | DONE | rating update |
 
 ## Resume Procedure
 
@@ -132,3 +132,4 @@ Khi resume:
 - `2026-04-18`: Completed phase `3.3.5` with sheets `13 AcceptEmergencyConsultationRequest.csv` to `16 NotifyEmergencyRequestStatusChanged.csv`.
 - `2026-04-18`: Completed phase `3.3.6` with sheets `17 GenerateConsultationVideoToken.csv` to `21 SendConsultationSignal.csv`.
 - `2026-04-18`: Completed phase `3.3.7` with sheets `22 EndConsultation.csv` to `25 AutoCompleteEmergencyConsultation.csv`.
+- `2026-04-18`: Completed phase `3.3.8` with sheets `26 CreateConsultationReview.csv` and `27 UpdateExpertRatingAfterReview.csv`.

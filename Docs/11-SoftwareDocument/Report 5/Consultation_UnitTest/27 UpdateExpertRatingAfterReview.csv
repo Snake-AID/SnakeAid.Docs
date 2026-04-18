@@ -1,0 +1,27 @@
+Function Code,FC37,Function Name,UpdateExpertRatingAfterReview,,,,,,
+Created By,Executed By,KhiemNVD,,,,,,,
+Lines of code,18,Lack of test cases,0,,,,,,,
+Test requirement,After review creation the system recalculates expert rating count and average rating from the current expert profile and submitted score before persisting the profile update.,,,,,,,,
+Passed,Failed,Untested,N/A/B,Total Test Cases,,,,,,
+4,0,0,1,3,0,4,,,,,
+,,,UTCID01,UTCID02,UTCID03,UTCID04
+Condition,Precondition,,,,,
+,,Expert profile exists,O,O,O,O
+,,Current rating count may be zero,O,,O,O
+,,Submitted rating is between 1 and 5,O,O,O,O
+,,,,,,,
+,Action,,,,,
+,,Recalculate rating and update ExpertProfile,O,O,O,O
+Confirm,Return,,,,,
+,,RatingCount incremented by 1,O,O,O,O
+,,Rating updated to new weighted average,O,O,O,O
+,,Profile persisted,O,O,O,O
+,,,,,,,
+,Exception,,,,,
+,,,,,,,
+,Log message,,,,,
+,,Consultation review created. consultationId=current consultation id raterId=current user id.,O,O,O,O
+Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,B,A
+,,Passed/Failed,P,P,P,P
+,,Executed Date,04/24,04/25,04/26,04/27
+,,Defect ID,,,,

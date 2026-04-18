@@ -104,3 +104,8 @@ Name",Class Name,Function Name,Function Code(Optional),Sheet Name,Description,Pr
 - Slot end time has elapsed"
 25,REQ-CONSULTATION-LIFECYCLE-025,Booking,AutoCompleteEmergencyConsultation,FC35,AutoCompleteEmergencyConsultation,Background lifecycle sweep auto-complete elapsed emergency consultations,"- Ongoing emergency consultation exists
 - Consultation age exceeds 30 minutes"
+26,REQ-CONSULTATION-REVIEW-026,Consultation,CreateConsultationReview,FC36,CreateConsultationReview,Member create a review for a completed consultation,"- Can connect with server
+- Logged in as User
+- Consultation exists"
+27,REQ-CONSULTATION-REVIEW-027,Consultation,UpdateExpertRatingAfterReview,FC37,UpdateExpertRatingAfterReview,System recalculate and persist expert rating after consultation review creation,"- Expert profile exists
+- Submitted rating is valid"
