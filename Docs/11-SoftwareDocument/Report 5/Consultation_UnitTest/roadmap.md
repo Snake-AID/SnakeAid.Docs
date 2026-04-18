@@ -32,9 +32,9 @@ Dùng file này để:
 ## Current Status
 
 - Current phase: `3.3 Consultation`
-- Current progress: `2 testcase sheets done`
-- Last completed sheet: `2 ExpertPresence.csv`
-- Next recommended sheet: `3 CreateScheduledBooking`
+- Current progress: `3 testcase sheets done`
+- Last completed sheet: `3 CreateScheduledBooking.csv`
+- Next recommended sheet: `4 PayScheduledBookingWithWallet`
 
 ## Execution Rules
 
@@ -59,7 +59,7 @@ Dùng file này để:
 
 | No. | Function | Planned File | Status | Notes |
 | --- | --- | --- | --- | --- |
-| 3 | CreateScheduledBooking | `3 CreateScheduledBooking.csv` | TODO | create booking |
+| 3 | CreateScheduledBooking | `3 CreateScheduledBooking.csv` | DONE | create booking |
 | 4 | PayScheduledBookingWithWallet | `4 PayScheduledBookingWithWallet.csv` | TODO | wallet branch |
 | 5 | PayScheduledBookingWithPayOS | `5 PayScheduledBookingWithPayOS.csv` | TODO | PayOS branch |
 | 6 | ConfirmScheduledBookingPayment | `6 ConfirmScheduledBookingPayment.csv` | TODO | confirm / webhook completion |
@@ -126,3 +126,4 @@ Khi resume:
 - `2026-04-18`: Created roadmap and initialized full Consultation Unit Test Sheet plan.
 - `2026-04-18`: Confirmed completed sheet `1 ViewExperts.csv`.
 - `2026-04-18`: Completed sheet `2 ExpertPresence.csv`.
+- `2026-04-18`: Completed sheet `3 CreateScheduledBooking.csv`.

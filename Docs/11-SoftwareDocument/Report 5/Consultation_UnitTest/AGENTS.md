@@ -11,6 +11,7 @@ Quy ước ngắn gọn để viết tiếp unit test documentation cho flow con
 Nguồn format chuẩn:
 - `SnakeAid Report5_Unit Test.xlsx - nháp phần funtion.csv`
 - `SnakeAid Report5_Unit Test.xlsx - CreateSnakebiteIncident.csv`
+- `1 ViewExperts.csv` là template trình bày chuẩn cho các testcase sheet trong thư mục này
 
 ## Core Rule
 
@@ -98,21 +99,10 @@ Phải có:
 
 ### CSV presentation rule
 
-- Không được format lại testcase sheet sang schema mới hoàn toàn
-- Vẫn giữ cấu trúc gần với workbook Excel gốc
-- Nhưng phải giảm các ô trống dùng để giả lập merged cell
-- Mục tiêu là `compress, not redesign`
-
-### Header compression rule
-
-- Header phía trên được nén về các dòng key-value ngắn
-- Ưu tiên pattern như:
-  - `Function Code,FCxx,Function Name,Name,...`
-  - `Created By,Executed By,KhiemNVD,...`
-  - `Lines of code,xx,Lack of test cases,0,...`
-  - `Passed,Failed,Untested,N/A/B,Total Test Cases,...`
-  - dòng kế tiếp là các giá trị summary tương ứng
-- Được giữ một ít ô trống cuối dòng để dễ nhìn, nhưng không kéo giãn cực đoan như Excel merge-cell
+- Lấy `1 ViewExperts.csv` làm chuẩn trình bày trực tiếp
+- Các testcase sheet mới phải bắt chước format của file này
+- Chỉ thay nội dung testcase, không tự phát minh layout mới
+- Nếu có mâu thuẫn giữa rule mô tả và `1 ViewExperts.csv`, ưu tiên `1 ViewExperts.csv`
 
 ### Matrix layout
 
@@ -126,21 +116,15 @@ Các dòng điều kiện/expected result nằm bên trái và dùng `O` để �
 
 ### Left-side layout rule
 
-- Phần body giữ bố cục ma trận cũ
-- Ba cột trái phải được hiểu theo nghĩa cố định:
-  - cột 1: `Hạng mục`
-  - cột 2: `Biến thể`
-  - cột 3: `Giá trị`
-- Không suy luận cấu trúc từ vị trí hàng
-- Chỉ xét theo vị trí cột
-- Ví dụ:
-  - `Condition | Precondition | Can connect with server`
-  - `Condition | PageNumber | 1`
-  - `Confirm | Return | HTTP 200`
-  - `Result |  | Passed/Failed`
-- Khi xuống các hàng tiếp theo, có thể để trống cột 1 hoặc cột 2 để tiếp tục cùng nhóm, nhưng ngữ nghĩa cột không đổi
-- Không thụt sâu bằng nhiều ô trống không cần thiết
-- Chỉ giữ ô trống ở mức tối thiểu để phân tầng đọc hiểu
+- Phần body phải theo cùng nhịp cột như `1 ViewExperts.csv`
+- Mẫu tham chiếu:
+  - `Condition,Precondition,,,,,,,`
+  - `,,Can connect with server,O,O,...`
+  - `,PageNumber,,,,,,,`
+  - `,,1,O,O,...`
+  - `Confirm,Return,,,,,,,`
+  - `Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",...`
+- Không đổi sang layout mới dù có vẻ gọn hơn
 
 ### Expected structure
 
@@ -232,7 +216,7 @@ Trước khi hoàn thành một function/testcase sheet mới, kiểm tra:
 - [ ] tên file đúng format `Function.csv` hoặc `<number> <TestCaseName>.csv`
 - [ ] header testcase có `Function Name`
 - [ ] `Executed By` là `KhiemNVD`
-- [ ] header đã được nén, không còn merge-cell padding quá mức
+- [ ] format testcase sheet bám theo `1 ViewExperts.csv`
 - [ ] body vẫn giữ ma trận cũ, không bị redesign
 - [ ] có cột `UTCIDxx`
 - [ ] có đủ normal / abnormal / boundary khi phù hợp

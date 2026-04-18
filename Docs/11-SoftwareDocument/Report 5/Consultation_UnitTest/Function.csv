@@ -16,3 +16,8 @@ Name",Class Name,Function Name,Function Code(Optional),Sheet Name,Description,Pr
 2,REQ-CONSULTATION-PRESENCE-002,ExpertHub,ExpertPresence,FC12,ExpertPresence,"Member receives online expert snapshot and expert publishes presence to consultation members","- Can connect with server
 - Authenticated as User or Expert
 - Expert profile exists for Expert presence flow"
+3,REQ-CONSULTATION-SCHEDULED-003,ConsultationScheduled,CreateScheduledBooking,FC13,CreateScheduledBooking,Member create a scheduled consultation booking from an available future expert time slot,"- Can connect with server
+- Logged in as User
+- Expert time slot exists
+- Expert time slot is in Available status
+- Expert time slot start time is in the future"
