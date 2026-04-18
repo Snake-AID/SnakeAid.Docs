@@ -32,9 +32,9 @@ Dùng file này để:
 ## Current Status
 
 - Current phase: `3.3 Consultation`
-- Current progress: `16 testcase sheets done`
-- Last completed sheet: `16 NotifyEmergencyRequestStatusChanged.csv`
-- Next recommended sheet: `17 GenerateConsultationVideoToken`
+- Current progress: `21 testcase sheets done`
+- Last completed sheet: `21 SendConsultationSignal.csv`
+- Next recommended sheet: `22 EndConsultation`
 
 ## Execution Rules
 
@@ -88,11 +88,11 @@ Dùng file này để:
 
 | No. | Function | Planned File | Status | Notes |
 | --- | --- | --- | --- | --- |
-| 17 | GenerateConsultationVideoToken | `17 GenerateConsultationVideoToken.csv` | TODO | video token |
-| 18 | JoinConsultationRoom | `18 JoinConsultationRoom.csv` | TODO | SignalR room connect |
-| 19 | UploadConsultationAttachment | `19 UploadConsultationAttachment.csv` | TODO | optional media upload |
-| 20 | SendConsultationMessage | `20 SendConsultationMessage.csv` | TODO | in-room message |
-| 21 | SendConsultationSignal | `21 SendConsultationSignal.csv` | TODO | signal event |
+| 17 | GenerateConsultationVideoToken | `17 GenerateConsultationVideoToken.csv` | DONE | video token |
+| 18 | JoinConsultationRoom | `18 JoinConsultationRoom.csv` | DONE | SignalR room connect |
+| 19 | UploadConsultationAttachment | `19 UploadConsultationAttachment.csv` | DONE | optional media upload |
+| 20 | SendConsultationMessage | `20 SendConsultationMessage.csv` | DONE | in-room message |
+| 21 | SendConsultationSignal | `21 SendConsultationSignal.csv` | DONE | signal event |
 
 ### 3.3.7 Sequence Diagram End Consultation and Settlement
 
@@ -130,3 +130,4 @@ Khi resume:
 - `2026-04-18`: Completed phase `3.3.3` with sheets `4 PayScheduledBookingWithWallet.csv`, `5 PayScheduledBookingWithPayOS.csv`, and `6 ConfirmScheduledBookingPayment.csv`.
 - `2026-04-18`: Completed phase `3.3.4` with sheets `7 CreateEmergencyConsultationRequest.csv` to `12 NotifyEmergencyRequest.csv`.
 - `2026-04-18`: Completed phase `3.3.5` with sheets `13 AcceptEmergencyConsultationRequest.csv` to `16 NotifyEmergencyRequestStatusChanged.csv`.
+- `2026-04-18`: Completed phase `3.3.6` with sheets `17 GenerateConsultationVideoToken.csv` to `21 SendConsultationSignal.csv`.

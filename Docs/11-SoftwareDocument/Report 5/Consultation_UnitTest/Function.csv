@@ -80,3 +80,18 @@ Name",Class Name,Function Name,Function Code(Optional),Sheet Name,Description,Pr
 - Notification service is available"
 16,REQ-CONSULTATION-EMERGENCY-016,ExpertEmergencyNotification,NotifyEmergencyRequestStatusChanged,FC26,NotifyEmergencyRequestStatusChanged,System broadcast emergency request status changes to the request room participants,"- Emergency request id is available
 - Status payload is prepared"
+17,REQ-CONSULTATION-ROOM-017,VideoCall,GenerateConsultationVideoToken,FC27,GenerateConsultationVideoToken,Authenticated participant generate a LiveKit token for a consultation room,"- Can connect with server
+- Authenticated user token exists
+- Consultation exists"
+18,REQ-CONSULTATION-ROOM-018,ConsultationHub,JoinConsultationRoom,FC28,JoinConsultationRoom,Authenticated consultation participant connect to ConsultationHub and join the consultation group,"- Can connect with server
+- Authenticated user token exists
+- consultationId is provided in query string"
+19,REQ-CONSULTATION-ROOM-019,Media,UploadConsultationAttachment,FC29,UploadConsultationAttachment,Authenticated participant upload an image attachment for consultation chat,"- Can connect with server
+- Authenticated user token exists
+- Multipart form-data request is supported"
+20,REQ-CONSULTATION-ROOM-020,ConsultationHub,SendConsultationMessage,FC30,SendConsultationMessage,Connected consultation participant send a chat message with optional attachment,"- Connected to consultation hub group
+- consultationId is valid
+- User identity is valid"
+21,REQ-CONSULTATION-ROOM-021,ConsultationHub,SendConsultationSignal,FC31,SendConsultationSignal,Connected consultation participant send a volatile signal event to the consultation room,"- Connected to consultation hub group
+- consultationId is valid
+- User identity is valid"

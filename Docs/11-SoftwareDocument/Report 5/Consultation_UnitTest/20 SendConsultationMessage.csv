@@ -1,0 +1,32 @@
+Function Code,FC30,Function Name,SendConsultationMessage,,,,,,
+Created By,Executed By,KhiemNVD,,,,,,,
+Lines of code,53,Lack of test cases,0,,,,,,,
+Test requirement,Connected consultation participant sends a chat message and the hub validates rate limit content or attachment presence before persisting and broadcasting the message.,,,,,,,,
+Passed,Failed,Untested,N/A/B,Total Test Cases,,,,,,
+7,0,0,1,6,0,7,,,,,
+,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06,UTCID07
+Condition,Precondition,,,,,,,,
+,,Connected to consultation hub group,O,O,O,O,O,O,O
+,,Valid consultationId in query string,O,O,O,O,O,O,O
+,,Valid user identity in token,O,O,O,O,O,O,O
+,,Current message count in current minute < 10,O,O,O,O,,O,O
+,,Message has content or attachment,O,O,,O,O,O,O
+,,,,,,,,,,
+,Content,,,,,,,,
+,,\"Need advice now\",O,O,O,O,O,O,O
+,,null with attachmentUrl,, ,O,,O,O,O
+,,blank and no attachment,,,,,O,,
+Confirm,Return,,,,,,,,
+,,ReceiveMessage broadcast,O,O,O,O,,,
+,,HubException,,,,,O,O
+,,,,,,,,,,
+,Exception,,,,,,,,
+,,,,,,,,,,
+,Log message,,,,,,,,
+,,Chat message saved: current message id in consultation current consultation by user current user.,O,O,O,O,,,
+,,Rate limit exceeded. Maximum 10 messages per minute.,,,,,O,,
+,,Failed to send message.,,,,,,O
+Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,N,N,A,A,A
+,,Passed/Failed,P,P,P,P,P,P,P
+,,Executed Date,04/23,04/24,04/25,04/26,04/27,04/28,04/29
+,,Defect ID,,,,,,,
