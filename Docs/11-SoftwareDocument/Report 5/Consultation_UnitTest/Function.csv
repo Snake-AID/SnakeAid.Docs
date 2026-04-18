@@ -21,3 +21,20 @@ Name",Class Name,Function Name,Function Code(Optional),Sheet Name,Description,Pr
 - Expert time slot exists
 - Expert time slot is in Available status
 - Expert time slot start time is in the future"
+4,REQ-CONSULTATION-SCHEDULED-004,ConsultationPayment,PayScheduledBookingWithWallet,FC14,PayScheduledBookingWithWallet,Member pay a scheduled consultation booking using wallet balance and move money into escrow,"- Can connect with server
+- Logged in as User
+- Consultation booking exists
+- Booking belongs to current user
+- Booking status is PendingPayment
+- User wallet exists"
+5,REQ-CONSULTATION-SCHEDULED-005,ConsultationPayment,PayScheduledBookingWithPayOS,FC15,PayScheduledBookingWithPayOS,Member create a PayOS payment intent for a scheduled consultation booking,"- Can connect with server
+- Logged in as User
+- Consultation booking exists
+- Booking belongs to current user
+- Booking status is PendingPayment
+- PayOS gateway is available"
+6,REQ-CONSULTATION-SCHEDULED-006,ConsultationPayment,ConfirmScheduledBookingPayment,FC16,ConfirmScheduledBookingPayment,Member confirm a scheduled consultation PayOS payment by transaction id and finalize booking payment state,"- Can connect with server
+- Logged in as User
+- Consultation payment transaction exists
+- Transaction type is ConsultationPayment
+- Transaction payment method is PayOs"

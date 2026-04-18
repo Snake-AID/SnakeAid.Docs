@@ -32,9 +32,9 @@ Dùng file này để:
 ## Current Status
 
 - Current phase: `3.3 Consultation`
-- Current progress: `3 testcase sheets done`
-- Last completed sheet: `3 CreateScheduledBooking.csv`
-- Next recommended sheet: `4 PayScheduledBookingWithWallet`
+- Current progress: `6 testcase sheets done`
+- Last completed sheet: `6 ConfirmScheduledBookingPayment.csv`
+- Next recommended sheet: `7 CreateEmergencyConsultationRequest`
 
 ## Execution Rules
 
@@ -60,9 +60,9 @@ Dùng file này để:
 | No. | Function | Planned File | Status | Notes |
 | --- | --- | --- | --- | --- |
 | 3 | CreateScheduledBooking | `3 CreateScheduledBooking.csv` | DONE | create booking |
-| 4 | PayScheduledBookingWithWallet | `4 PayScheduledBookingWithWallet.csv` | TODO | wallet branch |
-| 5 | PayScheduledBookingWithPayOS | `5 PayScheduledBookingWithPayOS.csv` | TODO | PayOS branch |
-| 6 | ConfirmScheduledBookingPayment | `6 ConfirmScheduledBookingPayment.csv` | TODO | confirm / webhook completion |
+| 4 | PayScheduledBookingWithWallet | `4 PayScheduledBookingWithWallet.csv` | DONE | wallet branch |
+| 5 | PayScheduledBookingWithPayOS | `5 PayScheduledBookingWithPayOS.csv` | DONE | PayOS branch |
+| 6 | ConfirmScheduledBookingPayment | `6 ConfirmScheduledBookingPayment.csv` | DONE | confirm / webhook completion |
 
 ### 3.3.4 Sequence Diagram Create, Pay, and Notify Emergency Consultation Request
 
@@ -127,3 +127,4 @@ Khi resume:
 - `2026-04-18`: Confirmed completed sheet `1 ViewExperts.csv`.
 - `2026-04-18`: Completed sheet `2 ExpertPresence.csv`.
 - `2026-04-18`: Completed sheet `3 CreateScheduledBooking.csv`.
+- `2026-04-18`: Completed phase `3.3.3` with sheets `4 PayScheduledBookingWithWallet.csv`, `5 PayScheduledBookingWithPayOS.csv`, and `6 ConfirmScheduledBookingPayment.csv`.
