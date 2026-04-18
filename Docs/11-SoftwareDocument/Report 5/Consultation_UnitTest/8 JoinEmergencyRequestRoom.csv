@@ -1,28 +1,28 @@
-Function Code,FC18,Function Name,JoinEmergencyRequestRoom,,,,,,
-Created By,Executed By,KhiemNVD,,,,,,,
-Lines of code,21,Lack of test cases,0,,,,,,,
-Test requirement,Member joins the SignalR room for an owned emergency consultation request to receive status updates.,,,,,,,,
-Passed,Failed,Untested,N/A/B,Total Test Cases,,,,,,
-5,0,0,1,4,0,5,,,,,
+Function Code,FC18,Function Name,JoinEmergencyRequestRoom,,,,
+Created By,Executed By,KhiemNVD,,,,,
+Lines of code,21,Lack of test cases,0,,,,
+Test requirement,Member joins the SignalR room for an owned emergency consultation request to receive status updates.,,,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,
+5,0,0,1,4,0,5,
 ,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05
-Condition,Precondition,,,,,,,
+Condition,Precondition,,,,,,
 ,,Can connect with server,O,O,O,O,O
 ,,Authenticated as User,O,O,O,,O
 ,,Emergency request belongs to current user,O,,O,,O
 ,,Valid user identity in token,O,O,O,O,
-,,,,,,,,
-,Action,,,,,,,
+,,,,,,,
+,Action,,,,,,
 ,,JoinEmergencyRequestRoom(requestId),O,O,O,O,O
-,Role used to invoke action,,,,,,,
+,Role used to invoke action,,,,,,
 ,,User,O,O,O,,O
 ,,Expert,,,,O,
-Confirm,Return,,,,,,,
+Confirm,Return,,,,,,
 ,,JoinedEmergencyRequestRoom,O,,,,
 ,,HubException,,O,O,O,O
-,,,,,,,,
-,Exception,,,,,,,
-,,,,,,,,
-,Log message,,,,,,,
+,,,,,,,
+,Exception,,,,,,
+,,,,,,,
+,Log message,,,,,,
 ,,Emergency request was not found for current user.,,O,O,,
 ,,This action requires role: User.,,,,O,
 ,,User identity is missing from token.,,,,,O

@@ -2,7 +2,7 @@ Function Code,FC11,Function Name,ViewExperts,,,,,
 Created By,Executed By,KhiemNVD,,,,,,
 Lines of code,57,Lack of test cases,0,,,,,
 Test requirement,Member browse the expert directory with filter and sorting options while validating query parameters.,,,,,,,
-Passed,Failed,Untested,N/A/B,Total Test Cases,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,,
 6,0,0,2,2,2,6,,
 ,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06
 Condition,Precondition,,,,,,,

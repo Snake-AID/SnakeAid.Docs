@@ -1,9 +1,9 @@
-Function Code,FC27,Function Name,GenerateConsultationVideoToken,,,,,,
-Created By,Executed By,KhiemNVD,,,,,,,
-Lines of code,56,Lack of test cases,0,,,,,,,
-Test requirement,Authenticated participant requests a LiveKit token for a consultation room and the system validates consultation existence participant membership and room initialization before generating the token.,,,,,,,,
-Passed,Failed,Untested,N/A/B,Total Test Cases,,,,,,
-6,0,0,1,5,0,6,,,,,
+Function Code,FC27,Function Name,GenerateConsultationVideoToken,,,,,
+Created By,Executed By,KhiemNVD,,,,,,
+Lines of code,56,Lack of test cases,0,,,,,
+Test requirement,Authenticated participant requests a LiveKit token for a consultation room and the system validates consultation existence participant membership and room initialization before generating the token.,,,,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,,
+6,0,0,1,5,0,6,,
 ,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06
 Condition,Precondition,,,,,,,
 ,,Can connect with server,O,O,O,O,O,O
@@ -18,7 +18,7 @@ Condition,Precondition,,,,,,,
 Confirm,Return,,,,,,,
 ,,HTTP 200,O,O,,,,
 ,,HTTP 404,,,O,,,
-,,HTTP 403,,,,O,,,
+,,HTTP 403,,,,O,,
 ,,HTTP 422,,,,,O,O
 ,,,,,,,,
 ,Exception,,,,,,,
@@ -26,7 +26,7 @@ Confirm,Return,,,,,,,
 ,Log message,,,,,,,
 ,,Video token generated successfully,O,O,,,,
 ,,Consultation not found.,,,O,,,
-,,You are not allowed to access this consultation room.,,,,O,,,
+,,You are not allowed to access this consultation room.,,,,O,,
 ,,Consultation room is not initialized.,,,,,O,O
 Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,A,A,A,A
 ,,Passed/Failed,P,P,P,P,P,P

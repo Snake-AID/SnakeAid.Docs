@@ -1,27 +1,27 @@
-Function Code,FC35,Function Name,AutoCompleteEmergencyConsultation,,,,,,
-Created By,Executed By,KhiemNVD,,,,,,,
-Lines of code,90,Lack of test cases,0,,,,,,,
-Test requirement,Background lifecycle sweep auto-completes elapsed emergency consultations sends room-ended signal best-effort deletes the LiveKit room marks consultation completed then triggers settlement.,,,,,,,,
-Passed,Failed,Untested,N/A/B,Total Test Cases,,,,,,
-5,0,0,1,4,0,5,,,,,
+Function Code,FC35,Function Name,AutoCompleteEmergencyConsultation,,,,
+Created By,Executed By,KhiemNVD,,,,,
+Lines of code,90,Lack of test cases,0,,,,
+Test requirement,Background lifecycle sweep auto-completes elapsed emergency consultations sends room-ended signal best-effort deletes the LiveKit room marks consultation completed then triggers settlement.,,,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,
+5,0,0,1,4,0,5,
 ,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05
-Condition,Precondition,,,,,,,
+Condition,Precondition,,,,,,
 ,,Ongoing emergency consultation exists,O,O,O,O,O
 ,,Consultation start time is older than 30 minutes,O,O,O,O,O
 ,,SignalR room notification can succeed,O,,O,O,O
 ,,LiveKit room deletion can succeed,O,O,,O,O
 ,,Escrow payment exists for emergency reference,O,O,O,O,O
-,,,,,,,,
-,Action,,,,,,,
+,,,,,,,
+,Action,,,,,,
 ,,AutoCompleteElapsedEmergencyConsultationsAsync,O,O,O,O,O
-Confirm,Return,,,,,,,
+Confirm,Return,,,,,,
 ,,Completed count incremented,O,O,O,O,O
 ,,Consultation status becomes Completed with EndTime = UtcNow,O,O,O,O,O
 ,,Settlement triggered,O,O,O,O,O
-,,,,,,,,
-,Exception,,,,,,,
-,,,,,,,,
-,Log message,,,,,,,
+,,,,,,,
+,Exception,,,,,,
+,,,,,,,
+,Log message,,,,,,
 ,,Auto-complete emergency consultations sweep completed. Total rooms processed: completed count.,O,O,O,O,O
 ,,room_expiring_signal_failed,,O,,,
 ,,room_deletion_failed,,,O,,

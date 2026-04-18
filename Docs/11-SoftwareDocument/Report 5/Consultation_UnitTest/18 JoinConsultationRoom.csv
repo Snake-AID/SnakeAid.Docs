@@ -1,29 +1,29 @@
-Function Code,FC28,Function Name,JoinConsultationRoom,,,,,,
-Created By,Executed By,KhiemNVD,,,,,,,
-Lines of code,43,Lack of test cases,0,,,,,,,
-Test requirement,Authenticated consultation participant connects to ConsultationHub and the hub validates consultation access before joining the consultation SignalR group.,,,,,,,,
-Passed,Failed,Untested,N/A/B,Total Test Cases,,,,,,
-5,0,0,1,4,0,5,,,,,
+Function Code,FC28,Function Name,JoinConsultationRoom,,,,
+Created By,Executed By,KhiemNVD,,,,,
+Lines of code,43,Lack of test cases,0,,,,
+Test requirement,Authenticated consultation participant connects to ConsultationHub and the hub validates consultation access before joining the consultation SignalR group.,,,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,
+5,0,0,1,4,0,5,
 ,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05
-Condition,Precondition,,,,,,,
+Condition,Precondition,,,,,,
 ,,Can connect with server,O,O,O,O,O
 ,,Authenticated user token exists,O,O,O,O,O
 ,,Valid consultationId in query string,O,O,O,,O
 ,,Consultation exists,O,,O,O,O
 ,,Current user is caller or callee,O,O,,O,O
-,,,,,,,,
-,Action,,,,,,,
+,,,,,,,
+,Action,,,,,,
 ,,Connect /hubs/consultation,O,O,O,O,O
-Confirm,Return,,,,,,,
-,,Authorized participant connection,O,O,,,,
+Confirm,Return,,,,,,
+,,Authorized participant connection,O,O,,,
 ,,Connection aborted,,,O,O,O
-,,,,,,,,
-,Exception,,,,,,,
-,,,,,,,,
-,Log message,,,,,,,
-,,User current user connected to consultation current consultation in group consultation:current consultation.,O,O,,,,
-,,Consultation current consultation not found for user current user.,,,O,,,
-,,User current user attempted to access consultation current consultation without permission.,,,,O,,
+,,,,,,,
+,Exception,,,,,,
+,,,,,,,
+,Log message,,,,,,
+,,User current user connected to consultation current consultation in group consultation:current consultation.,O,O,,,
+,,Consultation current consultation not found for user current user.,,,O,,
+,,User current user attempted to access consultation current consultation without permission.,,,,O,
 ,,Valid consultationId is required in query string.,,,,,O
 Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,A,A,A
 ,,Passed/Failed,P,P,P,P,P

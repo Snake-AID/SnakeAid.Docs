@@ -1,31 +1,31 @@
-Function Code,FC32,Function Name,EndConsultation,,,,,,
-Created By,Executed By,KhiemNVD,,,,,,,
-Lines of code,51,Lack of test cases,0,,,,,,,
-Test requirement,Authenticated consultation participant manually ends a consultation and the system closes the room completes linked scheduled booking marks slot booked and triggers escrow settlement.,,,,,,,,
-Passed,Failed,Untested,N/A/B,Total Test Cases,,,,,,
-5,0,0,1,4,0,5,,,,,
+Function Code,FC32,Function Name,EndConsultation,,,,
+Created By,Executed By,KhiemNVD,,,,,
+Lines of code,51,Lack of test cases,0,,,,
+Test requirement,Authenticated consultation participant manually ends a consultation and the system closes the room completes linked scheduled booking marks slot booked and triggers escrow settlement.,,,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,
+5,0,0,1,4,0,5,
 ,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05
-Condition,Precondition,,,,,,,
+Condition,Precondition,,,,,,
 ,,Can connect with server,O,O,O,O,O
 ,,Authenticated user token exists,O,O,O,O,O
 ,,Consultation exists,O,,O,O,O
 ,,Current user is caller or callee,O,O,,O,O
 ,,Consultation status is not Completed,O,O,O,O,
 ,,Linked scheduled booking may exist,O,O,O,O,O
-,,,,,,,,
-,Action,,,,,,,
+,,,,,,,
+,Action,,,,,,
 ,,POST end consultation,O,O,O,O,O
-Confirm,Return,,,,,,,
-,,HTTP 200,O,O,,,,
-,,HTTP 404,,,O,,,
-,,HTTP 403,,,,O,,
+Confirm,Return,,,,,,
+,,HTTP 200,O,O,,,
+,,HTTP 404,,,O,,
+,,HTTP 403,,,,O,
 ,,Idempotent success on already completed consultation,,,,,O
-,,,,,,,,
-,Exception,,,,,,,
-,,,,,,,,
-,Log message,,,,,,,
+,,,,,,,
+,Exception,,,,,,
+,,,,,,,
+,Log message,,,,,,
 ,,Consultation ended successfully.,O,O,,,O
-,,Consultation not found.,,,O,,,
+,,Consultation not found.,,,O,,
 ,,You are not a participant of this consultation.,,,,,O
 Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,A,A,B
 ,,Passed/Failed,P,P,P,P,P

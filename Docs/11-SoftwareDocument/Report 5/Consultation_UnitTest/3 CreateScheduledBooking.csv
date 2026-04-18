@@ -1,16 +1,16 @@
 Function Code,FC13,Function Name,CreateScheduledBooking,,,,,,,
 Created By,Executed By,KhiemNVD,,,,,,,,
-Lines of code,109,Lack of test cases,0,,,,,,,,
-Test requirement,Member creates a scheduled consultation booking from an expert time slot. Validate slot availability time window profile existence and request field length.,,,,,,,,,,
-Passed,Failed,Untested,N/A/B,Total Test Cases,,,,,,,
-8,0,0,2,4,2,8,,,,,
+Lines of code,109,Lack of test cases,0,,,,,,,
+Test requirement,Member creates a scheduled consultation booking from an expert time slot. Validate slot availability time window profile existence and request field length.,,,,,,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,,,,
+8,0,0,2,4,2,8,,,,
 ,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06,UTCID07,UTCID08
 Condition,Precondition,,,,,,,,,
 ,,Can connect with server,O,O,O,O,O,O,O,O
 ,,Logged in as User,O,O,O,O,O,O,O,O
 ,,Expert time slot exists,O,O,,O,O,O,O,
 ,,Expert profile exists for selected slot,O,O,O,O,O,O,,O
-,,,,,,,,,,,
+,,,,,,,,,,
 ,TimeSlot status,,,,,,,,,
 ,,Available,O,O,,O,,O,O,O
 ,,Reserved,,,,,,O,,
@@ -18,24 +18,24 @@ Condition,Precondition,,,,,,,,,
 ,,Future,O,O,O,,O,O,O,O
 ,,Past/Started,,,,O,,,,
 ,ProblemDescription,,,,,,,,,
-,,Valid short text,O,,O,O,O,,,,
+,,Valid short text,O,,O,O,O,,,
 ,,null,,O,,,,,,
 ,,2000 chars,,,,,,,O,
 ,,2001 chars,,,,,,,,O
 Confirm,Return,,,,,,,,,
 ,,HTTP 200,O,O,,,,O,O,
-,,HTTP 404,,,O,,,,,,
+,,HTTP 404,,,O,,,,,
 ,,HTTP 409,,,,O,O,,,
 ,,HTTP 422,,,,,,,,O
-,,,,,,,,,,,
+,,,,,,,,,,
 ,Exception,,,,,,,,,
-,,,,,,,,,,,
+,,,,,,,,,,
 ,Log message,,,,,,,,,
 ,,Operation completed successfully,O,O,,,,O,O,
 ,,Requested time slot was not found.,,,O,,,,,
 ,,This time slot has already started and can no longer be booked.,,,,O,,,,
 ,,This time slot is no longer available.,,,,,O,,,
-,,Expert profile not found for the selected slot.,,,,,,,O
+,,Expert profile not found for the selected slot.,,,,,,,O,
 ,,The field ProblemDescription must be a string or array type with a maximum length of '2000'.,,,,,,,,O
 Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,A,A,A,B,B,A
 ,,Passed/Failed,P,P,P,P,P,P,P,P

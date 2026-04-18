@@ -1,28 +1,28 @@
-Function Code,FC34,Function Name,AutoCompleteScheduledConsultation,,,,,,
-Created By,Executed By,KhiemNVD,,,,,,,
-Lines of code,106,Lack of test cases,0,,,,,,,
-Test requirement,Background lifecycle sweep auto-completes elapsed scheduled consultations sends room-ended signal best-effort deletes the LiveKit room updates booking and slot statuses then triggers settlement.,,,,,,,,
-Passed,Failed,Untested,N/A/B,Total Test Cases,,,,,,
-5,0,0,1,4,0,5,,,,,
+Function Code,FC34,Function Name,AutoCompleteScheduledConsultation,,,,
+Created By,Executed By,KhiemNVD,,,,,
+Lines of code,106,Lack of test cases,0,,,,
+Test requirement,Background lifecycle sweep auto-completes elapsed scheduled consultations sends room-ended signal best-effort deletes the LiveKit room updates booking and slot statuses then triggers settlement.,,,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,
+5,0,0,1,4,0,5,
 ,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05
-Condition,Precondition,,,,,,,
+Condition,Precondition,,,,,,
 ,,Confirmed scheduled booking with consultation exists,O,O,O,O,O
 ,,Time slot end time has elapsed,O,O,O,O,O
 ,,Consultation status is not Completed,O,O,O,O,O
 ,,SignalR room notification can succeed,O,,O,O,O
 ,,LiveKit room deletion can succeed,O,O,,O,O
-,,,,,,,,
-,Action,,,,,,,
+,,,,,,,
+,Action,,,,,,
 ,,AutoCompleteElapsedScheduledConsultationsAsync,O,O,O,O,O
-Confirm,Return,,,,,,,
+Confirm,Return,,,,,,
 ,,Completed count incremented,O,O,O,O,O
 ,,Booking status becomes Completed,O,O,O,O,O
 ,,Consultation status becomes Completed with EndTime = slot end,O,O,O,O,O
 ,,Time slot status becomes Booked when previously Reserved,O,O,O,O,O
-,,,,,,,,
-,Exception,,,,,,,
-,,,,,,,,
-,Log message,,,,,,,
+,,,,,,,
+,Exception,,,,,,
+,,,,,,,
+,Log message,,,,,,
 ,,Auto-complete scheduled consultations sweep completed. Total rooms processed: completed count.,O,O,O,O,O
 ,,room_expiring_signal_failed,,O,,,
 ,,room_deletion_failed,,,O,,
