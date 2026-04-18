@@ -22,6 +22,14 @@ Không được:
 - viết testcase theo kiểu narrative tự do
 - gộp nhiều business action vào một testcase sheet nếu có thể tách độc lập
 
+## File Naming
+
+- function sheet luôn đặt tên là `Function.csv`
+- testcase sheet đặt theo format: `<sheet order number> <TestCaseName>.csv`
+- `<sheet order number>` là số dùng để sắp xếp theo đúng thứ tự sheet trong workbook gốc
+- `TestCaseName` dùng tên function/business action ngắn gọn, ví dụ `1 ViewExperts.csv`
+- giá trị trong cột `Sheet Name` vẫn là tên sheet logic, không cần kèm `.csv`
+
 ## 1. Function Sheet Rules
 
 ### Required columns
@@ -185,6 +193,7 @@ Trước khi hoàn thành một function/testcase sheet mới, kiểm tra:
 - [ ] function đã có dòng trong sheet `function`
 - [ ] `Function Code` là duy nhất
 - [ ] `Sheet Name` khớp testcase sheet
+- [ ] tên file đúng format `Function.csv` hoặc `<number> <TestCaseName>.csv`
 - [ ] header testcase có `Function Name`
 - [ ] `Executed By` là `KhiemNVD`
 - [ ] có cột `UTCIDxx`
