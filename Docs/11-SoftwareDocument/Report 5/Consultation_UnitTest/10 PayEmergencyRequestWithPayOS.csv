@@ -1,0 +1,41 @@
+Function Code,FC20,Function Name,PayEmergencyRequestWithPayOS,,,,,,
+Created By,Executed By,KhiemNVD,,,,,,,
+Lines of code,53,Lack of test cases,0,,,,,,,
+Test requirement,Member creates a PayOS payment intent for an emergency consultation request while validating ownership request state expert availability and duplicate pending transactions.,,,,,,,,
+Passed,Failed,Untested,N/A/B,Total Test Cases,,,,,,
+8,0,0,1,7,0,8,,,,,
+,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06,UTCID07,UTCID08
+Condition,Precondition,,,,,,,,,
+,,Can connect with server,O,O,O,O,O,O,O,O
+,,Logged in as User,O,O,O,O,O,O,O,O
+,,Emergency request exists,O,,O,O,O,O,O,O
+,,Request belongs to current user,O,,,O,O,O,O,O
+,,Request status is PendingPayment,O,,,O,O,O,O,O
+,,Expert is online for immediate consultation,O,O,O,O,,O,O,O
+,,No previous paid consultation transaction,O,O,O,O,O,,O,O
+,,No active pending PayOS transaction,O,O,O,O,O,O,,O
+,,PayOS payment link can be created,O,O,O,O,O,O,O,
+,,,,,,,,,,,
+,Payment method,,,,,,,,,
+,,PayOs,O,O,O,O,O,O,O,O
+Confirm,Return,,,,,,,,,
+,,HTTP 200,O,,,,,,,
+,,HTTP 404,,O,,,,,,,
+,,HTTP 403,,,O,,,,,,
+,,HTTP 409,,,,O,O,O,O,O
+,,,,,,,,,,,
+,Exception,,,,,,,,,
+,,,,,,,,,,,
+,Log message,,,,,,,,,
+,,Operation completed successfully,O,,,,,,,
+,,Emergency consultation request was not found.,,O,,,,,,,
+,,You are not allowed to pay for this emergency request.,,,O,,,,,,
+,,Emergency consultation request is no longer waiting for payment.,,,,O,,,,,
+,,Selected expert is currently offline for immediate consultation.,,,,,O,,,,
+,,Consultation has already been paid.,,,,,,O,,,
+,,Consultation already has a pending payment transaction.,,,,,,,O,,
+,,Failed to create PayOS payment link.,,,,,,,,O
+Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,A,A,A,A,A,A,A
+,,Passed/Failed,P,P,P,P,P,P,P,P
+,,Executed Date,04/18,04/19,04/20,04/21,04/22,04/23,04/24,04/25
+,,Defect ID,,,,,,,,

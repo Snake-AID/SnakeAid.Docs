@@ -38,3 +38,31 @@ Name",Class Name,Function Name,Function Code(Optional),Sheet Name,Description,Pr
 - Consultation payment transaction exists
 - Transaction type is ConsultationPayment
 - Transaction payment method is PayOs"
+7,REQ-CONSULTATION-EMERGENCY-007,ConsultationInstant,CreateEmergencyConsultationRequest,FC17,CreateEmergencyConsultationRequest,Member create an emergency consultation request for a selected expert,"- Can connect with server
+- Logged in as User
+- Selected expert exists and is active
+- No active emergency request exists for the same expert"
+8,REQ-CONSULTATION-EMERGENCY-008,ExpertHub,JoinEmergencyRequestRoom,FC18,JoinEmergencyRequestRoom,Member join the SignalR room for an owned emergency consultation request,"- Can connect with server
+- Authenticated as User
+- Emergency request exists for current user"
+9,REQ-CONSULTATION-EMERGENCY-009,ConsultationPayment,PayEmergencyRequestWithWallet,FC19,PayEmergencyRequestWithWallet,Member pay an emergency consultation request using wallet balance and move money into escrow,"- Can connect with server
+- Logged in as User
+- Emergency request exists
+- Request belongs to current user
+- Request status is PendingPayment
+- Expert is online"
+10,REQ-CONSULTATION-EMERGENCY-010,ConsultationPayment,PayEmergencyRequestWithPayOS,FC20,PayEmergencyRequestWithPayOS,Member create a PayOS payment intent for an emergency consultation request,"- Can connect with server
+- Logged in as User
+- Emergency request exists
+- Request belongs to current user
+- Request status is PendingPayment
+- Expert is online
+- PayOS gateway is available"
+11,REQ-CONSULTATION-EMERGENCY-011,ConsultationPayment,ConfirmEmergencyRequestPayment,FC21,ConfirmEmergencyRequestPayment,Member confirm an emergency consultation PayOS payment by transaction id,"- Can connect with server
+- Logged in as User
+- Consultation payment transaction exists
+- Transaction reference type is EmergencyRequest
+- Transaction type is ConsultationPayment
+- Transaction payment method is PayOs"
+12,REQ-CONSULTATION-EMERGENCY-012,ExpertEmergencyNotification,NotifyEmergencyRequest,FC22,NotifyEmergencyRequest,System push an emergency consultation request notification to the selected expert,"- Expert connection may exist in SignalR memory
+- Emergency request payload is prepared"

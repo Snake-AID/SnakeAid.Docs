@@ -32,9 +32,9 @@ Dùng file này để:
 ## Current Status
 
 - Current phase: `3.3 Consultation`
-- Current progress: `6 testcase sheets done`
-- Last completed sheet: `6 ConfirmScheduledBookingPayment.csv`
-- Next recommended sheet: `7 CreateEmergencyConsultationRequest`
+- Current progress: `12 testcase sheets done`
+- Last completed sheet: `12 NotifyEmergencyRequest.csv`
+- Next recommended sheet: `13 AcceptEmergencyConsultationRequest`
 
 ## Execution Rules
 
@@ -68,12 +68,12 @@ Dùng file này để:
 
 | No. | Function | Planned File | Status | Notes |
 | --- | --- | --- | --- | --- |
-| 7 | CreateEmergencyConsultationRequest | `7 CreateEmergencyConsultationRequest.csv` | TODO | create request |
-| 8 | JoinEmergencyRequestRoom | `8 JoinEmergencyRequestRoom.csv` | TODO | member joins room |
-| 9 | PayEmergencyRequestWithWallet | `9 PayEmergencyRequestWithWallet.csv` | TODO | wallet branch |
-| 10 | PayEmergencyRequestWithPayOS | `10 PayEmergencyRequestWithPayOS.csv` | TODO | PayOS branch |
-| 11 | ConfirmEmergencyRequestPayment | `11 ConfirmEmergencyRequestPayment.csv` | TODO | confirm / webhook completion |
-| 12 | NotifyEmergencyRequest | `12 NotifyEmergencyRequest.csv` | TODO | send request to expert |
+| 7 | CreateEmergencyConsultationRequest | `7 CreateEmergencyConsultationRequest.csv` | DONE | create request |
+| 8 | JoinEmergencyRequestRoom | `8 JoinEmergencyRequestRoom.csv` | DONE | member joins room |
+| 9 | PayEmergencyRequestWithWallet | `9 PayEmergencyRequestWithWallet.csv` | DONE | wallet branch |
+| 10 | PayEmergencyRequestWithPayOS | `10 PayEmergencyRequestWithPayOS.csv` | DONE | PayOS branch |
+| 11 | ConfirmEmergencyRequestPayment | `11 ConfirmEmergencyRequestPayment.csv` | DONE | confirm / webhook completion |
+| 12 | NotifyEmergencyRequest | `12 NotifyEmergencyRequest.csv` | DONE | send request to expert |
 
 ### 3.3.5 Sequence Diagram Expert Accept or Reject Emergency Request
 
@@ -128,3 +128,4 @@ Khi resume:
 - `2026-04-18`: Completed sheet `2 ExpertPresence.csv`.
 - `2026-04-18`: Completed sheet `3 CreateScheduledBooking.csv`.
 - `2026-04-18`: Completed phase `3.3.3` with sheets `4 PayScheduledBookingWithWallet.csv`, `5 PayScheduledBookingWithPayOS.csv`, and `6 ConfirmScheduledBookingPayment.csv`.
+- `2026-04-18`: Completed phase `3.3.4` with sheets `7 CreateEmergencyConsultationRequest.csv` to `12 NotifyEmergencyRequest.csv`.

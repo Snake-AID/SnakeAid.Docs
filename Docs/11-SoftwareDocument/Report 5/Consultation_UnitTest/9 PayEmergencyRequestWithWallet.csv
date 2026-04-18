@@ -1,0 +1,42 @@
+Function Code,FC19,Function Name,PayEmergencyRequestWithWallet,,,,,,
+Created By,Executed By,KhiemNVD,,,,,,,
+Lines of code,97,Lack of test cases,0,,,,,,,
+Test requirement,Member pays an emergency consultation request with wallet balance and the system validates ownership request state expert availability and escrow funding prerequisites.,,,,,,,,
+Passed,Failed,Untested,N/A/B,Total Test Cases,,,,,,
+7,0,0,1,6,0,7,,,,,
+,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06,UTCID07
+Condition,Precondition,,,,,,,,
+,,Can connect with server,O,O,O,O,O,O,O
+,,Logged in as User,O,O,O,O,O,O,O
+,,Emergency request exists,O,,O,O,O,O,O
+,,Request belongs to current user,O,,,O,O,O,O
+,,Request status is PendingPayment,O,,,O,O,O,O
+,,Expert is online for immediate consultation,O,O,O,O,,O,O
+,,User wallet exists,O,O,O,O,O,O,O
+,,User wallet balance >= emergency fee,O,O,O,O,O,,O
+,,,,,,,,,,
+,Payment method,,,,,,,,
+,,WalletBalance,O,O,O,O,O,O,O
+,Request payment state,,,,,,,,
+,,No consultation payment transaction,O,O,O,O,,O,O
+,,Existing consultation payment transaction,,,,,,O,
+Confirm,Return,,,,,,,,
+,,HTTP 200,O,,,,,,
+,,HTTP 404,,O,,,,,,
+,,HTTP 403,,,O,,,,,
+,,HTTP 409,,,,O,O,O,
+,,,,,,,,,,
+,Exception,,,,,,,,
+,,,,,,,,,,
+,Log message,,,,,,,,
+,,Operation completed successfully,O,,,,,,
+,,Emergency consultation request was not found.,,O,,,,,,
+,,You are not allowed to pay for this emergency request.,,,O,,,,,
+,,Emergency consultation request is no longer waiting for payment.,,,,O,,,,
+,,Selected expert is currently offline for immediate consultation.,,,,,O,,,
+,,Emergency consultation request has already been paid.,,,,,,O,,
+,,Insufficient wallet balance. Available: current balance required: emergency fee.,,,,,,,O
+Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,A,A,A,A,A,A
+,,Passed/Failed,P,P,P,P,P,P,P
+,,Executed Date,04/18,04/19,04/20,04/21,04/22,04/23,04/24
+,,Defect ID,,,,,,,
