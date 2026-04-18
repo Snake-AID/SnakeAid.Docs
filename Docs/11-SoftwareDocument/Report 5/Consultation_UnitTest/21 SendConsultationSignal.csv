@@ -1,28 +1,28 @@
-Function Code,FC31,Function Name,SendConsultationSignal,,,
-Created By,Executed By,KhiemNVD,,,,
-Lines of code,26,Lack of test cases,0,,,
-Test requirement,Connected consultation participant sends a volatile signal event and the hub broadcasts it to the consultation group without database persistence.,,,,,
-Passed,Failed,Untested,N/A/B,,,Total Test Cases
-4,0,0,1,3,0,4
-,,,UTCID01,UTCID02,UTCID03,UTCID04
-Condition,Precondition,,,,,
-,,Connected to consultation hub group,O,O,O,O
-,,Valid consultationId in query string,O,O,O,O
-,,Valid user identity in token,O,O,O,O
-,,Signal payload is provided,O,O,O,O
-,,,,,,
-,Action,,,,,
-,,Signal(eventType payload),O,O,O,O
-Confirm,Return,,,,,
-,,Signal broadcast,O,O,O,
-,,HubException,,,,O
-,,,,,,
-,Exception,,,,,
-,,,,,,
-,Log message,,,,,
-,,Signal received: eventType from user current user in consultation current consultation.,O,O,O,
-,,Failed to send signal.,,,,O
-Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,N,A
-,,Passed/Failed,P,P,P,P
-,,Executed Date,04/23,04/24,04/25,04/26
-,,Defect ID,,,,
+Function Code,FC31,Function Name,SendConsultationSignal,,,,
+Created By,Executed By,KhiemNVD,,,,,
+Lines of code,26,Lack of test cases,0,,,,
+Test requirement,Connected consultation participant sends a volatile signal event and the hub broadcasts it to the consultation group without database persistence.,,,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,
+4,0,0,1,3,0,4,
+,,,,UTCID01,UTCID02,UTCID03,UTCID04
+Condition,Precondition,,,,,,
+,,,Connected to consultation hub group,O,O,O,O
+,,,Valid consultationId in query string,O,O,O,O
+,,,Valid user identity in token,O,O,O,O
+,,,Signal payload is provided,O,O,O,O
+,,,,,,,
+,Action,,,,,,
+,,,Signal(eventType payload),O,O,O,O
+Confirm,Return,,,,,,
+,,,Signal broadcast,O,O,O,
+,,,HubException,,,,O
+,,,,,,,
+,Exception,,,,,,
+,,,,,,,
+,Log message,,,,,,
+,,,Signal received: eventType from user current user in consultation current consultation.,O,O,O,
+,,,Failed to send signal.,,,,O
+Result,,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,N,A
+,,,Passed/Failed,P,P,P,P
+,,,Executed Date,04/23,04/24,04/25,04/26
+,,,Defect ID,,,,

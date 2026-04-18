@@ -1,4 +1,3 @@
-,,,,,,,
 ,,,,Function List,,,
 ,,,,,,,
 Project Name,,,,SnakeAid,,,
@@ -13,7 +12,7 @@ No,"Requirement
 Name",Class Name,Function Name,Function Code(Optional),Sheet Name,Description,Pre-Condition
 1,REQ-CONSULTATION-DIRECTORY-001,ExpertDirectory,ViewExperts,FC11,ViewExperts,Member view the expert directory for consultation with filter and sorting options,"- Can connect with server
 - Expert profile data exists"
-2,REQ-CONSULTATION-PRESENCE-002,ExpertHub,ExpertPresence,FC12,ExpertPresence,"Member receives online expert snapshot and expert publishes presence to consultation members","- Can connect with server
+2,REQ-CONSULTATION-PRESENCE-002,ExpertHub,ExpertPresence,FC12,ExpertPresence,Member receives online expert snapshot and expert publishes presence to consultation members,"- Can connect with server
 - Authenticated as User or Expert
 - Expert profile exists for Expert presence flow"
 3,REQ-CONSULTATION-SCHEDULED-003,ConsultationScheduled,CreateScheduledBooking,FC13,CreateScheduledBooking,Member create a scheduled consultation booking from an available future expert time slot,"- Can connect with server

@@ -1,31 +1,31 @@
-Function Code,FC25,Function Name,ExpireEmergencyConsultationRequest,,,,
-Created By,Executed By,KhiemNVD,,,,,
-Lines of code,63,Lack of test cases,0,,,,
-Test requirement,Background sweep expires stale emergency consultation requests and conditionally refunds escrow for requests that were already waiting for expert response.,,,,,,
-Passed,Failed,Untested,N/A/B,,,Total Test Cases,
-5,0,0,1,4,0,5,
-,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05
-Condition,Precondition,,,,,,
-,,Expired emergency request exists,O,O,O,O,O
-,,Status is PendingPayment,O,,O,O,O
-,,Status is PendingExpertResponse,,O,,,
-,,ExpiresAt is reached or RequestedAt exceeds TTL,O,O,O,O,O
-,,Notification service available,O,O,O,O,O
-,,,,,,,
-,Action,,,,,,
-,,ExpireEmergencyRequestsAsync,O,O,O,O,O
-Confirm,Return,,,,,,
-,,Expired count > 0,O,O,O,O,O
-,,Escrow refunded,,,,O,O
-,,EmergencyRequestStatusChanged notified,O,O,O,O,O
-,,,,,,,
-,Exception,,,,,,
-,,,,,,,
-,Log message,,,,,,
-,,Operation completed successfully,O,O,O,O,O
-,,Emergency consultation request expired.,,O,,O,
-,,Yeu cau tu van khan cap da het han va duoc hoan tien.,,,,O,O
-Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,N,A,A
-,,Passed/Failed,P,P,P,P,P
-,,Executed Date,04/22,04/23,04/24,04/25,04/26
-,,Defect ID,,,,,
+Function Code,FC25,Function Name,ExpireEmergencyConsultationRequest,,,,,
+Created By,Executed By,KhiemNVD,,,,,,
+Lines of code,63,Lack of test cases,0,,,,,
+Test requirement,Background sweep expires stale emergency consultation requests and conditionally refunds escrow for requests that were already waiting for expert response.,,,,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,,
+5,0,0,1,4,0,5,,
+,,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05
+Condition,Precondition,,,,,,,
+,,,Expired emergency request exists,O,O,O,O,O
+,,,Status is PendingPayment,O,,O,O,O
+,,,Status is PendingExpertResponse,,O,,,
+,,,ExpiresAt is reached or RequestedAt exceeds TTL,O,O,O,O,O
+,,,Notification service available,O,O,O,O,O
+,,,,,,,,
+,Action,,,,,,,
+,,,ExpireEmergencyRequestsAsync,O,O,O,O,O
+Confirm,Return,,,,,,,
+,,,Expired count > 0,O,O,O,O,O
+,,,Escrow refunded,,,,O,O
+,,,EmergencyRequestStatusChanged notified,O,O,O,O,O
+,,,,,,,,
+,Exception,,,,,,,
+,,,,,,,,
+,Log message,,,,,,,
+,,,Operation completed successfully,O,O,O,O,O
+,,,Emergency consultation request expired.,,O,,O,
+,,,Yeu cau tu van khan cap da het han va duoc hoan tien.,,,,O,O
+Result,,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,N,A,A
+,,,Passed/Failed,P,P,P,P,P
+,,,Executed Date,04/22,04/23,04/24,04/25,04/26
+,,,Defect ID,,,,,

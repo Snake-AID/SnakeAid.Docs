@@ -1,43 +1,43 @@
-Function Code,FC36,Function Name,CreateConsultationReview,,,,,,,
-Created By,Executed By,KhiemNVD,,,,,,,,
-Lines of code,81,Lack of test cases,0,,,,,,,
-Test requirement,Member submits a review for a completed consultation and the system validates consultation ownership completion state duplicate review prevention and review field constraints.,,,,,,,,,
-Passed,Failed,Untested,N/A/B,,,Total Test Cases,,,,
-8,0,0,2,6,0,8,,,,
-,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06,UTCID07,UTCID08
-Condition,Precondition,,,,,,,,,
-,,Can connect with server,O,O,O,O,O,O,O,O
-,,Logged in as User,O,O,O,O,O,O,O,O
-,,Consultation exists,O,,O,O,O,O,O,O
-,,Current user is consultation caller,O,O,,O,O,O,O,O
-,,Consultation status is Completed,O,O,O,O,,O,O,O
-,,No existing review from current user,O,O,O,O,,O,O,O
-,,Expert profile exists for callee,O,O,O,O,O,O,O,O
-,,,,,,,,,,
-,Rating,,,,,,,,,
-,,5,O,O,O,O,O,O,O,O
-,,0,,,,,,,,O
-,Comments,,,,,,,,,
-,,Valid short text,O,O,O,O,O,O,,
-,,2000 chars,,,,,,,O,
-Confirm,Return,,,,,,,,,
-,,HTTP 200,O,O,,,,,,
-,,HTTP 404,,,O,,,,,
-,,HTTP 403,,,,O,,,,
-,,HTTP 409,,,,,O,O,,
-,,HTTP 400,,,,,,O,,
-,,HTTP 422,,,,,,,,O
-,,,,,,,,,,
-,Exception,,,,,,,,,
-,,,,,,,,,,
-,Log message,,,,,,,,,
-,,Operation completed successfully,O,O,,,,,,
-,,Consultation not found.,,,O,,,,,
-,,Only the user who booked the consultation can submit a review.,,,,O,,,,
-,,Consultation must be completed before review submission.,,,,,,O,,
-,,You have already submitted a review for this consultation.,,,,,,,O,
-,,Rating must be between 1 and 5.,,,,,,,,O
-Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,A,A,A,A,B,B
-,,Passed/Failed,P,P,P,P,P,P,P,P
-,,Executed Date,04/24,04/25,04/26,04/27,04/28,04/29,04/30,05/01
-,,Defect ID,,,,,,,,
+Function Code,FC36,Function Name,CreateConsultationReview,,,,,,,,
+Created By,Executed By,KhiemNVD,,,,,,,,,
+Lines of code,81,Lack of test cases,0,,,,,,,,
+Test requirement,Member submits a review for a completed consultation and the system validates consultation ownership completion state duplicate review prevention and review field constraints.,,,,,,,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,,,,,
+8,0,0,2,6,0,8,,,,,
+,,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06,UTCID07,UTCID08
+Condition,Precondition,,,,,,,,,,
+,,,Can connect with server,O,O,O,O,O,O,O,O
+,,,Logged in as User,O,O,O,O,O,O,O,O
+,,,Consultation exists,O,,O,O,O,O,O,O
+,,,Current user is consultation caller,O,O,,O,O,O,O,O
+,,,Consultation status is Completed,O,O,O,O,,O,O,O
+,,,No existing review from current user,O,O,O,O,,O,O,O
+,,,Expert profile exists for callee,O,O,O,O,O,O,O,O
+,,,,,,,,,,,
+,Rating,,,,,,,,,,
+,,,5,O,O,O,O,O,O,O,O
+,,,0,,,,,,,,O
+,Comments,,,,,,,,,,
+,,,Valid short text,O,O,O,O,O,O,,
+,,,2000 chars,,,,,,,O,
+Confirm,Return,,,,,,,,,,
+,,,HTTP 200,O,O,,,,,,
+,,,HTTP 404,,,O,,,,,
+,,,HTTP 403,,,,O,,,,
+,,,HTTP 409,,,,,O,O,,
+,,,HTTP 400,,,,,,O,,
+,,,HTTP 422,,,,,,,,O
+,,,,,,,,,,,
+,Exception,,,,,,,,,,
+,,,,,,,,,,,
+,Log message,,,,,,,,,,
+,,,Operation completed successfully,O,O,,,,,,
+,,,Consultation not found.,,,O,,,,,
+,,,Only the user who booked the consultation can submit a review.,,,,O,,,,
+,,,Consultation must be completed before review submission.,,,,,,O,,
+,,,You have already submitted a review for this consultation.,,,,,,,O,
+,,,Rating must be between 1 and 5.,,,,,,,,O
+Result,,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,A,A,A,A,B,B
+,,,Passed/Failed,P,P,P,P,P,P,P,P
+,,,Executed Date,04/24,04/25,04/26,04/27,04/28,04/29,04/30,05/01
+,,,Defect ID,,,,,,,,

@@ -1,34 +1,34 @@
-Function Code,FC27,Function Name,GenerateConsultationVideoToken,,,,,
-Created By,Executed By,KhiemNVD,,,,,,
-Lines of code,56,Lack of test cases,0,,,,,
-Test requirement,Authenticated participant requests a LiveKit token for a consultation room and the system validates consultation existence participant membership and room initialization before generating the token.,,,,,,,
-Passed,Failed,Untested,N/A/B,,,Total Test Cases,,
-6,0,0,1,5,0,6,,
-,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06
-Condition,Precondition,,,,,,,
-,,Can connect with server,O,O,O,O,O,O
-,,Authenticated user token exists,O,O,O,O,O,O
-,,Consultation exists,O,,O,O,O,O
-,,Current user is caller or callee,O,O,,O,O,O
-,,Current user is Admin,,O,O,O,O,O
-,,Consultation room id is initialized,O,O,O,O,,O
-,,,,,,,,
-,Action,,,,,,,
-,,POST video-token,O,O,O,O,O,O
-Confirm,Return,,,,,,,
-,,HTTP 200,O,O,,,,
-,,HTTP 404,,,O,,,
-,,HTTP 403,,,,O,,
-,,HTTP 422,,,,,O,O
-,,,,,,,,
-,Exception,,,,,,,
-,,,,,,,,
-,Log message,,,,,,,
-,,Video token generated successfully,O,O,,,,
-,,Consultation not found.,,,O,,,
-,,You are not allowed to access this consultation room.,,,,O,,
-,,Consultation room is not initialized.,,,,,O,O
-Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,A,A,A,A
-,,Passed/Failed,P,P,P,P,P,P
-,,Executed Date,04/23,04/24,04/25,04/26,04/27,04/28
-,,Defect ID,,,,,,
+Function Code,FC27,Function Name,GenerateConsultationVideoToken,,,,,,
+Created By,Executed By,KhiemNVD,,,,,,,
+Lines of code,56,Lack of test cases,0,,,,,,
+Test requirement,Authenticated participant requests a LiveKit token for a consultation room and the system validates consultation existence participant membership and room initialization before generating the token.,,,,,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,,,
+6,0,0,1,5,0,6,,,
+,,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06
+Condition,Precondition,,,,,,,,
+,,,Can connect with server,O,O,O,O,O,O
+,,,Authenticated user token exists,O,O,O,O,O,O
+,,,Consultation exists,O,,O,O,O,O
+,,,Current user is caller or callee,O,O,,O,O,O
+,,,Current user is Admin,,O,O,O,O,O
+,,,Consultation room id is initialized,O,O,O,O,,O
+,,,,,,,,,
+,Action,,,,,,,,
+,,,POST video-token,O,O,O,O,O,O
+Confirm,Return,,,,,,,,
+,,,HTTP 200,O,O,,,,
+,,,HTTP 404,,,O,,,
+,,,HTTP 403,,,,O,,
+,,,HTTP 422,,,,,O,O
+,,,,,,,,,
+,Exception,,,,,,,,
+,,,,,,,,,
+,Log message,,,,,,,,
+,,,Video token generated successfully,O,O,,,,
+,,,Consultation not found.,,,O,,,
+,,,You are not allowed to access this consultation room.,,,,O,,
+,,,Consultation room is not initialized.,,,,,O,O
+Result,,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,A,A,A,A
+,,,Passed/Failed,P,P,P,P,P,P
+,,,Executed Date,04/23,04/24,04/25,04/26,04/27,04/28
+,,,Defect ID,,,,,,

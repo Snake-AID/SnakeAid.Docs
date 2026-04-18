@@ -1,42 +1,42 @@
-Function Code,FC16,Function Name,ConfirmScheduledBookingPayment,,,,,,,
-Created By,Executed By,KhiemNVD,,,,,,,,
-Lines of code,54,Lack of test cases,0,,,,,,,
-Test requirement,Member confirms a scheduled consultation PayOS payment by transaction id and the system validates transaction type payment method PayOS order code and payment link state.,,,,,,,,,
-Passed,Failed,Untested,N/A/B,,,Total Test Cases,,,,
-8,0,0,2,6,0,8,,,,
-,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06,UTCID07,UTCID08
-Condition,Precondition,,,,,,,,,
-,,Can connect with server,O,O,O,O,O,O,O,O
-,,Logged in as User,O,O,O,O,O,O,O,O
-,,Consultation payment transaction exists,O,O,,O,O,O,O,O
-,,Transaction type is ConsultationPayment,O,O,O,,O,O,O,O
-,,Transaction payment method is PayOs,O,O,O,O,,O,O,O
-,,External transaction id is empty,O,,O,O,O,O,O,O
-,,Order code exists in description,O,,O,O,O,,O,O
-,,PayOS payment link information can be retrieved,O,,O,O,O,O,,O
-,,PayOS status is PAID,O,,O,O,O,O,O,
-,,,,,,,,,,
-,Transaction state before confirm,,,,,,,,,
-,,Pending PayOS transaction,O,,O,O,O,O,O,O
-,,Already confirmed with external transaction id,,O,,,,,,
-,,,,,,,,,,
-Confirm,Return,,,,,,,,,
-,,HTTP 200,O,O,,,,,,
-,,HTTP 404,,,O,,,,,
-,,HTTP 409,,,,,,O,O,O
-,,HTTP 422,,,,O,O,O,,
-,,,,,,,,,,
-,Exception,,,,,,,,,
-,,,,,,,,,,
-,Log message,,,,,,,,,
-,,Operation completed successfully,O,O,,,,,,
-,,Consultation payment transaction was not found.,,,O,,,,,
-,,Transaction is not a consultation payment.,,,,O,,,,
-,,Transaction is not a PayOS consultation payment.,,,,,O,,,
-,,Consultation payment order code is missing.,,,,,,O,,
-,,Unable to retrieve PayOS payment information for order code current order code.,,,,,,,O,
-,,PayOS reports status status. Payment cannot be confirmed.,,,,,,,,O
-Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,A,A,A,A,A,A
-,,Passed/Failed,P,P,P,P,P,P,P,P
-,,Executed Date,04/18,04/19,04/20,04/21,04/22,04/23,04/24,04/25
-,,Defect ID,,,,,,,,
+Function Code,FC16,Function Name,ConfirmScheduledBookingPayment,,,,,,,,
+Created By,Executed By,KhiemNVD,,,,,,,,,
+Lines of code,54,Lack of test cases,0,,,,,,,,
+Test requirement,Member confirms a scheduled consultation PayOS payment by transaction id and the system validates transaction type payment method PayOS order code and payment link state.,,,,,,,,,,
+Passed,Failed,Untested,N/A/B,,,Total Test Cases,,,,,
+8,0,0,2,6,0,8,,,,,
+,,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05,UTCID06,UTCID07,UTCID08
+Condition,Precondition,,,,,,,,,,
+,,,Can connect with server,O,O,O,O,O,O,O,O
+,,,Logged in as User,O,O,O,O,O,O,O,O
+,,,Consultation payment transaction exists,O,O,,O,O,O,O,O
+,,,Transaction type is ConsultationPayment,O,O,O,,O,O,O,O
+,,,Transaction payment method is PayOs,O,O,O,O,,O,O,O
+,,,External transaction id is empty,O,,O,O,O,O,O,O
+,,,Order code exists in description,O,,O,O,O,,O,O
+,,,PayOS payment link information can be retrieved,O,,O,O,O,O,,O
+,,,PayOS status is PAID,O,,O,O,O,O,O,
+,,,,,,,,,,,
+,Transaction state before confirm,,,,,,,,,,
+,,,Pending PayOS transaction,O,,O,O,O,O,O,O
+,,,Already confirmed with external transaction id,,O,,,,,,
+,,,,,,,,,,,
+Confirm,Return,,,,,,,,,,
+,,,HTTP 200,O,O,,,,,,
+,,,HTTP 404,,,O,,,,,
+,,,HTTP 409,,,,,,O,O,O
+,,,HTTP 422,,,,O,O,O,,
+,,,,,,,,,,,
+,Exception,,,,,,,,,,
+,,,,,,,,,,,
+,Log message,,,,,,,,,,
+,,,Operation completed successfully,O,O,,,,,,
+,,,Consultation payment transaction was not found.,,,O,,,,,
+,,,Transaction is not a consultation payment.,,,,O,,,,
+,,,Transaction is not a PayOS consultation payment.,,,,,O,,,
+,,,Consultation payment order code is missing.,,,,,,O,,
+,,,Unable to retrieve PayOS payment information for order code current order code.,,,,,,,O,
+,,,PayOS reports status status. Payment cannot be confirmed.,,,,,,,,O
+Result,,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,A,A,A,A,A,A
+,,,Passed/Failed,P,P,P,P,P,P,P,P
+,,,Executed Date,04/18,04/19,04/20,04/21,04/22,04/23,04/24,04/25
+,,,Defect ID,,,,,,,,
