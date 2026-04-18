@@ -96,6 +96,24 @@ Phải có:
 - `Function Name`: luôn phải điền
 - `Executed By`: mặc định `KhiemNVD`
 
+### CSV presentation rule
+
+- Không được format lại testcase sheet sang schema mới hoàn toàn
+- Vẫn giữ cấu trúc gần với workbook Excel gốc
+- Nhưng phải giảm các ô trống dùng để giả lập merged cell
+- Mục tiêu là `compress, not redesign`
+
+### Header compression rule
+
+- Header phía trên được nén về các dòng key-value ngắn
+- Ưu tiên pattern như:
+  - `Function Code,FCxx,Function Name,Name,...`
+  - `Created By,Executed By,KhiemNVD,...`
+  - `Lines of code,xx,Lack of test cases,0,...`
+  - `Passed,Failed,Untested,N/A/B,Total Test Cases,...`
+  - dòng kế tiếp là các giá trị summary tương ứng
+- Được giữ một ít ô trống cuối dòng để dễ nhìn, nhưng không kéo giãn cực đoan như Excel merge-cell
+
 ### Matrix layout
 
 Mỗi testcase là một cột:
@@ -105,6 +123,24 @@ Mỗi testcase là một cột:
 - ...
 
 Các dòng điều kiện/expected result nằm bên trái và dùng `O` để đánh dấu testcase cover dòng đó.
+
+### Left-side layout rule
+
+- Phần body giữ bố cục ma trận cũ
+- Ba cột trái phải được hiểu theo nghĩa cố định:
+  - cột 1: `Hạng mục`
+  - cột 2: `Biến thể`
+  - cột 3: `Giá trị`
+- Không suy luận cấu trúc từ vị trí hàng
+- Chỉ xét theo vị trí cột
+- Ví dụ:
+  - `Condition | Precondition | Can connect with server`
+  - `Condition | PageNumber | 1`
+  - `Confirm | Return | HTTP 200`
+  - `Result |  | Passed/Failed`
+- Khi xuống các hàng tiếp theo, có thể để trống cột 1 hoặc cột 2 để tiếp tục cùng nhóm, nhưng ngữ nghĩa cột không đổi
+- Không thụt sâu bằng nhiều ô trống không cần thiết
+- Chỉ giữ ô trống ở mức tối thiểu để phân tầng đọc hiểu
 
 ### Expected structure
 
@@ -196,6 +232,8 @@ Trước khi hoàn thành một function/testcase sheet mới, kiểm tra:
 - [ ] tên file đúng format `Function.csv` hoặc `<number> <TestCaseName>.csv`
 - [ ] header testcase có `Function Name`
 - [ ] `Executed By` là `KhiemNVD`
+- [ ] header đã được nén, không còn merge-cell padding quá mức
+- [ ] body vẫn giữ ma trận cũ, không bị redesign
 - [ ] có cột `UTCIDxx`
 - [ ] có đủ normal / abnormal / boundary khi phù hợp
 - [ ] result section có đủ `Passed/Failed`, `Executed Date`, `Defect ID`

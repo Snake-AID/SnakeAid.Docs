@@ -32,9 +32,9 @@ Dùng file này để:
 ## Current Status
 
 - Current phase: `3.3 Consultation`
-- Current progress: `1 testcase sheet done`
-- Last completed sheet: `1 ViewExperts.csv`
-- Next recommended sheet: `2 ExpertPresence`
+- Current progress: `2 testcase sheets done`
+- Last completed sheet: `2 ExpertPresence.csv`
+- Next recommended sheet: `3 CreateScheduledBooking`
 
 ## Execution Rules
 
@@ -53,7 +53,7 @@ Dùng file này để:
 | No. | Function | Planned File | Status | Notes |
 | --- | --- | --- | --- | --- |
 | 1 | ViewExperts | `1 ViewExperts.csv` | DONE | `GET /api/experts` |
-| 2 | ExpertPresence | `2 ExpertPresence.csv` | TODO | `JoinAsMember`, `JoinAsExpert`, presence update |
+| 2 | ExpertPresence | `2 ExpertPresence.csv` | DONE | `JoinAsMember`, `JoinAsExpert`, presence update |
 
 ### 3.3.3 Sequence Diagram Create and Pay Scheduled Booking
 
@@ -125,3 +125,4 @@ Khi resume:
 
 - `2026-04-18`: Created roadmap and initialized full Consultation Unit Test Sheet plan.
 - `2026-04-18`: Confirmed completed sheet `1 ViewExperts.csv`.
+- `2026-04-18`: Completed sheet `2 ExpertPresence.csv`.
