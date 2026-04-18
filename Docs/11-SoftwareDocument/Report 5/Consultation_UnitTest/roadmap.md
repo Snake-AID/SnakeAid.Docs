@@ -32,9 +32,9 @@ Dùng file này để:
 ## Current Status
 
 - Current phase: `3.3 Consultation`
-- Current progress: `21 testcase sheets done`
-- Last completed sheet: `21 SendConsultationSignal.csv`
-- Next recommended sheet: `22 EndConsultation`
+- Current progress: `25 testcase sheets done`
+- Last completed sheet: `25 AutoCompleteEmergencyConsultation.csv`
+- Next recommended sheet: `26 CreateConsultationReview`
 
 ## Execution Rules
 
@@ -98,10 +98,10 @@ Dùng file này để:
 
 | No. | Function | Planned File | Status | Notes |
 | --- | --- | --- | --- | --- |
-| 22 | EndConsultation | `22 EndConsultation.csv` | TODO | explicit end |
-| 23 | SettleConsultationEscrow | `23 SettleConsultationEscrow.csv` | TODO | payout settlement |
-| 24 | AutoCompleteScheduledConsultation | `24 AutoCompleteScheduledConsultation.csv` | TODO | lifecycle fallback scheduled |
-| 25 | AutoCompleteEmergencyConsultation | `25 AutoCompleteEmergencyConsultation.csv` | TODO | lifecycle fallback emergency |
+| 22 | EndConsultation | `22 EndConsultation.csv` | DONE | explicit end |
+| 23 | SettleConsultationEscrow | `23 SettleConsultationEscrow.csv` | DONE | payout settlement |
+| 24 | AutoCompleteScheduledConsultation | `24 AutoCompleteScheduledConsultation.csv` | DONE | lifecycle fallback scheduled |
+| 25 | AutoCompleteEmergencyConsultation | `25 AutoCompleteEmergencyConsultation.csv` | DONE | lifecycle fallback emergency |
 
 ### 3.3.8 Sequence Diagram Create Consultation Review
 
@@ -131,3 +131,4 @@ Khi resume:
 - `2026-04-18`: Completed phase `3.3.4` with sheets `7 CreateEmergencyConsultationRequest.csv` to `12 NotifyEmergencyRequest.csv`.
 - `2026-04-18`: Completed phase `3.3.5` with sheets `13 AcceptEmergencyConsultationRequest.csv` to `16 NotifyEmergencyRequestStatusChanged.csv`.
 - `2026-04-18`: Completed phase `3.3.6` with sheets `17 GenerateConsultationVideoToken.csv` to `21 SendConsultationSignal.csv`.
+- `2026-04-18`: Completed phase `3.3.7` with sheets `22 EndConsultation.csv` to `25 AutoCompleteEmergencyConsultation.csv`.

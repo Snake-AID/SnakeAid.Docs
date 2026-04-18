@@ -95,3 +95,12 @@ Name",Class Name,Function Name,Function Code(Optional),Sheet Name,Description,Pr
 21,REQ-CONSULTATION-ROOM-021,ConsultationHub,SendConsultationSignal,FC31,SendConsultationSignal,Connected consultation participant send a volatile signal event to the consultation room,"- Connected to consultation hub group
 - consultationId is valid
 - User identity is valid"
+22,REQ-CONSULTATION-LIFECYCLE-022,Consultation,EndConsultation,FC32,EndConsultation,Authenticated consultation participant manually end a consultation and trigger settlement,"- Can connect with server
+- Authenticated user token exists
+- Consultation exists"
+23,REQ-CONSULTATION-LIFECYCLE-023,ConsultationPayment,SettleConsultationEscrow,FC33,SettleConsultationEscrow,System transfer consultation escrow to the expert once per consultation,"- Consultation exists
+- Successful consultation payment exists"
+24,REQ-CONSULTATION-LIFECYCLE-024,Booking,AutoCompleteScheduledConsultation,FC34,AutoCompleteScheduledConsultation,Background lifecycle sweep auto-complete elapsed scheduled consultations,"- Confirmed scheduled booking with consultation exists
+- Slot end time has elapsed"
+25,REQ-CONSULTATION-LIFECYCLE-025,Booking,AutoCompleteEmergencyConsultation,FC35,AutoCompleteEmergencyConsultation,Background lifecycle sweep auto-complete elapsed emergency consultations,"- Ongoing emergency consultation exists
+- Consultation age exceeds 30 minutes"

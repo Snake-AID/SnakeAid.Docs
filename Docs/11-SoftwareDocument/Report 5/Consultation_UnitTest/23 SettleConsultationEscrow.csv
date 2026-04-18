@@ -1,0 +1,30 @@
+Function Code,FC33,Function Name,SettleConsultationEscrow,,,,,,
+Created By,Executed By,KhiemNVD,,,,,,,
+Lines of code,52,Lack of test cases,0,,,,,,,
+Test requirement,Settlement transfers consultation escrow to the expert once and derives the payment reference from either scheduled booking or emergency request data.,,,,,,,,
+Passed,Failed,Untested,N/A/B,Total Test Cases,,,,,,
+5,0,0,1,4,0,5,,,,,
+,,,UTCID01,UTCID02,UTCID03,UTCID04,UTCID05
+Condition,Precondition,,,,,,,
+,,Consultation exists,O,O,O,O,O
+,,No existing expert payout transaction,O,,O,O,O
+,,Scheduled booking may exist,O,O,,O,O
+,,Emergency ping request may exist,,O,O,O,O
+,,Successful consultation payment exists,O,O,O,O,O
+,,,,,,,,
+,Action,,,,,,,
+,,SettleConsultationEscrowAsync,O,O,O,O,O
+Confirm,Return,,,,,,,
+,,Return true,O,O,,,,
+,,Return false on existing payout or missing payment reference,,,,O,O
+,,HTTP 404 translated when consultation not found,,,O,,,
+,,,,,,,,
+,Exception,,,,,,,
+,,,,,,,,
+,Log message,,,,,,,
+,,Operation completed successfully,O,O,,,,
+,,Consultation not found for settlement.,,,O,,,
+Result,,"Type(N : Normal, A : Abnormal, B : Boundary)",N,N,A,A,A
+,,Passed/Failed,P,P,P,P,P
+,,Executed Date,04/24,04/25,04/26,04/27,04/28
+,,Defect ID,,,,,
