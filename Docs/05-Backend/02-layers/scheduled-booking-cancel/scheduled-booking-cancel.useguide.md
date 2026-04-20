@@ -3,11 +3,11 @@ doc_role: planning
 module: scheduled-booking-cancel
 kind: flow
 doc_type: useguide
-status: draft
+status: current
 last_updated: 2026-04-20
 api_version: v1
 owners: [backend-team]
-verification_status: current-code-reviewed-target-not-implemented
+verification_status: implemented-and-code-verified
 ---
 
 # Scheduled Booking Cancel Useguide
@@ -25,11 +25,6 @@ verification_status: current-code-reviewed-target-not-implemented
 
 ## 2. Overview
 
-This document is intentionally split into:
-
-- current verified backend behavior
-- planned target contract for the scheduled booking cancel task
-
 Current verified backend behavior:
 
 - users can create a scheduled booking
@@ -37,21 +32,18 @@ Current verified backend behavior:
 - current payment supports both `WalletBalance` and `PayOs`
 - users can read their own scheduled bookings
 - experts can read their scheduled bookings
-- there is no active scheduled booking cancel endpoint in the current backend
-
-Planned target behavior for this task:
-
-- future scheduled bookings can be cancelled
+- users and experts can cancel future scheduled bookings
 - expert-cancel of a paid booking refunds the booking owner
 - member-cancel of a paid booking does not refund
+- cancelling a pending PayOs payment removes the local pending payment transaction and attempts to cancel the PayOs link
 
 ## 3. Authentication & Authorization
 
 ### Expert/Member Operations
 
 - JWT Bearer token is required
-- `User` can create, pay, list own bookings, and should be allowed to cancel own bookings
-- `Expert` can list assigned bookings and should be allowed to cancel assigned bookings
+- `User` can create, pay, list own bookings, and cancel own bookings
+- `Expert` can list assigned bookings and cancel assigned bookings
 
 ### Admin Operations
 
@@ -202,19 +194,14 @@ PayOs response shape note:
   - `PayOs` may still be pending and not yet escrowed
   - refund logic should only run after successful confirmation moved money into escrow
 
-### 4.4 Planned `POST /api/consultations/scheduled/{bookingId}/cancel`
-
-Status:
-
-- `Planned`
-- not implemented in the current backend as of 2026-04-18
+### 4.4 Current Verified `POST /api/consultations/scheduled/{bookingId}/cancel`
 
 Purpose:
 
 - cancel a future scheduled booking
 - apply actor-based refund policy
 
-Recommended auth:
+Auth:
 
 - JWT Bearer token is required
 - caller role can be `User` or `Expert`
@@ -222,30 +209,20 @@ Recommended auth:
   - the booking owner
   - the assigned expert
 
-Recommended request:
+Request:
 
 ```http
 POST /api/consultations/scheduled/7a7a2e73-2bd4-4c8e-bc2f-b6af81e3b1d8/cancel
 Authorization: Bearer <jwt>
-Content-Type: application/json
 ```
 
-```json
-{
-  "reason": "Expert is unavailable for the selected slot."
-}
-```
-
-Recommended business rules:
+Current verified backend behavior:
 
 - `PendingPayment`:
   - cancel booking
   - release slot
-  - no refund
-- `PayOs` pending intent but not yet confirmed:
-  - cancel booking
-  - release slot
-  - no escrow refund because money has not entered escrow yet
+  - no escrow refund
+  - if a pending `PayOs` transaction exists, backend deletes the local pending payment transaction and best-effort cancels the PayOs link
 - `Confirmed` cancelled by `Expert`:
   - cancel booking
   - release slot
@@ -255,10 +232,10 @@ Recommended business rules:
   - release slot
   - no refund
 - linked `Consultation.Status` should also become `Cancelled`
-- when provided, the reason is persisted into `ConsultationBooking.CancellationReason`
-- backend implementation direction is to store the reason as enum-backed data and render the string value outward if the field is exposed in API payloads later
+- backend stores `ConsultationBooking.CancellationReason` as an enum-backed field
+- outward responses render `CancellationReason` as string values such as `CancelledByMember` and `CancelledByExpert`
 
-Recommended success response example:
+Success response example:
 
 ```json
 {
@@ -270,6 +247,8 @@ Recommended success response example:
     "userId": "d8609b6f-a6ad-4de9-8198-0c8186b63e2f",
     "expertId": "6eb3c47c-92c9-4d83-9f34-0c0fcba89f7a",
     "price": 150000,
+    "cancelledAt": "2026-04-20T10:45:00Z",
+    "cancellationReason": "CancelledByExpert",
     "status": "Cancelled",
     "timeSlotId": "550e8400-e29b-41d4-a716-446655440000",
     "consultationId": "5f5f35ef-c5e5-4431-8ca0-060f8575461f"
@@ -277,10 +256,6 @@ Recommended success response example:
   "error": null
 }
 ```
-
-Important note for mobile:
-
-- treat this endpoint as design target only until the backend implementation lands
 
 ### 4.5 Planned Error Cases For Cancel
 
@@ -322,6 +297,8 @@ There is no admin cancellation API in scope for this task.
 | bookedAt | DateTime | Booking creation time |
 | paymentDeadline | DateTime? | Payment deadline for pending booking |
 | status | BookingStatus | Current booking state |
+| cancelledAt | DateTime? | UTC cancel timestamp when cancelled |
+| cancellationReason | string? | Actor-centric cancellation reason rendered as string |
 | problemDescription | string? | Optional problem summary |
 | timeSlotId | Guid | Slot id |
 | slotStartTime | DateTime | Slot start time |
@@ -336,12 +313,9 @@ Current verified endpoints:
 - `POST /api/consultations/scheduled`
 - `GET /api/users/me/consultations/scheduled`
 - `GET /api/experts/me/consultations/scheduled`
+- `POST /api/consultations/scheduled/{bookingId}/cancel`
 - `POST /api/consultations/scheduled/{bookingId}/payments`
 - `POST /api/consultations/payments/confirm`
-
-Planned endpoint for this task:
-
-- `POST /api/consultations/scheduled/{bookingId}/cancel`
 
 ## 8. Changelog
 
@@ -355,3 +329,9 @@ Planned endpoint for this task:
 
 - Locked the decision to reuse `ConsultationBooking.CancellationReason`
 - Locked the decision to make `CancellationReason` enum-backed while keeping outward API rendering string-based
+
+### 2026-04-20 Implementation Update
+
+- Activated `POST /api/consultations/scheduled/{bookingId}/cancel`
+- Verified expert-cancel refund and member-cancel no-refund behavior
+- Documented `cancelledAt` and `cancellationReason` in the booking response

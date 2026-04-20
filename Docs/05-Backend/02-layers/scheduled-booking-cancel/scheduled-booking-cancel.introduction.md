@@ -1,36 +1,36 @@
 ---
-doc_role: planning
+doc_role: implementation
 module: scheduled-booking-cancel
 kind: flow
 doc_type: introduction
-status: proposed
+status: current
 last_updated: 2026-04-20
 owners: [backend-team]
-verification_status: current-code-reviewed-target-not-implemented
+verification_status: implemented-and-code-verified
 ---
 # Scheduled Booking Cancel Introduction
 
 ## Goal
 
-This module plans a new cancellation flow for scheduled consultation bookings.
+This module implements the cancellation flow for scheduled consultation bookings.
 
-Target business rule:
+Active business rule:
 
 - allow a scheduled booking to be cancelled before the booked slot starts
-- if the cancellation is initiated by the `Expert`, the paid booking amount must be refunded to the booking owner
+- if the cancellation is initiated by the `Expert`, the paid booking amount is refunded to the booking owner
 - if the cancellation is initiated by the `Member`, the booking is cancelled without refund
-- unpaid bookings should simply be cancelled and the reserved slot should be released
+- unpaid bookings are cancelled and the reserved slot is released
 
 ## Resume Summary
 
 If this work is resumed later without prior chat history, the current code-verified state is:
 
-1. Scheduled booking creation already exists through `POST /api/consultations/scheduled`.
-2. Scheduled booking payment already exists through `POST /api/consultations/scheduled/{bookingId}/payments`.
-3. The current payment flow moves money into consultation escrow and marks the booking `Confirmed`.
-4. Booking auto-complete currently settles escrow to the expert after the slot ends.
-5. A generic consultation escrow refund path already exists for emergency consultation rejection.
-6. There is currently no scheduled booking cancel endpoint, no scheduled booking cancel service method, and no scheduled booking cancel refund flow.
+1. Scheduled booking creation exists through `POST /api/consultations/scheduled`.
+2. Scheduled booking payment exists through `POST /api/consultations/scheduled/{bookingId}/payments`.
+3. Scheduled booking cancel exists through `POST /api/consultations/scheduled/{bookingId}/cancel`.
+4. Paid expert-cancel refunds the member wallet through consultation escrow refund infrastructure.
+5. Paid member-cancel does not refund.
+6. Pending `PayOs` cancellation deletes the local pending payment transaction and best-effort cancels the provider link.
 
 ## Code-Verified Current State
 
@@ -62,6 +62,26 @@ Current code-verified payment behavior:
   - creates a pending payment intent first
   - escrow and `BookingStatus.Confirmed` happen only after PayOs confirmation
 
+### Booking cancellation
+
+`BookingService.CancelScheduledBookingAsync(...)` currently:
+
+- allows only the booking `User` or assigned `Expert`
+- rejects elapsed/started bookings
+- for `PendingPayment`:
+  - cancels booking
+  - releases slot to `Available`
+  - calls pending payment cleanup for local `PayOs` intent when present
+- for `Confirmed` cancelled by `Expert`:
+  - cancels booking
+  - releases slot to `Available`
+  - refunds the member wallet
+- for `Confirmed` cancelled by `Member`:
+  - cancels booking
+  - releases slot to `Available`
+  - does not refund
+- updates linked `Consultation.Status = Cancelled`
+
 ### Booking completion
 
 `BookingService.AutoCompleteElapsedScheduledConsultationsAsync(...)` currently:
@@ -72,116 +92,41 @@ Current code-verified payment behavior:
 - marks slot `Booked`
 - triggers `SettleConsultationEscrowAsync(...)`
 
-### Existing refund reference implementation
+## Cancellation Reason Direction
 
-`EmergencyConsultationService.RejectEmergencyRequestAsync(...)` currently calls:
-
-- `IConsultationPaymentService.RefundEmergencyEscrowAsync(...)`
-
-That path proves the codebase already has:
-
-- escrow refund validation
-- wallet credit restoration
-- `TransactionType.ConsultationRefund`
-
-## Main Gap
-
-The current gap is not payment infrastructure.
-
-The real gap is the lack of a scheduled-booking-specific cancellation orchestration that combines:
-
-- actor validation
-- cancellable-state validation
-- slot release
-- consultation/booking state transition
-- conditional escrow refund
-- predictable API contract for mobile
-
-## Proposed Implementation Direction
-
-The cleanest implementation direction is:
-
-1. add a scheduled booking cancel endpoint under `ConsultationScheduledController`
-2. add a cancel method to `IBookingService` and `BookingService`
-3. add a scheduled booking refund method to `IConsultationPaymentService` and `ConsultationPaymentService`
-4. reuse the existing consultation escrow/refund model instead of inventing a second money path
-5. update tests and docs in the same workstream
-
-## Proposed Business Rules
-
-The intended rule set for implementation is:
-
-- only the booking `User` or the assigned `Expert` can cancel
-- cancellation is allowed only while the slot has not started
-- `PendingPayment` booking:
-  - cancel booking
-  - release slot back to `Available`
-  - no refund because no money entered escrow
-- `Confirmed` booking cancelled by `Expert`:
-  - cancel booking
-  - release slot back to `Available`
-  - refund the full booking amount to the member wallet
-- `Confirmed` booking cancelled by `Member`:
-  - cancel booking
-  - release slot back to `Available`
-  - do not refund
-- `Completed`, `Cancelled`, `Refunded`, and elapsed/started bookings are not cancellable
-
-## Locked Decisions
-
-The following decisions are already locked for this planning set:
-
-1. Cancellation should explicitly update the linked `Consultation.Status` to `Cancelled`.
-2. The implementation will write cancellation input into the existing `ConsultationBooking.CancellationReason` field.
-3. For this wave, paid member-cancel remains represented by base `BookingStatus = Cancelled`; business context is carried by `CancellationReason`, and no extra abstraction is introduced.
-4. `ConsultationBooking.CancellationReason` will be upgraded to an enum-backed field for type safety.
-5. The enum must stay actor-centric and generic enough for future reuse, while endpoint output should continue rendering string values so the outward API contract stays stable.
-6. The persistence model should follow the existing project convention of enum-as-number, so the current string column requires migration to numeric storage.
-
-## Deferred Topics
-
-The following topics are intentionally deferred and are not treated as locked contract in this doc set:
-
-1. Whether refund descriptions need a newly standardized finance-audit taxonomy in this wave.
-
-## Locked Cancellation Reason Direction
-
-The cancellation-reason model for this module is now:
+The cancellation-reason model in the active codebase is:
 
 - domain field: `ConsultationBooking.CancellationReason`
 - domain type: nullable enum
 - persistence convention: numeric enum value
-- API output convention: enum value rendered as string
+- API behavior: typed enum in response models, serialized to string in JSON by the global API enum converter
 
-Recommended initial enum set:
+Current enum set:
 
 - `CancelledByMember = 1`
 - `CancelledByExpert = 2`
 - `CancelledByAdmin = 3`
 - `CancelledBySystem = 4`
 
-This set is intentionally:
+This enum is intentionally:
 
 - generic
 - actor-centric
 - not coupled to refund policy wording
 - not coupled to slot timing details
 
-That means refund/no-refund remains a flow outcome, not part of the enum itself.
-
 ## Migration Note
 
 Current verified codebase shape:
 
 - `ConsultationBooking.Status` is stored as numeric enum value
-- `ConsultationBooking.CancellationReason` is still stored as string
+- `ConsultationBooking.CancellationReason` is stored as numeric enum value
 
-Implementation therefore requires:
+Delivered migration behavior:
 
-1. changing `ConsultationBooking.CancellationReason` from `string?` to nullable enum
-2. adding EF migration to convert the column from string to numeric enum storage
-3. backfilling existing values if any non-null legacy text already exists
-4. updating mapping/response code to render `CancellationReason?.ToString()` where the field is exposed outward
+1. drop the old string `CancellationReason` column
+2. recreate `CancellationReason` as nullable integer enum storage
+3. do not preserve backward compatibility for legacy string values
 
 ## Delivered Artifacts
 

@@ -1,22 +1,21 @@
 ---
-doc_role: planning
+doc_role: implementation
 module: scheduled-booking-cancel
 kind: flow
 doc_type: sourcecode
-status: proposed
+status: current
 last_updated: 2026-04-20
 owners: [backend-team]
-verification_status: current-code-reviewed-target-not-implemented
+verification_status: implemented-and-code-verified
 ---
 
 # Scheduled Booking Cancel Sourcecode
 
 ## 1. Relevant Classes
 
-### Current backend surface
+### Active backend surface
 
 - `ConsultationScheduledController`
-- `ConsultationPaymentsController`
 - `BookingService`
 - `ConsultationPaymentService`
 - `ConsultationService`
@@ -25,12 +24,14 @@ verification_status: current-code-reviewed-target-not-implemented
 - `ExpertTimeSlot`
 - `Transaction`
 
-### Proposed additions
+### Implemented additions
 
 - `IBookingService.CancelScheduledBookingAsync(...)`
 - `BookingService.CancelScheduledBookingAsync(...)`
 - `IConsultationPaymentService.RefundScheduledBookingAsync(...)`
 - `ConsultationPaymentService.RefundScheduledBookingAsync(...)`
+- `IConsultationPaymentService.CancelPendingScheduledBookingPaymentAsync(...)`
+- `ConsultationPaymentService.CancelPendingScheduledBookingPaymentAsync(...)`
 
 ## 2. Code-Verified Current Surface
 
@@ -39,23 +40,26 @@ verification_status: current-code-reviewed-target-not-implemented
 - `POST /api/consultations/scheduled`
 - `GET /api/users/me/consultations/scheduled`
 - `GET /api/experts/me/consultations/scheduled`
+- `POST /api/consultations/scheduled/{bookingId}/cancel`
 - `POST /api/consultations/scheduled/{bookingId}/payments`
 - `POST /api/consultations/payments/confirm`
 
-### Booking lifecycle today
+### Booking lifecycle
 
 - create booking -> `PendingPayment`
 - pay booking -> `Confirmed`
+- cancel booking -> `Cancelled`
 - end/elapsed booking -> `Completed`
 
-### Refund lifecycle today
+### Refund lifecycle
 
 - emergency consultation rejection can call `RefundEmergencyEscrowAsync(...)`
+- scheduled expert-cancel can call `RefundScheduledBookingAsync(...)`
 - refund uses existing escrow balance checks
 - refund credits the receiver wallet
 - refund creates `TransactionType.ConsultationRefund`
 
-## 3. Current Gap In Class Responsibilities
+## 3. Implemented Class Responsibilities
 
 ### `ConsultationScheduledController`
 
@@ -64,22 +68,16 @@ Current role:
 - create booking
 - list bookings for member
 - list bookings for expert
-
-Current gap:
-
-- no cancel endpoint
+- cancel scheduled booking
 
 ### `BookingService`
 
 Current role:
 
 - create scheduled booking
+- cancel scheduled booking
 - read member/expert booking lists
 - auto-complete elapsed scheduled bookings
-
-Current gap:
-
-- no scheduled booking cancellation orchestration
 
 ### `ConsultationPaymentService`
 
@@ -88,24 +86,21 @@ Current role:
 - move scheduled booking payment into escrow
 - create scheduled booking PayOs intent
 - confirm scheduled booking PayOs payment
-- confirm PayOS payment
+- refund scheduled booking escrow
+- cancel pending scheduled booking payment intent
 - settle consultation escrow
 - refund emergency escrow
 
-Current gap:
+## 4. Final Design Notes
 
-- no scheduled booking refund by booking id
-
-## 4. Proposed Design Notes
-
-Recommended orchestration split:
+Implemented orchestration split:
 
 - `BookingService.CancelScheduledBookingAsync(...)`
   - validate actor and booking state
   - decide whether refund is needed
-  - persist reason into `ConsultationBooking.CancellationReason`
+  - persist actor-centric reason into `ConsultationBooking.CancellationReason`
   - update booking, consultation, and slot
-  - call payment service only for the refund branch
+  - call payment service for refund or pending-payment cleanup when needed
 
 - `ConsultationPaymentService.RefundScheduledBookingAsync(...)`
   - locate the successful consultation payment by `bookingId`
@@ -113,16 +108,21 @@ Recommended orchestration split:
   - reuse escrow refund helper to restore wallet balance
   - create refund transaction using the existing refund infrastructure
 
+- `ConsultationPaymentService.CancelPendingScheduledBookingPaymentAsync(...)`
+  - find pending scheduled booking payment transaction
+  - delete the local pending transaction
+  - best-effort cancel the PayOs payment link when the pending payment uses `PayOs`
+
 Cancellation-reason direction:
 
-- `ConsultationBooking.CancellationReason` should become a nullable enum-backed field
-- enum should be actor-centric and generic:
+- `ConsultationBooking.CancellationReason` is a nullable enum-backed field
+- enum values:
   - `CancelledByMember = 1`
   - `CancelledByExpert = 2`
   - `CancelledByAdmin = 3`
   - `CancelledBySystem = 4`
-- persistence should follow project convention and store enum as numeric value
-- outward payloads that expose the field should render `CancellationReason?.ToString()`
+- persistence follows project convention and stores the enum as numeric value
+- response models expose typed enum values; API JSON serialization renders enum names as strings
 
 ## 5. Class Diagram
 
@@ -132,21 +132,21 @@ classDiagram
         +CreateBooking(request)
         +GetMyBookings()
         +GetExpertBookings()
-        +CancelScheduledBooking(bookingId, request)
+        +CancelScheduledBooking(bookingId)
     }
 
     class IBookingService {
         +CreateScheduledBookingAsync(userId, request)
         +GetMyBookingsAsync(userId)
         +GetExpertBookingsAsync(expertId)
-        +CancelScheduledBookingAsync(actorId, bookingId, request)
+        +CancelScheduledBookingAsync(actorId, bookingId)
     }
 
     class BookingService {
         +CreateScheduledBookingAsync(userId, request)
         +GetMyBookingsAsync(userId)
         +GetExpertBookingsAsync(expertId)
-        +CancelScheduledBookingAsync(actorId, bookingId, request)
+        +CancelScheduledBookingAsync(actorId, bookingId)
         +AutoCompleteElapsedScheduledConsultationsAsync()
     }
 
@@ -155,6 +155,7 @@ classDiagram
         +ConfirmConsultationPaymentAsync(transactionId)
         +ConfirmConsultationPaymentByOrderCodeAsync(orderCode)
         +RefundScheduledBookingAsync(bookingId, receiverId, reason)
+        +CancelPendingScheduledBookingPaymentAsync(bookingId, reason)
         +SettleConsultationEscrowAsync(consultationId)
     }
 
@@ -162,108 +163,12 @@ classDiagram
         +PayScheduledBookingAsync(userId, bookingId, request)
         +CreateScheduledBookingPayOsIntentAsync(userId, bookingId, request, cancellationToken)
         +RefundScheduledBookingAsync(bookingId, receiverId, reason)
+        +CancelPendingScheduledBookingPaymentAsync(bookingId, reason, cancellationToken)
         -RefundFromEscrowAsync(receiverId, referenceId, amount, description, cancellationToken)
     }
-
-    class ConsultationBooking {
-        +Id
-        +UserId
-        +ExpertId
-        +Status
-        +CancellationReason
-        +Price
-        +TimeSlotId
-        +ConsultationId
-    }
-
-    class ConsultationBookingCancellationReason {
-        <<enum>>
-        CancelledByMember
-        CancelledByExpert
-        CancelledByAdmin
-        CancelledBySystem
-    }
-
-    class Consultation {
-        +Id
-        +Status
-        +Type
-        +StartTime
-        +EndTime
-    }
-
-    class ExpertTimeSlot {
-        +Id
-        +ExpertId
-        +Status
-        +StartTime
-        +EndTime
-    }
-
-    class Transaction {
-        +ReferenceId
-        +TransactionType
-        +Amount
-        +Description
-    }
-
-    ConsultationScheduledController --> IBookingService
-    BookingService --> IConsultationPaymentService
-    BookingService --> ConsultationBooking
-    ConsultationBooking --> ConsultationBookingCancellationReason
-    BookingService --> Consultation
-    BookingService --> ExpertTimeSlot
-    ConsultationPaymentService --> Transaction
 ```
 
-## 6. Sequence Diagram: Current Paid Booking Path
-
-```mermaid
-sequenceDiagram
-    participant Member as Member App
-    participant ScheduleApi as ConsultationScheduledController
-    participant Booking as BookingService
-    participant PaymentApi as ConsultationPaymentsController
-    participant Payment as ConsultationPaymentService
-    participant DB as Database
-
-    Member->>ScheduleApi: POST /api/consultations/scheduled
-    ScheduleApi->>Booking: CreateScheduledBookingAsync(...)
-    Booking->>DB: create booking PendingPayment
-    Booking->>DB: set slot Reserved
-    ScheduleApi-->>Member: booking response
-
-    Member->>PaymentApi: POST /api/consultations/scheduled/{bookingId}/payments
-    PaymentApi->>Payment: PayScheduledBookingAsync(...)
-    Payment->>DB: create ConsultationPayment transaction
-    Payment->>DB: move money into escrow
-    Payment->>DB: set booking Confirmed
-    PaymentApi-->>Member: payment response
-```
-
-## 7. Sequence Diagram: Current PayOs Booking Path
-
-```mermaid
-sequenceDiagram
-    participant Member as Member App
-    participant PaymentApi as ConsultationPaymentsController
-    participant Payment as ConsultationPaymentService
-    participant PayOs as PayOs
-    participant DB as Database
-
-    Member->>PaymentApi: POST /api/consultations/scheduled/{bookingId}/payments
-    PaymentApi->>Payment: PayScheduledBookingAsync(..., PaymentMethod=PayOs)
-    Payment->>DB: create pending payment transaction/intent
-    Payment->>PayOs: create payment link
-    PaymentApi-->>Member: payment link / pending intent response
-
-    Member->>PayOs: complete payment
-    PayOs-->>Payment: confirm/webhook/manual confirm path
-    Payment->>DB: move money into escrow
-    Payment->>DB: set booking Confirmed
-```
-
-## 8. Sequence Diagram: Proposed Expert Cancel With Refund
+## 6. Sequence Diagram: Expert Cancel With Refund
 
 ```mermaid
 sequenceDiagram
@@ -274,11 +179,11 @@ sequenceDiagram
     participant DB as Database
 
     Expert->>Api: POST /api/consultations/scheduled/{bookingId}/cancel
-    Api->>Booking: CancelScheduledBookingAsync(actorId, bookingId, request)
+    Api->>Booking: CancelScheduledBookingAsync(actorId, bookingId)
     Booking->>DB: load booking + consultation + slot
     Booking->>Booking: validate actor is assigned expert
     Booking->>Booking: validate booking is future and cancellable
-    Booking->>DB: set CancellationReason
+    Booking->>DB: set CancellationReason = CancelledByExpert
     Booking->>Payment: RefundScheduledBookingAsync(bookingId, memberId, reason)
     Payment->>DB: validate payment + refund absence + escrow balance
     Payment->>DB: credit member wallet
@@ -289,7 +194,7 @@ sequenceDiagram
     Api-->>Expert: updated booking response
 ```
 
-## 9. Sequence Diagram: Proposed Member Cancel Without Refund
+## 7. Sequence Diagram: Member Cancel Without Refund
 
 ```mermaid
 sequenceDiagram
@@ -299,11 +204,11 @@ sequenceDiagram
     participant DB as Database
 
     Member->>Api: POST /api/consultations/scheduled/{bookingId}/cancel
-    Api->>Booking: CancelScheduledBookingAsync(actorId, bookingId, request)
+    Api->>Booking: CancelScheduledBookingAsync(actorId, bookingId)
     Booking->>DB: load booking + consultation + slot
     Booking->>Booking: validate actor is booking owner
     Booking->>Booking: validate booking is future and cancellable
-    Booking->>DB: set CancellationReason
+    Booking->>DB: set CancellationReason = CancelledByMember
     Booking->>DB: no refund branch
     Booking->>DB: set booking Cancelled
     Booking->>DB: set consultation Cancelled
@@ -311,12 +216,12 @@ sequenceDiagram
     Api-->>Member: updated booking response
 ```
 
-## 10. Test Focus
+## 8. Test Focus
 
 - `PendingPayment` cancellation releases slot and updates state
+- `PendingPayment` PayOs cancellation deletes the local pending payment transaction
 - expert-cancel of paid booking creates one refund transaction
 - member-cancel of paid booking creates no refund transaction
 - paid booking cancelled after PayOs confirmation follows the same refund rule as wallet payment
-- pending PayOs intent cancellation is handled explicitly and does not produce accidental escrow refund
 - duplicate cancel or duplicate refund is blocked
 - started or completed booking cancellation is rejected

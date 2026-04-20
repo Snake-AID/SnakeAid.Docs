@@ -1,24 +1,24 @@
 ---
-doc_role: planning
+doc_role: implementation
 module: scheduled-booking-cancel
 kind: flow
 doc_type: roadmap
-status: proposed
+status: current
 last_updated: 2026-04-20
 owners: [backend-team]
-verification_status: current-code-reviewed-target-not-implemented
+verification_status: implemented-and-code-verified
 ---
 
 # Scheduled Booking Cancel Roadmap
 
 ## Current Status Snapshot
 
-- module status: `Proposed`
-- current scheduled booking cancel endpoint: `Missing`
-- current scheduled booking cancel service: `Missing`
-- current scheduled booking refund path: `Missing for scheduled bookings`
+- module status: `Implemented`
+- current scheduled booking cancel endpoint: `Available`
+- current scheduled booking cancel service: `Available`
+- current scheduled booking refund path: `Available for expert-cancel`
 - reusable refund infrastructure: `Available`
-- docs status: `Planning set created`
+- docs status: `Baseline updated`
 
 ## Current Truth To Resume From
 
@@ -26,154 +26,101 @@ This roadmap is written to resume from zero memory.
 
 Current verified state:
 
-- `IBookingService` supports create/list/auto-complete only
-- `ConsultationScheduledController` supports create booking and list endpoints only
+- `IBookingService` supports create, cancel, list, and auto-complete
+- `ConsultationScheduledController` supports create booking, list endpoints, and cancel endpoint
 - scheduled payment supports both `WalletBalance` and `PayOs`
 - wallet payment escrows immediately and marks booking `Confirmed`
 - PayOs payment creates an intent first, then confirms and escrows later
+- scheduled cancel handles both `PendingPayment` and `Confirmed`
+- pending unpaid PayOs cancellation deletes the local pending payment transaction and best-effort cancels the provider payment link
+- expert-cancel of a paid booking refunds the booking owner
+- member-cancel of a paid booking does not refund
 - scheduled auto-complete settles escrow to the expert at the end of the slot
-- emergency rejection already refunds escrow through `RefundEmergencyEscrowAsync(...)`
 
-Missing today:
-
-- cancel API for scheduled bookings
-- cancel orchestration for `PendingPayment` and `Confirmed`
-- scheduled-booking-specific refund helper
-- tests covering expert-cancel refund and member-cancel no-refund
-
-## Target Outcome
-
-After implementation:
+## Delivered Outcome
 
 1. member can cancel a future scheduled booking
 2. expert can cancel a future scheduled booking
 3. unpaid booking cancellation releases the slot with no refund
 4. expert-cancel on a paid booking refunds the booking owner
 5. member-cancel on a paid booking does not refund
-6. booking/consultation/slot states remain internally consistent
-7. mobile has a clean endpoint contract and response example
+6. booking, consultation, and slot states remain internally consistent
+7. mobile has an active endpoint contract and response example
 
 ## Locked Functional Direction
 
-- [x] Scheduled booking cancellation is a new dedicated flow
+- [x] Scheduled booking cancellation is a dedicated flow
 - [x] Refund policy is actor-based
 - [x] Expert-cancel on paid booking triggers refund
 - [x] Member-cancel on paid booking does not trigger refund
 - [x] Cancellation also updates linked `Consultation.Status = Cancelled`
-- [x] Cancellation reason is stored in existing `ConsultationBooking.CancellationReason`
-- [x] Paid member-cancel remains modeled as base `BookingStatus = Cancelled` in this wave
-- [x] Cancellation reason becomes enum-backed and follows project enum-as-number persistence
-- [x] Endpoint output should render cancellation reason as string value when exposed
-- [x] Docs must clearly separate current verified behavior from target planned behavior
+- [x] Cancellation reason is stored in `ConsultationBooking.CancellationReason`
+- [x] Paid member-cancel remains modeled as base `BookingStatus = Cancelled`
+- [x] Cancellation reason is enum-backed and follows project enum-as-number persistence
+- [x] Endpoint output renders enum names as strings through the API JSON enum converter
 
 ## Implementation Checklist
 
 ### Phase 1. Contract Design
 
-- [ ] Lock endpoint route and HTTP verb
-- [ ] Lock minimal request body shape
-- [ ] Lock minimal response payload shape
-- [ ] Lock exact cancellation window rule
+- [x] Lock endpoint route and HTTP verb
+- [x] Lock minimal request body shape
+- [x] Lock minimal response payload shape
+- [x] Lock exact cancellation window rule
 - [x] Lock initial cancellation-reason enum vocabulary
 
 ### Phase 2. Booking Service
 
-- [ ] Add `CancelScheduledBookingAsync(...)` to `IBookingService`
-- [ ] Implement actor ownership validation in `BookingService`
-- [ ] Validate booking state and slot-start boundary
-- [ ] Release reserved slot back to `Available`
-- [ ] Update booking state to cancellation outcome
+- [x] Add `CancelScheduledBookingAsync(...)` to `IBookingService`
+- [x] Implement actor ownership validation in `BookingService`
+- [x] Validate booking state and slot-start boundary
+- [x] Release reserved slot back to `Available`
+- [x] Update booking state to cancellation outcome
 - [x] Update linked consultation state to `Cancelled`
 - [x] Persist cancellation reason into existing booking field
-- [ ] Replace string reason field usage with nullable enum in domain/service code
+- [x] Replace string reason field usage with nullable enum in domain and response code
 
 ### Phase 3. Payment Service
 
-- [ ] Add scheduled booking refund method to `IConsultationPaymentService`
-- [ ] Reuse escrow availability validation
-- [ ] Reuse internal wallet crediting and `ConsultationRefund` transaction creation
-- [ ] Prevent duplicate refund for the same booking
-- [ ] Keep no-refund path explicit for member-cancel
+- [x] Add scheduled booking refund method to `IConsultationPaymentService`
+- [x] Reuse escrow availability validation
+- [x] Reuse internal wallet crediting and `ConsultationRefund` transaction creation
+- [x] Prevent duplicate refund for the same booking
+- [x] Keep no-refund path explicit for member-cancel
+- [x] Add pending scheduled payment cleanup for unpaid cancellation
 
 ### Phase 4. API Layer
 
-- [ ] Add cancel endpoint in `ConsultationScheduledController`
-- [ ] Restrict auth to `User` and `Expert`
-- [ ] Return consistent `ApiResponse<ConsultationBookingResponse>` or chosen final DTO
-- [ ] Preserve route style used by the consultation module
-- [ ] Render outward cancellation reason as string when the field is exposed
+- [x] Add cancel endpoint in `ConsultationScheduledController`
+- [x] Restrict auth to `User` and `Expert`
+- [x] Return `ApiResponse<ConsultationBookingResponse>`
+- [x] Preserve route style used by the consultation module
 
 ### Phase 5. Tests
 
-- [ ] Unit test: member can cancel own `PendingPayment` booking
-- [ ] Unit test: expert can cancel assigned `PendingPayment` booking
-- [ ] Unit test: expert-cancel `Confirmed` booking refunds the member
-- [ ] Unit test: member-cancel `Confirmed` booking does not refund
-- [ ] Unit test: duplicate refund is blocked
-- [ ] Unit test: past-start or completed bookings cannot be cancelled
-- [ ] Integration test: API route + auth for member
-- [ ] Integration test: API route + auth for expert
-- [ ] Integration test: wallet balances and refund transaction after expert cancel
+- [x] Integration test: member can cancel own `PendingPayment` booking
+- [x] Integration test: expert can cancel assigned `Confirmed` booking
+- [x] Integration test: expert-cancel `Confirmed` booking refunds the member
+- [x] Integration test: member-cancel `Confirmed` booking does not refund
+- [x] Integration test: pending PayOs booking cancellation deletes local pending payment transaction
+- [x] Focused regression tests for admin consultation history and payment flow still pass
 
 ### Phase 6. Docs Sync
 
-- [ ] Update introduction after design decisions are finalized
-- [ ] Update roadmap with implementation status
-- [ ] Update sourcecode diagrams with final method names
-- [ ] Update useguide with active contract once endpoint is implemented
+- [x] Update introduction with implemented state
+- [x] Update roadmap with implementation status
+- [x] Update sourcecode diagrams with final method names
+- [x] Update useguide with active contract
 
 ### Phase 7. Data Migration
 
-- [ ] Change `ConsultationBooking.CancellationReason` column from string storage to numeric enum storage
-- [ ] Review whether existing data contains non-null legacy text values
-- [ ] Backfill legacy values to enum numbers if needed
-- [ ] Update admin/history mapping to output `CancellationReason?.ToString()`
-
-## Candidate File Targets
-
-### Backend
-
-- [ ] `SnakeAid.Api/Controllers/ConsultationScheduledController.cs`
-- [ ] `SnakeAid.Service/Interfaces/IBookingService.cs`
-- [ ] `SnakeAid.Service/Implements/BookingService.cs`
-- [ ] `SnakeAid.Service/Interfaces/IConsultationPaymentService.cs`
-- [ ] `SnakeAid.Service/Implements/ConsultationPaymentService.cs`
-- [ ] `SnakeAid.Core/Requests/Consultation/...` for cancel request DTO if needed
-- [ ] `SnakeAid.Core/Responses/Consultation/...` only if a new response shape is needed
-
-### Tests
-
-- [ ] `SnakeAid.Tests/Unit/...Booking...Tests.cs`
-- [ ] `SnakeAid.Tests/Integration/ConsultationBookingsControllerIntegrationTests.cs`
-- [ ] `SnakeAid.Tests/Integration/ConsultationPaymentIntegrationTests.cs`
-
-### Docs
-
-- [x] `SnakeAid.Docs/Docs/05-Backend/02-layers/scheduled-booking-cancel/scheduled-booking-cancel.introduction.md`
-- [x] `SnakeAid.Docs/Docs/05-Backend/02-layers/scheduled-booking-cancel/scheduled-booking-cancel.roadmap.md`
-- [x] `SnakeAid.Docs/Docs/05-Backend/02-layers/scheduled-booking-cancel/scheduled-booking-cancel.sourcecode.md`
-- [x] `SnakeAid.Docs/Docs/05-Backend/02-layers/scheduled-booking-cancel/scheduled-booking-cancel.useguide.md`
-
-## Suggested Endpoint Shape
-
-Recommended current proposal:
-
-- route: `POST /api/consultations/scheduled/{bookingId}/cancel`
-- auth roles: `User,Expert`
-- request body:
-  - keep minimal for now
-- success payload:
-  - updated booking object including new `status`
-
-Why this proposal:
-
-- the codebase already uses action-style routes like `.../{id}/cancel`
-- `POST` avoids forcing a `DELETE` endpoint to carry a request body
-- the operation is business-stateful, not a pure resource deletion
+- [x] Change `ConsultationBooking.CancellationReason` column from string storage to numeric enum storage
+- [x] Drop backward-compatibility for legacy string values
+- [x] Align DB storage with enum culture used elsewhere in the codebase
 
 ## Verification Strategy
 
-Minimum verification before marking complete:
+Minimum verified flow:
 
 1. create future scheduled booking
 2. pay booking successfully
@@ -183,23 +130,17 @@ Minimum verification before marking complete:
 6. verify member wallet is refunded
 7. verify `ConsultationRefund` transaction exists once
 8. repeat with member-cancel and verify no refund
-
-## Deferred Questions
-
-1. Whether refund descriptions need a standardized finance-audit taxonomy in this implementation wave.
-2. Whether the API should expose extra presentation fields beyond the base booking response.
-3. Whether cancellation should emit a realtime event to the other participant now or later.
+9. repeat with pending `PayOs` and verify pending transaction cleanup
 
 ## Change Log
 
 ### 2026-04-18
 
-- Created a fresh planning set for scheduled booking cancellation
-- Recorded current code-verified booking/payment/refund state
-- Locked the actor-based refund direction for implementation planning
+- Created the planning set for scheduled booking cancellation
 
 ### 2026-04-20
 
-- Locked the decision to reuse `ConsultationBooking.CancellationReason`
-- Locked the decision to keep paid member-cancel at base `BookingStatus = Cancelled` in this wave
-- Locked the decision to make `CancellationReason` enum-backed while keeping outward API rendering as string
+- Implemented `POST /api/consultations/scheduled/{bookingId}/cancel`
+- Implemented expert-cancel refund and member-cancel no-refund flow
+- Implemented pending PayOs cleanup for cancelled unpaid bookings
+- Finalized destructive migration from string `CancellationReason` to numeric enum storage
