@@ -3,10 +3,10 @@ doc_role: planning
 module: consultation-expert-absent
 kind: flow
 doc_type: roadmap
-status: proposed
+status: implemented
 last_updated: 2026-04-21
 owners: [backend-team]
-verification_status: mixed
+verification_status: code-verified
 ---
 
 # Consultation Expert Absent Roadmap
@@ -14,12 +14,13 @@ verification_status: mixed
 ## Current Status Snapshot
 
 - module status: `Planned`
+- module status: `Implemented`
 - code status:
-  - no absent-report command endpoint exists yet
-  - no consultation report field exists yet
-  - admin consultation responses do not yet expose a report field
+  - absent-report command endpoint exists
+  - consultation report fields exist
+  - admin consultation responses expose `CustomerReport`
 - docs status:
-  - this doc set is initialized for resume-safe implementation tracking
+  - this doc set is aligned to implemented behavior
 
 ## Target Outcome
 
@@ -84,16 +85,6 @@ Likely code targets:
 - `SnakeAid.Service/Implements/ConsultationService.cs`
 - `SnakeAid.Tests/Integration/AdminConsultationHistoryIntegrationTests.cs`
 
-## Recommended Implementation Order
-
-1. Add persistence fields + migration
-2. Add request DTO and service method
-3. Add member endpoint
-4. Extend member response DTO and mapping
-5. Extend admin response DTO and mapping
-6. Add tests
-7. Update docs with verified contracts
-
 ## Implementation Checklist
 
 ### Requirement Lock
@@ -109,53 +100,53 @@ Likely code targets:
 
 ### Persistence
 
-- [ ] Add nullable `CustomerReport` field to `Consultation`
-- [ ] Add nullable `CustomerReportSubmittedAt` field to `Consultation`
-- [ ] Configure max length and column mapping if needed
-- [ ] Create EF migration
-- [ ] Verify migration naming and backward compatibility
+- [x] Add nullable `CustomerReport` field to `Consultation`
+- [x] Add nullable `CustomerReportSubmittedAt` field to `Consultation`
+- [x] Configure max length and column mapping
+- [x] Create EF migration
+- [x] Verify migration naming and backward compatibility
 
 ### Service Surface
 
-- [ ] Add a member absent-report command to `IConsultationService`
-- [ ] Load consultation with ownership validation
-- [ ] Validate actor is the caller/member of that consultation
-- [ ] Validate current time is after `StartTime`
-- [ ] Reject duplicate reporting when `CustomerReport` already exists
-- [ ] Persist `CustomerReport`
-- [ ] Persist `CustomerReportSubmittedAt` if included
-- [ ] Persist status change to `ExpertAbsent`
+- [x] Add a member absent-report command to `IConsultationService`
+- [x] Load consultation with ownership validation
+- [x] Validate actor is the caller/member of that consultation
+- [x] Validate current time is after `StartTime`
+- [x] Reject duplicate reporting when `CustomerReport` already exists
+- [x] Persist `CustomerReport`
+- [x] Persist `CustomerReportSubmittedAt`
+- [x] Persist status change to `ExpertAbsent`
 
 ### API Layer
 
-- [ ] Add request DTO
-- [ ] Add member endpoint in `ConsultationsController`
-- [ ] Add auth requirement `User`
-- [ ] Return `ApiResponseBuilder.BuildSuccessResponse(...)` with updated consultation object
+- [x] Add request DTO
+- [x] Add member endpoint in `ConsultationsController`
+- [x] Add auth requirement `User`
+- [x] Return `ApiResponseBuilder.BuildSuccessResponse(...)` with updated consultation object
 
 ### Read Models
 
-- [ ] Extend `MyConsultationResponse` with `CustomerReport`
-- [ ] Populate member report field in `GetMyConsultationsAsync(...)`
-- [ ] Extend `AdminConsultationResponse` with `CustomerReport`
-- [ ] Populate admin report field in list and detail flows
+- [x] Extend `MyConsultationResponse` with `CustomerReport`
+- [x] Populate member report field in `GetMyConsultationsAsync(...)`
+- [x] Extend `AdminConsultationResponse` with `CustomerReport`
+- [x] Populate admin report field in list and detail flows
 
 ### Tests
 
-- [ ] Controller auth/envelope tests for new member endpoint
-- [ ] Service test for successful report submission
-- [ ] Service test for unauthorized actor
-- [ ] Service test for invalid consultation state
-- [ ] Service test for duplicate report behavior
-- [ ] Admin integration test for list payload including report field
-- [ ] Admin integration test for detail payload including report field
-- [ ] Member integration test for history payload including report field
+- [x] Controller auth/envelope tests for new member endpoint
+- [x] Service test for successful report submission
+- [x] Service test for unauthorized actor
+- [x] Service test for invalid consultation state
+- [x] Service test for duplicate report behavior
+- [x] Admin integration test for list payload including report field
+- [x] Admin integration test for detail payload including report field
+- [x] Member integration test for history payload including report field
 
 ### Docs
 
-- [ ] Update `useguide` only after the endpoint and fields are code-verified
-- [ ] Update `sourcecode` diagrams after implementation is stable
-- [ ] Record all decisions in `hallucination` as closed or resolved
+- [x] Update `useguide` after the endpoint and fields are code-verified
+- [x] Update `sourcecode` diagrams after implementation is stable
+- [x] Record all decisions in `hallucination` as closed or resolved
 
 ## Recommended File Targets
 
@@ -211,3 +202,4 @@ If implementation resumes later, start with these facts:
 - Proposed `Consultation` as the canonical storage location for the report field
 - Recorded confirmed decisions OD1 to OD6
 - Closed OD7 with v1 metadata = `CustomerReport` + `CustomerReportSubmittedAt`
+- Implemented backend code, migration, and focused test coverage

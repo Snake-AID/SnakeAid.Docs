@@ -3,10 +3,10 @@ doc_role: planning
 module: consultation-expert-absent
 kind: layer
 doc_type: introduction
-status: proposed
+status: implemented
 last_updated: 2026-04-21
 owners: [backend-team]
-verification_status: mixed
+verification_status: code-verified
 ---
 
 # Consultation Expert Absent Introduction
@@ -49,12 +49,14 @@ The current codebase already has these relevant consultation surfaces:
 Code-verified observations from the backend:
 
 - `Consultation.Status` already contains `ExpertAbsent`
-- `Consultation` currently does `not` contain any report text field
+- `Consultation` now contains:
+  - `CustomerReport`
+  - `CustomerReportSubmittedAt`
 - `ConsultationBooking` currently does `not` contain any absent-report field
-- `MyConsultationResponse` currently does `not` expose a report field
-- `AdminConsultationResponse` currently does `not` expose a report field
-- `IConsultationService` currently does `not` expose a member report API
-- `ConsultationsController` currently does `not` provide an absent-report endpoint
+- `MyConsultationResponse` now exposes `CustomerReport`
+- `AdminConsultationResponse` now exposes `CustomerReport`
+- `IConsultationService` now exposes a member report command
+- `ConsultationsController` now provides a member report endpoint
 
 ## Recommended Implementation Direction
 
@@ -104,9 +106,9 @@ Still out of current scope:
 - `CustomerReportSubmittedBy`
 - admin resolution fields
 
-## Proposed Backend Shape
+## Implemented Backend Shape
 
-Recommended implementation target:
+Implemented shape:
 
 - persistence:
   - add `CustomerReport` on `Consultation`
@@ -124,8 +126,10 @@ Recommended implementation target:
   - integration tests for member report flow
   - integration tests for admin response mapping
   - controller tests for new endpoint authorization and envelope shape
-- docs:
-  - keep this module resumable without prior chat context
+
+Implemented endpoint:
+
+- `POST /api/consultations/{consultationId}/expert-absent-report`
 
 ## Suggested Scope Boundary
 

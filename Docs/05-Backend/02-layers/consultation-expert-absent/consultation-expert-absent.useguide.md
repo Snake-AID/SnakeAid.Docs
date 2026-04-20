@@ -3,11 +3,11 @@ doc_role: planning
 module: consultation-expert-absent
 kind: flow
 doc_type: usageguide
-status: partial
+status: active
 last_updated: 2026-04-21
 api_version: v1
 owners: [backend-team]
-verification_status: code-verified-current-state
+verification_status: code-verified
 ---
 
 # Consultation Expert Absent API
@@ -27,21 +27,12 @@ verification_status: code-verified-current-state
 
 This document records the `current verified backend contract` relevant to the expert-absent reporting use case.
 
-Important status note:
+Current status:
 
-- the absent-report feature is `not implemented yet`
-- there is currently `no active API` for a member to report an absent expert in consultation flow
-- the field `Customer Report` is `not present yet` in the verified consultation DTOs
-
-This guide therefore does two things only:
-
-- documents the currently active consultation APIs that mobile/admin can rely on now
-- clearly states the missing contract pieces that still need implementation
-
-Confirmed target baseline after implementation:
-
-- `Customer Report` will be the exposed report field
-- `CustomerReportSubmittedAt` will exist in v1 persistence
+- the absent-report feature is `implemented`
+- there is an active member API to report absent expert for scheduled consultation
+- `Customer Report` is present in member and admin consultation DTOs
+- `CustomerReportSubmittedAt` exists in persistence for v1 but is not exposed in the current verified DTOs
 
 ## 3. Authentication & Authorization
 
@@ -64,7 +55,7 @@ Current member consultation behavior:
 
 - member can list their consultations
 - member can see consultation status and room information
-- member cannot yet submit an expert-absent report through a consultation API
+- member can submit an expert-absent report through a consultation API after `StartTime`
 
 ### 4.2 Member Endpoint
 
@@ -143,18 +134,91 @@ Verified example response shape:
 
 Field notes:
 
-- there is currently `no member/customer report field` in this response
+- `customerReport` is present when expert absence has been reported for that consultation
 - `problemDescription` is booking problem content, not an expert-absent report
-- `status = ExpertAbsent` is supported by enum filtering, but there is currently no verified consultation API that sets it from a member report action
+- successful absent-report submission sets consultation `status` to `ExpertAbsent`
 
-### 4.3 Missing Member Contract For This Module
+#### 4.2.2 `POST /api/consultations/{consultationId}/expert-absent-report`
 
-The following contract is `not active yet` and should not be consumed by mobile yet:
+Purpose:
 
-- member report endpoint for absent expert
-- `Customer Report` field in `MyConsultationResponse`
+- member reports that the expert did not join the scheduled consultation
 
 ## 5. Admin Business + Admin APIs
+
+Status:
+
+- `Active`
+- Code-verified
+
+Auth:
+
+- JWT Bearer token is required
+- `User` role is required
+
+Route params:
+
+| Field          | Type | Required | Notes                    |
+| -------------- | ---- | -------- | ------------------------ |
+| consultationId | guid | Yes      | Existing `Consultation.Id` |
+
+Request body:
+
+| Field          | Type   | Required | Notes                    |
+| -------------- | ------ | -------- | ------------------------ |
+| customerReport | string | Yes      | `1..2000` chars after trim |
+
+Business rules:
+
+- only the member/caller of the consultation can report
+- only `Scheduled` consultations are supported
+- current time must be after `StartTime`
+- duplicate report is rejected
+- successful report sets `Consultation.Status = ExpertAbsent`
+
+Example request:
+
+```http
+POST /api/consultations/8ce96758-71b5-4310-bc35-d83525b2c54f/expert-absent-report
+Authorization: Bearer <member-jwt>
+Content-Type: application/json
+
+{
+  "customerReport": "Expert did not join the room."
+}
+```
+
+Success response:
+
+- `ApiResponse<MyConsultationResponse>`
+
+Example response:
+
+```json
+{
+  "status_code": 200,
+  "message": "Operation successful",
+  "is_success": true,
+  "data": {
+    "consultationId": "8ce96758-71b5-4310-bc35-d83525b2c54f",
+    "type": "Scheduled",
+    "status": "ExpertAbsent",
+    "expertId": "ba833fc7-6856-48b2-b032-9c5d985729d1",
+    "expertName": "Pham Thi D",
+    "roomId": "consultation-8ce96758-71b5-4310-bc35-d83525b2c54f",
+    "startTime": "2026-04-09T14:00:00Z",
+    "endTime": null,
+    "price": 150000,
+    "problemDescription": "Snakebite on finger",
+    "customerReport": "Expert did not join the room.",
+    "bookingId": "ef54ec06-bb65-47d1-a7c5-db86aad6a49b",
+    "slotStartTime": "2026-04-09T14:00:00Z",
+    "slotEndTime": "2026-04-09T14:30:00Z",
+    "emergencyRequestId": null
+  },
+  "error": null
+}
+```
 
 ### 5.1 Business Scope
 
@@ -162,7 +226,7 @@ Current admin consultation behavior:
 
 - admin can list consultations across the system
 - admin can open one consultation detail
-- admin cannot yet see a dedicated member/customer absent-report field because the backend does not expose one yet
+- admin can see `Customer Report` in consultation responses when it exists
 
 ### 5.2 Admin Endpoint
 
@@ -204,7 +268,7 @@ Success response:
 
 Verified field notes:
 
-- there is currently `no customer/member report field`
+- `customerReport` is included when expert absence has been reported
 - `problemDescription` is the scheduled-booking problem description
 - scheduled and emergency consultations share one admin response DTO
 
@@ -243,16 +307,9 @@ Success response:
 
 Verified field notes:
 
-- there is currently `no customer/member report field`
+- `customerReport` is included when expert absence has been reported
 - admin can see status, room, booking data, and emergency-request data
-- admin cannot yet inspect absent-report text because it is not exposed by current code
-
-### 5.3 Missing Admin Contract For This Module
-
-The following contract is `not active yet` and should not be consumed by admin UI yet:
-
-- `Customer Report` field on admin consultation list response
-- `Customer Report` field on admin consultation detail response
+- admin can inspect absent-report text from current code
 
 ## 6. Shared Data Models
 
@@ -270,14 +327,11 @@ Current verified shape includes:
 - `endTime`
 - `price`
 - `problemDescription`
+- `customerReport`
 - `bookingId`
 - `slotStartTime`
 - `slotEndTime`
 - `emergencyRequestId`
-
-Current verified shape does not include:
-
-- `customerReport`
 
 ### 6.2 Current `AdminConsultationResponse`
 
@@ -289,32 +343,24 @@ Current verified shape includes:
 - room and timing data
 - price
 - `problemDescription`
+- `customerReport`
 - booking metadata
 - emergency-request metadata
 - slot timing
-
-Current verified shape does not include:
-
-- `customerReport`
 
 ## 7. Verified Endpoint List
 
 Active endpoints relevant to this module:
 
 - `GET /api/users/me/consultations`
+- `POST /api/consultations/{consultationId}/expert-absent-report`
 - `GET /api/experts/me/consultations`
 - `GET /api/admin/consultations`
 - `GET /api/admin/consultations/{consultationId}`
-
-Not implemented yet:
-
-- member absent-report endpoint for consultation
-- member/customer report field in consultation DTOs
 
 ## 8. Changelog
 
 ### 2026-04-21
 
 - Initialized use guide for the consultation expert-absent module
-- Recorded the current verified backend state
-- Explicitly marked absent-report contracts as not implemented yet
+- Updated the guide to the implemented absent-report contract

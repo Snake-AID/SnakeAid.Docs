@@ -3,10 +3,10 @@ doc_role: planning
 module: consultation-expert-absent
 kind: engineering
 doc_type: sourcecode
-status: proposed
+status: implemented
 last_updated: 2026-04-21
 owners: [backend-team]
-verification_status: mixed
+verification_status: code-verified
 ---
 
 # Consultation Expert Absent Sourcecode Notes
@@ -161,7 +161,7 @@ classDiagram
 
 ## Planned Sequence Diagram
 
-This sequence is proposed, not yet implemented.
+This sequence is implemented.
 
 ```mermaid
 sequenceDiagram
