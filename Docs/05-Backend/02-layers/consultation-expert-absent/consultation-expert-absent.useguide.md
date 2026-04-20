@@ -38,6 +38,11 @@ This guide therefore does two things only:
 - documents the currently active consultation APIs that mobile/admin can rely on now
 - clearly states the missing contract pieces that still need implementation
 
+Confirmed target baseline after implementation:
+
+- `Customer Report` will be the exposed report field
+- `CustomerReportSubmittedAt` will exist in v1 persistence
+
 ## 3. Authentication & Authorization
 
 ### Expert/Member Operations

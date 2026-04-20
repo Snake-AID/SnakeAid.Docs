@@ -3,7 +3,7 @@ doc_role: planning
 module: consultation-expert-absent
 kind: decision-log
 doc_type: hallucination
-status: partially-resolved
+status: closed
 last_updated: 2026-04-21
 owners: [backend-team]
 verification_status: mixed
@@ -11,7 +11,7 @@ verification_status: mixed
 
 # Consultation Expert Absent Hallucination Log
 
-This file captures items that required product confirmation and the remaining design area that still needs caution.
+This file captures the confirmed product decisions for the module.
 
 ## Confirmed Decision 1: Canonical Field Name
 
@@ -109,125 +109,19 @@ Status:
 
 - [x] Confirmed
 
-## Decision 7: Audit Metadata Needs Deeper Design
+## Confirmed Decision 7: Audit Metadata
 
-Current product direction:
+Confirmed by product direction:
 
-- metadata may be needed
-- but there is concern about adding too many new fields into `Consultation`
-
-This part should not be over-simplified.
-
-### What metadata is actually useful
-
-Potential metadata candidates:
-
-- `CustomerReportSubmittedAt`
-- `CustomerReportSubmittedBy`
-- `ExpertAbsentResolvedAt`
-- `ExpertAbsentResolvedBy`
-- `ExpertAbsentResolutionNote`
-
-### Complexity analysis
-
-If these are all added directly into `Consultation`, the entity starts carrying:
-
-- consultation lifecycle state
-- room lifecycle timestamps
-- absent-report business note
-- audit timestamps
-- future admin resolution fields
-
-That is acceptable only if the absent-report workflow remains small and consultation-owned.
-
-The downside is clear:
-
-- `Consultation` becomes broader and harder to reason about
-- each new field increases mapper/test/doc surface
-- future resolution workflows may introduce asymmetric state that does not belong to the main consultation aggregate root cleanly
-
-### Practical design options
-
-Option A: Minimal metadata on `Consultation`
-
-- add only:
+- v1 metadata should include:
   - `CustomerReport`
   - `CustomerReportSubmittedAt`
-- do not add resolver fields yet
 
-Pros:
+Implementation direction:
 
-- low migration cost
-- enough to know what was reported and when
-- keeps current implementation simple
-
-Cons:
-
-- admin resolution history is still missing
-
-Option B: Medium metadata on `Consultation`
-
-- add:
-  - `CustomerReport`
-  - `CustomerReportSubmittedAt`
-  - `CustomerReportSubmittedBy`
-
-Pros:
-
-- better audit clarity
-- still moderate complexity
-
-Cons:
-
-- `SubmittedBy` is partly redundant today because caller/member already exists as `CallerId`
-- extra field may not add much value unless future delegated reporting is allowed
-
-Option C: Full workflow fields on `Consultation`
-
-- add report fields and admin resolution fields directly on `Consultation`
-
-Pros:
-
-- single-table read for the whole story
-
-Cons:
-
-- highest coupling
-- grows the entity fastest
-- least flexible if resolution later becomes multi-step or comment-based
-
-Option D: Keep `Consultation` minimal, move future audit trail to a separate entity later
-
-- v1 adds only:
-  - `CustomerReport`
-  - maybe `CustomerReportSubmittedAt`
-- v2 introduces a separate entity if workflow expands
-
-Pros:
-
-- best balance for the current scope
-- avoids overfitting the entity too early
-- preserves upgrade path for richer admin handling later
-
-Cons:
-
-- if v2 arrives quickly, a second migration will still be needed
-
-### Recommended path
-
-Recommended baseline:
-
-- confirm `CustomerReport` on `Consultation`
-- add `CustomerReportSubmittedAt` in v1
-- do not add `SubmittedBy` now unless reporting may be done by someone other than `CallerId`
-- do not add admin resolution fields into `Consultation` yet
-
-Why this is the best trade-off:
-
-- `CustomerReport` alone is too weak for auditability
-- `SubmittedAt` gives strong business value with low entity bloat
-- `SubmittedBy` is redundant in the current model because the reporting actor is constrained to the member/caller
-- resolution fields belong to a future admin workflow, which is explicitly out of current scope
+- store both fields on `Consultation`
+- do not add `CustomerReportSubmittedBy` in v1
+- do not add admin resolution fields in this module
 
 ### Baseline direction after this review
 
@@ -239,12 +133,4 @@ Closed decisions:
 - [x] OD4 allow after `StartTime`
 - [x] OD5 reject duplicates
 - [x] OD6 return updated consultation object
-
-Partially open design area:
-
-- [ ] OD7 final v1 metadata shape
-
-Current recommended v1 metadata shape:
-
-- `CustomerReport`
-- `CustomerReportSubmittedAt`
+- [x] OD7 use `CustomerReport` and `CustomerReportSubmittedAt`

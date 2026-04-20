@@ -92,11 +92,17 @@ Why this direction fits the current code:
 
 The only meaningful design area still open is audit metadata.
 
-Current recommendation:
+That is now closed for v1.
 
-- keep v1 lean
-- add `CustomerReportSubmittedAt`
-- do not add admin resolution fields into `Consultation` yet
+Confirmed v1 metadata:
+
+- `CustomerReport`
+- `CustomerReportSubmittedAt`
+
+Still out of current scope:
+
+- `CustomerReportSubmittedBy`
+- admin resolution fields
 
 ## Proposed Backend Shape
 
@@ -104,7 +110,7 @@ Recommended implementation target:
 
 - persistence:
   - add `CustomerReport` on `Consultation`
-  - consider adding `CustomerReportSubmittedAt` in v1
+  - add `CustomerReportSubmittedAt` in v1
 - member command:
   - add one request DTO for reporting absent expert
   - add one service method to validate and persist the report

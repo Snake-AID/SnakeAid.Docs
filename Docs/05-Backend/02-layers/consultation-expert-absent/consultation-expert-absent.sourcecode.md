@@ -104,7 +104,7 @@ classDiagram
 Recommended direction:
 
 - add `CustomerReport` to `Consultation`
-- optionally add `CustomerReportSubmittedAt` in v1
+- add `CustomerReportSubmittedAt` in v1
 - project that field into member and admin DTOs
 - add one request DTO for the member command endpoint
 

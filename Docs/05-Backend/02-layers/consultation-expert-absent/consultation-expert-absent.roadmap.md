@@ -86,14 +86,13 @@ Likely code targets:
 
 ## Recommended Implementation Order
 
-1. Finalize the remaining metadata scope
-2. Add persistence field + migration
-3. Add request DTO and service method
-4. Add member endpoint
-5. Extend member response DTO and mapping
-6. Extend admin response DTO and mapping
-7. Add tests
-8. Update docs with verified contracts
+1. Add persistence fields + migration
+2. Add request DTO and service method
+3. Add member endpoint
+4. Extend member response DTO and mapping
+5. Extend admin response DTO and mapping
+6. Add tests
+7. Update docs with verified contracts
 
 ## Implementation Checklist
 
@@ -105,13 +104,13 @@ Likely code targets:
 - [x] Allow reporting any time after `StartTime`
 - [x] Reject repeated report submissions
 - [x] Return updated consultation object from the command endpoint
-- [ ] Finalize whether v1 includes `CustomerReportSubmittedAt`
-- [ ] Decide whether any additional metadata is required in v1
+- [x] Include `CustomerReportSubmittedAt` in v1
+- [x] Exclude additional metadata from v1 baseline
 
 ### Persistence
 
 - [ ] Add nullable `CustomerReport` field to `Consultation`
-- [ ] Decide whether to add `CustomerReportSubmittedAt`
+- [ ] Add nullable `CustomerReportSubmittedAt` field to `Consultation`
 - [ ] Configure max length and column mapping if needed
 - [ ] Create EF migration
 - [ ] Verify migration naming and backward compatibility
@@ -186,9 +185,8 @@ Likely code targets:
 
 ## Risks
 
-1. Audit metadata is not finalized yet, especially whether `CustomerReportSubmittedAt` should be included in v1.
-2. Allowing reporting any time after `StartTime` is broad and may require later safeguards if very old consultations should be blocked.
-3. The current consultation history implementation merges scheduled and emergency paths separately, so the new field must be populated consistently in both list/detail branches.
+1. Allowing reporting any time after `StartTime` is broad and may require later safeguards if very old consultations should be blocked.
+2. The current consultation history implementation merges scheduled and emergency paths separately, so the new field must be populated consistently in both list/detail branches.
 
 ## Resume Notes
 
@@ -212,4 +210,4 @@ If implementation resumes later, start with these facts:
 - Verified the current backend does not yet implement absent-report persistence or API surface
 - Proposed `Consultation` as the canonical storage location for the report field
 - Recorded confirmed decisions OD1 to OD6
-- Left OD7 partially open with recommendation to keep metadata minimal in v1
+- Closed OD7 with v1 metadata = `CustomerReport` + `CustomerReportSubmittedAt`
