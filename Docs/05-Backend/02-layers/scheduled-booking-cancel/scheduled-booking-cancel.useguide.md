@@ -35,6 +35,7 @@ Current verified backend behavior:
 - users and experts can cancel future scheduled bookings
 - expert-cancel of a paid booking refunds the booking owner
 - member-cancel of a paid booking does not refund
+- member-cancel of a paid confirmed booking settles escrow as part of cancellation
 - cancelling a pending PayOs payment removes the local pending payment transaction and attempts to cancel the PayOs link
 
 ## 3. Authentication & Authorization
@@ -231,6 +232,7 @@ Current verified backend behavior:
   - cancel booking
   - release slot
   - no refund
+  - confirmed escrow is settled during cancellation instead of remaining stranded
 - linked `Consultation.Status` should also become `Cancelled`
 - backend stores `ConsultationBooking.CancellationReason` as an enum-backed field
 - outward responses render `CancellationReason` as string values such as `CancelledByMember` and `CancelledByExpert`
@@ -266,6 +268,7 @@ Expected failure conditions:
 - booking already cancelled or completed
 - slot has already started
 - refund already exists for the same booking
+- pending payment already has a confirmed external payment transaction
 
 ## 5. Admin Business + Admin APIs
 
@@ -335,3 +338,5 @@ Current verified endpoints:
 - Activated `POST /api/consultations/scheduled/{bookingId}/cancel`
 - Verified expert-cancel refund and member-cancel no-refund behavior
 - Documented `cancelledAt` and `cancellationReason` in the booking response
+- Clarified that member-cancel of a confirmed booking settles escrow without refund
+- Clarified that cancelling a pending payment now fails explicitly when the external payment was already confirmed

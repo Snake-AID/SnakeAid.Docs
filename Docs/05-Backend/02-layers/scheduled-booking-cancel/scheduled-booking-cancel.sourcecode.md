@@ -97,19 +97,21 @@ Implemented orchestration split:
 
 - `BookingService.CancelScheduledBookingAsync(...)`
   - validate actor and booking state
-  - decide whether refund is needed
+  - decide whether pending-payment cleanup, refund, or escrow settlement is needed
   - persist actor-centric reason into `ConsultationBooking.CancellationReason`
   - update booking, consultation, and slot
-  - call payment service for refund or pending-payment cleanup when needed
+  - call payment service for refund, escrow settlement, or pending-payment cleanup when needed
 
 - `ConsultationPaymentService.RefundScheduledBookingAsync(...)`
   - locate the successful consultation payment by `bookingId`
+  - validate the refund recipient matches the booking owner
   - block duplicate refund
   - reuse escrow refund helper to restore wallet balance
   - create refund transaction using the existing refund infrastructure
 
 - `ConsultationPaymentService.CancelPendingScheduledBookingPaymentAsync(...)`
   - find pending scheduled booking payment transaction
+  - fail explicitly if the external payment has already been confirmed
   - delete the local pending transaction
   - best-effort cancel the PayOs payment link when the pending payment uses `PayOs`
 
@@ -201,6 +203,7 @@ sequenceDiagram
     participant Member as Member App
     participant Api as ConsultationScheduledController
     participant Booking as BookingService
+    participant Payment as ConsultationPaymentService
     participant DB as Database
 
     Member->>Api: POST /api/consultations/scheduled/{bookingId}/cancel
@@ -209,7 +212,8 @@ sequenceDiagram
     Booking->>Booking: validate actor is booking owner
     Booking->>Booking: validate booking is future and cancellable
     Booking->>DB: set CancellationReason = CancelledByMember
-    Booking->>DB: no refund branch
+    Booking->>Payment: SettleConsultationEscrowAsync(consultationId)
+    Payment->>DB: release escrow to expert/platform split
     Booking->>DB: set booking Cancelled
     Booking->>DB: set consultation Cancelled
     Booking->>DB: set slot Available
@@ -220,8 +224,10 @@ sequenceDiagram
 
 - `PendingPayment` cancellation releases slot and updates state
 - `PendingPayment` PayOs cancellation deletes the local pending payment transaction
+- `PendingPayment` cancellation fails explicitly if the payment already has an external confirmation id
 - expert-cancel of paid booking creates one refund transaction
 - member-cancel of paid booking creates no refund transaction
+- member-cancel of paid booking settles escrow instead of leaving confirmed funds stranded
 - paid booking cancelled after PayOs confirmation follows the same refund rule as wallet payment
 - duplicate cancel or duplicate refund is blocked
 - started or completed booking cancellation is rejected

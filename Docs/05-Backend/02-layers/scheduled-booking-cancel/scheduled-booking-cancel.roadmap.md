@@ -34,7 +34,7 @@ Current verified state:
 - scheduled cancel handles both `PendingPayment` and `Confirmed`
 - pending unpaid PayOs cancellation deletes the local pending payment transaction and best-effort cancels the provider payment link
 - expert-cancel of a paid booking refunds the booking owner
-- member-cancel of a paid booking does not refund
+- member-cancel of a paid booking does not refund and settles escrow
 - scheduled auto-complete settles escrow to the expert at the end of the slot
 
 ## Delivered Outcome
@@ -43,7 +43,7 @@ Current verified state:
 2. expert can cancel a future scheduled booking
 3. unpaid booking cancellation releases the slot with no refund
 4. expert-cancel on a paid booking refunds the booking owner
-5. member-cancel on a paid booking does not refund
+5. member-cancel on a paid booking does not refund and settles escrow
 6. booking, consultation, and slot states remain internally consistent
 7. mobile has an active endpoint contract and response example
 
@@ -87,7 +87,9 @@ Current verified state:
 - [x] Reuse internal wallet crediting and `ConsultationRefund` transaction creation
 - [x] Prevent duplicate refund for the same booking
 - [x] Keep no-refund path explicit for member-cancel
+- [x] Settle confirmed escrow on member-cancel so funds do not remain stranded
 - [x] Add pending scheduled payment cleanup for unpaid cancellation
+- [x] Fail explicitly when a "pending" payment already has an external confirmation id
 
 ### Phase 4. API Layer
 
@@ -130,7 +132,9 @@ Minimum verified flow:
 6. verify member wallet is refunded
 7. verify `ConsultationRefund` transaction exists once
 8. repeat with member-cancel and verify no refund
-9. repeat with pending `PayOs` and verify pending transaction cleanup
+9. verify member-cancel settles escrow
+10. repeat with pending `PayOs` and verify pending transaction cleanup
+11. verify pending-payment cancellation fails clearly if the payment was already externally confirmed
 
 ## Change Log
 
@@ -142,5 +146,7 @@ Minimum verified flow:
 
 - Implemented `POST /api/consultations/scheduled/{bookingId}/cancel`
 - Implemented expert-cancel refund and member-cancel no-refund flow
+- Hardened member-cancel of confirmed bookings to settle escrow instead of leaving funds stranded
 - Implemented pending PayOs cleanup for cancelled unpaid bookings
+- Hardened pending-payment cancellation to fail explicitly when the payment already has an external confirmation id
 - Finalized destructive migration from string `CancellationReason` to numeric enum storage

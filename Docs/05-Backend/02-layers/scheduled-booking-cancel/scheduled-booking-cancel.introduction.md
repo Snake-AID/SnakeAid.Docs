@@ -18,7 +18,7 @@ Active business rule:
 
 - allow a scheduled booking to be cancelled before the booked slot starts
 - if the cancellation is initiated by the `Expert`, the paid booking amount is refunded to the booking owner
-- if the cancellation is initiated by the `Member`, the booking is cancelled without refund
+- if the cancellation is initiated by the `Member`, the booking is cancelled without refund and the existing escrow is settled instead of left pending
 - unpaid bookings are cancelled and the reserved slot is released
 
 ## Resume Summary
@@ -29,8 +29,9 @@ If this work is resumed later without prior chat history, the current code-verif
 2. Scheduled booking payment exists through `POST /api/consultations/scheduled/{bookingId}/payments`.
 3. Scheduled booking cancel exists through `POST /api/consultations/scheduled/{bookingId}/cancel`.
 4. Paid expert-cancel refunds the member wallet through consultation escrow refund infrastructure.
-5. Paid member-cancel does not refund.
+5. Paid member-cancel does not refund and settles the confirmed consultation escrow.
 6. Pending `PayOs` cancellation deletes the local pending payment transaction and best-effort cancels the provider link.
+7. Attempting to cancel a "pending" payment that already has a confirmed external transaction now fails explicitly instead of being treated like a missing payment.
 
 ## Code-Verified Current State
 
@@ -80,6 +81,7 @@ Current code-verified payment behavior:
   - cancels booking
   - releases slot to `Available`
   - does not refund
+  - settles escrow instead of leaving confirmed payment funds stranded
 - updates linked `Consultation.Status = Cancelled`
 
 ### Booking completion
