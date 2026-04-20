@@ -4,7 +4,7 @@ module: scheduled-booking-cancel
 kind: flow
 doc_type: introduction
 status: proposed
-last_updated: 2026-04-18
+last_updated: 2026-04-20
 owners: [backend-team]
 verification_status: current-code-reviewed-target-not-implemented
 ---
@@ -127,12 +127,61 @@ The intended rule set for implementation is:
   - do not refund
 - `Completed`, `Cancelled`, `Refunded`, and elapsed/started bookings are not cancellable
 
-## Open Design Decisions To Lock During Implementation
+## Locked Decisions
 
-1. Whether `Confirmed` + member-cancel should end at `Cancelled` or `Refunded = false` using an extra flag.
-2. Whether cancellation should also explicitly update the linked `Consultation.Status` to `Cancelled`.
-3. Whether a cancellation reason should be stored now or deferred.
-4. Whether expert-triggered refund should create a dedicated description string for finance audit.
+The following decisions are already locked for this planning set:
+
+1. Cancellation should explicitly update the linked `Consultation.Status` to `Cancelled`.
+2. The implementation will write cancellation input into the existing `ConsultationBooking.CancellationReason` field.
+3. For this wave, paid member-cancel remains represented by base `BookingStatus = Cancelled`; business context is carried by `CancellationReason`, and no extra abstraction is introduced.
+4. `ConsultationBooking.CancellationReason` will be upgraded to an enum-backed field for type safety.
+5. The enum must stay actor-centric and generic enough for future reuse, while endpoint output should continue rendering string values so the outward API contract stays stable.
+6. The persistence model should follow the existing project convention of enum-as-number, so the current string column requires migration to numeric storage.
+
+## Deferred Topics
+
+The following topics are intentionally deferred and are not treated as locked contract in this doc set:
+
+1. Whether refund descriptions need a newly standardized finance-audit taxonomy in this wave.
+
+## Locked Cancellation Reason Direction
+
+The cancellation-reason model for this module is now:
+
+- domain field: `ConsultationBooking.CancellationReason`
+- domain type: nullable enum
+- persistence convention: numeric enum value
+- API output convention: enum value rendered as string
+
+Recommended initial enum set:
+
+- `CancelledByMember = 1`
+- `CancelledByExpert = 2`
+- `CancelledByAdmin = 3`
+- `CancelledBySystem = 4`
+
+This set is intentionally:
+
+- generic
+- actor-centric
+- not coupled to refund policy wording
+- not coupled to slot timing details
+
+That means refund/no-refund remains a flow outcome, not part of the enum itself.
+
+## Migration Note
+
+Current verified codebase shape:
+
+- `ConsultationBooking.Status` is stored as numeric enum value
+- `ConsultationBooking.CancellationReason` is still stored as string
+
+Implementation therefore requires:
+
+1. changing `ConsultationBooking.CancellationReason` from `string?` to nullable enum
+2. adding EF migration to convert the column from string to numeric enum storage
+3. backfilling existing values if any non-null legacy text already exists
+4. updating mapping/response code to render `CancellationReason?.ToString()` where the field is exposed outward
 
 ## Delivered Artifacts
 

@@ -4,7 +4,7 @@ module: scheduled-booking-cancel
 kind: flow
 doc_type: useguide
 status: draft
-last_updated: 2026-04-18
+last_updated: 2026-04-20
 api_version: v1
 owners: [backend-team]
 verification_status: current-code-reviewed-target-not-implemented
@@ -254,6 +254,9 @@ Recommended business rules:
   - cancel booking
   - release slot
   - no refund
+- linked `Consultation.Status` should also become `Cancelled`
+- when provided, the reason is persisted into `ConsultationBooking.CancellationReason`
+- backend implementation direction is to store the reason as enum-backed data and render the string value outward if the field is exposed in API payloads later
 
 Recommended success response example:
 
@@ -269,9 +272,7 @@ Recommended success response example:
     "price": 150000,
     "status": "Cancelled",
     "timeSlotId": "550e8400-e29b-41d4-a716-446655440000",
-    "consultationId": "5f5f35ef-c5e5-4431-8ca0-060f8575461f",
-    "refundApplied": true,
-    "cancelledByRole": "Expert"
+    "consultationId": "5f5f35ef-c5e5-4431-8ca0-060f8575461f"
   },
   "error": null
 }
@@ -328,12 +329,6 @@ There is no admin cancellation API in scope for this task.
 | consultationId | Guid? | Linked consultation id |
 | roomId | string? | Consultation room id |
 
-### Planned `CancelScheduledBookingRequest`
-
-| Field | Type | Description |
-|------|------|-------------|
-| reason | string? | Optional cancellation reason for audit and future UI use |
-
 ## 7. Verified Endpoint List
 
 Current verified endpoints:
@@ -355,3 +350,8 @@ Planned endpoint for this task:
 - Created a planning useguide for scheduled booking cancellation
 - Documented current verified scheduled booking APIs
 - Added the proposed cancel endpoint contract with explicit planned status
+
+### 2026-04-20
+
+- Locked the decision to reuse `ConsultationBooking.CancellationReason`
+- Locked the decision to make `CancellationReason` enum-backed while keeping outward API rendering string-based

@@ -4,7 +4,7 @@ module: scheduled-booking-cancel
 kind: flow
 doc_type: roadmap
 status: proposed
-last_updated: 2026-04-18
+last_updated: 2026-04-20
 owners: [backend-team]
 verification_status: current-code-reviewed-target-not-implemented
 ---
@@ -59,6 +59,11 @@ After implementation:
 - [x] Refund policy is actor-based
 - [x] Expert-cancel on paid booking triggers refund
 - [x] Member-cancel on paid booking does not trigger refund
+- [x] Cancellation also updates linked `Consultation.Status = Cancelled`
+- [x] Cancellation reason is stored in existing `ConsultationBooking.CancellationReason`
+- [x] Paid member-cancel remains modeled as base `BookingStatus = Cancelled` in this wave
+- [x] Cancellation reason becomes enum-backed and follows project enum-as-number persistence
+- [x] Endpoint output should render cancellation reason as string value when exposed
 - [x] Docs must clearly separate current verified behavior from target planned behavior
 
 ## Implementation Checklist
@@ -66,10 +71,10 @@ After implementation:
 ### Phase 1. Contract Design
 
 - [ ] Lock endpoint route and HTTP verb
-- [ ] Lock request body shape
-- [ ] Lock response payload shape
-- [ ] Lock final status mapping for cancelled paid bookings
+- [ ] Lock minimal request body shape
+- [ ] Lock minimal response payload shape
 - [ ] Lock exact cancellation window rule
+- [x] Lock initial cancellation-reason enum vocabulary
 
 ### Phase 2. Booking Service
 
@@ -78,7 +83,9 @@ After implementation:
 - [ ] Validate booking state and slot-start boundary
 - [ ] Release reserved slot back to `Available`
 - [ ] Update booking state to cancellation outcome
-- [ ] Update linked consultation state if needed
+- [x] Update linked consultation state to `Cancelled`
+- [x] Persist cancellation reason into existing booking field
+- [ ] Replace string reason field usage with nullable enum in domain/service code
 
 ### Phase 3. Payment Service
 
@@ -94,6 +101,7 @@ After implementation:
 - [ ] Restrict auth to `User` and `Expert`
 - [ ] Return consistent `ApiResponse<ConsultationBookingResponse>` or chosen final DTO
 - [ ] Preserve route style used by the consultation module
+- [ ] Render outward cancellation reason as string when the field is exposed
 
 ### Phase 5. Tests
 
@@ -113,6 +121,13 @@ After implementation:
 - [ ] Update roadmap with implementation status
 - [ ] Update sourcecode diagrams with final method names
 - [ ] Update useguide with active contract once endpoint is implemented
+
+### Phase 7. Data Migration
+
+- [ ] Change `ConsultationBooking.CancellationReason` column from string storage to numeric enum storage
+- [ ] Review whether existing data contains non-null legacy text values
+- [ ] Backfill legacy values to enum numbers if needed
+- [ ] Update admin/history mapping to output `CancellationReason?.ToString()`
 
 ## Candidate File Targets
 
@@ -146,10 +161,9 @@ Recommended current proposal:
 - route: `POST /api/consultations/scheduled/{bookingId}/cancel`
 - auth roles: `User,Expert`
 - request body:
-  - optional `reason`
+  - keep minimal for now
 - success payload:
   - updated booking object including new `status`
-  - explicit refund summary fields if the team wants mobile to display the outcome directly
 
 Why this proposal:
 
@@ -170,12 +184,11 @@ Minimum verification before marking complete:
 7. verify `ConsultationRefund` transaction exists once
 8. repeat with member-cancel and verify no refund
 
-## Open Questions
+## Deferred Questions
 
-1. Should cancelled paid bookings end at `Cancelled` or `Refunded`?
-2. Should the API expose `cancelledByRole` for mobile clarity?
-3. Should cancellation emit a realtime event to the other participant now or later?
-4. Should `Member` cancellation after payment deduct a platform fee, or strictly no refund and no extra ledger entry?
+1. Whether refund descriptions need a standardized finance-audit taxonomy in this implementation wave.
+2. Whether the API should expose extra presentation fields beyond the base booking response.
+3. Whether cancellation should emit a realtime event to the other participant now or later.
 
 ## Change Log
 
@@ -184,3 +197,9 @@ Minimum verification before marking complete:
 - Created a fresh planning set for scheduled booking cancellation
 - Recorded current code-verified booking/payment/refund state
 - Locked the actor-based refund direction for implementation planning
+
+### 2026-04-20
+
+- Locked the decision to reuse `ConsultationBooking.CancellationReason`
+- Locked the decision to keep paid member-cancel at base `BookingStatus = Cancelled` in this wave
+- Locked the decision to make `CancellationReason` enum-backed while keeping outward API rendering as string

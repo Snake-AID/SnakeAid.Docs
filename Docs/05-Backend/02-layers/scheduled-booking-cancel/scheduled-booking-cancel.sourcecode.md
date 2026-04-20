@@ -4,7 +4,7 @@ module: scheduled-booking-cancel
 kind: flow
 doc_type: sourcecode
 status: proposed
-last_updated: 2026-04-18
+last_updated: 2026-04-20
 owners: [backend-team]
 verification_status: current-code-reviewed-target-not-implemented
 ---
@@ -27,7 +27,6 @@ verification_status: current-code-reviewed-target-not-implemented
 
 ### Proposed additions
 
-- `CancelScheduledBookingRequest`
 - `IBookingService.CancelScheduledBookingAsync(...)`
 - `BookingService.CancelScheduledBookingAsync(...)`
 - `IConsultationPaymentService.RefundScheduledBookingAsync(...)`
@@ -104,6 +103,7 @@ Recommended orchestration split:
 - `BookingService.CancelScheduledBookingAsync(...)`
   - validate actor and booking state
   - decide whether refund is needed
+  - persist reason into `ConsultationBooking.CancellationReason`
   - update booking, consultation, and slot
   - call payment service only for the refund branch
 
@@ -111,7 +111,18 @@ Recommended orchestration split:
   - locate the successful consultation payment by `bookingId`
   - block duplicate refund
   - reuse escrow refund helper to restore wallet balance
-  - create refund transaction with clear description
+  - create refund transaction using the existing refund infrastructure
+
+Cancellation-reason direction:
+
+- `ConsultationBooking.CancellationReason` should become a nullable enum-backed field
+- enum should be actor-centric and generic:
+  - `CancelledByMember = 1`
+  - `CancelledByExpert = 2`
+  - `CancelledByAdmin = 3`
+  - `CancelledBySystem = 4`
+- persistence should follow project convention and store enum as numeric value
+- outward payloads that expose the field should render `CancellationReason?.ToString()`
 
 ## 5. Class Diagram
 
@@ -159,9 +170,18 @@ classDiagram
         +UserId
         +ExpertId
         +Status
+        +CancellationReason
         +Price
         +TimeSlotId
         +ConsultationId
+    }
+
+    class ConsultationBookingCancellationReason {
+        <<enum>>
+        CancelledByMember
+        CancelledByExpert
+        CancelledByAdmin
+        CancelledBySystem
     }
 
     class Consultation {
@@ -190,6 +210,7 @@ classDiagram
     ConsultationScheduledController --> IBookingService
     BookingService --> IConsultationPaymentService
     BookingService --> ConsultationBooking
+    ConsultationBooking --> ConsultationBookingCancellationReason
     BookingService --> Consultation
     BookingService --> ExpertTimeSlot
     ConsultationPaymentService --> Transaction
@@ -257,11 +278,12 @@ sequenceDiagram
     Booking->>DB: load booking + consultation + slot
     Booking->>Booking: validate actor is assigned expert
     Booking->>Booking: validate booking is future and cancellable
+    Booking->>DB: set CancellationReason
     Booking->>Payment: RefundScheduledBookingAsync(bookingId, memberId, reason)
     Payment->>DB: validate payment + refund absence + escrow balance
     Payment->>DB: credit member wallet
     Payment->>DB: insert ConsultationRefund transaction
-    Booking->>DB: set booking Cancelled or Refunded
+    Booking->>DB: set booking Cancelled
     Booking->>DB: set consultation Cancelled
     Booking->>DB: set slot Available
     Api-->>Expert: updated booking response
@@ -281,6 +303,7 @@ sequenceDiagram
     Booking->>DB: load booking + consultation + slot
     Booking->>Booking: validate actor is booking owner
     Booking->>Booking: validate booking is future and cancellable
+    Booking->>DB: set CancellationReason
     Booking->>DB: no refund branch
     Booking->>DB: set booking Cancelled
     Booking->>DB: set consultation Cancelled
