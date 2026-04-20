@@ -32,7 +32,7 @@ Current status:
 - the absent-report feature is `implemented`
 - there is an active member API to report absent expert for scheduled consultation
 - `Customer Report` is present in member and admin consultation DTOs
-- `CustomerReportSubmittedAt` exists in persistence for v1 but is not exposed in the current verified DTOs
+- `CustomerReportSubmittedAt` is present in member and admin consultation DTOs
 
 ## 3. Authentication & Authorization
 
@@ -208,13 +208,14 @@ Example response:
     "roomId": "consultation-8ce96758-71b5-4310-bc35-d83525b2c54f",
     "startTime": "2026-04-09T14:00:00Z",
     "endTime": null,
-    "price": 150000,
-    "problemDescription": "Snakebite on finger",
-    "customerReport": "Expert did not join the room.",
-    "bookingId": "ef54ec06-bb65-47d1-a7c5-db86aad6a49b",
-    "slotStartTime": "2026-04-09T14:00:00Z",
-    "slotEndTime": "2026-04-09T14:30:00Z",
-    "emergencyRequestId": null
+        "price": 150000,
+        "problemDescription": "Snakebite on finger",
+        "customerReport": "Expert did not join the room.",
+        "customerReportSubmittedAt": "2026-04-09T14:05:00Z",
+        "bookingId": "ef54ec06-bb65-47d1-a7c5-db86aad6a49b",
+        "slotStartTime": "2026-04-09T14:00:00Z",
+        "slotEndTime": "2026-04-09T14:30:00Z",
+        "emergencyRequestId": null
   },
   "error": null
 }
@@ -328,6 +329,7 @@ Current verified shape includes:
 - `price`
 - `problemDescription`
 - `customerReport`
+- `customerReportSubmittedAt`
 - `bookingId`
 - `slotStartTime`
 - `slotEndTime`
@@ -344,6 +346,7 @@ Current verified shape includes:
 - price
 - `problemDescription`
 - `customerReport`
+- `customerReportSubmittedAt`
 - booking metadata
 - emergency-request metadata
 - slot timing

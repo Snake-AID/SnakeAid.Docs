@@ -53,8 +53,12 @@ Code-verified observations from the backend:
   - `CustomerReport`
   - `CustomerReportSubmittedAt`
 - `ConsultationBooking` currently does `not` contain any absent-report field
-- `MyConsultationResponse` now exposes `CustomerReport`
-- `AdminConsultationResponse` now exposes `CustomerReport`
+- `MyConsultationResponse` now exposes:
+  - `CustomerReport`
+  - `CustomerReportSubmittedAt`
+- `AdminConsultationResponse` now exposes:
+  - `CustomerReport`
+  - `CustomerReportSubmittedAt`
 - `IConsultationService` now exposes a member report command
 - `ConsultationsController` now provides a member report endpoint
 

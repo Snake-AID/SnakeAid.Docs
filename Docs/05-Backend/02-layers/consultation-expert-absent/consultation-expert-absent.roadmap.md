@@ -127,8 +127,10 @@ Likely code targets:
 ### Read Models
 
 - [x] Extend `MyConsultationResponse` with `CustomerReport`
+- [x] Extend `MyConsultationResponse` with `CustomerReportSubmittedAt`
 - [x] Populate member report field in `GetMyConsultationsAsync(...)`
 - [x] Extend `AdminConsultationResponse` with `CustomerReport`
+- [x] Extend `AdminConsultationResponse` with `CustomerReportSubmittedAt`
 - [x] Populate admin report field in list and detail flows
 
 ### Tests

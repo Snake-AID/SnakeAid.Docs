@@ -132,6 +132,7 @@ classDiagram
         +string Type
         +string Status
         +string? CustomerReport
+        +DateTime? CustomerReportSubmittedAt
     }
 
     class AdminConsultationResponse {
@@ -139,6 +140,7 @@ classDiagram
         +string Type
         +string Status
         +string? CustomerReport
+        +DateTime? CustomerReportSubmittedAt
     }
 
     class IConsultationService {
@@ -207,7 +209,7 @@ sequenceDiagram
     Service->>Repo: Load Consultation + linked data
     Repo-->>Service: Consultation + Booking/Ping data
     Service->>Mapper: Build AdminConsultationResponse
-    Mapper-->>Service: DTO including CustomerReport
+    Mapper-->>Service: DTO including CustomerReport and CustomerReportSubmittedAt
     Service-->>API: AdminConsultationResponse
     API-->>Admin: ApiResponse<AdminConsultationResponse>
 ```
