@@ -1,196 +1,250 @@
 ---
 doc_role: planning
 module: consultation-expert-absent
-kind: layer
+kind: decision-log
 doc_type: hallucination
-status: open
-last_updated: 2026-04-20
+status: partially-resolved
+last_updated: 2026-04-21
 owners: [backend-team]
-verification_status: decision-buckets-open
+verification_status: mixed
 ---
-# Consultation Expert Absent Hallucination Buckets
 
-## Purpose
+# Consultation Expert Absent Hallucination Log
 
-This file captures decision points that are ambiguous in the business request or have multiple valid implementation options.
+This file captures items that required product confirmation and the remaining design area that still needs caution.
 
-Rule:
+## Confirmed Decision 1: Canonical Field Name
 
-- do not silently auto-decide these items during implementation
-- confirm decisions here first
-- after decision, update roadmap + useguide + sourcecode together
+Confirmed by product direction:
 
-## Bucket A - Canonical Naming (`CustomerReport` vs `MemberReport`)
+- use `Customer Report` as the canonical field name in baseline docs
 
-### Code-verified fact
+Practical interpretation for implementation:
 
-- there is no existing report field in current consultation entities/DTOs.
-- requirement text mentions both:
-  - `Customer Report` (Task1, Task3)
-  - `Member Report` (Task2)
+- business concept is still member-authored report text
+- docs should stop mixing `Customer Report` and `Member Report`
+- implementation should keep one consistent property name across persistence and DTOs where possible
 
-### Why this is risky
+Status:
 
-- inconsistent naming can leak into DB, DTO, and API contract with avoidable mismatch.
+- [x] Confirmed
 
-### Candidate options
+## Confirmed Decision 2: Persistence Location
 
-1. Canonical everywhere = `customerReport`
-2. Canonical everywhere = `memberReport`
-3. Input = `memberReport`, persisted + output = `customerReport`
+Confirmed by product direction:
 
-### Default recommendation
+- store the new field on `Consultation`
 
-- option 3 for this iteration, because it fits the task wording directly while keeping admin-visible field as `CustomerReport`.
+Why this is acceptable:
 
-### User decision required
+- admin list/detail already read consultation-centric data
+- consultation status already carries `ExpertAbsent`
+- avoids duplicating the same business fact into `ConsultationBooking`
 
-- confirm the canonical naming strategy before code is implemented.
+Status:
 
-## Bucket B - Report Endpoint Route and Method
+- [x] Confirmed
 
-### Code-verified fact
+## Confirmed Decision 3: Status Transition Rule
 
-- no existing absent-report endpoint in `ConsultationsController`.
+Confirmed by product direction:
 
-### Candidate options
+- report submission should also set `Consultation.Status = ExpertAbsent`
 
-1. `POST /api/consultations/{consultationId}/expert-absence-report`
-2. `POST /api/consultations/{consultationId}/report-expert-absent`
-3. `PATCH /api/consultations/{consultationId}/customer-report`
+Impact:
 
-### Default recommendation
+- admin can filter by `ExpertAbsent` immediately using the existing status model
+- the report action becomes a visible state transition, not just hidden note storage
 
-- option 1 (`POST /expert-absence-report`) because it is explicit, action-oriented, and easy for mobile teams.
+Status:
 
-### User decision required
+- [x] Confirmed
 
-- confirm route style and HTTP method.
+## Confirmed Decision 4: Eligibility Window
 
-## Bucket C - Status Side Effect On Report Submission
+Confirmed by product direction:
 
-### Code-verified fact
+- member may report any time after `Consultation.StartTime`
 
-- current lifecycle marks elapsed consultations as `Completed`.
-- `ExpertAbsent` enum exists but is currently unused.
+Implementation note:
 
-### Candidate options
+- this is broader than a slot-window-only rule
+- backend should still reject impossible ownership/state cases
+- docs should reflect that the lower time boundary is `StartTime`
 
-1. report only stores text; status unchanged
-2. report sets `Consultation.Status = ExpertAbsent` immediately
-3. report creates pending-review state (requires extra state model, not currently available)
+Status:
 
-### Default recommendation
+- [x] Confirmed
 
-- option 1 for initial release (low-risk): store report first, let admin review process decide status transitions.
+## Confirmed Decision 5: Idempotency
 
-### User decision required
+Confirmed by product direction:
 
-- decide whether status should change on report submission in this phase.
+- duplicate report submission should be rejected
 
-## Bucket D - Report Write Policy
+Why this is useful:
 
-### Candidate options
+- prevents silent overwrites
+- keeps the first accepted report as the authoritative one unless a later edit flow is explicitly introduced
 
-1. one-time write only (cannot edit)
-2. update allowed until consultation is completed/cancelled
-3. unlimited overwrite (last write wins)
+Status:
 
-### Default recommendation
+- [x] Confirmed
 
-- option 2: allow update only during active report window, lock afterward.
+## Confirmed Decision 6: API Response Contract
 
-### User decision required
+Confirmed by product direction:
 
-- confirm write policy and lock condition.
+- the report endpoint should return an updated consultation object
 
-## Bucket E - Applicable Consultation Types
+Recommended implementation interpretation:
 
-### Code-verified fact
+- return the updated member-facing consultation DTO or a dedicated updated consultation response
+- response should at minimum include:
+  - `consultationId`
+  - `status`
+  - `customerReport`
 
-- consultation domain supports both `Scheduled` and `Emergency`.
+Status:
 
-### Candidate options
+- [x] Confirmed
 
-1. scheduled only
-2. emergency only
-3. both scheduled and emergency
+## Decision 7: Audit Metadata Needs Deeper Design
 
-### Default recommendation
+Current product direction:
 
-- option 1 (scheduled only) for initial rollout unless business confirms emergency no-show reporting is also required.
+- metadata may be needed
+- but there is concern about adding too many new fields into `Consultation`
 
-### User decision required
+This part should not be over-simplified.
 
-- confirm type scope.
+### What metadata is actually useful
 
-## Bucket F - Report Time Window
+Potential metadata candidates:
 
-### Candidate options
+- `CustomerReportSubmittedAt`
+- `CustomerReportSubmittedBy`
+- `ExpertAbsentResolvedAt`
+- `ExpertAbsentResolvedBy`
+- `ExpertAbsentResolutionNote`
 
-1. allow only from `StartTime` until `StartTime + X minutes`
-2. allow any time before consultation reaches terminal state
-3. allow always
+### Complexity analysis
 
-### Default recommendation
+If these are all added directly into `Consultation`, the entity starts carrying:
 
-- option 1 with configurable `X` (example: 30 minutes) to align with operational relevance.
+- consultation lifecycle state
+- room lifecycle timestamps
+- absent-report business note
+- audit timestamps
+- future admin resolution fields
 
-### User decision required
+That is acceptable only if the absent-report workflow remains small and consultation-owned.
 
-- confirm report window policy.
+The downside is clear:
 
-## Bucket G - Admin Processing Scope In This Task Set
+- `Consultation` becomes broader and harder to reason about
+- each new field increases mapper/test/doc surface
+- future resolution workflows may introduce asymmetric state that does not belong to the main consultation aggregate root cleanly
 
-### Code-verified fact
+### Practical design options
 
-- requested tasks explicitly include admin visibility update, not admin action endpoints.
+Option A: Minimal metadata on `Consultation`
 
-### Candidate options
+- add only:
+  - `CustomerReport`
+  - `CustomerReportSubmittedAt`
+- do not add resolver fields yet
 
-1. visibility only (add field in list/detail)
-2. visibility + admin action endpoint (`approve/reject absent report`)
+Pros:
 
-### Default recommendation
+- low migration cost
+- enough to know what was reported and when
+- keeps current implementation simple
 
-- option 1 now; keep moderation actions for next task group.
+Cons:
 
-### User decision required
+- admin resolution history is still missing
 
-- confirm whether action endpoints are out of scope.
+Option B: Medium metadata on `Consultation`
 
-## Bucket H - Validation Constraints For Report Text
+- add:
+  - `CustomerReport`
+  - `CustomerReportSubmittedAt`
+  - `CustomerReportSubmittedBy`
 
-### Candidate options
+Pros:
 
-1. required, min 10, max 2000
-2. required, min 1, max 1000
-3. optional, max 2000
+- better audit clarity
+- still moderate complexity
 
-### Default recommendation
+Cons:
 
-- required, max 2000, with trimmed non-empty input.
+- `SubmittedBy` is partly redundant today because caller/member already exists as `CallerId`
+- extra field may not add much value unless future delegated reporting is allowed
 
-### User decision required
+Option C: Full workflow fields on `Consultation`
 
-- confirm exact constraints.
+- add report fields and admin resolution fields directly on `Consultation`
 
-## Decision Log Template
+Pros:
 
-Use this section to record final decisions before coding:
+- single-table read for the whole story
 
-- Naming strategy: `TBD`
-- Endpoint route/method: `TBD`
-- Status side effect: `TBD`
-- Write policy: `TBD`
-- Consultation type scope: `TBD`
-- Time window: `TBD`
-- Admin scope: `TBD`
-- Validation constraints: `TBD`
+Cons:
 
-## Change Log
+- highest coupling
+- grows the entity fastest
+- least flexible if resolution later becomes multi-step or comment-based
 
-### 2026-04-20
+Option D: Keep `Consultation` minimal, move future audit trail to a separate entity later
 
-- Created hallucination buckets for ConsultaionExpertAbsent planning.
-- Flagged naming conflict (`CustomerReport` vs `MemberReport`) as the highest-priority decision.
+- v1 adds only:
+  - `CustomerReport`
+  - maybe `CustomerReportSubmittedAt`
+- v2 introduces a separate entity if workflow expands
+
+Pros:
+
+- best balance for the current scope
+- avoids overfitting the entity too early
+- preserves upgrade path for richer admin handling later
+
+Cons:
+
+- if v2 arrives quickly, a second migration will still be needed
+
+### Recommended path
+
+Recommended baseline:
+
+- confirm `CustomerReport` on `Consultation`
+- add `CustomerReportSubmittedAt` in v1
+- do not add `SubmittedBy` now unless reporting may be done by someone other than `CallerId`
+- do not add admin resolution fields into `Consultation` yet
+
+Why this is the best trade-off:
+
+- `CustomerReport` alone is too weak for auditability
+- `SubmittedAt` gives strong business value with low entity bloat
+- `SubmittedBy` is redundant in the current model because the reporting actor is constrained to the member/caller
+- resolution fields belong to a future admin workflow, which is explicitly out of current scope
+
+### Baseline direction after this review
+
+Closed decisions:
+
+- [x] OD1 `Customer Report`
+- [x] OD2 store on `Consultation`
+- [x] OD3 set `Status = ExpertAbsent`
+- [x] OD4 allow after `StartTime`
+- [x] OD5 reject duplicates
+- [x] OD6 return updated consultation object
+
+Partially open design area:
+
+- [ ] OD7 final v1 metadata shape
+
+Current recommended v1 metadata shape:
+
+- `CustomerReport`
+- `CustomerReportSubmittedAt`

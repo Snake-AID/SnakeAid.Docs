@@ -1,16 +1,16 @@
 ---
 doc_role: planning
 module: consultation-expert-absent
-kind: layer
-doc_type: useguide
-status: draft
-last_updated: 2026-04-20
+kind: flow
+doc_type: usageguide
+status: partial
+last_updated: 2026-04-21
 api_version: v1
 owners: [backend-team]
-verification_status: current-contract-code-verified-planned-delta-drafted
+verification_status: code-verified-current-state
 ---
 
-# Consultation Expert Absent Useguide
+# Consultation Expert Absent API
 
 ## 1. Table Of Contents
 
@@ -25,79 +25,81 @@ verification_status: current-contract-code-verified-planned-delta-drafted
 
 ## 2. Overview
 
-This document describes the absent-expert reporting contract for consultation video calls.
+This document records the `current verified backend contract` relevant to the expert-absent reporting use case.
 
-Business objective:
+Important status note:
 
-- if member joins at consultation time but expert does not join, member can report the incident so admin can review expert absence.
+- the absent-report feature is `not implemented yet`
+- there is currently `no active API` for a member to report an absent expert in consultation flow
+- the field `Customer Report` is `not present yet` in the verified consultation DTOs
 
-Current code-verified state:
+This guide therefore does two things only:
 
-- consultation APIs exist for join/history/end flows
-- there is no dedicated absent-expert report endpoint
-- there is no `customerReport` field in member/admin consultation responses
-
-Planned delta in this task group:
-
-- add report field storage on consultation
-- add member report submission endpoint
-- expose report field in admin consultation list/detail
-
-Important naming note for this draft:
-
-- requirement text uses both `CustomerReport` and `Member Report`
-- this draft assumes:
-  - request field: `memberReport`
-  - stored/admin output field: `customerReport`
-- final naming is tracked in `consultation-expert-absent.hallucination.md`
+- documents the currently active consultation APIs that mobile/admin can rely on now
+- clearly states the missing contract pieces that still need implementation
 
 ## 3. Authentication & Authorization
 
 ### Expert/Member Operations
 
 - JWT Bearer token is required
-- report endpoint is intended for role `User` (member) only
-- member must be the consultation owner (`CallerId`) for report submission
+- `User` role is required for member consultation history
+- `Expert` role is required for expert consultation history
 
 ### Admin Operations
 
 - JWT Bearer token is required
-- role `Admin` required for admin consultation history endpoints
+- `Admin` role is required
 
 ## 4. Expert/Member Business + Expert/Member APIs
 
 ### 4.1 Business Scope
 
-Member-side goals in this module:
+Current member consultation behavior:
 
-- view consultation history including report status/content
-- submit absent-expert report for eligible consultation
+- member can list their consultations
+- member can see consultation status and room information
+- member cannot yet submit an expert-absent report through a consultation API
 
-Expert-side goals in this module:
+### 4.2 Member Endpoint
 
-- no direct expert report API is added in this task group
-
-### 4.2 Current Active Endpoint: `GET /api/users/me/consultations`
+#### 4.2.1 `GET /api/users/me/consultations`
 
 Purpose:
 
-- retrieve member consultation history
+- member retrieves their own consultation history
 
 Status:
 
-- `Active` (code-verified)
+- `Active`
+- Code-verified
 
 Auth:
 
-- JWT Bearer token required
-- role `User`
+- JWT Bearer token is required
+- `User` role is required
 
-Current response characteristics:
+Query params:
 
-- returns both scheduled and emergency consultation history
-- currently does not include absent report field
+| Field      | Type   | Required | Notes                                                                 |
+| ---------- | ------ | -------- | --------------------------------------------------------------------- |
+| pageNumber | int    | No       | Default `1`, range `>= 1`                                             |
+| pageSize   | int    | No       | Default `10`, range `1..100`                                          |
+| status     | string | No       | `Scheduled`, `Ongoing`, `Completed`, `Cancelled`, `UserAbsent`, `ExpertAbsent`, `AllAbsent` |
+| type       | string | No       | `Scheduled` or `Emergency`                                            |
 
-Current response example (simplified):
+Example request:
+
+```http
+GET /api/users/me/consultations?pageNumber=1&pageSize=10&type=Scheduled
+Authorization: Bearer <member-jwt>
+```
+
+Success response:
+
+- `ApiResponse<PagingResponse<MyConsultationResponse>>`
+
+Verified example response shape:
 
 ```json
 {
@@ -107,19 +109,19 @@ Current response example (simplified):
   "data": {
     "items": [
       {
-        "consultationId": "89f9c73a-1a65-449a-a9e9-5d7f85705e34",
+        "consultationId": "8ce96758-71b5-4310-bc35-d83525b2c54f",
         "type": "Scheduled",
         "status": "Completed",
-        "expertId": "d8a7f855-2f56-4fa0-b954-5eab3249a478",
-        "expertName": "Dr. Expert",
-        "roomId": "consultation-89f9c73a-1a65-449a-a9e9-5d7f85705e34",
-        "startTime": "2026-04-20T09:00:00Z",
-        "endTime": "2026-04-20T09:30:00Z",
+        "expertId": "ba833fc7-6856-48b2-b032-9c5d985729d1",
+        "expertName": "Pham Thi D",
+        "roomId": "consultation-8ce96758-71b5-4310-bc35-d83525b2c54f",
+        "startTime": "2026-04-09T14:00:00Z",
+        "endTime": "2026-04-09T14:30:00Z",
         "price": 150000,
-        "problemDescription": "snakebite swelling",
-        "bookingId": "f3640677-6e8f-4da4-b5de-bbe58f7b7d8c",
-        "slotStartTime": "2026-04-20T09:00:00Z",
-        "slotEndTime": "2026-04-20T09:30:00Z",
+        "problemDescription": "Snakebite on finger",
+        "bookingId": "ef54ec06-bb65-47d1-a7c5-db86aad6a49b",
+        "slotStartTime": "2026-04-09T14:00:00Z",
+        "slotEndTime": "2026-04-09T14:30:00Z",
         "emergencyRequestId": null
       }
     ],
@@ -134,202 +136,180 @@ Current response example (simplified):
 }
 ```
 
-Planned response delta:
+Field notes:
 
-- add `customerReport` field in each `MyConsultationResponse` item
+- there is currently `no member/customer report field` in this response
+- `problemDescription` is booking problem content, not an expert-absent report
+- `status = ExpertAbsent` is supported by enum filtering, but there is currently no verified consultation API that sets it from a member report action
 
-### 4.3 Planned Endpoint: `POST /api/consultations/{consultationId}/expert-absence-report`
+### 4.3 Missing Member Contract For This Module
 
-Purpose:
+The following contract is `not active yet` and should not be consumed by mobile yet:
 
-- member submits absent-expert report for a specific consultation
-
-Status:
-
-- `Planned` (not implemented yet)
-
-Auth:
-
-- JWT Bearer token required
-- role `User`
-- requester must be the consultation owner/member side
-
-Request:
-
-```http
-POST /api/consultations/89f9c73a-1a65-449a-a9e9-5d7f85705e34/expert-absence-report
-Authorization: Bearer <member-jwt>
-Content-Type: application/json
-```
-
-Request body (draft):
-
-```json
-{
-  "memberReport": "I joined the consultation room at 09:00 UTC and waited 12 minutes. Expert did not join."
-}
-```
-
-Request constraints (draft):
-
-- `memberReport` required
-- trimmed non-empty text
-- proposed max length: `2000`
-- consultation must be report-eligible (exact status/time-window rule pending final decision)
-
-Success response (draft):
-
-```json
-{
-  "status_code": 200,
-  "message": "Expert absence report submitted successfully.",
-  "is_success": true,
-  "data": {
-    "consultationId": "89f9c73a-1a65-449a-a9e9-5d7f85705e34",
-    "customerReport": "I joined the consultation room at 09:00 UTC and waited 12 minutes. Expert did not join.",
-    "updatedAt": "2026-04-20T09:12:35Z"
-  },
-  "error": null
-}
-```
-
-Expected error responses (draft):
-
-| Status Code | Error Code | When |
-|---|---|---|
-| 400 | VALIDATION_ERROR | report text invalid / empty / too long |
-| 401 | UNAUTHORIZED | missing or invalid token |
-| 403 | FORBIDDEN | caller is not eligible to report this consultation |
-| 404 | NOT_FOUND | consultation does not exist |
-| 409 | CONFLICT | consultation is not in reportable state/window |
-
-### 4.4 Example Curl (Planned)
-
-```bash
-curl -X POST "https://api.example.com/api/consultations/89f9c73a-1a65-449a-a9e9-5d7f85705e34/expert-absence-report" \
-  -H "Authorization: Bearer {{TOKEN}}" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "memberReport": "I joined on time but expert was absent."
-  }'
-```
+- member report endpoint for absent expert
+- `Customer Report` field in `MyConsultationResponse`
 
 ## 5. Admin Business + Admin APIs
 
 ### 5.1 Business Scope
 
-Admin goals in this module:
+Current admin consultation behavior:
 
-- view member-submitted absent-expert report in consultation history list and detail
-- no new admin action endpoint is included in this task group
+- admin can list consultations across the system
+- admin can open one consultation detail
+- admin cannot yet see a dedicated member/customer absent-report field because the backend does not expose one yet
 
-### 5.2 Current Active Endpoint: `GET /api/admin/consultations`
+### 5.2 Admin Endpoint
 
-Purpose:
-
-- paged admin consultation history (scheduled + emergency)
-
-Status:
-
-- `Active` (code-verified)
-
-Current response characteristics:
-
-- returns `AdminConsultationResponse`
-- currently does not include `customerReport`
-
-Planned response delta:
-
-- include `customerReport` in each item
-
-Planned item snippet:
-
-```json
-{
-  "consultationId": "89f9c73a-1a65-449a-a9e9-5d7f85705e34",
-  "type": "Scheduled",
-  "status": "Completed",
-  "userId": "2a603164-7038-4f34-9295-5e45ccb8ab5e",
-  "userName": "Member One",
-  "expertId": "d8a7f855-2f56-4fa0-b954-5eab3249a478",
-  "expertName": "Dr. Expert",
-  "customerReport": "I joined the room but expert did not join."
-}
-```
-
-### 5.3 Current Active Endpoint: `GET /api/admin/consultations/{consultationId}`
+#### 5.2.1 `GET /api/admin/consultations`
 
 Purpose:
 
-- admin consultation detail
+- admin retrieves a paged list of consultations across the system
 
 Status:
 
-- `Active` (code-verified)
+- `Active`
+- Code-verified
 
-Planned response delta:
+Auth:
 
-- include `customerReport` in detail payload
+- JWT Bearer token is required
+- `Admin` role is required
 
-Planned detail snippet:
+Query params:
 
-```json
-{
-  "consultationId": "89f9c73a-1a65-449a-a9e9-5d7f85705e34",
-  "type": "Scheduled",
-  "status": "Completed",
-  "problemDescription": "snakebite swelling",
-  "customerReport": "I joined the room but expert did not join."
-}
+| Field      | Type   | Required | Notes                                                                 |
+| ---------- | ------ | -------- | --------------------------------------------------------------------- |
+| pageNumber | int    | No       | Default `1`, range `>= 1`                                             |
+| pageSize   | int    | No       | Default `10`, range `1..100`                                          |
+| status     | string | No       | `Scheduled`, `Ongoing`, `Completed`, `Cancelled`, `UserAbsent`, `ExpertAbsent`, `AllAbsent` |
+| type       | string | No       | `Scheduled` or `Emergency`                                            |
+
+Example request:
+
+```http
+GET /api/admin/consultations?pageNumber=1&pageSize=10&type=Scheduled
+Authorization: Bearer <admin-jwt>
 ```
+
+Success response:
+
+- `ApiResponse<PagingResponse<AdminConsultationResponse>>`
+
+Verified field notes:
+
+- there is currently `no customer/member report field`
+- `problemDescription` is the scheduled-booking problem description
+- scheduled and emergency consultations share one admin response DTO
+
+#### 5.2.2 `GET /api/admin/consultations/{consultationId}`
+
+Purpose:
+
+- admin retrieves one consultation detail by `consultationId`
+
+Status:
+
+- `Active`
+- Code-verified
+
+Auth:
+
+- JWT Bearer token is required
+- `Admin` role is required
+
+Route params:
+
+| Field          | Type | Required | Notes                    |
+| -------------- | ---- | -------- | ------------------------ |
+| consultationId | guid | Yes      | Existing `Consultation.Id` |
+
+Example request:
+
+```http
+GET /api/admin/consultations/8ce96758-71b5-4310-bc35-d83525b2c54f
+Authorization: Bearer <admin-jwt>
+```
+
+Success response:
+
+- `ApiResponse<AdminConsultationResponse>`
+
+Verified field notes:
+
+- there is currently `no customer/member report field`
+- admin can see status, room, booking data, and emergency-request data
+- admin cannot yet inspect absent-report text because it is not exposed by current code
+
+### 5.3 Missing Admin Contract For This Module
+
+The following contract is `not active yet` and should not be consumed by admin UI yet:
+
+- `Customer Report` field on admin consultation list response
+- `Customer Report` field on admin consultation detail response
 
 ## 6. Shared Data Models
 
-### 6.1 Draft `ReportExpertAbsentRequest`
+### 6.1 Current `MyConsultationResponse`
 
-| Field | Type | Required | Constraints | Description |
-|---|---|---|---|---|
-| memberReport | string | Yes | non-empty, max 2000 (draft) | member text report for expert absence |
+Current verified shape includes:
 
-### 6.2 Draft `ReportExpertAbsentResponse`
+- `consultationId`
+- `type`
+- `status`
+- `expertId`
+- `expertName`
+- `roomId`
+- `startTime`
+- `endTime`
+- `price`
+- `problemDescription`
+- `bookingId`
+- `slotStartTime`
+- `slotEndTime`
+- `emergencyRequestId`
 
-| Field | Type | Description |
-|---|---|---|
-| consultationId | Guid | target consultation id |
-| customerReport | string? | persisted report text |
-| updatedAt | datetime | last update timestamp |
+Current verified shape does not include:
 
-### 6.3 `MyConsultationResponse` (Planned Delta)
+- `customerReport`
 
-| Field | Type | Description |
-|---|---|---|
-| customerReport | string? | absent-expert report text submitted by member |
+### 6.2 Current `AdminConsultationResponse`
 
-### 6.4 `AdminConsultationResponse` (Planned Delta)
+Current verified shape includes:
 
-| Field | Type | Description |
-|---|---|---|
-| customerReport | string? | member-submitted report text for admin review |
+- consultation identity
+- type and status
+- user and expert identifiers/names
+- room and timing data
+- price
+- `problemDescription`
+- booking metadata
+- emergency-request metadata
+- slot timing
+
+Current verified shape does not include:
+
+- `customerReport`
 
 ## 7. Verified Endpoint List
 
-### 7.1 Current Active Endpoints
+Active endpoints relevant to this module:
 
 - `GET /api/users/me/consultations`
+- `GET /api/experts/me/consultations`
 - `GET /api/admin/consultations`
 - `GET /api/admin/consultations/{consultationId}`
-- `POST /api/consultations/{consultationId}/video-token`
-- `POST /api/consultations/{consultationId}/end`
 
-### 7.2 Planned Endpoint In This Module
+Not implemented yet:
 
-- `POST /api/consultations/{consultationId}/expert-absence-report`
+- member absent-report endpoint for consultation
+- member/customer report field in consultation DTOs
 
 ## 8. Changelog
 
-### 2026-04-20
+### 2026-04-21
 
-- Created planning useguide for ConsultaionExpertAbsent task group.
-- Recorded current active API state (no absent-report contract yet).
-- Added draft API contract for member absent-expert reporting.
-- Added admin response delta plan for `customerReport` visibility.
+- Initialized use guide for the consultation expert-absent module
+- Recorded the current verified backend state
+- Explicitly marked absent-report contracts as not implemented yet

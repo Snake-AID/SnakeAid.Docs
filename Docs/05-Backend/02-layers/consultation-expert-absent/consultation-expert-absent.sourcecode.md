@@ -1,66 +1,44 @@
 ---
 doc_role: planning
 module: consultation-expert-absent
-kind: layer
+kind: engineering
 doc_type: sourcecode
-status: draft
-last_updated: 2026-04-20
+status: proposed
+last_updated: 2026-04-21
 owners: [backend-team]
-verification_status: current-state-code-verified-target-design-drafted
+verification_status: mixed
 ---
 
-# Consultation Expert Absent Sourcecode
+# Consultation Expert Absent Sourcecode Notes
 
-## 1. Relevant Classes and Files
+## Overview
 
-### Current Backend Classes
+This file captures:
 
-- `Consultation`
-- `ConsultationStatus`
-- `ConsultationsController`
-- `AdminConsultationsController`
-- `IConsultationService`
-- `ConsultationService`
-- `MyConsultationResponse`
-- `AdminConsultationResponse`
-- `AdminConsultationMapper`
-- `BookingService`
-- `ConsultationLifecycleBackgroundService`
-- `VideoCallController`
+- the current code-verified structure
+- the recommended target structure
+- the sequence of the planned member absent-report flow
 
-### Planned Additions
+## Current Code-Verified Structure
 
-- report request DTO for member submission
-- report response projection updates for member/admin contracts
-- service method to persist absent report
+Relevant code-verified facts:
 
-## 2. Code-Verified Current Surface
+- `Consultation` owns:
+  - `Id`
+  - `CallerId`
+  - `CalleeId`
+  - `RoomId`
+  - `StartTime`
+  - `EndTime`
+  - `Status`
+  - `Type`
+- `ConsultationBooking` owns scheduled-only booking details
+- `MyConsultationResponse` is the current member history DTO
+- `AdminConsultationResponse` is the current admin history/detail DTO
+- `ConsultationService` owns member history and admin history logic
+- `ConsultationsController` owns member consultation endpoints
 
-### Current HTTP Endpoints (Relevant)
-
-Member-facing:
-
-- `GET /api/users/me/consultations`
-- `POST /api/consultations/{consultationId}/video-token`
-- `POST /api/consultations/{consultationId}/end`
-
-Admin-facing:
-
-- `GET /api/admin/consultations`
-- `GET /api/admin/consultations/{consultationId}`
-
-Current gap:
-
-- no endpoint to submit absent-expert report
-- no report field in current member/admin consultation response DTOs
-
-### Current Lifecycle Behavior
-
-- elapsed scheduled consultation -> `Completed`
-- elapsed emergency consultation -> `Completed`
-- no active path currently sets `ExpertAbsent`
-
-## 3. As-Is Class Diagram
+## Current Class Diagram
 
 ```mermaid
 classDiagram
@@ -75,40 +53,17 @@ classDiagram
         +ConsultationType Type
     }
 
-    class ConsultationStatus {
-        <<enumeration>>
-        Scheduled
-        Ongoing
-        Completed
-        Cancelled
-        UserAbsent
-        ExpertAbsent
-        AllAbsent
-    }
-
-    class ConsultationsController {
-        +EndConsultation(consultationId)
-        +GetMyConsultations(query)
-        +CreateReview(consultationId, request)
-        +GetReview(consultationId)
-    }
-
-    class AdminConsultationsController {
-        +GetAllConsultations(query)
-        +GetConsultationById(consultationId)
-    }
-
-    class IConsultationService {
-        +EndConsultationAsync(consultationId, actorId)
-        +GetMyConsultationsAsync(userId, query)
-        +GetAllConsultationsForAdminAsync(query)
-        +GetConsultationByIdForAdminAsync(consultationId)
-    }
-
-    class ConsultationService {
-        +GetMyConsultationsAsync(userId, query)
-        +GetAllConsultationsForAdminAsync(query)
-        +GetConsultationByIdForAdminAsync(consultationId)
+    class ConsultationBooking {
+        +Guid Id
+        +Guid UserId
+        +Guid ExpertId
+        +decimal Price
+        +DateTime BookedAt
+        +string? ProblemDescription
+        +DateTime? PaymentDeadline
+        +BookingStatus Status
+        +Guid? ConsultationId
+        +Guid TimeSlotId
     }
 
     class MyConsultationResponse {
@@ -136,35 +91,22 @@ classDiagram
         +string? UserName
         +Guid ExpertId
         +string? ExpertName
-        +string? RoomId
-        +DateTime? StartTime
-        +DateTime? EndTime
-        +decimal? Price
         +string? ProblemDescription
         +Guid? BookingId
-        +string? BookingStatus
-        +DateTime? BookedAt
-        +DateTime? PaymentDeadline
-        +DateTime? CancelledAt
-        +CancellationReason? CancellationReason
         +Guid? EmergencyRequestId
-        +string? EmergencyRequestStatus
-        +DateTime? RequestedAt
-        +DateTime? RespondedAt
-        +DateTime? ExpiresAt
-        +DateTime? SlotStartTime
-        +DateTime? SlotEndTime
     }
 
-    ConsultationsController --> IConsultationService
-    AdminConsultationsController --> IConsultationService
-    ConsultationService ..|> IConsultationService
-    ConsultationService --> Consultation
-    ConsultationService --> MyConsultationResponse
-    ConsultationService --> AdminConsultationResponse
+    ConsultationBooking --> Consultation : optional ConsultationId
 ```
 
-## 4. Planned To-Be Class Diagram
+## Recommended Target Class Diagram
+
+Recommended direction:
+
+- add `CustomerReport` to `Consultation`
+- optionally add `CustomerReportSubmittedAt` in v1
+- project that field into member and admin DTOs
+- add one request DTO for the member command endpoint
 
 ```mermaid
 classDiagram
@@ -178,36 +120,11 @@ classDiagram
         +ConsultationStatus Status
         +ConsultationType Type
         +string? CustomerReport
+        +DateTime? CustomerReportSubmittedAt
     }
 
     class ReportExpertAbsentRequest {
-        +string MemberReport
-    }
-
-    class ReportExpertAbsentResponse {
-        +Guid ConsultationId
-        +string? CustomerReport
-        +DateTime UpdatedAt
-    }
-
-    class ConsultationsController {
-        +ReportExpertAbsent(consultationId, request)
-        +GetMyConsultations(query)
-        +EndConsultation(consultationId)
-    }
-
-    class IConsultationService {
-        +ReportExpertAbsentAsync(consultationId, memberId, request)
-        +GetMyConsultationsAsync(userId, query)
-        +GetAllConsultationsForAdminAsync(query)
-        +GetConsultationByIdForAdminAsync(consultationId)
-    }
-
-    class ConsultationService {
-        +ReportExpertAbsentAsync(consultationId, memberId, request)
-        +GetMyConsultationsAsync(userId, query)
-        +GetAllConsultationsForAdminAsync(query)
-        +GetConsultationByIdForAdminAsync(consultationId)
+        +string CustomerReport
     }
 
     class MyConsultationResponse {
@@ -224,105 +141,94 @@ classDiagram
         +string? CustomerReport
     }
 
-    class AdminConsultationMapper {
-        +Map Consultation to AdminConsultationResponse
+    class IConsultationService {
+        +ReportExpertAbsentAsync(Guid consultationId, Guid memberId, ReportExpertAbsentRequest request)
+        +GetMyConsultationsAsync(Guid userId, MyConsultationsQueryRequest query)
+        +GetAllConsultationsForAdminAsync(AdminConsultationsQueryRequest query)
+        +GetConsultationByIdForAdminAsync(Guid consultationId)
+    }
+
+    class ConsultationsController {
+        +POST /api/consultations/{consultationId}/expert-absent-report
+        +GET /api/users/me/consultations
     }
 
     ConsultationsController --> IConsultationService
-    ConsultationService ..|> IConsultationService
-    ConsultationService --> Consultation
-    ConsultationService --> ReportExpertAbsentResponse
-    ConsultationService --> MyConsultationResponse
-    ConsultationService --> AdminConsultationResponse
-    AdminConsultationMapper --> AdminConsultationResponse
+    IConsultationService --> Consultation
+    IConsultationService --> MyConsultationResponse
+    IConsultationService --> AdminConsultationResponse
 ```
 
-## 5. Sequence Diagrams
+## Planned Sequence Diagram
 
-### 5.1 Planned Member Report Flow (Task2)
+This sequence is proposed, not yet implemented.
 
 ```mermaid
 sequenceDiagram
-    participant MemberApp as Member App
+    actor Member
     participant API as ConsultationsController
     participant Service as ConsultationService
-    participant ConsultationRepo as Consultation Repository
+    participant Repo as UnitOfWork/Repositories
     participant DB as Database
 
-    MemberApp->>API: POST /api/consultations/{consultationId}/expert-absence-report
+    Member->>API: POST /api/consultations/{consultationId}/expert-absent-report
     API->>Service: ReportExpertAbsentAsync(consultationId, memberId, request)
-    Service->>ConsultationRepo: load consultation by id
-    ConsultationRepo-->>Service: consultation
+    Service->>Repo: Load Consultation by Id
+    Repo->>DB: SELECT Consultation
+    DB-->>Repo: Consultation
+    Repo-->>Service: Consultation
 
-    Service->>Service: validate ownership + status + time window
-    alt validation fails
-        Service-->>API: throw validation/forbidden exception
-        API-->>MemberApp: error response
-    else valid
-        Service->>ConsultationRepo: set CustomerReport from request.MemberReport
-        Service->>DB: CommitAsync
-        Service-->>API: ReportExpertAbsentResponse
-        API-->>MemberApp: 200 success envelope
-    end
+    Service->>Service: Validate ownership and eligibility
+    Service->>Service: Validate time >= StartTime
+    Service->>Service: Reject if CustomerReport already exists
+    Service->>Service: Set CustomerReport
+    Service->>Service: Set CustomerReportSubmittedAt if used
+    Service->>Service: Set Status = ExpertAbsent
+    Service->>Repo: Update entity and save
+    Repo->>DB: UPDATE Consultations
+    DB-->>Repo: Saved
+    Repo-->>Service: Success
+    Service-->>API: Updated consultation object
+    API-->>Member: ApiResponse(updated consultation)
 ```
 
-### 5.2 Planned Admin Visibility Flow (Task3)
+## Admin Read Sequence After Implementation
 
 ```mermaid
 sequenceDiagram
-    participant AdminApp as Admin App
+    actor Admin
     participant API as AdminConsultationsController
     participant Service as ConsultationService
-    participant Repos as Consultation + Booking/Ping Repositories
+    participant Repo as UnitOfWork/Repositories
+    participant Mapper as AdminConsultationMapper
 
-    AdminApp->>API: GET /api/admin/consultations
-    API->>Service: GetAllConsultationsForAdminAsync(query)
-    Service->>Repos: load consultations and related records
-    Repos-->>Service: merged rows
-    Service->>Service: map AdminConsultationResponse including CustomerReport
-    Service-->>API: paging response
-    API-->>AdminApp: items with customerReport field
+    Admin->>API: GET /api/admin/consultations/{consultationId}
+    API->>Service: GetConsultationByIdForAdminAsync(consultationId)
+    Service->>Repo: Load Consultation + linked data
+    Repo-->>Service: Consultation + Booking/Ping data
+    Service->>Mapper: Build AdminConsultationResponse
+    Mapper-->>Service: DTO including CustomerReport
+    Service-->>API: AdminConsultationResponse
+    API-->>Admin: ApiResponse<AdminConsultationResponse>
 ```
 
-### 5.3 Current Gap Flow (As-Is)
+## Notes For Resume
 
-```mermaid
-sequenceDiagram
-    participant MemberApp as Member App
-    participant API as Existing Consultation APIs
+If implementation resumes later, inspect these code areas first:
 
-    MemberApp->>API: join consultation room and wait for expert
-    MemberApp->>API: need to report expert absence
-    Note over MemberApp,API: No dedicated report endpoint exists currently
-```
+- `SnakeAid.Core/Domains/Consultation.cs`
+- `SnakeAid.Core/Responses/Consultation/MyConsultationResponse.cs`
+- `SnakeAid.Core/Responses/Consultation/AdminConsultationResponse.cs`
+- `SnakeAid.Core/Mappings/AdminConsultationMapper.cs`
+- `SnakeAid.Service/Interfaces/IConsultationService.cs`
+- `SnakeAid.Service/Implements/ConsultationService.cs`
+- `SnakeAid.Api/Controllers/ConsultationsController.cs`
 
-## 6. Task-to-Code Impact Map
+## Metadata Recommendation
 
-### Task1 - Add `CustomerReport`
+For v1, the preferred model is:
 
-- `Consultation` domain: add nullable report field
-- EF configuration: set column constraint
-- migration: add new column in `SnakeAid.Consultations`
-- member/admin response contracts: include report output
+- `CustomerReport`
+- `CustomerReportSubmittedAt`
 
-### Task2 - Build member report API
-
-- request DTO
-- new controller action in `ConsultationsController`
-- new service method in `IConsultationService` and `ConsultationService`
-- validation and persistence logic
-
-### Task3 - Update admin endpoints
-
-- `AdminConsultationResponse` adds `CustomerReport`
-- `AdminConsultationMapper` updates mapping
-- list/detail methods include and preserve report value
-
-## 7. Test Focus
-
-- report submit success for valid member
-- report submit forbidden for non-owner/non-participant
-- report submit rejected for invalid status/time window
-- admin list/detail include report value
-- member consultation list includes report value
-- existing mapping fields and price behavior unchanged
+Avoid putting admin-resolution fields into `Consultation` until there is an actual admin resolution workflow.

@@ -3,143 +3,159 @@ doc_role: planning
 module: consultation-expert-absent
 kind: layer
 doc_type: introduction
-status: draft
-last_updated: 2026-04-20
+status: proposed
+last_updated: 2026-04-21
 owners: [backend-team]
-verification_status: current-state-code-verified-planned-delta-pending-implementation
+verification_status: mixed
 ---
 
 # Consultation Expert Absent Introduction
 
 ## Goal
 
-This module plans the implementation for the ConsultaionExpertAbsent task group:
+This document defines the implementation target for the `ConsultaionExpertAbsent` workstream.
 
-- ConsultaionAbsent Task1: add `CustomerReport` field so a member can report an absent expert
-- ConsultaionAbsent Task2: build a member API to submit the absent-expert report (`Member Report` input)
-- ConsultaionAbsent Task3: update admin consultation endpoints to include `CustomerReport`
+Business goal:
 
-Business objective:
+- when a scheduled consultation reaches video-call start time
+- the member joins the room
+- the expert does not appear
+- the member must have a backend-supported way to report the absent expert
+- admin must be able to see that report and handle the case
 
-- when consultation time starts and the member joins the video room but the expert does not join, the member needs a backend-supported way to report the absence so admin can process expert no-show handling.
+## Scope Covered By This Module
 
-## Resume Summary
+The requested scope is currently split into three tasks:
 
-This document is designed so implementation can resume without prior chat context.
+1. `ConsultaionAbsent Task1`
+   - expose a member-originated report field in the member-facing consultation surface
+2. `ConsultaionAbsent Task2`
+   - build an API that lets the member submit the absent-expert report
+3. `ConsultaionAbsent Task3`
+   - extend the admin consultation endpoint so admin can see the report
 
-Current code-verified situation:
+## Current Codebase Status
 
-1. Consultation domain already defines absence-related statuses (`UserAbsent`, `ExpertAbsent`, `AllAbsent`) in enum, but no active backend flow sets them.
-2. There is currently no `CustomerReport` or `MemberReport` field in `Consultation`, `ConsultationBooking`, `MyConsultationResponse`, or `AdminConsultationResponse`.
-3. There is currently no member endpoint to report expert absence.
-4. Admin consultation endpoints exist (`GET /api/admin/consultations`, `GET /api/admin/consultations/{consultationId}`), but response does not contain absent-report text.
-5. Lifecycle auto-complete currently marks consultations as `Completed` and settles payments; no no-show dispute/report branch exists.
+The current codebase already has these relevant consultation surfaces:
 
-## Code-Verified Current State (As-Is)
+- member consultation history:
+  - `GET /api/users/me/consultations`
+- expert consultation history:
+  - `GET /api/experts/me/consultations`
+- admin consultation history:
+  - `GET /api/admin/consultations`
+  - `GET /api/admin/consultations/{consultationId}`
 
-### Consultation entity and status
+Code-verified observations from the backend:
 
-- `Consultation` has core fields: caller/callee, room, start/end, status, type.
-- `ConsultationStatus` includes:
-  - `Scheduled`
-  - `Ongoing`
-  - `Completed`
-  - `Cancelled`
-  - `UserAbsent`
-  - `ExpertAbsent`
-  - `AllAbsent`
+- `Consultation.Status` already contains `ExpertAbsent`
+- `Consultation` currently does `not` contain any report text field
+- `ConsultationBooking` currently does `not` contain any absent-report field
+- `MyConsultationResponse` currently does `not` expose a report field
+- `AdminConsultationResponse` currently does `not` expose a report field
+- `IConsultationService` currently does `not` expose a member report API
+- `ConsultationsController` currently does `not` provide an absent-report endpoint
 
-Current behavior:
+## Recommended Implementation Direction
 
-- services actively use `Scheduled`, `Ongoing`, `Completed`, `Cancelled`
-- no active write path currently sets `UserAbsent`, `ExpertAbsent`, or `AllAbsent`
+Recommended direction for this module:
 
-### Member consultation surface
+- keep the absent-report data on `Consultation`
+- expose that data outward through response DTOs
+- add one member-only command endpoint under `api/consultations`
+- keep admin visibility inside the existing admin consultation endpoints
 
-Current active endpoints relevant to this scope:
+Why this direction fits the current code:
 
-- `POST /api/consultations/{consultationId}/video-token`
-- `GET /api/users/me/consultations`
-- `POST /api/consultations/{consultationId}/end`
+- admin detail already starts from `Consultation`
+- both member and admin views already project from consultation-centric flows
+- `Consultation.Status` already owns the `ExpertAbsent` state
+- storing the report on `Consultation` avoids duplicating the same business fact across `ConsultationBooking` and admin projections
 
-Current gap:
+## Confirmed Baseline Decisions
 
-- member can join/get token and can end consultation, but cannot report expert absence.
+- canonical field name in baseline docs:
+  - `Customer Report`
+- persistence location:
+  - `Consultation`
+- report action result:
+  - persist `Customer Report`
+  - set `Consultation.Status = ExpertAbsent`
+- eligibility window:
+  - any time after `StartTime`
+- duplicate behavior:
+  - reject repeated submissions
+- command response style:
+  - return updated consultation object
 
-### Admin consultation surface
+## Remaining Design Question
 
-Current active endpoints:
+The only meaningful design area still open is audit metadata.
 
-- `GET /api/admin/consultations`
-- `GET /api/admin/consultations/{consultationId}`
+Current recommendation:
 
-Current response shape (`AdminConsultationResponse`) includes booking/emergency metadata but does not include any customer/member absent-report field.
+- keep v1 lean
+- add `CustomerReportSubmittedAt`
+- do not add admin resolution fields into `Consultation` yet
 
-### Lifecycle behavior
+## Proposed Backend Shape
 
-Current sweep behavior:
+Recommended implementation target:
 
-- scheduled elapsed consultations: auto-complete to `Completed`
-- emergency elapsed consultations: auto-complete to `Completed`
-- no current branch to auto-mark absent status based on member report or participation evidence
+- persistence:
+  - add `CustomerReport` on `Consultation`
+  - consider adding `CustomerReportSubmittedAt` in v1
+- member command:
+  - add one request DTO for reporting absent expert
+  - add one service method to validate and persist the report
+  - add one controller endpoint for the member
+  - return the updated consultation object
+- member read model:
+  - extend `MyConsultationResponse` with `Customer Report`
+- admin read model:
+  - extend `AdminConsultationResponse` with `Customer Report`
+- tests:
+  - integration tests for member report flow
+  - integration tests for admin response mapping
+  - controller tests for new endpoint authorization and envelope shape
+- docs:
+  - keep this module resumable without prior chat context
 
-## Planned Direction (To-Be)
-
-### Task1 - Add report field
-
-Planned baseline direction:
-
-- add nullable report storage on `Consultation` as `CustomerReport` (text)
-- expose report back to member consultation history response (`GET /api/users/me/consultations`)
-
-### Task2 - Build member report API
-
-Planned API direction:
-
-- add new member endpoint for absent-expert reporting
-- endpoint validates consultation ownership and writable status window
-- endpoint writes member-submitted report text into `CustomerReport`
-
-### Task3 - Include report in admin endpoint
-
-Planned admin direction:
-
-- add `CustomerReport` to `AdminConsultationResponse`
-- ensure both admin list and detail return the field
-
-## Scope
+## Suggested Scope Boundary
 
 In scope:
 
-- domain/model field changes for report storage
-- member report API contract and validation rules
-- admin DTO/projection update
-- migration + tests + docs update
+- member can submit absent-expert report for a consultation
+- report is stored and retrievable by admin
+- report submission changes consultation status to `ExpertAbsent`
+- member-facing consultation payload can show the report field if required by mobile
+- admin consultation list/detail includes the report field
 
-Out of scope for this module iteration:
+Out of scope for this module unless explicitly requested later:
 
-- automatic expert-presence detection from LiveKit participant webhooks
-- admin enforcement workflow (penalty, suspension, scoring) beyond data visibility
-- attachment/media upload for absence evidence
+- admin resolution workflow
+- expert penalty workflow
+- notification workflow
+- auto-detecting absence from video-room presence
+- emergency consultation absent-report flow
 
-## Key Risks
+## File Areas Likely To Change
 
-1. Naming inconsistency in requirements (`CustomerReport` vs `Member Report`) can produce API confusion.
-2. If report write window is too broad, users may report long after consultation ended, reducing operational quality.
-3. If report endpoint also mutates status without strict rules, billing/reconciliation side effects can regress existing payment logic.
-4. Existing integration tests around consultation history can break if DTO changes are not propagated consistently.
+### Backend
 
-## Initial Mitigation Strategy
+- `SnakeAid.Core/Domains/Consultation.cs`
+- `SnakeAid.Repository/Data/Configurations/ConsultationConfiguration.cs`
+- `SnakeAid.Core/Requests/Consultation/*`
+- `SnakeAid.Core/Responses/Consultation/MyConsultationResponse.cs`
+- `SnakeAid.Core/Responses/Consultation/AdminConsultationResponse.cs`
+- `SnakeAid.Core/Mappings/AdminConsultationMapper.cs`
+- `SnakeAid.Service/Interfaces/IConsultationService.cs`
+- `SnakeAid.Service/Implements/ConsultationService.cs`
+- `SnakeAid.Api/Controllers/ConsultationsController.cs`
+- `SnakeAid.Tests/Integration/*Consultation*.cs`
+- `SnakeAid.Tests/Unit/*Consultation*.cs`
 
-- lock naming and contract decisions first in `consultation-expert-absent.hallucination.md`
-- keep first implementation focused on report capture + visibility, avoid hidden payment behavior changes
-- add explicit test coverage for:
-  - member can submit report
-  - non-owner cannot submit report
-  - admin list/detail include report text
-  - existing consultation history fields remain stable
-
-## Deliverables In This Planning Set
+### Docs
 
 - `consultation-expert-absent.introduction.md`
 - `consultation-expert-absent.roadmap.md`

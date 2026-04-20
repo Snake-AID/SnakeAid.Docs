@@ -1,149 +1,215 @@
 ---
 doc_role: planning
 module: consultation-expert-absent
-kind: layer
+kind: flow
 doc_type: roadmap
-status: draft
-last_updated: 2026-04-20
+status: proposed
+last_updated: 2026-04-21
 owners: [backend-team]
-verification_status: current-state-code-verified-implementation-not-started
+verification_status: mixed
 ---
 
 # Consultation Expert Absent Roadmap
 
 ## Current Status Snapshot
 
-- module status: `Planning`
-- current member absent-report API: `Not available`
-- current consultation report field: `Not available`
-- current admin report visibility: `Not available`
-- current docs status: `Planning set created`
+- module status: `Planned`
+- code status:
+  - no absent-report command endpoint exists yet
+  - no consultation report field exists yet
+  - admin consultation responses do not yet expose a report field
+- docs status:
+  - this doc set is initialized for resume-safe implementation tracking
 
-## Current Truth To Resume From
+## Target Outcome
 
-This roadmap is written to resume from zero memory.
+After implementation:
 
-Code-verified reality:
+1. member can report an expert as absent for a consultation
+2. backend persists the member-authored report
+3. member-facing consultation payload exposes the report field if required
+4. admin consultation endpoints expose the report field
+5. the feature is traceable in tests and docs
 
-- `ConsultationStatus` enum already contains `ExpertAbsent`, but no active write flow uses it.
-- `Consultation` entity currently has no free-text absent report field.
-- member consultation history endpoint is active but returns no absent report content.
-- admin consultation history endpoints are active but return no absent report content.
-- lifecycle auto-complete currently transitions elapsed consultations to `Completed`.
+## Task Breakdown
 
-## Task Group Scope
+### Task 1
 
-Requested task group:
+`ConsultaionAbsent Task1 - Expert absent: add field Customer Report for member report`
 
-1. ConsultaionAbsent Task1: add `CustomerReport` field for member absent-expert reporting.
-2. ConsultaionAbsent Task2: build API for member to submit report into `Member Report` input.
-3. ConsultaionAbsent Task3: update admin consultation endpoint contract to include `CustomerReport`.
+Planning interpretation:
 
-## Locked Implementation Direction (Current Draft)
+- add one nullable report field to the member-facing consultation response
+- make sure the field is populated from the canonical persistence source
+- do not mark the field as active in `useguide` until code is implemented
 
-- [x] Use a dedicated module folder under `Docs/05-Backend/02-layers/consultation-expert-absent`.
-- [x] Keep docs English-first and self-resumable.
-- [x] Keep planning explicit: clearly separate `current code-verified` vs `planned` contract.
-- [ ] Finalize canonical naming (`CustomerReport` vs `MemberReport`) from open decision bucket.
-- [ ] Finalize whether report submission also changes `Consultation.Status` to `ExpertAbsent` immediately.
+Likely code targets:
 
-## Implementation Checklist
-
-### Phase 0 - Discovery and Planning Baseline
-
-- [x] Verify current consultation domain/status usage in code
-- [x] Verify current member consultation endpoint surface
-- [x] Verify current admin consultation endpoint surface
-- [x] Identify test suites affected by DTO/contract changes
-- [x] Create planning docs set (`introduction/roadmap/hallucination/sourcecode/useguide`)
-
-### Phase 1 - Task1 (`CustomerReport` storage)
-
-- [ ] Add nullable `CustomerReport` field to `Consultation` domain model
-- [ ] Add EF configuration constraint (max length) for the new field
-- [ ] Create and apply migration for `SnakeAid.Consultations.CustomerReport`
-- [ ] Decide and apply response exposure for member view (`MyConsultationResponse`)
-- [ ] Ensure serialization naming aligns with API conventions
-
-### Phase 2 - Task2 (Member absent-report API)
-
-- [ ] Add request DTO for report submission (`MemberReport` input field name, pending final naming decision)
-- [ ] Extend `IConsultationService` with report submission method
-- [ ] Implement service validation:
-  - [ ] caller must be consultation member
-  - [ ] caller must be consultation owner side (member/caller), not expert
-  - [ ] consultation must be in allowed status set
-  - [ ] optional: enforce report time window relative to consultation start
-- [ ] Persist report text to consultation report field
-- [ ] Add controller endpoint for member report submission
-- [ ] Return stable API envelope with updated consultation/report payload
-
-### Phase 3 - Task3 (Admin response update)
-
-- [ ] Add `CustomerReport` to `AdminConsultationResponse`
-- [ ] Update Mapster mappings (`Consultation -> AdminConsultationResponse`)
-- [ ] Ensure admin list endpoint includes report text
-- [ ] Ensure admin detail endpoint includes report text
-- [ ] Keep orphan scheduled/emergency fallback behavior unchanged
-
-### Phase 4 - Test Coverage
-
-- [ ] Unit test: controller route/auth metadata for new report endpoint
-- [ ] Unit test: service rejects non-owner / unauthorized report attempts
-- [ ] Integration test: member can submit absent report successfully
-- [ ] Integration test: report appears in `GET /api/users/me/consultations`
-- [ ] Integration test: report appears in both admin list and admin detail
-- [ ] Regression test: existing price/status mapping behavior remains unchanged
-
-### Phase 5 - Documentation Sync
-
-- [x] Create planning docs for this module
-- [ ] Update docs status to `in_progress` after implementation starts
-- [ ] Update changelog and checkbox progress after each completed phase
-- [ ] Mark module status as `implemented` only after tests pass
-
-## Candidate Backend File Targets
-
-- `SnakeAid.Core/Domains/Consultation.cs`
-- `SnakeAid.Repository/Data/Configurations/ConsultationConfiguration.cs`
-- `SnakeAid.Repository/Migrations/*`
-- `SnakeAid.Core/Requests/Consultation/*` (new request DTO)
 - `SnakeAid.Core/Responses/Consultation/MyConsultationResponse.cs`
-- `SnakeAid.Core/Responses/Consultation/AdminConsultationResponse.cs`
-- `SnakeAid.Core/Mappings/AdminConsultationMapper.cs`
+- `SnakeAid.Service/Implements/ConsultationService.cs`
+
+### Task 2
+
+`ConsultaionAbsent Task2 - build API for member to write into Member Report`
+
+Planning interpretation:
+
+- add a member-only endpoint under `api/consultations`
+- validate ownership
+- validate consultation type and state
+- prevent duplicate or invalid reports depending on final business rule
+- update consultation state if required by the chosen rule
+
+Likely code targets:
+
+- `SnakeAid.Core/Requests/Consultation/*`
 - `SnakeAid.Service/Interfaces/IConsultationService.cs`
 - `SnakeAid.Service/Implements/ConsultationService.cs`
 - `SnakeAid.Api/Controllers/ConsultationsController.cs`
-- `SnakeAid.Tests/Unit/*`
+
+### Task 3
+
+`ConsultaionAbsent Task3 - update admin endpoint to include Customer Report`
+
+Planning interpretation:
+
+- extend `AdminConsultationResponse`
+- extend admin mapping logic
+- verify both list and detail endpoints expose the same field
+
+Likely code targets:
+
+- `SnakeAid.Core/Responses/Consultation/AdminConsultationResponse.cs`
+- `SnakeAid.Core/Mappings/AdminConsultationMapper.cs`
+- `SnakeAid.Service/Implements/ConsultationService.cs`
 - `SnakeAid.Tests/Integration/AdminConsultationHistoryIntegrationTests.cs`
-- `SnakeAid.Tests/Integration/ConsultationPricePreservationTests.cs`
 
-## Validation Plan
+## Recommended Implementation Order
 
-Minimum acceptance flow:
+1. Finalize the remaining metadata scope
+2. Add persistence field + migration
+3. Add request DTO and service method
+4. Add member endpoint
+5. Extend member response DTO and mapping
+6. Extend admin response DTO and mapping
+7. Add tests
+8. Update docs with verified contracts
 
-1. member opens consultation and submits absent-expert report
-2. backend persists report text on target consultation
-3. member consultation list returns report text
-4. admin list endpoint returns report text
-5. admin detail endpoint returns same report text
-6. unauthorized actors cannot submit report
-7. existing consultation history fields still map correctly
+## Implementation Checklist
 
-## Resume Procedure
+### Requirement Lock
 
-If resumed later:
+- [x] Use `Customer Report` as the baseline field name in docs
+- [x] Store the report field on `Consultation`
+- [x] Set `Consultation.Status = ExpertAbsent` on successful report
+- [x] Allow reporting any time after `StartTime`
+- [x] Reject repeated report submissions
+- [x] Return updated consultation object from the command endpoint
+- [ ] Finalize whether v1 includes `CustomerReportSubmittedAt`
+- [ ] Decide whether any additional metadata is required in v1
 
-1. read `consultation-expert-absent.introduction.md`
-2. read `consultation-expert-absent.hallucination.md` and lock unresolved decisions
-3. implement Phase 1 -> Phase 4 in order
-4. after each completed phase, tick roadmap checklist and append changelog entry
-5. update `consultation-expert-absent.useguide.md` from planned contract to active contract only after code/tests confirm
+### Persistence
+
+- [ ] Add nullable `CustomerReport` field to `Consultation`
+- [ ] Decide whether to add `CustomerReportSubmittedAt`
+- [ ] Configure max length and column mapping if needed
+- [ ] Create EF migration
+- [ ] Verify migration naming and backward compatibility
+
+### Service Surface
+
+- [ ] Add a member absent-report command to `IConsultationService`
+- [ ] Load consultation with ownership validation
+- [ ] Validate actor is the caller/member of that consultation
+- [ ] Validate current time is after `StartTime`
+- [ ] Reject duplicate reporting when `CustomerReport` already exists
+- [ ] Persist `CustomerReport`
+- [ ] Persist `CustomerReportSubmittedAt` if included
+- [ ] Persist status change to `ExpertAbsent`
+
+### API Layer
+
+- [ ] Add request DTO
+- [ ] Add member endpoint in `ConsultationsController`
+- [ ] Add auth requirement `User`
+- [ ] Return `ApiResponseBuilder.BuildSuccessResponse(...)` with updated consultation object
+
+### Read Models
+
+- [ ] Extend `MyConsultationResponse` with `CustomerReport`
+- [ ] Populate member report field in `GetMyConsultationsAsync(...)`
+- [ ] Extend `AdminConsultationResponse` with `CustomerReport`
+- [ ] Populate admin report field in list and detail flows
+
+### Tests
+
+- [ ] Controller auth/envelope tests for new member endpoint
+- [ ] Service test for successful report submission
+- [ ] Service test for unauthorized actor
+- [ ] Service test for invalid consultation state
+- [ ] Service test for duplicate report behavior
+- [ ] Admin integration test for list payload including report field
+- [ ] Admin integration test for detail payload including report field
+- [ ] Member integration test for history payload including report field
+
+### Docs
+
+- [ ] Update `useguide` only after the endpoint and fields are code-verified
+- [ ] Update `sourcecode` diagrams after implementation is stable
+- [ ] Record all decisions in `hallucination` as closed or resolved
+
+## Recommended File Targets
+
+### Backend
+
+- [ ] `SnakeAid.Core/Domains/Consultation.cs`
+- [ ] `SnakeAid.Repository/Data/Configurations/ConsultationConfiguration.cs`
+- [ ] `SnakeAid.Repository/Migrations/*`
+- [ ] `SnakeAid.Core/Requests/Consultation/ReportExpertAbsentRequest.cs` or equivalent
+- [ ] `SnakeAid.Core/Responses/Consultation/MyConsultationResponse.cs`
+- [ ] `SnakeAid.Core/Responses/Consultation/AdminConsultationResponse.cs`
+- [ ] `SnakeAid.Core/Mappings/AdminConsultationMapper.cs`
+- [ ] `SnakeAid.Service/Interfaces/IConsultationService.cs`
+- [ ] `SnakeAid.Service/Implements/ConsultationService.cs`
+- [ ] `SnakeAid.Api/Controllers/ConsultationsController.cs`
+- [ ] `SnakeAid.Tests/Integration/AdminConsultationHistoryIntegrationTests.cs`
+- [ ] `SnakeAid.Tests/Integration/*Consultation*.cs`
+- [ ] `SnakeAid.Tests/Unit/*Consultation*.cs`
+
+### Docs
+
+- [x] `SnakeAid.Docs/Docs/05-Backend/02-layers/consultation-expert-absent/consultation-expert-absent.introduction.md`
+- [x] `SnakeAid.Docs/Docs/05-Backend/02-layers/consultation-expert-absent/consultation-expert-absent.roadmap.md`
+- [x] `SnakeAid.Docs/Docs/05-Backend/02-layers/consultation-expert-absent/consultation-expert-absent.hallucination.md`
+- [x] `SnakeAid.Docs/Docs/05-Backend/02-layers/consultation-expert-absent/consultation-expert-absent.sourcecode.md`
+- [x] `SnakeAid.Docs/Docs/05-Backend/02-layers/consultation-expert-absent/consultation-expert-absent.useguide.md`
+
+## Risks
+
+1. Audit metadata is not finalized yet, especially whether `CustomerReportSubmittedAt` should be included in v1.
+2. Allowing reporting any time after `StartTime` is broad and may require later safeguards if very old consultations should be blocked.
+3. The current consultation history implementation merges scheduled and emergency paths separately, so the new field must be populated consistently in both list/detail branches.
+
+## Resume Notes
+
+If implementation resumes later, start with these facts:
+
+- `Consultation.Status` already has `ExpertAbsent`
+- no report field exists yet on `Consultation` or `ConsultationBooking`
+- member history uses `MyConsultationResponse`
+- admin history uses `AdminConsultationResponse`
+- admin list/detail logic lives in `ConsultationService`
+- member history logic also lives in `ConsultationService`
+- confirmed baseline field name is `Customer Report`
+- confirmed persistence target is `Consultation`
+- confirmed command should return updated consultation object
 
 ## Change Log
 
-### 2026-04-20
+### 2026-04-21
 
-- Initialized ConsultaionExpertAbsent planning module.
-- Verified current backend gap: no member absent-report field/API, no admin report field.
-- Created roadmap with phased implementation and resume-safe checklist.
+- Initialized resumable planning docs for `ConsultaionExpertAbsent`
+- Verified the current backend does not yet implement absent-report persistence or API surface
+- Proposed `Consultation` as the canonical storage location for the report field
+- Recorded confirmed decisions OD1 to OD6
+- Left OD7 partially open with recommendation to keep metadata minimal in v1
