@@ -298,6 +298,53 @@ Success response:
 - complete withdrawal
 - fail withdrawal
 
+### Admin FinOps
+
+This section is for admin and operations readers who use transaction history for audit, reconciliation, or reporting.
+
+Important current semantics:
+
+- `POST /api/withdrawals/create` inserts `TransactionType.WithdrawalInitiated`
+- `POST /api/admin/withdrawals/{id}/approve` does not create a new financial transaction
+- `POST /api/admin/withdrawals/{id}/complete` does not create a new financial transaction
+- `POST /api/admin/withdrawals/{id}/reject` inserts `TransactionType.WithdrawalRefund`
+- `POST /api/withdrawals/{id}/cancel` inserts `TransactionType.WithdrawalRefund`
+- `POST /api/admin/withdrawals/{id}/fail` inserts `TransactionType.WithdrawalRefund`
+
+Admin-facing transaction interpretation:
+
+- `WithdrawalInitiated` means the withdrawal flow has started and the user's wallet balance has already been reduced
+- `WithdrawalRefund` means a previous withdrawal debit has been reversed back into the wallet
+- a successful withdrawal may contain only one financial transaction row: `WithdrawalInitiated`
+- a reversed withdrawal will typically contain two rows for the same `ReferenceId`:
+  - `WithdrawalInitiated`
+  - `WithdrawalRefund`
+
+FinOps caution:
+
+- do not treat `WithdrawalInitiated` alone as proof that the payout has already been completed outside the system
+- use `WalletWithdraw.Status` together with transaction history
+- payout-complete interpretation should come from:
+  - `TransactionType.WithdrawalInitiated`
+  - and `WalletWithdraw.Status = Completed`
+- payout-reversed interpretation should come from:
+  - `TransactionType.WithdrawalInitiated`
+  - and `TransactionType.WithdrawalRefund`
+  - and final `WalletWithdraw.Status` of `Rejected` or `Failed`
+
+Recommended admin/report grouping by `ReferenceId`:
+
+- `WithdrawalInitiated` only + final status `Completed`: successful withdrawal
+- `WithdrawalInitiated` only + final status `Pending` or `Approved`: in-progress withdrawal
+- `WithdrawalInitiated` + `WithdrawalRefund`: reversed withdrawal
+
+Reporting impact versus the old flow:
+
+- transaction rows now appear at withdrawal creation time, not at admin approval time
+- approval is now a non-financial review step
+- completion is now a non-financial confirmation step
+- refund rows are now withdrawal-specific via `WithdrawalRefund`, not generic `AdminAdjustment`
+
 ### Business Rules
 
 #### Approve
@@ -492,4 +539,5 @@ Adds:
 
 - created the wallet-withdrawal-processing baseline use guide
 - documented the current code-verified contract
-- explicitly recorded that wallet deduction still happens at admin approval in the current baseline
+- updated the guide to the implemented flow where wallet deduction happens at create time
+- added `Admin FinOps` notes for transaction-history interpretation
