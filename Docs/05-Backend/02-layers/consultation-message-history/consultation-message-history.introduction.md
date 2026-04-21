@@ -1,19 +1,19 @@
 ---
-doc_role: planning
+doc_role: implementation
 module: consultation-message-history
 kind: flow
 doc_type: introduction
-status: planning
+status: active
 last_updated: 2026-04-21
 owners: [backend-team]
-verification_status: current-state-code-verified-with-planned-implementation-direction
+verification_status: code-verified
 ---
 
 # Consultation Message History Introduction
 
 ## Goal
 
-This module plans the backend work needed to expose consultation chat history after a consultation has already ended.
+This module documents the implemented backend support for exposing consultation chat history after a consultation has already ended.
 
 Business goal:
 
@@ -21,7 +21,7 @@ Business goal:
 - message sending currently happens inside `ConsultationHub`
 - messages are persisted to `ChatMessages`
 - after the video call ends, users can no longer reconnect for active chat usage
-- users currently have no HTTP endpoint to read message history for the finished consultation
+- users and admin now have an HTTP endpoint to read message history for terminal consultations
 
 Target behavior:
 
@@ -31,7 +31,7 @@ Target behavior:
 
 ## Resume Summary
 
-If this work must be resumed later with no prior chat memory, the current code-verified situation is:
+If this module must be resumed later with no prior chat memory, the current code-verified situation is:
 
 1. `ConsultationHub.ReceiveMessage(...)` already saves each message to `ChatMessages`.
 2. `ChatMessage` already contains `Id`, `ConsultationId`, `SenderId`, `Content`, `AttachmentUrl`, and `SentAt`.
@@ -39,7 +39,7 @@ If this work must be resumed later with no prior chat memory, the current code-v
 4. `ConsultationsController` now exposes `GET /api/consultations/{consultationId}/messages-history`.
 5. `IConsultationService` now has a message-history read contract.
 6. `Consultation.Status` already supports `Completed`.
-7. `ConsultationService.EndConsultationAsync(...)` completes the consultation, but does not expose any post-call message-history read API.
+7. `ConsultationService.GetConsultationMessageHistoryAsync(...)` exposes the post-call message-history read API.
 
 ## Code-Verified Current Backend State
 
@@ -59,17 +59,18 @@ This means the core data needed for history retrieval already exists.
 
 ### Access Control
 
-Current verified participant rule:
+Current verified access rule:
 
 - realtime hub connection is allowed only when current user is either:
   - `Consultation.CallerId`
   - `Consultation.CalleeId`
+- message-history HTTP read is allowed for:
+  - consultation participants
+  - admin
 
-Current recommended direction is to reuse the same ownership boundary for the future history endpoint.
+### Implemented Read Surface
 
-### Missing Read Surface
-
-What was missing and is now implemented:
+What is now implemented:
 
 - HTTP route to list messages for one consultation
 - response DTO dedicated to consultation messages
@@ -78,7 +79,7 @@ What was missing and is now implemented:
 
 ## Problem Statement
 
-The current implementation stores consultation chat correctly, but the read path is incomplete.
+The earlier implementation stored consultation chat correctly, but the read path was incomplete.
 
 That creates a business gap:
 
@@ -88,13 +89,12 @@ That creates a business gap:
 
 So the problem is not missing persistence.
 
-The problem is missing retrieval contract.
+That missing retrieval contract is now implemented.
 
-## Recommended Implementation Direction
+## Implemented Direction
 
-The current recommended direction for planning is:
+The current implemented direction is:
 
-- add a participant-facing read endpoint under `ConsultationsController`
 - active route: `GET /api/consultations/{consultationId}/messages-history`
 - allow retrieval only when `Consultation.Status` is one of:
   - `Completed`
@@ -114,7 +114,7 @@ The current recommended direction for planning is:
   - each next page continues backward to older history
 - keep the response aligned with stored truth and do not add sender enrichment in v1
 
-Recommended response shape should stay close to persisted truth:
+Response shape stays close to persisted truth:
 
 - `id`
 - `consultationId`
@@ -153,7 +153,7 @@ Out of scope:
 - integration tests for consultation APIs
 - docs under `SnakeAid.Docs`
 
-## Delivered Planning Artifacts
+## Delivered Artifacts
 
 - `consultation-message-history.introduction.md`
 - `consultation-message-history.roadmap.md`

@@ -1,12 +1,12 @@
 ---
-doc_role: planning
+doc_role: implementation
 module: consultation-message-history
 kind: flow
 doc_type: sourcecode
-status: in_progress
+status: active
 last_updated: 2026-04-21
 owners: [backend-team]
-verification_status: current-state-code-verified-with-planned-read-path
+verification_status: code-verified
 ---
 
 # Consultation Message History Sourcecode
@@ -35,8 +35,6 @@ Current related consultation routes:
 - `POST /api/consultations/{consultationId}/expert-absent-report`
 - `POST /api/consultations/{consultationId}/reviews`
 - `GET /api/consultations/{consultationId}/reviews`
-
-Current verified gap:
 
 - `GET /api/consultations/{consultationId}/messages-history`
 
@@ -84,37 +82,41 @@ Current message persistence:
 
 This is the cleanest existing authorization rule to reuse for history reads.
 
-## 4. Planned Backend Surface
+## 4. Implemented Backend Surface
 
-Recommended planned surface:
+Implemented surface:
 
-- controller route: `GET /api/consultations/{consultationId}/messages`
 - controller route: `GET /api/consultations/{consultationId}/messages-history`
-- service method on `IConsultationService`
-- response DTO dedicated to consultation message history
-- optional paging request DTO under `SnakeAid.Core/Requests/Consultation`
+- controller action: `ConsultationsController.GetMessageHistory(...)`
+- service method: `IConsultationService.GetConsultationMessageHistoryAsync(...)`
+- service implementation: `ConsultationService.GetConsultationMessageHistoryAsync(...)`
+- response DTO: `ConsultationMessageHistoryItemResponse`
+- query DTO: `ConsultationMessageHistoryQueryRequest`
 - terminal-state validation for:
   - `Completed`
   - `UserAbsent`
   - `ExpertAbsent`
   - `AllAbsent`
+- access rule:
+  - participant
+  - or admin
 - newest-window-first page selection with ascending item order inside each page
 - `pageNumber = 1` means newest history batch
 
-## 5. Planned Class Diagram
+## 5. Class Diagram
 
 ```mermaid
 classDiagram
     class ConsultationsController {
-        +GetConsultationMessages(Guid consultationId, Query query)
+        +GetMessageHistory(Guid consultationId, ConsultationMessageHistoryQueryRequest query)
     }
 
     class IConsultationService {
-        +GetConsultationMessageHistoryAsync(Guid consultationId, Guid actorId, Query query)
+        +GetConsultationMessageHistoryAsync(Guid consultationId, Guid actorId, bool isAdmin, ConsultationMessageHistoryQueryRequest query)
     }
 
     class ConsultationService {
-        +GetConsultationMessageHistoryAsync(Guid consultationId, Guid actorId, Query query)
+        +GetConsultationMessageHistoryAsync(Guid consultationId, Guid actorId, bool isAdmin, ConsultationMessageHistoryQueryRequest query)
     }
 
     class Consultation {
@@ -142,14 +144,20 @@ classDiagram
         +DateTime SentAt
     }
 
+    class ConsultationMessageHistoryQueryRequest {
+        +int PageNumber
+        +int PageSize
+    }
+
     ConsultationsController --> IConsultationService
     ConsultationService ..|> IConsultationService
     ConsultationService --> Consultation
     ConsultationService --> ChatMessage
     ChatMessage --> Consultation
+    ConsultationsController --> ConsultationMessageHistoryQueryRequest
 ```
 
-## 6. Planned Sequence Diagram
+## 6. Sequence Diagram
 
 ### 6.1 Current Send Flow
 
@@ -168,7 +176,7 @@ sequenceDiagram
     Hub-->>Group: ReceiveMessage(messagePayload)
 ```
 
-### 6.2 Planned History Read Flow
+### 6.2 Implemented History Read Flow
 
 ```mermaid
 sequenceDiagram
@@ -177,12 +185,12 @@ sequenceDiagram
     participant Service as ConsultationService
     participant DB as Database
 
-    App->>API: GET /api/consultations/{consultationId}/messages-history?pageNumber=1&pageSize=50
-    API->>Service: GetConsultationMessageHistoryAsync(consultationId, actorId, query)
+    App->>API: GET /api/consultations/{consultationId}/messages-history?pageNumber=1&pageSize=10
+    API->>Service: GetConsultationMessageHistoryAsync(consultationId, actorId, isAdmin, query)
     Service->>DB: load Consultation
     Service->>Service: validate participant ownership or admin access
     Service->>Service: validate terminal consultation status
-    Service->>DB: query ChatMessages by ConsultationId
+    Service->>DB: query ChatMessages by ConsultationId in newest-first order
     Service->>Service: select newest page window
     Service->>Service: return items ascending by SentAt, then Id
     Service-->>API: PagingResponse<ConsultationMessageHistoryItemResponse>

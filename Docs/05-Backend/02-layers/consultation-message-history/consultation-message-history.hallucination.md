@@ -28,7 +28,7 @@ Current direction is already fairly clear:
 
 - keep message sending in `ConsultationHub`
 - expose message history through HTTP
-- scope the new endpoint to consultation participants
+- allow participant and admin access to the endpoint
 - make the endpoint read-only
 
 Most of the client contract and rule boundary are now locked.
@@ -41,6 +41,7 @@ Already decided:
   - `ExpertAbsent`
   - `AllAbsent`
 - skip sender enrichment in v1
+- allow admin access even when admin is not a consultation participant
 - return ascending by `SentAt`, then `Id` as a deterministic tiebreaker
 - preserve stored truth exactly for attachment-only messages
 - use business validation failure mapped to `400` for non-eligible consultation states

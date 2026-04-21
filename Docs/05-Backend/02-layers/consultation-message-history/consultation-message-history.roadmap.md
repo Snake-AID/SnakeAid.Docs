@@ -1,23 +1,23 @@
 ---
-doc_role: planning
+doc_role: implementation
 module: consultation-message-history
 kind: flow
 doc_type: roadmap
-status: in_progress
+status: active
 last_updated: 2026-04-21
 owners: [backend-team]
-verification_status: current-state-code-verified-with-planned-api-contract
+verification_status: code-verified
 ---
 
 # Consultation Message History Roadmap
 
 ## Current Status Snapshot
 
-- module status: `Planning`
+- module status: `Implemented`
 - current message persistence: `Implemented`
 - current message history HTTP API: `Implemented`
 - current participant validation in realtime hub: `Implemented`
-- current post-completion message review for app users: `Not available`
+- current post-completion message review for app users: `Available`
 
 ## Current Truth To Resume From
 
@@ -39,7 +39,7 @@ After this work is complete:
 1. a consultation participant can request message history through HTTP
 2. the endpoint returns persisted messages for one consultation
 3. only terminal consultation states are eligible for this read path
-4. only `CallerId` or `CalleeId` can read the history
+4. `CallerId`, `CalleeId`, or `Admin` can read the history
 5. the endpoint is read-only and does not extend chat sending after completion
 6. docs and tests clearly separate implemented behavior from planned behavior during rollout
 
@@ -60,7 +60,7 @@ After this work is complete:
 
 ### Phase 1. Contract Lock
 
-- [ ] Lock route template for message history
+- [x] Lock route template for message history
 - [x] Lock terminal-state rule
 - [x] Lock pagination fields
 - [x] Lock sort order
@@ -103,19 +103,19 @@ After this work is complete:
 
 ### Phase 6. Documentation Sync
 
-- [ ] Update `introduction` with implementation status once coding starts
-- [ ] Update `sourcecode` diagrams to implemented method names
-- [ ] Update `useguide` from planned contract to active contract after code verification
-- [ ] Resolve or explicitly defer all open decisions in `hallucination`
+- [x] Update `introduction` with implementation status
+- [x] Update `sourcecode` diagrams to implemented method names
+- [x] Update `useguide` to active contract after code verification
+- [x] Resolve and close `hallucination` for the current baseline
 
-## Candidate File Targets
+## Implemented File Targets
 
-- [ ] `SnakeAid.Api/Controllers/ConsultationsController.cs`
-- [ ] `SnakeAid.Service/Interfaces/IConsultationService.cs`
-- [ ] `SnakeAid.Service/Implements/ConsultationService.cs`
-- [ ] `SnakeAid.Core/Requests/Consultation/*`
-- [ ] `SnakeAid.Core/Responses/Consultation/*`
-- [ ] `SnakeAid.Tests/Integration/*Consultation*.cs`
+- [x] `SnakeAid.Api/Controllers/ConsultationsController.cs`
+- [x] `SnakeAid.Service/Interfaces/IConsultationService.cs`
+- [x] `SnakeAid.Service/Implements/ConsultationService.cs`
+- [x] `SnakeAid.Core/Requests/Consultation/ConsultationMessageHistoryQueryRequest.cs`
+- [x] `SnakeAid.Core/Responses/Consultation/ConsultationMessageHistoryItemResponse.cs`
+- [x] `SnakeAid.Tests/Integration/ConsultationMessageHistoryIntegrationTests.cs`
 - [x] `SnakeAid.Docs/Docs/05-Backend/02-layers/consultation-message-history/consultation-message-history.introduction.md`
 - [x] `SnakeAid.Docs/Docs/05-Backend/02-layers/consultation-message-history/consultation-message-history.roadmap.md`
 - [x] `SnakeAid.Docs/Docs/05-Backend/02-layers/consultation-message-history/consultation-message-history.hallucination.md`
@@ -124,15 +124,15 @@ After this work is complete:
 
 ## Verification Strategy
 
-Minimum verification before activating the endpoint contract in `useguide`:
+Completed verification for the current implementation:
 
-1. create or seed a completed consultation with stored `ChatMessages`
+1. seed terminal consultations with stored `ChatMessages`
 2. call `pageNumber = 1` and confirm newest batch is returned
 3. call the next page and confirm it returns the next older batch
-4. confirm a third-party user cannot read the same consultation
-5. confirm non-terminal consultation behavior matches the locked rule
-6. confirm ordering and pagination match the documented contract
-7. confirm response examples in docs match real payload shape
+4. confirm a third-party non-admin user cannot read the same consultation
+5. confirm admin can read the same consultation without being a participant
+6. confirm non-terminal consultation behavior matches the locked rule
+7. confirm ordering and pagination match the documented contract
 
 ## Open Questions
 
