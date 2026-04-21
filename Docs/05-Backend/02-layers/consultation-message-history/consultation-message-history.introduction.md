@@ -25,7 +25,7 @@ Business goal:
 
 Target behavior:
 
-- a participant of a completed consultation can retrieve the persisted chat history
+- a participant of a terminal consultation can retrieve the persisted chat history
 - the endpoint is read-only
 - this work does not re-open chat sending after completion
 
@@ -96,11 +96,20 @@ The current recommended direction for planning is:
 
 - add a participant-facing read endpoint under `ConsultationsController`
 - recommended route: `GET /api/consultations/{consultationId}/messages`
-- allow retrieval only when `Consultation.Status == Completed`
+- allow retrieval only when `Consultation.Status` is one of:
+  - `Completed`
+  - `UserAbsent`
+  - `ExpertAbsent`
+  - `AllAbsent`
 - allow retrieval only for `CallerId` or `CalleeId`
 - keep this endpoint read-only
 - keep message sending inside `ConsultationHub` for now
 - paginate results so the endpoint remains safe when long consultations produce many messages
+- return each page in ascending order by `SentAt`, then `Id`
+- use newest-window-first paging semantics:
+  - `pageNumber = 1` returns the newest history batch
+  - `pageNumber = 2` returns the next older batch
+- keep the response aligned with stored truth and do not add sender enrichment in v1
 
 Recommended response shape should stay close to persisted truth:
 
@@ -111,15 +120,15 @@ Recommended response shape should stay close to persisted truth:
 - `attachmentUrl`
 - `sentAt`
 
-Optional enrichment such as sender display name or sender role is not locked yet and is tracked in `consultation-message-history.hallucination.md`.
+Sender enrichment such as display name or role is intentionally excluded from v1.
 
 ## Scope Boundary
 
 In scope:
 
-- read persisted messages of one completed consultation
+- read persisted messages of one terminal consultation
 - participant authorization
-- completed-status validation
+- terminal-status validation
 - response DTOs and endpoint contract
 - tests and docs for the new read path
 

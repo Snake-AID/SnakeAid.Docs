@@ -2,9 +2,10 @@
 
 ## Purpose
 
-This file does not lock design.
+This file now serves two purposes:
 
-This file collects ambiguity, unresolved product decisions, and implementation choices that should not be silently invented while planning or coding.
+- preserve ambiguity that should not be silently invented
+- record which former risks have already been decided and must be reflected in the baseline docs
 
 Only move an item from here into the main docs after one option is explicitly chosen and its impact is understood.
 
@@ -24,42 +25,50 @@ Current direction is already fairly clear:
 - scope the new endpoint to consultation participants
 - make the endpoint read-only
 
-What is not fully locked yet is the exact client contract and rule boundary.
+Most of the client contract and rule boundary are now locked.
 
-## Risk 1. Completed-Only Rule
+Already decided:
 
-### Current ambiguity
+- allow terminal consultation states:
+  - `Completed`
+  - `UserAbsent`
+  - `ExpertAbsent`
+  - `AllAbsent`
+- skip sender enrichment in v1
+- return ascending by `SentAt`, then `Id` as a deterministic tiebreaker
+- preserve stored truth exactly for attachment-only messages
+- use business validation failure mapped to `400` for non-eligible consultation states
 
-The business request says:
+The main remaining design area worth deeper analysis is paging behavior for mobile UX while still reusing `PagingResponse<T>`.
 
-- users should be able to get history of a completed consultation
-- they should not be able to continue chatting
+## Risk 1. Terminal-State Rule
 
-But it does not fully lock whether history retrieval must be blocked before completion.
+### Decision
 
-Possible choices:
+- allow:
+  - `Completed`
+  - `UserAbsent`
+  - `ExpertAbsent`
+  - `AllAbsent`
 
-- allow only `Completed`
-- allow `Completed`, `UserAbsent`, `ExpertAbsent`, `AllAbsent`, and maybe `Cancelled`
-- allow participants to read persisted history at any time
+### Impact
 
-### Why this matters
-
-This changes:
-
-- service validation logic
-- frontend screen timing
-- expected error behavior for ongoing consultations
-
-### Recommended default
-
-- v1 should allow only `Completed`
+- the endpoint should be described as available for `terminal consultation states`
+- `Cancelled` is still not part of the allowed set unless explicitly added later
 
 ## Risk 2. Response Enrichment
 
-### Current ambiguity
+### Decision
 
-Minimal data already exists in `ChatMessage`:
+- skip sender enrichment in v1
+
+### Reason
+
+- the UI inside the video call already works correctly on the app
+- this feature only exposes the chat UI outside the video call in read-only mode
+- v1 should keep the response as close as possible to the stored message truth
+
+### Locked v1 message shape
 
 - `id`
 - `consultationId`
@@ -68,106 +77,124 @@ Minimal data already exists in `ChatMessage`:
 - `attachmentUrl`
 - `sentAt`
 
-But mobile may want convenience fields such as:
-
-- `senderDisplayName`
-- `senderRole`
-- avatar URL
-
-### Why this matters
-
-Adding enrichment increases:
-
-- query joins
-- mapper complexity
-- response-lock surface
-
-### Recommended default
-
-- keep v1 minimal with `senderId`
-- only add sender convenience fields if mobile proves they are required
-
 ## Risk 3. Sort Direction
 
-### Current ambiguity
-
-History screens often want:
-
-- ascending order for chat replay
-
-But list APIs often want:
-
-- descending order for newest-first browsing
-
-### Why this matters
-
-This impacts:
-
-- database order
-- paging behavior
-- mobile scroll experience
-- documentation examples
-
-### Recommended default
+### Decision
 
 - return ascending by `SentAt`, then `Id` as a tiebreaker
 
+### Impact
+
+- every returned page can be rendered directly from top to bottom
+- duplicate timestamps still produce deterministic ordering
+
 ## Risk 4. Pagination Shape
 
-### Current ambiguity
-
-Possible response styles:
-
-- return a simple array
-- return `PagingResponse<T>`
-- return cursor-based pagination
-
-### Why this matters
-
-History can grow long enough that returning all messages may become unsafe.
-
-### Recommended default
+### Decision
 
 - reuse existing `PagingResponse<T>` style with `pageNumber` and `pageSize`
 
+### Deep analysis
+
+The mobile user journey is not the same as a normal list page.
+
+Expected mobile UX:
+
+1. user opens the readonly chat history screen
+2. app should show the newest batch first
+3. inside that batch, messages should still render from old to new
+4. when user scrolls upward past the oldest loaded message, app requests the next older batch
+
+This creates two simultaneous requirements:
+
+- page selection must be newest-first
+- item order inside each page must remain ascending
+
+If the backend uses classic oldest-first pagination:
+
+- page `1` = oldest items
+- page `N` = newest items
+
+then mobile would need extra client logic:
+
+- fetch metadata first to compute the last page
+- or fetch descending and reverse locally
+- or keep a custom translation layer between UI paging and server paging
+
+That is avoidable.
+
+### Recommended paging contract
+
+Keep `PagingResponse<T>`, but define page semantics as:
+
+- `pageNumber = 1` returns the newest history batch
+- `pageNumber = 2` returns the next older batch
+- `pageNumber = 3` returns the next older batch after that
+- items inside each page are still sorted ascending by `SentAt`, then `Id`
+
+### Concrete example
+
+Assume:
+
+- total messages = `120`
+- page size = `50`
+
+Recommended server behavior:
+
+- page `1` -> messages `71..120`, returned ascending
+- page `2` -> messages `21..70`, returned ascending
+- page `3` -> messages `1..20`, returned ascending
+
+This allows mobile to:
+
+- open with `pageNumber=1`
+- prepend older messages by incrementing `pageNumber`
+- avoid local reverse sorting
+
+### Why this is stable enough
+
+This contract works well because the endpoint is only for terminal consultation states:
+
+- `Completed`
+- `UserAbsent`
+- `ExpertAbsent`
+- `AllAbsent`
+
+So the underlying history is frozen while paging and page windows do not shift.
+
+### Required documentation note
+
+Main docs must explicitly say both:
+
+- `pageNumber` counts from the newest batch backward
+- items inside each page are still ascending
+
+Without both statements, implementers will assume classic oldest-first paging and break the intended UX.
+
 ## Risk 5. Attachment-Only Messages
 
-### Current ambiguity
-
-`ConsultationHub.ReceiveMessage(...)` currently allows:
-
-- content only
-- attachment only
-- content plus attachment
-
-But the mobile history contract must clearly define whether `content` can be empty or null in the returned payload.
-
-### Why this matters
-
-Frontend rendering can break if it assumes message text always exists.
-
-### Recommended default
+### Decision
 
 - preserve stored truth exactly
 - document that `content` may be empty when `attachmentUrl` is present
 
-## Risk 6. Failure Code For Non-Completed Consultations
+## Risk 6. Failure Code For Non-Eligible Consultation States
 
-### Current ambiguity
-
-If caller is a valid participant but consultation is not completed yet, the backend could return:
-
-- `400`
-- `403`
-- `404`
-
-### Why this matters
-
-This affects frontend error handling and business semantics.
-
-### Recommended default
+### Decision
 
 - use a business validation failure that maps to `400`
+
+### Clarified trigger
+
+This applies when:
+
+- consultation exists
+- caller is a valid participant
+- but consultation status is not one of:
+  - `Completed`
+  - `UserAbsent`
+  - `ExpertAbsent`
+  - `AllAbsent`
 
 ## Promotion Rule
 

@@ -34,7 +34,7 @@ Current verified backend behavior:
 
 Planned module behavior:
 
-- participants of a completed consultation can fetch persisted message history
+- participants of a terminal consultation can fetch persisted message history
 - the endpoint is read-only
 - this work does not allow users to continue chatting after completion
 
@@ -127,7 +127,7 @@ Important note:
 
 Purpose:
 
-- retrieve persisted chat history for one completed consultation
+- retrieve persisted chat history for one terminal consultation
 
 Status:
 
@@ -149,7 +149,7 @@ Recommended query params:
 
 | Field      | Type | Required | Notes                              |
 | ---------- | ---- | -------- | ---------------------------------- |
-| pageNumber | int  | No       | Default `1`, recommended `>= 1` |
+| pageNumber | int  | No       | Default `1`, recommended `>= 1`; `1` means newest history batch |
 | pageSize   | int  | No       | Default `50`, recommended `1..100` |
 
 Recommended request example:
@@ -163,9 +163,15 @@ Recommended planned backend behavior:
 
 - validate consultation exists
 - validate caller is consultation participant
-- validate consultation is `Completed`
+- validate consultation is one of:
+  - `Completed`
+  - `UserAbsent`
+  - `ExpertAbsent`
+  - `AllAbsent`
 - return persisted messages from `ChatMessages`
 - keep the endpoint read-only
+- select pages from newest batch backward
+- keep items inside each page sorted ascending by `SentAt`, then `Id`
 
 Recommended success response:
 
@@ -213,6 +219,9 @@ Field notes:
 - `content` may be empty when the message is attachment-only
 - `attachmentUrl` may be `null`
 - `senderId` should be treated as the source of truth for message ownership
+- v1 intentionally does not add sender display name, sender role, or avatar fields
+- `pageNumber = 1` is the newest history window, not the oldest one
+- each returned page is still ordered old-to-new inside that page
 - the response example above is a recommended contract, not an active code-verified payload yet
 
 ### 4.4 Expected Failure Behavior
@@ -222,7 +231,7 @@ Recommended failure cases for the planned endpoint:
 - missing token or invalid token -> `401`
 - user is not a consultation participant -> `403`
 - consultation does not exist -> `404`
-- consultation is not yet completed -> recommended business validation failure
+- consultation is not in an allowed terminal state -> business validation failure mapped to `400`
 
 ## 5. Admin Business + Admin APIs
 
@@ -240,7 +249,7 @@ Recommended failure cases for the planned endpoint:
 
 | Field      | Type | Required | Constraints                   |
 | ---------- | ---- | -------- | ----------------------------- |
-| pageNumber | int  | No       | recommended `>= 1`            |
+| pageNumber | int  | No       | newest-window-first, recommended `>= 1` |
 | pageSize   | int  | No       | recommended `1..100`          |
 
 ### Planned `ConsultationMessageHistoryItemResponse`
@@ -299,4 +308,6 @@ Code-verified related surfaces that already exist today:
 - created the planning useguide for consultation message history
 - documented that message persistence already exists in `ChatMessages`
 - documented the current realtime send surface in `ConsultationHub`
-- proposed a participant-facing read-only endpoint for completed consultation history
+- proposed a participant-facing read-only endpoint for terminal consultation history
+- locked v1 payload to stored-truth message fields without sender enrichment
+- clarified newest-window-first paging with ascending ordering inside each page

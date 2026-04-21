@@ -92,6 +92,12 @@ Recommended planned surface:
 - service method on `IConsultationService`
 - response DTO dedicated to consultation message history
 - optional paging request DTO under `SnakeAid.Core/Requests/Consultation`
+- terminal-state validation for:
+  - `Completed`
+  - `UserAbsent`
+  - `ExpertAbsent`
+  - `AllAbsent`
+- newest-window-first page selection with ascending item order inside each page
 
 ## 5. Planned Class Diagram
 
@@ -173,16 +179,19 @@ sequenceDiagram
     API->>Service: GetConsultationMessageHistoryAsync(consultationId, actorId, query)
     Service->>DB: load Consultation
     Service->>Service: validate participant ownership
-    Service->>Service: validate Completed status
+    Service->>Service: validate terminal consultation status
     Service->>DB: query ChatMessages by ConsultationId
+    Service->>Service: select newest page window
+    Service->>Service: return items ascending by SentAt, then Id
     Service-->>API: PagingResponse<ConsultationMessageHistoryItemResponse>
     API-->>App: ApiResponse(...)
 ```
 
 ## 7. Test Focus
 
-- consultation participants can read completed-history messages
+- consultation participants can read history for `Completed`, `UserAbsent`, `ExpertAbsent`, and `AllAbsent`
 - non-participants cannot read them
 - ordering matches the locked contract
 - attachment-only messages remain renderable
+- page `1` returns the newest message window while preserving ascending order inside the page
 - the endpoint stays read-only and does not alter realtime messaging behavior

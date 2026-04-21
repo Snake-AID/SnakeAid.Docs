@@ -38,7 +38,7 @@ After this work is complete:
 
 1. a consultation participant can request message history through HTTP
 2. the endpoint returns persisted messages for one consultation
-3. only completed consultations are eligible for this read path
+3. only terminal consultation states are eligible for this read path
 4. only `CallerId` or `CalleeId` can read the history
 5. the endpoint is read-only and does not extend chat sending after completion
 6. docs and tests clearly separate implemented behavior from planned behavior during rollout
@@ -47,30 +47,32 @@ After this work is complete:
 
 - [x] Reuse `ConsultationsController` instead of creating a separate controller
 - [x] Keep message send flow in `ConsultationHub`
-- [x] Add a read-only endpoint for completed consultations
+- [x] Add a read-only endpoint for terminal consultations
 - [x] Reuse participant ownership rule based on `CallerId` and `CalleeId`
-- [ ] Lock final paging and ordering contract
-- [ ] Lock whether sender metadata beyond `senderId` is part of v1 response
+- [x] Do not add sender enrichment in v1 beyond `senderId`
+- [x] Use ascending message order by `SentAt`, then `Id`
+- [x] Reuse `PagingResponse<T>` with newest-window-first page semantics
 
 ## Implementation Checklist
 
 ### Phase 1. Contract Lock
 
 - [ ] Lock route template for message history
-- [ ] Lock completed-only rule
-- [ ] Lock pagination fields
-- [ ] Lock sort order
-- [ ] Lock minimal response DTO shape
-- [ ] Move unresolved API shape questions to `hallucination`
+- [x] Lock terminal-state rule
+- [x] Lock pagination fields
+- [x] Lock sort order
+- [x] Lock minimal response DTO shape
+- [x] Move remaining paging UX notes to `hallucination`
 
 ### Phase 2. Service Layer
 
 - [ ] Add a service method to retrieve consultation message history
 - [ ] Validate consultation existence
 - [ ] Validate actor is a participant
-- [ ] Validate consultation is `Completed`
+- [ ] Validate consultation is in an allowed terminal state
 - [ ] Query `ChatMessages` by `ConsultationId`
-- [ ] Order and paginate safely
+- [ ] Order ascending by `SentAt`, then `Id`
+- [ ] Implement newest-window-first paging using `pageNumber` and `pageSize`
 
 ### Phase 3. API Layer
 
@@ -87,12 +89,13 @@ After this work is complete:
 
 ### Phase 5. Tests
 
-- [ ] Participant of completed consultation can read history
+- [ ] Participant of terminal consultation can read history
 - [ ] Non-participant gets forbidden
-- [ ] Participant of non-completed consultation is rejected according to locked rule
+- [ ] Participant of non-terminal consultation is rejected with business validation mapped to `400`
 - [ ] Messages are returned in the locked order
 - [ ] Attachment-only messages are preserved correctly
 - [ ] Empty history returns success with empty items
+- [ ] `pageNumber = 1` returns newest batch while items stay ascending inside the batch
 
 ### Phase 6. Documentation Sync
 
@@ -123,16 +126,14 @@ Minimum verification before activating the endpoint contract in `useguide`:
 2. call the history endpoint as caller
 3. call the history endpoint as callee
 4. confirm a third-party user cannot read the same consultation
-5. confirm non-completed consultation behavior matches the locked rule
+5. confirm non-terminal consultation behavior matches the locked rule
 6. confirm ordering and pagination match the documented contract
 7. confirm response examples in docs match real payload shape
 
 ## Open Questions
 
-1. Should the endpoint be completed-only, or should ongoing consultations also be allowed to read already persisted history?
-2. Should the response include sender enrichment such as display name or role?
-3. Should v1 default ordering be ascending by `SentAt` for chat replay, or descending for recent-first history screens?
-4. Should mobile receive all messages in one list for completed consultations, or a paged response with infinite scroll?
+1. Should `Cancelled` ever be treated as a terminal readable state for consultation messages?
+2. Does mobile need any extra paging hint beyond `PagingResponse<T>` metadata once implementation starts?
 
 ## Change Log
 
@@ -141,4 +142,7 @@ Minimum verification before activating the endpoint contract in `useguide`:
 - initialized planning docs for consultation message history
 - documented that persistence already exists in `ChatMessages`
 - documented that the missing piece is the post-completion HTTP read contract
-- proposed a participant-only completed-consultation history endpoint
+- proposed a participant-only terminal-consultation history endpoint
+- locked v1 response to stored-truth message fields without sender enrichment
+- locked ascending order by `SentAt`, then `Id`
+- locked newest-window-first paging semantics using `pageNumber` and `pageSize`
