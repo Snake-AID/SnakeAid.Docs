@@ -22,11 +22,12 @@ Current user-visible behavior:
 - user responses mask `bankAccount`
 - admin responses return full `bankAccount`
 - QR fields are generated on `Approved`
-- wallet balance is not deducted at create time
-- wallet balance is deducted at admin `Approve`
+- wallet balance is deducted at create time
+- create inserts `TransactionType.WithdrawalInitiated`
+- admin `Approve` does not deduct again
 - admin `Complete` confirms the payout and does not deduct again
 - user `Cancel` stores the withdrawal as `Rejected`
-- admin `Reject` refunds only when the withdrawal had already reached `Approved`
+- admin `Reject` refunds wallet balance for both `Pending` and `Approved`
 
 ## Authentication & Authorization
 
@@ -63,12 +64,12 @@ Current user-visible behavior:
   - `bankBin`: required, exactly `6` digits
 - service validation:
   - wallet must exist
-  - available balance is checked as `wallet balance - sum(pending withdrawals)`
+  - current `Wallet.Balance` must already cover the withdrawal amount
   - same-day withdrawal total excluding `Rejected` and `Failed` must not exceed `10000000`
 - success result:
   - status is `Pending`
   - QR fields are `null`
-  - wallet balance is unchanged at this step
+  - wallet balance is reduced at this step
 
 #### Cancel Withdrawal
 
@@ -302,16 +303,16 @@ Success response:
 #### Approve
 
 - source status must be `Pending`
-- current code deducts `Wallet.Balance`
-- current code inserts `TransactionType.WalletWithdraw`
+- current code does not deduct `Wallet.Balance`
+- current code does not insert a financial transaction
 - current code generates `VietQrPayload`
 - current code stores optional `AdminNotes`
 
 #### Reject
 
 - source status may be `Pending` or `Approved`
-- if source status is `Approved`, current code refunds wallet balance
-- if source status is `Approved`, current code inserts `TransactionType.AdminAdjustment`
+- current code refunds wallet balance for both `Pending` and `Approved`
+- current code inserts `TransactionType.WithdrawalRefund`
 - QR fields are cleared
 
 #### Complete
@@ -323,7 +324,7 @@ Success response:
 
 - source status must be `Approved`
 - current code refunds wallet balance
-- current code inserts `TransactionType.AdminAdjustment`
+- current code inserts `TransactionType.WithdrawalRefund`
 - QR fields are cleared
 
 ### Admin APIs

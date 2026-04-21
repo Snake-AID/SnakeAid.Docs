@@ -52,13 +52,13 @@ Current verified lifecycle:
 
 1. `CreateWithdrawalRequestAsync(...)`
 2. insert `WalletWithdraw` with status `Pending`
-3. do not mutate `Wallet.Balance`
-4. validate available amount by subtracting current pending-withdrawal sum
-5. `ApproveWithdrawalAsync(...)` deducts wallet balance and inserts `TransactionType.WalletWithdraw`
+3. reduce `Wallet.Balance`
+4. insert `TransactionType.WithdrawalInitiated`
+5. `ApproveWithdrawalAsync(...)` generates QR and keeps wallet balance unchanged
 6. `CompleteWithdrawalAsync(...)` only marks `Completed`
-7. `RejectWithdrawalAsync(...)` refunds only when the source status is `Approved`
-8. `FailWithdrawalAsync(...)` refunds and inserts `TransactionType.AdminAdjustment`
-9. `CancelWithdrawalAsync(...)` marks `Rejected` without wallet mutation
+7. `RejectWithdrawalAsync(...)` refunds both `Pending` and `Approved` through `TransactionType.WithdrawalRefund`
+8. `FailWithdrawalAsync(...)` refunds and inserts `TransactionType.WithdrawalRefund`
+9. `CancelWithdrawalAsync(...)` marks `Rejected`, refunds wallet balance, and inserts `TransactionType.WithdrawalRefund`
 
 ## Target Financial Lifecycle
 
@@ -66,12 +66,12 @@ Planned target lifecycle:
 
 1. `CreateWithdrawalRequestAsync(...)` inserts `Pending` withdrawal
 2. the same create transaction also holds funds by reducing `Wallet.Balance`
-3. create `TransactionType.WalletWithdrawHold`
+3. create `TransactionType.WithdrawalInitiated`
 4. `ApproveWithdrawalAsync(...)` generates QR and marks `Approved`
 5. `CompleteWithdrawalAsync(...)` marks `Completed`
-6. `RejectWithdrawalAsync(...)` releases held funds through `TransactionType.WalletWithdrawRelease`
-7. `CancelWithdrawalAsync(...)` releases held funds through `TransactionType.WalletWithdrawRelease`
-8. `FailWithdrawalAsync(...)` releases held funds through `TransactionType.WalletWithdrawRelease`
+6. `RejectWithdrawalAsync(...)` refunds through `TransactionType.WithdrawalRefund`
+7. `CancelWithdrawalAsync(...)` refunds through `TransactionType.WithdrawalRefund`
+8. `FailWithdrawalAsync(...)` refunds through `TransactionType.WithdrawalRefund`
 
 ## Class Diagram
 
@@ -157,15 +157,12 @@ sequenceDiagram
     User->>API: POST /api/withdrawals/create
     API->>Service: CreateWithdrawalRequestAsync(...)
     Service->>DB: load Wallet
-    Service->>DB: sum Pending withdrawals
+    Service->>DB: validate Wallet.Balance
     Service->>DB: insert WalletWithdraw(Pending)
-    Service-->>API: WithdrawalResponse
-
-    Admin->>Admin: POST /api/admin/withdrawals/{id}/approve
-    Admin->>Service: ApproveWithdrawalAsync(...)
     Service->>DB: deduct Wallet.Balance
-    Service->>DB: insert Transaction(WalletWithdraw)
+    Service->>DB: insert Transaction(WithdrawalInitiated)
     Service->>DB: store VietQR payload and status Approved
+    Service-->>API: WithdrawalResponse
 
     Admin->>Admin: POST /api/admin/withdrawals/{id}/complete
     Admin->>Service: CompleteWithdrawalAsync(...)
@@ -187,7 +184,7 @@ sequenceDiagram
     Service->>DB: load Wallet
     Service->>DB: validate amount and limits
     Service->>DB: deduct Wallet.Balance
-    Service->>DB: insert Transaction(WalletWithdrawHold)
+    Service->>DB: insert Transaction(WithdrawalInitiated)
     Service->>DB: insert WalletWithdraw(Pending)
     Service-->>API: WithdrawalResponse
 
@@ -198,7 +195,7 @@ sequenceDiagram
     Admin->>Admin: POST /api/admin/withdrawals/{id}/reject
     Admin->>Service: RejectWithdrawalAsync(...)
     Service->>DB: release held amount
-    Service->>DB: insert Transaction(WalletWithdrawRelease)
+    Service->>DB: insert Transaction(WithdrawalRefund)
     Service->>DB: update status Rejected
 ```
 

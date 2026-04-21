@@ -34,14 +34,14 @@ Status: `Closed`
 
 Why this needs a decision:
 
-- current code uses `TransactionType.WalletWithdraw` when admin approves
-- current refund paths use `TransactionType.AdminAdjustment`
+- current code originally used `TransactionType.WalletWithdraw` when admin approved
+- current refund paths originally used `TransactionType.AdminAdjustment`
 - after moving deduction to `Pending`, the team must decide how the ledger should describe the hold and later release
 
 Options:
 
 1. Recommended: create `TransactionType.WalletWithdraw` at `Pending`, keep release entries as `TransactionType.AdminAdjustment`
-2. Add new transaction types for explicit reservation and release, for example `WalletWithdrawHold` and `WalletWithdrawRelease`
+2. Add new transaction types for explicit withdrawal debit and refund, finalized as `WithdrawalInitiated` and `WithdrawalRefund`
 3. Do not create any financial transaction at `Pending`; only mutate `Wallet.Balance` and keep a release transaction on reject/cancel/fail
 
 Tradeoff summary:
@@ -55,7 +55,7 @@ Decision record:
 - chosen option: `2`
 - owner decision date: `2026-04-21`
 - final decision:
-  - add dedicated transaction types for withdrawal hold and withdrawal release
-  - use the hold transaction when a withdrawal is created as `Pending`
-  - use the release transaction when funds are returned by `Reject`, `Cancel`, or `Fail`
+  - add dedicated transaction types `WithdrawalInitiated` and `WithdrawalRefund`
+  - use `WithdrawalInitiated` when a withdrawal is created as `Pending`
+  - use `WithdrawalRefund` when funds are returned by `Reject`, `Cancel`, or `Fail`
   - avoid overloading `TransactionType.WalletWithdraw` and `TransactionType.AdminAdjustment` for the new hold/release lifecycle

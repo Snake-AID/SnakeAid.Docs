@@ -14,11 +14,11 @@ verification_status: code-verified
 ## Current Status Snapshot
 
 - withdrawal APIs: `Implemented`
-- pending reservation in wallet balance: `Not implemented`
-- create-time pending reservation check: `Implemented`
-- wallet deduction at approval: `Implemented`
+- pending reservation in wallet balance: `Implemented`
+- create-time wallet debit: `Implemented`
+- wallet deduction at approval: `Removed`
 - refund on reject after approval: `Implemented`
-- refund on reject while pending hold exists: `Not implemented`
+- refund on reject while pending exists: `Implemented`
 
 ## Current Truth To Resume From
 
@@ -26,14 +26,14 @@ This roadmap is written so work can resume from zero memory.
 
 Current verified baseline:
 
-- `CreateWithdrawalRequestAsync(...)` creates `Pending` withdrawal and does not mutate `Wallet.Balance`
-- create flow already subtracts total `Pending` withdrawal amount from available balance validation
-- `ApproveWithdrawalAsync(...)` deducts wallet balance, generates QR, and inserts `TransactionType.WalletWithdraw`
+- `CreateWithdrawalRequestAsync(...)` creates `Pending`, deducts `Wallet.Balance`, and inserts `TransactionType.WithdrawalInitiated`
+- create flow now uses actual wallet balance instead of subtracting pending totals from validation
+- `ApproveWithdrawalAsync(...)` generates QR and does not mutate wallet balance
 - `CompleteWithdrawalAsync(...)` only changes status to `Completed`
 - `RejectWithdrawalAsync(...)` accepts `Pending` and `Approved`
-- `RejectWithdrawalAsync(...)` refunds only when the source status was `Approved`
-- `FailWithdrawalAsync(...)` refunds because it only accepts `Approved`
-- `CancelWithdrawalAsync(...)` converts `Pending` to `Rejected` without wallet mutation
+- `RejectWithdrawalAsync(...)` refunds both `Pending` and `Approved` by inserting `TransactionType.WithdrawalRefund`
+- `FailWithdrawalAsync(...)` refunds approved withdrawals with `TransactionType.WithdrawalRefund`
+- `CancelWithdrawalAsync(...)` converts `Pending` to `Rejected`, refunds wallet balance, and inserts `TransactionType.WithdrawalRefund`
 
 ## Target Outcome
 
@@ -57,7 +57,7 @@ After this work is complete:
 - [x] Keep `Fail` as a post-approval processing failure that releases funds
 - [x] Update docs in the same task as code changes
 - [x] Lock final ledger strategy for hold and release transactions
-- [x] Decision: add dedicated transaction types for withdrawal hold and withdrawal release
+- [x] Decision: add dedicated transaction types `WithdrawalInitiated` and `WithdrawalRefund`
 
 ## Implementation Checklist
 
@@ -109,9 +109,9 @@ After this work is complete:
 
 ## File Targets
 
-- [ ] `SnakeAid.Service/Implements/WalletWithdrawService.cs`
-- [ ] `SnakeAid.Tests/Unit/WalletWithdrawServiceTests.cs`
-- [ ] `SnakeAid.Tests/Integration/WalletWithdrawalFlowIntegrationTests.cs`
+- [x] `SnakeAid.Service/Implements/WalletWithdrawService.cs`
+- [x] `SnakeAid.Tests/Unit/WalletWithdrawServiceTests.cs`
+- [x] `SnakeAid.Tests/Integration/WalletWithdrawalFlowIntegrationTests.cs`
 - [ ] `SnakeAid.Docs/Docs/05-Backend/02-layers/wallet-withdrawal-processing/wallet-withdrawal-processing.introduction.md`
 - [ ] `SnakeAid.Docs/Docs/05-Backend/02-layers/wallet-withdrawal-processing/wallet-withdrawal-processing.roadmap.md`
 - [ ] `SnakeAid.Docs/Docs/05-Backend/02-layers/wallet-withdrawal-processing/wallet-withdrawal-processing.hallucination.md`
@@ -140,3 +140,5 @@ Required verification for the target implementation:
 - defined the target shift from implicit reservation to explicit wallet hold
 - captured implementation phases, test updates, and doc-sync requirements
 - locked the ledger direction to dedicated transaction types for withdrawal hold and withdrawal release
+- implemented the selected enum wording as `WithdrawalInitiated` and `WithdrawalRefund`
+- moved debit from create-time validation semantics into actual wallet mutation at withdrawal creation

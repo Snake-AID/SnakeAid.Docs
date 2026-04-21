@@ -32,27 +32,23 @@ Current withdrawal flow is implemented in:
 Current verified behavior:
 
 - user creates a withdrawal in `Pending`
-- wallet balance is not reduced at create time
-- create-time validation already subtracts the sum of existing `Pending` withdrawals from available balance
-- admin `Approve` generates VietQR and deducts wallet balance
+- wallet balance is reduced at create time
+- create inserts `TransactionType.WithdrawalInitiated`
+- admin `Approve` generates VietQR and does not change wallet balance
 - admin `Complete` only marks the transfer as completed
-- admin `Reject` refunds only when the withdrawal was already `Approved`
-- admin `Fail` refunds because it only applies to `Approved`
-- user `Cancel` changes `Pending` to `Rejected`
+- admin `Reject` refunds both `Pending` and `Approved` withdrawals
+- admin `Fail` refunds approved withdrawals
+- user `Cancel` changes `Pending` to `Rejected` and refunds wallet balance
 
 ## Important Clarification
 
-The exact oversubscription example from the business note is not fully current anymore.
+The exact oversubscription example from the business note is now resolved directly in wallet state.
 
-Current code already blocks repeated pending-withdrawal stacking inside `CreateWithdrawalRequestAsync(...)` by using:
-
-- `availableBalance = wallet.Balance - sum(Pending withdrawals)`
-
-That means the reservation is currently enforced only inside withdrawal-create validation, not as a real wallet hold recorded in the wallet balance itself.
+Current code now reduces `Wallet.Balance` immediately when the withdrawal is created, so repeated pending requests cannot oversubscribe the same spendable balance.
 
 ## Why This Change Still Matters
 
-The target business rule is stronger and cleaner:
+The implemented business rule is now cleaner:
 
 - once a withdrawal becomes `Pending`, the amount should already be held
 - admin review should not perform the first wallet deduction
@@ -74,16 +70,16 @@ Planned implementation direction for this workstream:
 
 Chosen ledger direction:
 
-- create a dedicated hold transaction type when the withdrawal enters `Pending`
-- create a dedicated release transaction type when funds are returned from `Reject`, `Cancel`, or `Fail`
-- stop overloading `WalletWithdraw` or `AdminAdjustment` for withdrawal hold/release semantics
+- create `TransactionType.WithdrawalInitiated` when the withdrawal enters `Pending`
+- create `TransactionType.WithdrawalRefund` when funds are returned from `Reject`, `Cancel`, or `Fail`
+- stop overloading `WalletWithdraw` or `AdminAdjustment` for withdrawal hold/refund semantics
 
 ## Target Transaction Timeline
 
-The new direction assumes two dedicated transaction types:
+The new direction uses two dedicated transaction types:
 
-- `TransactionType.WalletWithdrawHold`
-- `TransactionType.WalletWithdrawRelease`
+- `TransactionType.WithdrawalInitiated`
+- `TransactionType.WithdrawalRefund`
 
 ### Happy Path: Create -> Approve -> Complete
 
@@ -97,7 +93,7 @@ Step 1. User creates the withdrawal
 - create `WalletWithdraw` with `Status = Pending`
 - reduce `Wallet.Balance` from `500000` to `400000`
 - insert one transaction:
-  - `TransactionType = WalletWithdrawHold`
+  - `TransactionType = WithdrawalInitiated`
   - `Amount = 100000`
   - `ReferenceId = withdrawalId`
 
@@ -126,14 +122,14 @@ Step 1. User creates the withdrawal
 
 - create `Pending`
 - reduce wallet balance
-- insert `WalletWithdrawHold`
+- insert `WithdrawalInitiated`
 
 Step 2. Admin rejects the withdrawal
 
 - move withdrawal to `Rejected`
 - restore `Wallet.Balance`
 - insert one transaction:
-  - `TransactionType = WalletWithdrawRelease`
+  - `TransactionType = WithdrawalRefund`
   - `Amount = 100000`
   - `ReferenceId = withdrawalId`
 
@@ -149,14 +145,14 @@ Step 1. User creates the withdrawal
 
 - create `Pending`
 - reduce wallet balance
-- insert `WalletWithdrawHold`
+- insert `WithdrawalInitiated`
 
 Step 2. User cancels the withdrawal
 
 - move withdrawal to `Rejected`
 - set `RejectionReason = "Cancelled by user"`
 - restore `Wallet.Balance`
-- insert `WalletWithdrawRelease`
+- insert `WithdrawalRefund`
 
 ### Fail Path: Create -> Approve -> Fail
 
@@ -164,7 +160,7 @@ Step 1. Create
 
 - create `Pending`
 - reduce wallet balance
-- insert `WalletWithdrawHold`
+- insert `WithdrawalInitiated`
 
 Step 2. Approve
 
@@ -177,14 +173,14 @@ Step 3. Fail
 - move withdrawal to `Failed`
 - clear QR fields
 - restore `Wallet.Balance`
-- insert `WalletWithdrawRelease`
+- insert `WithdrawalRefund`
 
 ### Reject After Approval Path: Create -> Approve -> Reject
 
 Step 1. Create
 
 - reduce wallet balance
-- insert `WalletWithdrawHold`
+- insert `WithdrawalInitiated`
 
 Step 2. Approve
 
@@ -195,22 +191,22 @@ Step 3. Reject
 
 - move withdrawal to `Rejected`
 - restore `Wallet.Balance`
-- insert `WalletWithdrawRelease`
+- insert `WithdrawalRefund`
 
 ### Lifecycle Summary
 
 | Flow | First transaction | Second transaction | Final wallet effect |
 |---|---|---|---|
-| Create -> Approve -> Complete | `WalletWithdrawHold` | none | `-amount` |
-| Create -> Reject | `WalletWithdrawHold` | `WalletWithdrawRelease` | `0` |
-| Create -> Cancel | `WalletWithdrawHold` | `WalletWithdrawRelease` | `0` |
-| Create -> Approve -> Fail | `WalletWithdrawHold` | `WalletWithdrawRelease` | `0` |
-| Create -> Approve -> Reject | `WalletWithdrawHold` | `WalletWithdrawRelease` | `0` |
+| Create -> Approve -> Complete | `WithdrawalInitiated` | none | `-amount` |
+| Create -> Reject | `WithdrawalInitiated` | `WithdrawalRefund` | `0` |
+| Create -> Cancel | `WithdrawalInitiated` | `WithdrawalRefund` | `0` |
+| Create -> Approve -> Fail | `WithdrawalInitiated` | `WithdrawalRefund` | `0` |
+| Create -> Approve -> Reject | `WithdrawalInitiated` | `WithdrawalRefund` | `0` |
 
 ### Guardrails Required In Code
 
-- only `Create` may insert `WalletWithdrawHold`
-- only `Reject`, `Cancel`, and `Fail` may insert `WalletWithdrawRelease`
+- only `Create` may insert `WithdrawalInitiated`
+- only `Reject`, `Cancel`, and `Fail` may insert `WithdrawalRefund`
 - `Approve` and `Complete` must remain non-financial transitions
 - one withdrawal may be released at most once
 - any second release attempt for the same `withdrawalId` must be blocked
