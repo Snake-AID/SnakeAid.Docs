@@ -18,6 +18,7 @@ verification_status: implemented-and-code-verified
 - current scheduled booking cancel service: `Available`
 - current scheduled booking refund path: `Available for expert-cancel`
 - reusable refund infrastructure: `Available`
+- reusable push-notification infrastructure: `Available`
 - docs status: `Baseline updated`
 
 ## Current Truth To Resume From
@@ -36,6 +37,7 @@ Current verified state:
 - expert-cancel of a paid booking refunds the booking owner
 - member-cancel of a paid booking does not refund and settles escrow
 - scheduled auto-complete settles escrow to the expert at the end of the slot
+- expert-cancel push notification to member is not implemented yet
 
 ## Delivered Outcome
 
@@ -46,6 +48,22 @@ Current verified state:
 5. member-cancel on a paid booking does not refund and settles escrow
 6. booking, consultation, and slot states remain internally consistent
 7. mobile has an active endpoint contract and response example
+
+## Proposed Push Notification Extension For Approval
+
+Requested business behavior:
+
+1. when `Expert` cancels a scheduled booking
+2. backend should queue and deliver a push notification to the booking owner/member
+3. notification title and body must be Vietnamese
+
+Researched implementation direction:
+
+- reuse `INotificationQueueService`
+- publish only after successful expert-cancel commit
+- target recipient is `ConsultationBooking.UserId`
+- do not publish on member-cancel
+- do not block cancellation if broker/Firebase delivery fails
 
 ## Locked Functional Direction
 
@@ -120,6 +138,15 @@ Current verified state:
 - [x] Drop backward-compatibility for legacy string values
 - [x] Align DB storage with enum culture used elsewhere in the codebase
 
+### Phase 8. Proposed Push Notification Extension
+
+- [ ] Confirm final Vietnamese title/body copy
+- [ ] Confirm whether push applies to both `PendingPayment` and `Confirmed` expert-cancel
+- [ ] Inject `INotificationQueueService` into `BookingService`
+- [ ] Publish member notification after successful expert-cancel commit
+- [ ] Add focused tests for expert-cancel notification publishing
+- [ ] Update useguide after the behavior becomes active
+
 ## Verification Strategy
 
 Minimum verified flow:
@@ -136,6 +163,13 @@ Minimum verified flow:
 10. repeat with pending `PayOs` and verify pending transaction cleanup
 11. verify pending-payment cancellation fails clearly if the payment was already externally confirmed
 
+Proposed additional verification after approval:
+
+12. expert cancels the booking
+13. verify a member-targeted notification is queued
+14. verify notification copy is Vietnamese
+15. verify cancellation still succeeds even if broker publish is unavailable
+
 ## Change Log
 
 ### 2026-04-18
@@ -150,3 +184,8 @@ Minimum verified flow:
 - Implemented pending PayOs cleanup for cancelled unpaid bookings
 - Hardened pending-payment cancellation to fail explicitly when the payment already has an external confirmation id
 - Finalized destructive migration from string `CancellationReason` to numeric enum storage
+
+### 2026-04-21 Research Update
+
+- Researched reusable notification queue + Firebase delivery path for future expert-cancel push notification
+- Recorded Vietnamese-only push content requirement into baseline docs for approval

@@ -18,6 +18,9 @@ verification_status: implemented-and-code-verified
 - `ConsultationScheduledController`
 - `BookingService`
 - `ConsultationPaymentService`
+- `NotificationQueueService`
+- `NotificationConsumer`
+- `FirebaseNotificationService`
 - `ConsultationService`
 - `ConsultationBooking`
 - `Consultation`
@@ -79,6 +82,10 @@ Current role:
 - read member/expert booking lists
 - auto-complete elapsed scheduled bookings
 
+Proposed extension role:
+
+- publish member push notification when expert cancels
+
 ### `ConsultationPaymentService`
 
 Current role:
@@ -90,6 +97,29 @@ Current role:
 - cancel pending scheduled booking payment intent
 - settle consultation escrow
 - refund emergency escrow
+
+### `NotificationQueueService`
+
+Current researched role:
+
+- persist `AppNotification`
+- publish `NotificationMessage` via `MassTransit`
+- tolerate broker-delivery failure without rolling back the stored notification
+
+### `NotificationConsumer`
+
+Current researched role:
+
+- consume queued `NotificationMessage`
+- delegate to `FirebaseNotificationService.SendAsync(...)`
+
+### `FirebaseNotificationService`
+
+Current researched role:
+
+- read the user `FcmToken`
+- build Firebase push payload
+- deliver mobile push notification
 
 ## 4. Final Design Notes
 
@@ -114,6 +144,12 @@ Implemented orchestration split:
   - fail explicitly if the external payment has already been confirmed
   - delete the local pending transaction
   - best-effort cancel the PayOs payment link when the pending payment uses `PayOs`
+
+Researched extension split:
+
+- `BookingService.CancelScheduledBookingAsync(...)`
+  - after successful expert-cancel commit
+  - publish a member-targeted notification through `INotificationQueueService`
 
 Cancellation-reason direction:
 
@@ -193,8 +229,39 @@ sequenceDiagram
     Booking->>DB: set booking Cancelled
     Booking->>DB: set consultation Cancelled
     Booking->>DB: set slot Available
+Api-->>Expert: updated booking response
+```
+
+## 6A. Proposed Sequence Diagram: Expert Cancel With Push Notification
+
+```mermaid
+sequenceDiagram
+    participant Expert as Expert App
+    participant Api as ConsultationScheduledController
+    participant Booking as BookingService
+    participant Payment as ConsultationPaymentService
+    participant Queue as NotificationQueueService
+    participant Consumer as NotificationConsumer
+    participant Firebase as FirebaseNotificationService
+
+    Expert->>Api: POST /api/consultations/scheduled/{bookingId}/cancel
+    Api->>Booking: CancelScheduledBookingAsync(actorId, bookingId)
+    Booking->>Payment: refund member if needed
+    Booking->>Booking: update booking, consultation, slot
+    Booking->>Queue: PublishAsync(NotificationMessage in Vietnamese)
+    Queue->>Consumer: deliver through broker
+    Consumer->>Firebase: SendAsync(message)
     Api-->>Expert: updated booking response
 ```
+
+## 6B. Proposed Vietnamese Push Copy
+
+Suggested copy for approval:
+
+- title:
+  - `Lịch tư vấn đã bị chuyên gia hủy`
+- body:
+  - `Chuyên gia đã hủy lịch tư vấn của bạn. Vui lòng kiểm tra lại lịch hẹn trong ứng dụng.`
 
 ## 7. Sequence Diagram: Member Cancel Without Refund
 

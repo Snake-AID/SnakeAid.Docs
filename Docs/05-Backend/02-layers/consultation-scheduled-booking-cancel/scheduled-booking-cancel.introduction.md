@@ -18,6 +18,7 @@ Active business rule:
 
 - allow a scheduled booking to be cancelled before the booked slot starts
 - if the cancellation is initiated by the `Expert`, the paid booking amount is refunded to the booking owner
+- if the cancellation is initiated by the `Expert`, a member-facing push notification is a required next-step extension
 - if the cancellation is initiated by the `Member`, the booking is cancelled without refund and the existing escrow is settled instead of left pending
 - unpaid bookings are cancelled and the reserved slot is released
 
@@ -32,6 +33,7 @@ If this work is resumed later without prior chat history, the current code-verif
 5. Paid member-cancel does not refund and settles the confirmed consultation escrow.
 6. Pending `PayOs` cancellation deletes the local pending payment transaction and best-effort cancels the provider link.
 7. Attempting to cancel a "pending" payment that already has a confirmed external transaction now fails explicitly instead of being treated like a missing payment.
+8. Member push notification on expert-cancel is not part of the active code yet.
 
 ## Code-Verified Current State
 
@@ -77,6 +79,7 @@ Current code-verified payment behavior:
   - cancels booking
   - releases slot to `Available`
   - refunds the member wallet
+  - does not currently publish a push notification
 - for `Confirmed` cancelled by `Member`:
   - cancels booking
   - releases slot to `Available`
@@ -136,3 +139,23 @@ Delivered migration behavior:
 - `scheduled-booking-cancel.roadmap.md`
 - `scheduled-booking-cancel.sourcecode.md`
 - `scheduled-booking-cancel.useguide.md`
+
+## Researched Notification Extension
+
+Requested addition for approval:
+
+- when the expert cancels a scheduled booking
+- backend should send a push notification to the member of that meeting
+
+Code-verified infrastructure already available in the codebase:
+
+- `NotificationQueueService.PublishAsync(...)`
+- `NotificationConsumer`
+- `FirebaseNotificationService`
+- broker publishing through `MassTransit`
+- broker failure checks that explicitly reference RabbitMQ transport exceptions
+
+Language rule for this extension:
+
+- push notification title and body must be Vietnamese only
+- English push content is not acceptable for this user-facing flow

@@ -34,6 +34,7 @@ Current verified backend behavior:
 - experts can read their scheduled bookings
 - users and experts can cancel future scheduled bookings
 - expert-cancel of a paid booking refunds the booking owner
+- expert-cancel does not yet send a push notification in the current active code
 - member-cancel of a paid booking does not refund
 - member-cancel of a paid confirmed booking settles escrow as part of cancellation
 - cancelling a pending PayOs payment removes the local pending payment transaction and attempts to cancel the PayOs link
@@ -228,6 +229,7 @@ Current verified backend behavior:
   - cancel booking
   - release slot
   - refund the member
+  - current active code does not yet queue push notification
 - `Confirmed` cancelled by `Member`:
   - cancel booking
   - release slot
@@ -269,6 +271,36 @@ Expected failure conditions:
 - slot has already started
 - refund already exists for the same booking
 - pending payment already has a confirmed external payment transaction
+
+### 4.6 Proposed Push Notification Extension For Approval
+
+This section is `planned`, not active yet.
+
+Requested behavior:
+
+- when the expert cancels the booking
+- backend should send a push notification to the member who owns that booking
+
+Researched delivery path in the current codebase:
+
+1. `BookingService` would publish through `INotificationQueueService`
+2. `NotificationQueueService` persists `AppNotification`
+3. `NotificationQueueService` publishes `NotificationMessage` through `MassTransit`
+4. broker-delivered message is consumed by `NotificationConsumer`
+5. `NotificationConsumer` calls `FirebaseNotificationService`
+6. Firebase sends push to the member device using stored `FcmToken`
+
+Language requirement:
+
+- notification title and body must be Vietnamese
+- English push content must not be used for this feature
+
+Suggested Vietnamese copy for approval:
+
+- title:
+  - `Lịch tư vấn đã bị chuyên gia hủy`
+- body:
+  - `Chuyên gia đã hủy lịch tư vấn của bạn. Vui lòng kiểm tra lại lịch hẹn trong ứng dụng.`
 
 ## 5. Admin Business + Admin APIs
 
