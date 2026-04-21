@@ -3,10 +3,10 @@ doc_role: implementation
 module: expert-availability
 kind: flow
 doc_type: sourcecode
-status: planning
+status: active
 last_updated: 2026-04-21
 owners: [backend-team]
-verification_status: current-state-code-verified-plan-not-yet-implemented
+verification_status: code-verified
 ---
 
 # Expert Availability Sourcecode
@@ -23,7 +23,7 @@ verification_status: current-state-code-verified-plan-not-yet-implemented
 - `ExpertService`
 - `MyProfileService`
 
-### Planned additions
+### Added backend surface
 
 - `IExpertOnlineStatusService`
 - `ExpertOnlineStatusService`
@@ -81,23 +81,15 @@ Current code-verified server-to-client events:
 3. updates `ExpertProfile.IsOnline = false`
 4. broadcasts `ExpertPresenceChanged` with `isOnline = false`
 
-### Current structural gap
+## 4. Implemented Backend Surface
 
-The current expert availability flow works, but it differs from the rescuer structure because:
-
-- expert status persistence is inside a private hub helper
-- there is no explicit reusable expert online-status service
-- there is no explicit intentional offline method for the app
-
-## 4. Planned Backend Surface
-
-Planned additions:
+Implemented additions:
 
 - `IExpertOnlineStatusService.SetOnlineAsync(string userId)`
 - `IExpertOnlineStatusService.SetOfflineAsync(string userId)`
 - `ExpertHub.LeaveAsExpert()`
 
-Planned refactor:
+Implemented refactor:
 
 - replace `ExpertHub.SetExpertOnlineFlagAsync(...)` with the service
 
@@ -169,7 +161,7 @@ sequenceDiagram
     Hub-->>App: JoinedAsExpert
 ```
 
-### 6.2 Planned Final Toggle Flow
+### 6.2 Implemented Final Toggle Flow
 
 ```mermaid
 sequenceDiagram

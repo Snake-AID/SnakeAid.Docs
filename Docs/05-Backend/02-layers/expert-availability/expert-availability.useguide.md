@@ -3,11 +3,11 @@ doc_role: integration
 module: expert-availability
 kind: flow
 doc_type: useguide
-status: planning
+status: active
 last_updated: 2026-04-21
 api_version: v1
 owners: [backend-team]
-verification_status: current-state-code-verified-plan-not-yet-implemented
+verification_status: code-verified
 ---
 
 # Expert Availability Useguide
@@ -25,7 +25,7 @@ verification_status: current-state-code-verified-plan-not-yet-implemented
 
 ## 2. Overview
 
-This document records the current verified backend contract and the planned final contract for expert availability.
+This document records the current verified backend contract for expert availability.
 
 Current code-verified state:
 
@@ -34,15 +34,11 @@ Current code-verified state:
 - expert online state is set to `true` when the expert joins `/hubs/expert` through `JoinAsExpert()`
 - expert online state is set to `false` when the expert SignalR connection disconnects
 
-Current implementation gap:
+Current implemented state:
 
-- there is no explicit app-facing offline trigger yet
-- there is no dedicated expert online-status service yet
-
-Planned final direction:
-
-- keep `JoinAsExpert()` as the online trigger
-- add an explicit offline trigger on the same hub for the Expert App button
+- `JoinAsExpert()` is the online trigger
+- `LeaveAsExpert()` is the explicit offline trigger on the same hub
+- `ExpertOnlineStatusService` owns persisted online-state writes
 
 ## 3. Authentication & Authorization
 
@@ -134,7 +130,7 @@ Current success event to caller:
 }
 ```
 
-### 4.4 Planned Final Client To Server Method: `LeaveAsExpert()`
+### 4.4 Client To Server Method: `LeaveAsExpert()`
 
 Purpose:
 
@@ -142,23 +138,23 @@ Purpose:
 
 Status:
 
-- `Planned`
-- Not yet code-verified in the phase 1 baseline
+- `Active`
+- Code-verified
 
-Planned request:
+Request:
 
 ```text
 LeaveAsExpert()
 ```
 
-Planned backend behavior:
+Current verified backend behavior:
 
 - remove current expert connection from in-memory tracking
 - persist `ExpertProfile.IsOnline = false`
 - broadcast `ExpertPresenceChanged` with `isOnline = false`
 - reply to caller with a confirmation event
 
-Planned example caller response:
+Example caller response:
 
 ```json
 {
@@ -316,8 +312,6 @@ Current related verified surfaces:
 - `GET /api/experts/{id}`
 - `GET /api/experts/me/profile`
 
-Planned related surface:
-
 - SignalR method `LeaveAsExpert()`
 
 ## 8. Changelog
@@ -327,4 +321,4 @@ Planned related surface:
 - created the baseline useguide for expert availability
 - documented the current connection-driven online or offline behavior
 - documented the existing read APIs that already expose `isOnline`
-- recorded the planned explicit offline trigger on `ExpertHub`
+- activated the explicit offline trigger `LeaveAsExpert()` on `ExpertHub`

@@ -4,7 +4,7 @@
 
 Current status:
 
-- closed for the current planning baseline
+- closed
 
 ## Purpose
 
@@ -19,7 +19,7 @@ Main docs affected by these decisions:
 
 ## Current Direction Summary
 
-Current direction is already clear enough to proceed:
+Current direction is already implemented:
 
 - reuse the existing expert SignalR route `/hubs/expert`
 - keep `ExpertProfile.IsOnline` as the source of persisted truth
@@ -42,7 +42,7 @@ Potential options considered:
 
 ### Decision
 
-- choose option B
+- chose option B
 
 ### Reason
 
@@ -59,6 +59,15 @@ Potential options considered:
   - option C: add dedicated HTTP toggle endpoints
 - chosen option:
   - option B
+
+## Closure Summary
+
+This file stays closed because the chosen trigger surface is now implemented and reflected in:
+
+- `expert-availability.introduction.md`
+- `expert-availability.roadmap.md`
+- `expert-availability.sourcecode.md`
+- `expert-availability.useguide.md`
 
 ## Promotion Rule
 

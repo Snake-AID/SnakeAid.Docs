@@ -3,17 +3,17 @@ doc_role: implementation
 module: expert-availability
 kind: flow
 doc_type: introduction
-status: planning
+status: active
 last_updated: 2026-04-21
 owners: [backend-team]
-verification_status: current-state-code-verified-plan-not-yet-implemented
+verification_status: code-verified
 ---
 
 # Expert Availability Introduction
 
 ## Goal
 
-This module plans the expert online or offline availability trigger for the Expert App.
+This module documents the implemented expert online or offline availability trigger for the Expert App.
 
 Business goal:
 
@@ -30,9 +30,9 @@ If this work is resumed later without prior chat memory, the current code-verifi
 2. `ExpertProfileResponse` and `ExpertMyProfileResponse` already expose `IsOnline`.
 3. `ExpertHub.JoinAsExpert()` already marks `ExpertProfile.IsOnline = true`.
 4. `ExpertHub.OnDisconnectedAsync(...)` already marks `ExpertProfile.IsOnline = false`.
-5. there is currently no dedicated `ExpertOnlineStatusService`.
-6. there is currently no explicit expert offline trigger equivalent to a deliberate app-side toggle action.
-7. there is currently no dedicated HTTP endpoint for expert availability toggling.
+5. `IExpertOnlineStatusService` and `ExpertOnlineStatusService` now exist.
+6. `ExpertHub.LeaveAsExpert()` now provides an explicit expert offline trigger.
+7. there is still no dedicated HTTP endpoint for expert availability toggling; the contract is SignalR-based.
 
 ## Code-Verified Current State
 
@@ -80,26 +80,27 @@ Current verified expert presence behavior:
   - updates `ExpertProfile.IsOnline = false`
   - broadcasts `ExpertPresenceChanged` to `ConsultationMembers`
 
-### Current implementation gap
+### Implemented availability trigger
 
-The backend already has a connection-driven expert online flag, but the code is still incomplete for the requested app behavior because:
+The backend now supports the requested app behavior with this implemented direction:
 
-- online-state write logic is embedded inside `ExpertHub`
-- there is no dedicated expert availability service like `RescuerOnlineStatusService`
-- there is no explicit `LeaveAsExpert()` style trigger for an intentional offline action from the app while the socket is still connected
-- docs for this availability contract do not yet exist as a resumable module baseline
+- `JoinAsExpert()` remains the online trigger
+- `LeaveAsExpert()` is the explicit offline trigger
+- `ExpertOnlineStatusService` owns persisted online-state writes
+- `ExpertHub` keeps member-facing presence broadcasts aligned with the final persisted status
 
-## Planned Implementation Direction
+## Verification Notes
 
-The planned direction for this module is:
+Completed verification:
 
-- create `IExpertOnlineStatusService`
-- create `ExpertOnlineStatusService`
-- move expert online-state writes out of `ExpertHub` private helper logic and into the service
-- keep the existing `JoinAsExpert()` online flow
-- add an explicit expert offline trigger for the app button
-- keep member-facing presence broadcasts aligned with the final expert status change
-- sync the docs set so frontend and backend can resume work without relying on chat memory
+- service-level tests cover online transition
+- service-level tests cover offline transition
+- service-level tests cover idempotent offline transition
+- the test run compiles the full solution path with the new wiring
+
+Known remaining gap:
+
+- there is no dedicated live SignalR integration test yet for invoking `JoinAsExpert()` and `LeaveAsExpert()` over a real hub connection
 
 ## Scope Boundary
 
