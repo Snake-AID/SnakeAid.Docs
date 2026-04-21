@@ -149,7 +149,7 @@ Recommended query params:
 
 | Field      | Type | Required | Notes                              |
 | ---------- | ---- | -------- | ---------------------------------- |
-| pageNumber | int  | No       | Default `1`, recommended `>= 1`; `1` means newest history batch |
+| pageNumber | int  | No       | Default `1`, recommended `>= 1`; `1` means newest history batch and each next page moves to older history |
 | pageSize   | int  | No       | Default `50`, recommended `1..100` |
 
 Recommended request example:
@@ -221,6 +221,7 @@ Field notes:
 - `senderId` should be treated as the source of truth for message ownership
 - v1 intentionally does not add sender display name, sender role, or avatar fields
 - `pageNumber = 1` is the newest history window, not the oldest one
+- each next page returns the next older history window
 - each returned page is still ordered old-to-new inside that page
 - the response example above is a recommended contract, not an active code-verified payload yet
 
@@ -311,3 +312,4 @@ Code-verified related surfaces that already exist today:
 - proposed a participant-facing read-only endpoint for terminal consultation history
 - locked v1 payload to stored-truth message fields without sender enrichment
 - clarified newest-window-first paging with ascending ordering inside each page
+- accepted newest-window-first paging as the baseline contract for mobile UX

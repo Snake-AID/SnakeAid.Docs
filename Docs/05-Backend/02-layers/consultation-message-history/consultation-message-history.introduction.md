@@ -109,6 +109,7 @@ The current recommended direction for planning is:
 - use newest-window-first paging semantics:
   - `pageNumber = 1` returns the newest history batch
   - `pageNumber = 2` returns the next older batch
+  - each next page continues backward to older history
 - keep the response aligned with stored truth and do not add sender enrichment in v1
 
 Recommended response shape should stay close to persisted truth:

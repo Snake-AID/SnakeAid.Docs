@@ -98,6 +98,7 @@ Recommended planned surface:
   - `ExpertAbsent`
   - `AllAbsent`
 - newest-window-first page selection with ascending item order inside each page
+- `pageNumber = 1` means newest history batch
 
 ## 5. Planned Class Diagram
 
@@ -194,4 +195,5 @@ sequenceDiagram
 - ordering matches the locked contract
 - attachment-only messages remain renderable
 - page `1` returns the newest message window while preserving ascending order inside the page
+- page `2` returns the next older message window without overlap or reversal
 - the endpoint stays read-only and does not alter realtime messaging behavior

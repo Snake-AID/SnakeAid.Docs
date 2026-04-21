@@ -52,6 +52,7 @@ After this work is complete:
 - [x] Do not add sender enrichment in v1 beyond `senderId`
 - [x] Use ascending message order by `SentAt`, then `Id`
 - [x] Reuse `PagingResponse<T>` with newest-window-first page semantics
+- [x] Lock `pageNumber = 1` as newest batch and each next page as the next older batch
 
 ## Implementation Checklist
 
@@ -62,7 +63,7 @@ After this work is complete:
 - [x] Lock pagination fields
 - [x] Lock sort order
 - [x] Lock minimal response DTO shape
-- [x] Move remaining paging UX notes to `hallucination`
+- [x] Lock newest-window-first paging behavior for mobile UX
 
 ### Phase 2. Service Layer
 
@@ -123,8 +124,8 @@ After this work is complete:
 Minimum verification before activating the endpoint contract in `useguide`:
 
 1. create or seed a completed consultation with stored `ChatMessages`
-2. call the history endpoint as caller
-3. call the history endpoint as callee
+2. call `pageNumber = 1` and confirm newest batch is returned
+3. call the next page and confirm it returns the next older batch
 4. confirm a third-party user cannot read the same consultation
 5. confirm non-terminal consultation behavior matches the locked rule
 6. confirm ordering and pagination match the documented contract
@@ -133,7 +134,6 @@ Minimum verification before activating the endpoint contract in `useguide`:
 ## Open Questions
 
 1. Should `Cancelled` ever be treated as a terminal readable state for consultation messages?
-2. Does mobile need any extra paging hint beyond `PagingResponse<T>` metadata once implementation starts?
 
 ## Change Log
 

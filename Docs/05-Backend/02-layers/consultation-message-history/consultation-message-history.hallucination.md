@@ -1,5 +1,11 @@
 # Consultation Message History Hallucination
 
+## Status
+
+Current status:
+
+- closed for the current planning baseline
+
 ## Purpose
 
 This file now serves two purposes:
@@ -39,7 +45,7 @@ Already decided:
 - preserve stored truth exactly for attachment-only messages
 - use business validation failure mapped to `400` for non-eligible consultation states
 
-The main remaining design area worth deeper analysis is paging behavior for mobile UX while still reusing `PagingResponse<T>`.
+There is no remaining open risk for the current planning baseline.
 
 ## Risk 1. Terminal-State Rule
 
@@ -93,6 +99,7 @@ The main remaining design area worth deeper analysis is paging behavior for mobi
 ### Decision
 
 - reuse existing `PagingResponse<T>` style with `pageNumber` and `pageSize`
+- accepted as the locked baseline direction
 
 ### Deep analysis
 
@@ -171,6 +178,10 @@ Main docs must explicitly say both:
 
 Without both statements, implementers will assume classic oldest-first paging and break the intended UX.
 
+### Final status
+
+- closed
+
 ## Risk 5. Attachment-Only Messages
 
 ### Decision
@@ -203,3 +214,14 @@ Only promote an item from this file into the main planning docs when:
 - one option is explicitly chosen
 - the chosen option is reflected consistently in API contract and roadmap
 - the failure behavior and edge cases are clear enough to implement and test
+
+## Closure Summary
+
+All six risks for the current planning scope are now decided and reflected in:
+
+- `consultation-message-history.introduction.md`
+- `consultation-message-history.roadmap.md`
+- `consultation-message-history.sourcecode.md`
+- `consultation-message-history.useguide.md`
+
+This file should stay closed unless a new business ambiguity appears during implementation.
