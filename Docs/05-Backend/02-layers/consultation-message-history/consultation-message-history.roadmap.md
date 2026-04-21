@@ -74,7 +74,9 @@ After this work is complete:
 - [x] Validate actor is a participant or admin
 - [x] Validate consultation is in an allowed terminal state
 - [x] Query `ChatMessages` by `ConsultationId`
-- [x] Order ascending by `SentAt`, then `Id`
+- [x] Execute `Count/Skip/Take` in the database instead of loading all messages into memory
+- [x] Normalize invalid paging values defensively before pagination calculations
+- [x] Return each page ordered ascending by `SentAt`, then `Id`
 - [x] Implement newest-window-first paging using `pageNumber` and `pageSize`
 
 ### Phase 3. API Layer
@@ -157,5 +159,7 @@ No open question remains for terminal-status allowlist in the current baseline.
 - added `ConsultationMessageHistoryItemResponse`
 - allowed admin access in addition to participant access
 - added `Cancelled` to the readable terminal-state allowlist
-- implemented newest-window-first paging with ascending ordering inside each page
+- implemented newest-window-first paging with DB-side `Count/Skip/Take`
+- added defensive normalization for invalid `pageNumber/pageSize` inside the service
+- kept ascending ordering inside each returned page
 - added controller tests, route convention tests, and integration tests for the new endpoint logic

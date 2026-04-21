@@ -108,11 +108,15 @@ The current implemented direction is:
 - keep this endpoint read-only
 - keep message sending inside `ConsultationHub` for now
 - paginate results so the endpoint remains safe when long consultations produce many messages
+- perform `Count/Skip/Take` at database-query level instead of loading all messages into memory first
 - return each page in ascending order by `SentAt`, then `Id`
 - use newest-window-first paging semantics:
   - `pageNumber = 1` returns the newest history batch
   - `pageNumber = 2` returns the next older batch
   - each next page continues backward to older history
+- normalize invalid paging values defensively inside the service before pagination math:
+  - `pageNumber < 1` becomes `1`
+  - `pageSize < 1` becomes `10`
 - keep the response aligned with stored truth and do not add sender enrichment in v1
 
 Response shape stays close to persisted truth:

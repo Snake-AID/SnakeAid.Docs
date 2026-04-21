@@ -101,6 +101,12 @@ Implemented surface:
 - access rule:
   - participant
   - or admin
+- DB-side paging:
+  - `CountAsync()` on the newest-first query
+  - `Skip(...)` and `Take(...)` on the same query
+- service-level paging normalization:
+  - `pageNumber < 1` becomes `1`
+  - `pageSize < 1` becomes `10`
 - newest-window-first page selection with ascending item order inside each page
 - `pageNumber = 1` means newest history batch
 
@@ -191,8 +197,9 @@ sequenceDiagram
     Service->>DB: load Consultation
     Service->>Service: validate participant ownership or admin access
     Service->>Service: validate terminal consultation status
-    Service->>DB: query ChatMessages by ConsultationId in newest-first order
-    Service->>Service: select newest page window
+    Service->>Service: normalize paging request defensively
+    Service->>DB: count ChatMessages by ConsultationId
+    Service->>DB: query newest-first page window with Skip/Take
     Service->>Service: return items ascending by SentAt, then Id
     Service-->>API: PagingResponse<ConsultationMessageHistoryItemResponse>
     API-->>App: ApiResponse(...)
@@ -207,4 +214,5 @@ sequenceDiagram
 - attachment-only messages remain renderable
 - page `1` returns the newest message window while preserving ascending order inside the page
 - page `2` returns the next older message window without overlap or reversal
+- paging is executed at DB level rather than materializing the whole consultation history
 - the endpoint stays read-only and does not alter realtime messaging behavior

@@ -46,6 +46,8 @@ Already decided:
 - return ascending by `SentAt`, then `Id` as a deterministic tiebreaker
 - preserve stored truth exactly for attachment-only messages
 - use business validation failure mapped to `400` for non-eligible consultation states
+- execute paging at DB-query level for message-history reads
+- keep defensive service-level normalization for invalid paging values before pagination math
 
 There is no remaining open risk for the current planning baseline.
 

@@ -174,6 +174,7 @@ Current verified backend behavior:
 - keep the endpoint read-only
 - select pages from newest batch backward
 - keep items inside each page sorted ascending by `SentAt`, then `Id`
+- backend reads only the requested page window from the database instead of loading the full consultation history into memory first
 
 Success response:
 
@@ -335,3 +336,4 @@ Frontend/mobile relevance:
 - updated the contract from participant-only to participant-or-admin access
 - added `Cancelled` to the allowed terminal states for message history reads
 - confirmed terminal-state validation and `400` failure for non-terminal consultations
+- confirmed DB-side paging for message history reads
