@@ -4,7 +4,7 @@ module: scheduled-booking-cancel
 kind: flow
 doc_type: useguide
 status: current
-last_updated: 2026-04-20
+last_updated: 2026-04-21
 api_version: v1
 owners: [backend-team]
 verification_status: implemented-and-code-verified
@@ -34,7 +34,7 @@ Current verified backend behavior:
 - experts can read their scheduled bookings
 - users and experts can cancel future scheduled bookings
 - expert-cancel of a paid booking refunds the booking owner
-- expert-cancel does not yet send a push notification in the current active code
+- expert-cancel queues a Vietnamese push notification to the booking owner/member
 - member-cancel of a paid booking does not refund
 - member-cancel of a paid confirmed booking settles escrow as part of cancellation
 - cancelling a pending PayOs payment removes the local pending payment transaction and attempts to cancel the PayOs link
@@ -229,7 +229,11 @@ Current verified backend behavior:
   - cancel booking
   - release slot
   - refund the member
-  - current active code does not yet queue push notification
+  - queue a member-targeted push notification in Vietnamese after commit succeeds
+- `PendingPayment` cancelled by `Expert`:
+  - cancel booking
+  - release slot
+  - queue a member-targeted push notification in Vietnamese after commit succeeds
 - `Confirmed` cancelled by `Member`:
   - cancel booking
   - release slot
@@ -272,30 +276,23 @@ Expected failure conditions:
 - refund already exists for the same booking
 - pending payment already has a confirmed external payment transaction
 
-### 4.6 Proposed Push Notification Extension For Approval
+### 4.6 Current Verified Expert-Cancel Push Notification
 
-This section is `planned`, not active yet.
+Current delivery path in the codebase:
 
-Requested behavior:
-
-- when the expert cancels the booking
-- backend should send a push notification to the member who owns that booking
-
-Researched delivery path in the current codebase:
-
-1. `BookingService` would publish through `INotificationQueueService`
+1. `BookingService` publishes through `INotificationQueueService`
 2. `NotificationQueueService` persists `AppNotification`
 3. `NotificationQueueService` publishes `NotificationMessage` through `MassTransit`
 4. broker-delivered message is consumed by `NotificationConsumer`
 5. `NotificationConsumer` calls `FirebaseNotificationService`
 6. Firebase sends push to the member device using stored `FcmToken`
 
-Language requirement:
+Current active language rule:
 
 - notification title and body must be Vietnamese
 - English push content must not be used for this feature
 
-Suggested Vietnamese copy for approval:
+Current active Vietnamese copy:
 
 - title:
   - `Lịch tư vấn đã bị chuyên gia hủy`
@@ -372,3 +369,8 @@ Current verified endpoints:
 - Documented `cancelledAt` and `cancellationReason` in the booking response
 - Clarified that member-cancel of a confirmed booking settles escrow without refund
 - Clarified that cancelling a pending payment now fails explicitly when the external payment was already confirmed
+
+### 2026-04-21
+
+- Activated member-facing push notification for expert-cancel
+- Documented Vietnamese-only push copy and delivery path for the active flow

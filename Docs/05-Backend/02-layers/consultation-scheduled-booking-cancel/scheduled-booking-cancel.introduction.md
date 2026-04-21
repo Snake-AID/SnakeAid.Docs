@@ -4,7 +4,7 @@ module: scheduled-booking-cancel
 kind: flow
 doc_type: introduction
 status: current
-last_updated: 2026-04-20
+last_updated: 2026-04-21
 owners: [backend-team]
 verification_status: implemented-and-code-verified
 ---
@@ -18,7 +18,7 @@ Active business rule:
 
 - allow a scheduled booking to be cancelled before the booked slot starts
 - if the cancellation is initiated by the `Expert`, the paid booking amount is refunded to the booking owner
-- if the cancellation is initiated by the `Expert`, a member-facing push notification is a required next-step extension
+- if the cancellation is initiated by the `Expert`, backend also queues a member-facing push notification in Vietnamese
 - if the cancellation is initiated by the `Member`, the booking is cancelled without refund and the existing escrow is settled instead of left pending
 - unpaid bookings are cancelled and the reserved slot is released
 
@@ -33,7 +33,7 @@ If this work is resumed later without prior chat history, the current code-verif
 5. Paid member-cancel does not refund and settles the confirmed consultation escrow.
 6. Pending `PayOs` cancellation deletes the local pending payment transaction and best-effort cancels the provider link.
 7. Attempting to cancel a "pending" payment that already has a confirmed external transaction now fails explicitly instead of being treated like a missing payment.
-8. Member push notification on expert-cancel is not part of the active code yet.
+8. Expert-cancel now also queues a member-targeted push notification after successful commit.
 
 ## Code-Verified Current State
 
@@ -79,7 +79,11 @@ Current code-verified payment behavior:
   - cancels booking
   - releases slot to `Available`
   - refunds the member wallet
-  - does not currently publish a push notification
+  - publishes a member push notification in Vietnamese after the cancellation commit succeeds
+- for `PendingPayment` cancelled by `Expert`:
+  - cancels booking
+  - releases slot to `Available`
+  - publishes the same member push notification in Vietnamese after the cancellation commit succeeds
 - for `Confirmed` cancelled by `Member`:
   - cancels booking
   - releases slot to `Available`
@@ -140,9 +144,9 @@ Delivered migration behavior:
 - `scheduled-booking-cancel.sourcecode.md`
 - `scheduled-booking-cancel.useguide.md`
 
-## Researched Notification Extension
+## Implemented Notification Extension
 
-Requested addition for approval:
+Delivered behavior:
 
 - when the expert cancels a scheduled booking
 - backend should send a push notification to the member of that meeting
@@ -159,3 +163,8 @@ Language rule for this extension:
 
 - push notification title and body must be Vietnamese only
 - English push content is not acceptable for this user-facing flow
+
+Implemented copy:
+
+- title: `Lịch tư vấn đã bị chuyên gia hủy`
+- body: `Chuyên gia đã hủy lịch tư vấn của bạn. Vui lòng kiểm tra lại lịch hẹn trong ứng dụng.`

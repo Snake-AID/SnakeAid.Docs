@@ -4,7 +4,7 @@ module: scheduled-booking-cancel
 kind: flow
 doc_type: sourcecode
 status: current
-last_updated: 2026-04-20
+last_updated: 2026-04-21
 owners: [backend-team]
 verification_status: implemented-and-code-verified
 ---
@@ -79,12 +79,9 @@ Current role:
 
 - create scheduled booking
 - cancel scheduled booking
+- publish member push notification when expert cancels
 - read member/expert booking lists
 - auto-complete elapsed scheduled bookings
-
-Proposed extension role:
-
-- publish member push notification when expert cancels
 
 ### `ConsultationPaymentService`
 
@@ -145,7 +142,7 @@ Implemented orchestration split:
   - delete the local pending transaction
   - best-effort cancel the PayOs payment link when the pending payment uses `PayOs`
 
-Researched extension split:
+Implemented notification split:
 
 - `BookingService.CancelScheduledBookingAsync(...)`
   - after successful expert-cancel commit
@@ -232,7 +229,7 @@ sequenceDiagram
 Api-->>Expert: updated booking response
 ```
 
-## 6A. Proposed Sequence Diagram: Expert Cancel With Push Notification
+## 6A. Sequence Diagram: Expert Cancel With Push Notification
 
 ```mermaid
 sequenceDiagram
@@ -254,9 +251,9 @@ sequenceDiagram
     Api-->>Expert: updated booking response
 ```
 
-## 6B. Proposed Vietnamese Push Copy
+## 6B. Current Vietnamese Push Copy
 
-Suggested copy for approval:
+Current active copy:
 
 - title:
   - `Lịch tư vấn đã bị chuyên gia hủy`
@@ -293,6 +290,7 @@ sequenceDiagram
 - `PendingPayment` PayOs cancellation deletes the local pending payment transaction
 - `PendingPayment` cancellation fails explicitly if the payment already has an external confirmation id
 - expert-cancel of paid booking creates one refund transaction
+- expert-cancel queues one member-targeted notification with Vietnamese copy
 - member-cancel of paid booking creates no refund transaction
 - member-cancel of paid booking settles escrow instead of leaving confirmed funds stranded
 - paid booking cancelled after PayOs confirmation follows the same refund rule as wallet payment
