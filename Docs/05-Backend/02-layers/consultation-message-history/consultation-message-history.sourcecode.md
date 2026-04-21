@@ -93,6 +93,7 @@ Implemented surface:
 - response DTO: `ConsultationMessageHistoryItemResponse`
 - query DTO: `ConsultationMessageHistoryQueryRequest`
 - terminal-state validation for:
+  - `Cancelled`
   - `Completed`
   - `UserAbsent`
   - `ExpertAbsent`
@@ -199,7 +200,7 @@ sequenceDiagram
 
 ## 7. Test Focus
 
-- consultation participants can read history for `Completed`, `UserAbsent`, `ExpertAbsent`, and `AllAbsent`
+- consultation participants can read history for `Cancelled`, `Completed`, `UserAbsent`, `ExpertAbsent`, and `AllAbsent`
 - admin can read history even when not a participant
 - non-participants cannot read them
 - ordering matches the locked contract

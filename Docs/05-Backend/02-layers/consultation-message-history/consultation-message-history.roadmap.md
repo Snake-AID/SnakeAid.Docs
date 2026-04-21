@@ -38,7 +38,7 @@ After this work is complete:
 
 1. a consultation participant can request message history through HTTP
 2. the endpoint returns persisted messages for one consultation
-3. only terminal consultation states are eligible for this read path
+3. only terminal consultation states are eligible for this read path, including `Cancelled`
 4. `CallerId`, `CalleeId`, or `Admin` can read the history
 5. the endpoint is read-only and does not extend chat sending after completion
 6. docs and tests clearly separate implemented behavior from planned behavior during rollout
@@ -136,7 +136,7 @@ Completed verification for the current implementation:
 
 ## Open Questions
 
-1. Should `Cancelled` ever be treated as a terminal readable state for consultation messages?
+No open question remains for terminal-status allowlist in the current baseline.
 
 ## Change Log
 
@@ -156,5 +156,6 @@ Completed verification for the current implementation:
 - added `ConsultationMessageHistoryQueryRequest`
 - added `ConsultationMessageHistoryItemResponse`
 - allowed admin access in addition to participant access
+- added `Cancelled` to the readable terminal-state allowlist
 - implemented newest-window-first paging with ascending ordering inside each page
 - added controller tests, route convention tests, and integration tests for the new endpoint logic

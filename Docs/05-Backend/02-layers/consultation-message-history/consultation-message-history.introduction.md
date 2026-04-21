@@ -97,6 +97,7 @@ The current implemented direction is:
 
 - active route: `GET /api/consultations/{consultationId}/messages-history`
 - allow retrieval only when `Consultation.Status` is one of:
+  - `Cancelled`
   - `Completed`
   - `UserAbsent`
   - `ExpertAbsent`

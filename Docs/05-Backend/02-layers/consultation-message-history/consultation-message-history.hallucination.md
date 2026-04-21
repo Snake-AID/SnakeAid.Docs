@@ -36,6 +36,7 @@ Most of the client contract and rule boundary are now locked.
 Already decided:
 
 - allow terminal consultation states:
+  - `Cancelled`
   - `Completed`
   - `UserAbsent`
   - `ExpertAbsent`
@@ -53,6 +54,7 @@ There is no remaining open risk for the current planning baseline.
 ### Decision
 
 - allow:
+  - `Cancelled`
   - `Completed`
   - `UserAbsent`
   - `ExpertAbsent`
@@ -61,7 +63,7 @@ There is no remaining open risk for the current planning baseline.
 ### Impact
 
 - the endpoint should be described as available for `terminal consultation states`
-- `Cancelled` is still not part of the allowed set unless explicitly added later
+- `Cancelled` is part of the current allowed set
 
 ## Risk 2. Response Enrichment
 
@@ -163,6 +165,7 @@ This allows mobile to:
 
 This contract works well because the endpoint is only for terminal consultation states:
 
+- `Cancelled`
 - `Completed`
 - `UserAbsent`
 - `ExpertAbsent`
@@ -203,6 +206,7 @@ This applies when:
 - consultation exists
 - caller is a valid participant
 - but consultation status is not one of:
+  - `Cancelled`
   - `Completed`
   - `UserAbsent`
   - `ExpertAbsent`

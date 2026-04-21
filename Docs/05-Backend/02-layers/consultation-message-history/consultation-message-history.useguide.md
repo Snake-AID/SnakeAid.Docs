@@ -165,6 +165,7 @@ Current verified backend behavior:
 - validate consultation exists
 - validate caller is consultation participant or admin
 - validate consultation is one of:
+  - `Cancelled`
   - `Completed`
   - `UserAbsent`
   - `ExpertAbsent`
@@ -332,4 +333,5 @@ Frontend/mobile relevance:
 
 - activated `GET /api/consultations/{consultationId}/messages-history`
 - updated the contract from participant-only to participant-or-admin access
+- added `Cancelled` to the allowed terminal states for message history reads
 - confirmed terminal-state validation and `400` failure for non-terminal consultations
