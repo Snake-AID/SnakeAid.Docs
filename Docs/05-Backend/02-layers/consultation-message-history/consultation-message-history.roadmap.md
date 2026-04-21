@@ -3,7 +3,7 @@ doc_role: planning
 module: consultation-message-history
 kind: flow
 doc_type: roadmap
-status: planning
+status: in_progress
 last_updated: 2026-04-21
 owners: [backend-team]
 verification_status: current-state-code-verified-with-planned-api-contract
@@ -15,7 +15,7 @@ verification_status: current-state-code-verified-with-planned-api-contract
 
 - module status: `Planning`
 - current message persistence: `Implemented`
-- current message history HTTP API: `Missing`
+- current message history HTTP API: `Implemented`
 - current participant validation in realtime hub: `Implemented`
 - current post-completion message review for app users: `Not available`
 
@@ -30,7 +30,7 @@ Current verified state:
 - users connect to the hub with query `consultationId`
 - hub access is restricted to consultation participants
 - `ConsultationService.EndConsultationAsync(...)` can mark consultation as completed
-- no controller or service contract currently returns consultation messages
+- controller and service contract now return consultation message history
 
 ## Target Outcome
 
@@ -46,9 +46,11 @@ After this work is complete:
 ## Provisional Decisions
 
 - [x] Reuse `ConsultationsController` instead of creating a separate controller
+- [x] Use route `GET /api/consultations/{consultationId}/messages-history`
 - [x] Keep message send flow in `ConsultationHub`
 - [x] Add a read-only endpoint for terminal consultations
 - [x] Reuse participant ownership rule based on `CallerId` and `CalleeId`
+- [x] Allow admin to access the endpoint
 - [x] Do not add sender enrichment in v1 beyond `senderId`
 - [x] Use ascending message order by `SentAt`, then `Id`
 - [x] Reuse `PagingResponse<T>` with newest-window-first page semantics
@@ -67,36 +69,37 @@ After this work is complete:
 
 ### Phase 2. Service Layer
 
-- [ ] Add a service method to retrieve consultation message history
-- [ ] Validate consultation existence
-- [ ] Validate actor is a participant
-- [ ] Validate consultation is in an allowed terminal state
-- [ ] Query `ChatMessages` by `ConsultationId`
-- [ ] Order ascending by `SentAt`, then `Id`
-- [ ] Implement newest-window-first paging using `pageNumber` and `pageSize`
+- [x] Add a service method to retrieve consultation message history
+- [x] Validate consultation existence
+- [x] Validate actor is a participant or admin
+- [x] Validate consultation is in an allowed terminal state
+- [x] Query `ChatMessages` by `ConsultationId`
+- [x] Order ascending by `SentAt`, then `Id`
+- [x] Implement newest-window-first paging using `pageNumber` and `pageSize`
 
 ### Phase 3. API Layer
 
-- [ ] Add `GET /api/consultations/{consultationId}/messages`
-- [ ] Bind paging query parameters
-- [ ] Return typed `ApiResponse`
-- [ ] Keep authorization aligned with existing consultation endpoints
+- [x] Add `GET /api/consultations/{consultationId}/messages-history`
+- [x] Bind paging query parameters
+- [x] Return typed `ApiResponse`
+- [x] Keep authorization aligned with existing consultation endpoints
 
 ### Phase 4. DTOs
 
-- [ ] Add query request model for message-history paging
-- [ ] Add response DTO for one consultation message
-- [ ] Add paging wrapper usage if the endpoint is paged
+- [x] Add query request model for message-history paging
+- [x] Add response DTO for one consultation message
+- [x] Add paging wrapper usage if the endpoint is paged
 
 ### Phase 5. Tests
 
-- [ ] Participant of terminal consultation can read history
-- [ ] Non-participant gets forbidden
-- [ ] Participant of non-terminal consultation is rejected with business validation mapped to `400`
-- [ ] Messages are returned in the locked order
-- [ ] Attachment-only messages are preserved correctly
+- [x] Participant of terminal consultation can read history
+- [x] Admin can read history without being a participant
+- [x] Non-participant gets forbidden
+- [x] Participant of non-terminal consultation is rejected with business validation mapped to `400`
+- [x] Messages are returned in the locked order
+- [x] Attachment-only messages are preserved correctly
 - [ ] Empty history returns success with empty items
-- [ ] `pageNumber = 1` returns newest batch while items stay ascending inside the batch
+- [x] `pageNumber = 1` returns newest batch while items stay ascending inside the batch
 
 ### Phase 6. Documentation Sync
 
@@ -146,3 +149,12 @@ Minimum verification before activating the endpoint contract in `useguide`:
 - locked v1 response to stored-truth message fields without sender enrichment
 - locked ascending order by `SentAt`, then `Id`
 - locked newest-window-first paging semantics using `pageNumber` and `pageSize`
+
+### 2026-04-21 Implementation Update
+
+- implemented `GET /api/consultations/{consultationId}/messages-history`
+- added `ConsultationMessageHistoryQueryRequest`
+- added `ConsultationMessageHistoryItemResponse`
+- allowed admin access in addition to participant access
+- implemented newest-window-first paging with ascending ordering inside each page
+- added controller tests, route convention tests, and integration tests for the new endpoint logic

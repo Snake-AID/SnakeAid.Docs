@@ -3,11 +3,11 @@ doc_role: planning
 module: consultation-message-history
 kind: flow
 doc_type: useguide
-status: planning
+status: active
 last_updated: 2026-04-21
 api_version: v1
 owners: [backend-team]
-verification_status: current-state-code-verified-with-planned-api-contract
+verification_status: code-verified
 ---
 
 # Consultation Message History Useguide
@@ -27,20 +27,17 @@ verification_status: current-state-code-verified-with-planned-api-contract
 
 Current verified backend behavior:
 
-- consultation chat messages are currently sent through `ConsultationHub`
+- consultation chat messages are sent through `ConsultationHub`
 - each sent message is persisted into `ChatMessages`
-- only consultation participants can connect to the consultation hub
-- there is currently no HTTP endpoint to read consultation message history
-
-Planned module behavior:
-
-- participants of a terminal consultation can fetch persisted message history
+- consultation participants can read terminal consultation message history through HTTP
+- admin can also read the same history through the same endpoint
 - the endpoint is read-only
 - this work does not allow users to continue chatting after completion
 
 Important integration note:
 
-- until the history endpoint is implemented and code-verified, mobile should treat the planned contract below as `not active`
+- this endpoint is now active
+- mobile/frontend should treat admin access as an explicit allowed path for back-office or moderator-style tooling
 
 ## 3. Authentication & Authorization
 
@@ -54,7 +51,8 @@ Important integration note:
 
 ### Admin Operations
 
-- no admin API is planned in this module at the moment
+- JWT Bearer token is required
+- `Admin` can access the same message-history endpoint even when not a consultation participant
 
 ## 4. Expert/Member Business + Expert/Member APIs
 
@@ -123,7 +121,7 @@ Important note:
 - this realtime method is `implemented now`
 - it is not the same as the planned post-completion history endpoint
 
-### 4.3 Planned `GET /api/consultations/{consultationId}/messages`
+### 4.3 `GET /api/consultations/{consultationId}/messages-history`
 
 Purpose:
 
@@ -131,13 +129,15 @@ Purpose:
 
 Status:
 
-- `Planned`
-- Not implemented yet
+- `Active`
+- Code-verified
 
 Auth:
 
 - JWT Bearer token is required
-- caller must be a participant of the consultation
+- allowed callers:
+  - consultation participant
+  - admin
 
 Recommended route params:
 
@@ -155,14 +155,14 @@ Recommended query params:
 Recommended request example:
 
 ```http
-GET /api/consultations/9fbba6ab-71ee-4a0d-b0b9-9a98d9835d12/messages?pageNumber=1&pageSize=50
+GET /api/consultations/9fbba6ab-71ee-4a0d-b0b9-9a98d9835d12/messages-history?pageNumber=1&pageSize=50
 Authorization: Bearer <jwt>
 ```
 
-Recommended planned backend behavior:
+Current verified backend behavior:
 
 - validate consultation exists
-- validate caller is consultation participant
+- validate caller is consultation participant or admin
 - validate consultation is one of:
   - `Completed`
   - `UserAbsent`
@@ -223,11 +223,11 @@ Field notes:
 - `pageNumber = 1` is the newest history window, not the oldest one
 - each next page returns the next older history window
 - each returned page is still ordered old-to-new inside that page
-- the response example above is a recommended contract, not an active code-verified payload yet
+- the response example above reflects the active contract shape
 
 ### 4.4 Expected Failure Behavior
 
-Recommended failure cases for the planned endpoint:
+Current failure behavior:
 
 - missing token or invalid token -> `401`
 - user is not a consultation participant -> `403`
@@ -238,11 +238,13 @@ Recommended failure cases for the planned endpoint:
 
 ### 5.1 Current Scope
 
-- no admin endpoint is currently planned for consultation message history
+- admin uses the same endpoint:
+  - `GET /api/consultations/{consultationId}/messages-history`
 
 ### 5.2 Future Extension Note
 
-- if admin later needs audit access to consultation messages, document that in a separate module instead of silently extending the participant-facing contract
+- current admin read access is already part of this module
+- if admin later needs extra audit filters or bulk history access, document that in a separate module instead of silently extending this contract
 
 ## 6. Shared Data Models
 
@@ -295,6 +297,7 @@ Recommended failure cases for the planned endpoint:
 Code-verified related surfaces that already exist today:
 
 - `POST /api/consultations/{consultationId}/end`
+- `GET /api/consultations/{consultationId}/messages-history`
 - `GET /api/users/me/consultations`
 - `GET /api/experts/me/consultations`
 - `POST /api/consultations/{consultationId}/expert-absent-report`
@@ -313,3 +316,9 @@ Code-verified related surfaces that already exist today:
 - locked v1 payload to stored-truth message fields without sender enrichment
 - clarified newest-window-first paging with ascending ordering inside each page
 - accepted newest-window-first paging as the baseline contract for mobile UX
+
+### 2026-04-21 Implementation Update
+
+- activated `GET /api/consultations/{consultationId}/messages-history`
+- updated the contract from participant-only to participant-or-admin access
+- confirmed terminal-state validation and `400` failure for non-terminal consultations

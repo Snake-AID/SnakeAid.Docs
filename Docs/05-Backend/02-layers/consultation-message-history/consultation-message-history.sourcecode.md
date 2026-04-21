@@ -3,7 +3,7 @@ doc_role: planning
 module: consultation-message-history
 kind: flow
 doc_type: sourcecode
-status: planning
+status: in_progress
 last_updated: 2026-04-21
 owners: [backend-team]
 verification_status: current-state-code-verified-with-planned-read-path
@@ -38,7 +38,7 @@ Current related consultation routes:
 
 Current verified gap:
 
-- there is no `GET /api/consultations/{consultationId}/messages`
+- `GET /api/consultations/{consultationId}/messages-history`
 
 ### SignalR
 
@@ -89,6 +89,7 @@ This is the cleanest existing authorization rule to reuse for history reads.
 Recommended planned surface:
 
 - controller route: `GET /api/consultations/{consultationId}/messages`
+- controller route: `GET /api/consultations/{consultationId}/messages-history`
 - service method on `IConsultationService`
 - response DTO dedicated to consultation message history
 - optional paging request DTO under `SnakeAid.Core/Requests/Consultation`
@@ -176,10 +177,10 @@ sequenceDiagram
     participant Service as ConsultationService
     participant DB as Database
 
-    App->>API: GET /api/consultations/{consultationId}/messages?pageNumber=1&pageSize=50
+    App->>API: GET /api/consultations/{consultationId}/messages-history?pageNumber=1&pageSize=50
     API->>Service: GetConsultationMessageHistoryAsync(consultationId, actorId, query)
     Service->>DB: load Consultation
-    Service->>Service: validate participant ownership
+    Service->>Service: validate participant ownership or admin access
     Service->>Service: validate terminal consultation status
     Service->>DB: query ChatMessages by ConsultationId
     Service->>Service: select newest page window
@@ -191,6 +192,7 @@ sequenceDiagram
 ## 7. Test Focus
 
 - consultation participants can read history for `Completed`, `UserAbsent`, `ExpertAbsent`, and `AllAbsent`
+- admin can read history even when not a participant
 - non-participants cannot read them
 - ordering matches the locked contract
 - attachment-only messages remain renderable

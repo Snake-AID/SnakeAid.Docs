@@ -36,8 +36,8 @@ If this work must be resumed later with no prior chat memory, the current code-v
 1. `ConsultationHub.ReceiveMessage(...)` already saves each message to `ChatMessages`.
 2. `ChatMessage` already contains `Id`, `ConsultationId`, `SenderId`, `Content`, `AttachmentUrl`, and `SentAt`.
 3. `ConsultationHub.OnConnectedAsync(...)` already restricts realtime access to consultation participants only.
-4. `ConsultationsController` currently has no endpoint for consultation message history.
-5. `IConsultationService` currently has no method for consultation message history.
+4. `ConsultationsController` now exposes `GET /api/consultations/{consultationId}/messages-history`.
+5. `IConsultationService` now has a message-history read contract.
 6. `Consultation.Status` already supports `Completed`.
 7. `ConsultationService.EndConsultationAsync(...)` completes the consultation, but does not expose any post-call message-history read API.
 
@@ -69,12 +69,12 @@ Current recommended direction is to reuse the same ownership boundary for the fu
 
 ### Missing Read Surface
 
-What is missing today:
+What was missing and is now implemented:
 
-- no HTTP route to list messages for one consultation
-- no response DTO dedicated to consultation messages
-- no service-layer method that validates participant ownership and completed status before returning messages
-- no integration tests covering post-completion message history retrieval
+- HTTP route to list messages for one consultation
+- response DTO dedicated to consultation messages
+- service-layer method that validates participant or admin access plus terminal status before returning messages
+- integration tests covering post-completion message history retrieval
 
 ## Problem Statement
 
@@ -95,13 +95,15 @@ The problem is missing retrieval contract.
 The current recommended direction for planning is:
 
 - add a participant-facing read endpoint under `ConsultationsController`
-- recommended route: `GET /api/consultations/{consultationId}/messages`
+- active route: `GET /api/consultations/{consultationId}/messages-history`
 - allow retrieval only when `Consultation.Status` is one of:
   - `Completed`
   - `UserAbsent`
   - `ExpertAbsent`
   - `AllAbsent`
-- allow retrieval only for `CallerId` or `CalleeId`
+- allow retrieval for:
+  - consultation participants
+  - admin
 - keep this endpoint read-only
 - keep message sending inside `ConsultationHub` for now
 - paginate results so the endpoint remains safe when long consultations produce many messages
@@ -146,6 +148,7 @@ Out of scope:
 - `SnakeAid.Api/Controllers/ConsultationsController.cs`
 - `SnakeAid.Service/Interfaces/IConsultationService.cs`
 - `SnakeAid.Service/Implements/ConsultationService.cs`
+- `SnakeAid.Core/Requests/Consultation/ConsultationMessageHistoryQueryRequest.cs`
 - `SnakeAid.Core/Responses/Consultation/*`
 - integration tests for consultation APIs
 - docs under `SnakeAid.Docs`
