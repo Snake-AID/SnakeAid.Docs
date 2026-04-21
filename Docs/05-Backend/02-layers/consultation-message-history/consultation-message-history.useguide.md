@@ -1,5 +1,5 @@
 ---
-doc_role: planning
+doc_role: integration
 module: consultation-message-history
 kind: flow
 doc_type: useguide
@@ -38,6 +38,7 @@ Important integration note:
 
 - this endpoint is now active
 - mobile/frontend should treat admin access as an explicit allowed path for back-office or moderator-style tooling
+- end-user mobile chat history screens should assume participant access, not admin access
 
 ## 3. Authentication & Authorization
 
@@ -63,7 +64,7 @@ Current code-verified facts relevant to mobile integration:
 - hub route is `/hubs/consultation`
 - current mobile send path should still use SignalR
 - `ReceiveMessage` currently stores message data in the backend
-- message persistence already exists even though a history-read endpoint does not
+- message history HTTP read endpoint now exists and is active
 
 ### 4.2 Current Verified SignalR Messaging Surface
 
@@ -119,7 +120,7 @@ Current verified broadcast payload:
 Important note:
 
 - this realtime method is `implemented now`
-- it is not the same as the planned post-completion history endpoint
+- it is not the same as the active post-completion history endpoint
 
 ### 4.3 `GET /api/consultations/{consultationId}/messages-history`
 
@@ -139,23 +140,23 @@ Auth:
   - consultation participant
   - admin
 
-Recommended route params:
+Route params:
 
 | Field          | Type | Required | Notes                        |
 | -------------- | ---- | -------- | ---------------------------- |
 | consultationId | guid | Yes      | Existing `Consultation.Id` |
 
-Recommended query params:
+Query params:
 
 | Field      | Type | Required | Notes                              |
 | ---------- | ---- | -------- | ---------------------------------- |
 | pageNumber | int  | No       | Default `1`, recommended `>= 1`; `1` means newest history batch and each next page moves to older history |
-| pageSize   | int  | No       | Default `50`, recommended `1..100` |
+| pageSize   | int  | No       | Default `10`, allowed `1..100` |
 
-Recommended request example:
+Example request:
 
 ```http
-GET /api/consultations/9fbba6ab-71ee-4a0d-b0b9-9a98d9835d12/messages-history?pageNumber=1&pageSize=50
+GET /api/consultations/9fbba6ab-71ee-4a0d-b0b9-9a98d9835d12/messages-history?pageNumber=1&pageSize=10
 Authorization: Bearer <jwt>
 ```
 
@@ -173,11 +174,11 @@ Current verified backend behavior:
 - select pages from newest batch backward
 - keep items inside each page sorted ascending by `SentAt`, then `Id`
 
-Recommended success response:
+Success response:
 
 - `ApiResponse<PagingResponse<ConsultationMessageHistoryItemResponse>>`
 
-Recommended response example:
+Example response:
 
 ```json
 {
@@ -207,7 +208,7 @@ Recommended response example:
       "total_pages": 1,
       "total_items": 2,
       "current_page": 1,
-      "page_size": 50
+      "page_size": 10
     }
   },
   "error": null
@@ -224,13 +225,15 @@ Field notes:
 - each next page returns the next older history window
 - each returned page is still ordered old-to-new inside that page
 - the response example above reflects the active contract shape
+- frontend should not assume `content` is always non-empty
+- frontend should not assume every caller is a participant, because admin tooling can also consume the same endpoint
 
 ### 4.4 Expected Failure Behavior
 
 Current failure behavior:
 
 - missing token or invalid token -> `401`
-- user is not a consultation participant -> `403`
+- non-admin caller who is not a consultation participant -> `403`
 - consultation does not exist -> `404`
 - consultation is not in an allowed terminal state -> business validation failure mapped to `400`
 
@@ -248,14 +251,14 @@ Current failure behavior:
 
 ## 6. Shared Data Models
 
-### Planned `ConsultationMessageHistoryQueryRequest`
+### `ConsultationMessageHistoryQueryRequest`
 
 | Field      | Type | Required | Constraints                   |
 | ---------- | ---- | -------- | ----------------------------- |
 | pageNumber | int  | No       | newest-window-first, recommended `>= 1` |
-| pageSize   | int  | No       | recommended `1..100`          |
+| pageSize   | int  | No       | default `10`, allowed `1..100`|
 
-### Planned `ConsultationMessageHistoryItemResponse`
+### `ConsultationMessageHistoryItemResponse`
 
 | Field          | Type      | Description                                    |
 | -------------- | --------- | ---------------------------------------------- |
@@ -304,6 +307,14 @@ Code-verified related surfaces that already exist today:
 - `POST /api/consultations/{consultationId}/reviews`
 - `GET /api/consultations/{consultationId}/reviews`
 - SignalR hub `/hubs/consultation`
+
+Frontend/mobile relevance:
+
+- end-user apps mainly use:
+  - `GET /api/consultations/{consultationId}/messages-history`
+  - SignalR hub `/hubs/consultation`
+- admin tooling may also use:
+  - `GET /api/consultations/{consultationId}/messages-history`
 
 ## 8. Changelog
 
