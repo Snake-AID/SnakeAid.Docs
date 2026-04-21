@@ -1,6 +1,6 @@
 ---
 module: expert-certs
-last_updated: 2026-04-21
+last_updated: 2026-04-22
 status: planning
 source_of_truth: SnakeAid.Backend
 ---
@@ -19,7 +19,7 @@ This workstream currently contains three requested tasks:
 
 ## Verified Current Codebase State
 
-The following points are verified from the backend repository as of 2026-04-21:
+The following points are verified from the backend repository as of 2026-04-22:
 
 - `ExpertCertificate` already exists as a domain entity in `SnakeAid.Core/Domains/ExpertCertificate.cs`
 - `ExpertCertificate` already has `Id`, `ExpertId`, certificate metadata fields, `CertificateUrl`, `VerificationStatus`, and `RejectionReason`
@@ -45,6 +45,9 @@ The intended backend direction is:
 
 - keep `ExpertCertificate` as the business entity for expert credential review
 - reuse the existing `ReportMedia` polymorphic pattern instead of introducing relational certificate-media tables
+- add `MediaReferenceType.ExpertCertificate`
+- for certificate media, use `ReferenceId = ExpertCertificate.Id`
+- use `ReportMedia` as the long-term source of truth for certificate attachments
 - make `ExpertProfile.IsVerified` the cached user-facing verification flag
 - let admin review outcomes drive `ExpertProfile.IsVerified`
 - expose certificate CRUD for:
@@ -75,7 +78,10 @@ Out of scope unless explicitly added later:
 ### Data Model
 
 - add `ExpertProfile.IsVerified : bool`
-- add a new `MediaReferenceType` member for certificate attachments
+- add `MediaReferenceType.ExpertCertificate`
+- certificate attachment lookup key becomes:
+  - `ReferenceType = MediaReferenceType.ExpertCertificate`
+  - `ReferenceId = ExpertCertificate.Id`
 - keep `ExpertCertificate` as a separate table/entity
 
 ### Business Flow
@@ -85,6 +91,28 @@ Out of scope unless explicitly added later:
 3. admin reviews certificate and sets `VerificationStatus`
 4. service recalculates `ExpertProfile.IsVerified`
 5. expert-facing and admin-facing APIs expose the resulting state consistently
+
+Chosen rule for verification:
+
+- `ExpertProfile.IsVerified = true` only when all active certificates are `Verified`
+- if any active certificate is `Pending` or `Rejected`, `ExpertProfile.IsVerified = false`
+
+Chosen rule for expert-side edit:
+
+- any expert-side update resets that certificate's `VerificationStatus` to `Pending`
+
+Chosen rule for profile exposure:
+
+- expose persisted `IsVerified` in:
+  - public expert directory
+  - expert my-profile
+  - admin user detail
+
+Known transition note:
+
+- current code still has `ExpertCertificate.CertificateUrl`
+- the chosen long-term direction is to pivot fully to `ReportMedia`
+- implementation may need an intermediate compatibility step before removing direct URL ownership
 
 ## Current Gaps That Must Be Closed
 
@@ -109,7 +137,7 @@ Current code exposes `IsVerified` in some responses but does not store it on `Ex
 
 ## Recommended Delivery Order
 
-1. finalize open design decisions in `expert-certs.hallucination.md`
+1. finalize the remaining open decision in `expert-certs.hallucination.md`
 2. add persistence changes and migration
 3. add request/response DTOs
 4. implement service layer

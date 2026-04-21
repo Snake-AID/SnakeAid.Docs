@@ -1,6 +1,6 @@
 ---
 module: expert-certs
-last_updated: 2026-04-21
+last_updated: 2026-04-22
 status: planning
 ---
 
@@ -33,8 +33,10 @@ status: planning
 
 ### M1. Data Model Alignment
 
-- [ ] Add certificate-specific `MediaReferenceType` enum member
+- [ ] Add `MediaReferenceType.ExpertCertificate`
 - [ ] Add `ExpertProfile.IsVerified`
+- [ ] Define active-certificate rule for verification queries and filters
+- [ ] Plan transition away from `ExpertCertificate.CertificateUrl`
 - [ ] Update EF configuration if needed
 - [ ] Generate migration
 - [ ] Verify snapshot and schema output
@@ -63,6 +65,7 @@ status: planning
 - [ ] Implement admin detail
 - [ ] Implement admin update/review
 - [ ] Implement admin delete
+- [ ] Implement direct-recruit admin flow: create certificate and approve immediately for an existing account
 - [ ] Implement `ExpertProfile.IsVerified` recalculation helper
 
 ### M4. API Layer
@@ -75,19 +78,23 @@ status: planning
 
 ### M5. Verification Propagation
 
-- [ ] On admin set `Verified`, set `ExpertProfile.IsVerified = true`
-- [ ] On admin set `Rejected`, recalculate whether any verified certificate remains
-- [ ] On admin set `Pending`, recalculate whether any verified certificate remains
-- [ ] On delete of a verified certificate, recalculate profile verification
-- [ ] Ensure expert-side update cannot silently keep stale verified state
+- [ ] On admin set `Verified`, recalculate using the "all active certificates must be verified" rule
+- [ ] On admin set `Rejected`, recalculate using the same rule
+- [ ] On admin set `Pending`, recalculate using the same rule
+- [ ] On delete of any active certificate, recalculate profile verification
+- [ ] On any expert-side update, reset the certificate to `Pending`
+- [ ] Expose persisted `IsVerified` in public directory, expert my-profile, and admin user detail
 
 ### M6. Tests
 
 - [ ] Integration test: expert can create own certificate
 - [ ] Integration test: expert cannot access another expert's certificate
 - [ ] Integration test: admin can list certificates globally
-- [ ] Integration test: admin verification updates profile verification flag
-- [ ] Integration test: deleting the last verified certificate resets `ExpertProfile.IsVerified`
+- [ ] Integration test: admin direct-recruit flow can create and immediately approve certificates for an existing expert account
+- [ ] Integration test: any expert-side update resets `VerificationStatus` to `Pending`
+- [ ] Integration test: profile stays unverified while any active certificate is still `Pending`
+- [ ] Integration test: profile stays unverified while any active certificate is `Rejected`
+- [ ] Integration test: profile becomes verified only when all active certificates are `Verified`
 - [ ] Unit test: profile response mapping returns persisted verification state instead of hard-coded `false`
 
 ### M7. Docs Sync After Code Change
@@ -100,7 +107,7 @@ status: planning
 
 ## Proposed Execution Order
 
-1. confirm open risks from `expert-certs.hallucination.md`
+1. confirm the remaining open decision from `expert-certs.hallucination.md`
 2. ship persistence changes
 3. ship service layer and verification recalculation
 4. ship controller layer
@@ -131,8 +138,9 @@ Certificate attachments must respect the existing polymorphic `ReportMedia` patt
 
 ### Task Group A. Schema
 
-- add enum member for certificate media
+- add `MediaReferenceType.ExpertCertificate`
 - add `ExpertProfile.IsVerified`
+- prepare the transition path away from `ExpertCertificate.CertificateUrl`
 - create migration
 
 ### Task Group B. Certificate Domain Application Layer
@@ -150,8 +158,9 @@ Certificate attachments must respect the existing polymorphic `ReportMedia` patt
 ### Task Group D. Verification Consistency
 
 - update public expert directory mapping
-- update my-profile expert response if chosen
-- update admin user detail expert response if chosen
+- update expert my-profile response
+- update admin user detail expert response
+- apply the "all active certificates must be verified" rule consistently
 
 ### Task Group E. Docs
 

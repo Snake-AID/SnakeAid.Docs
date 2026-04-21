@@ -1,6 +1,6 @@
 ---
 module: expert-certs
-last_updated: 2026-04-21
+last_updated: 2026-04-22
 status: planning
 ---
 
@@ -29,6 +29,15 @@ status: planning
 - `ReportMedia` is intentionally polymorphic and attachment-like, not a normal FK-bound relational child
 - `ExpertProfile` is the correct place for a cached verification flag because multiple profile responses already need that state
 - current public expert directory mapping is inconsistent because `IsVerified` exists in the response but is hard-coded to `false`
+
+## Chosen Design Decisions
+
+- use `MediaReferenceType.ExpertCertificate`
+- for certificate media, `ReportMedia.ReferenceId = ExpertCertificate.Id`
+- long-term ownership of certificate files belongs to `ReportMedia`, not `ExpertCertificate.CertificateUrl`
+- any expert-side update resets `VerificationStatus` to `Pending`
+- `ExpertProfile.IsVerified = true` only when all active certificates are `Verified`
+- expose persisted `IsVerified` in public expert directory, expert my-profile, and admin user detail
 
 ## Current Class Diagram
 
@@ -127,7 +136,7 @@ classDiagram
     class AdminExpertCertificatesController
 
     ExpertProfile "1" <-- "*" ExpertCertificate : AccountId/ExpertId
-    ReportMedia ..> ExpertCertificate : ReferenceId + ReferenceType
+    ReportMedia ..> ExpertCertificate : ExpertCertificate.Id + MediaReferenceType.ExpertCertificate
     IExpertCertificateService <|.. ExpertCertificateService
     ExpertCertificatesController --> IExpertCertificateService
     AdminExpertCertificatesController --> IExpertCertificateService
@@ -146,9 +155,29 @@ sequenceDiagram
     Api->>Service: CreateMyAsync(currentExpertId, request)
     Service->>DB: validate expert profile exists
     Service->>DB: insert ExpertCertificate
+    Service->>DB: insert ReportMedia for ExpertCertificate.Id
     Service->>DB: commit
     Service-->>Api: certificate response
     Api-->>Expert: 201 Created
+```
+
+## Sequence Diagram: Expert Updates Certificate
+
+```mermaid
+sequenceDiagram
+    actor Expert
+    participant Api as ExpertCertificatesController
+    participant Service as ExpertCertificateService
+    participant DB as SnakeAidDbContext
+
+    Expert->>Api: PUT /api/experts/me/certificates/{certificateId}
+    Api->>Service: UpdateMyAsync(currentExpertId, certificateId, request)
+    Service->>DB: load owned certificate
+    Service->>DB: update certificate metadata and media
+    Service->>DB: reset VerificationStatus to Pending
+    Service->>DB: recalculate ExpertProfile.IsVerified
+    Service->>DB: commit
+    Api-->>Expert: 200 OK
 ```
 
 ## Sequence Diagram: Admin Reviews Certificate
@@ -170,6 +199,26 @@ sequenceDiagram
     Api-->>Admin: 200 OK
 ```
 
+## Sequence Diagram: Admin Direct-Recruit Flow
+
+```mermaid
+sequenceDiagram
+    actor Admin
+    participant Api as AdminExpertCertificatesController
+    participant Service as ExpertCertificateService
+    participant DB as SnakeAidDbContext
+
+    Admin->>Api: POST /api/admin/expert/certificates
+    Api->>Service: AdminCreateAsync(request)
+    Service->>DB: validate existing expert account
+    Service->>DB: create ExpertCertificate
+    Service->>DB: attach ReportMedia
+    Service->>DB: set VerificationStatus = Verified
+    Service->>DB: recalculate ExpertProfile.IsVerified
+    Service->>DB: commit
+    Api-->>Admin: 201 Created
+```
+
 ## Sequence Diagram: Verification Recalculation
 
 ```mermaid
@@ -179,7 +228,7 @@ sequenceDiagram
 
     Service->>DB: query certificates for expert
     DB-->>Service: certificate set
-    Service->>Service: determine whether verified certificate exists
+    Service->>Service: determine whether all active certificates are Verified
     Service->>DB: update ExpertProfile.IsVerified
     Service->>DB: commit
 ```
@@ -189,8 +238,8 @@ sequenceDiagram
 ### Mapping updates needed
 
 - `ExpertService.MapExpertProfilesAsync` should read persisted `ExpertProfile.IsVerified`
-- `MyProfileService.MapExpert` likely needs to expose the field if the contract is expanded
-- `AdminUserService.GetAdminUserDetailAsync` likely needs to include it in `AdminExpertProfileResponse`
+- `MyProfileService.MapExpert` should expose persisted `IsVerified`
+- `AdminUserService.GetAdminUserDetailAsync` should include it in `AdminExpertProfileResponse`
 
 ### Persistence updates needed
 
@@ -199,8 +248,9 @@ sequenceDiagram
 
 ### Media updates needed
 
-- add a certificate-related `MediaReferenceType` value
-- if certificate attachments use `ReportMedia`, query by `ReferenceId` plus `ReferenceType`
+- add `MediaReferenceType.ExpertCertificate`
+- query certificate media by `ReferenceId = ExpertCertificate.Id` plus `ReferenceType = MediaReferenceType.ExpertCertificate`
+- prepare the removal path for direct URL ownership on `ExpertCertificate`
 
 ## Resume Pointers
 

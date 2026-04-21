@@ -1,6 +1,6 @@
 ---
 module: expert-certs
-last_updated: 2026-04-21
+last_updated: 2026-04-22
 status: planning-contract
 audience: mobile-and-frontend
 ---
@@ -17,6 +17,15 @@ Current verified state:
 - there is no active certificate CRUD endpoint yet
 - `ExpertProfile.IsVerified` is not yet persisted
 - public expert directory currently exposes `isVerified` in response shape but the backend currently hard-codes it to `false`
+
+Chosen planning direction:
+
+- add `MediaReferenceType.ExpertCertificate`
+- certificate attachments are keyed by `ReferenceId = ExpertCertificate.Id`
+- long-term source of truth for certificate files is `ReportMedia`
+- any expert-side update resets `verificationStatus` to `Pending`
+- `isVerified = true` only when all active certificates are `Verified`
+- expose `isVerified` in public expert directory, expert my-profile, and admin user detail
 
 This guide is therefore split into:
 
@@ -47,7 +56,13 @@ This guide is therefore split into:
   "issuingOrganization": "Vietnam Poison Control Academy",
   "issueDate": "2025-05-01T00:00:00Z",
   "expiryDate": "2028-05-01T00:00:00Z",
-  "certificateUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf",
+  "media": [
+    {
+      "id": "d02d0d8b-8f2e-4621-a4c9-65351e9db52c",
+      "mediaUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf",
+      "referenceType": "ExpertCertificate"
+    }
+  ],
   "verificationStatus": "Pending",
   "rejectionReason": ""
 }
@@ -55,7 +70,8 @@ This guide is therefore split into:
 
 Field notes:
 
-- `certificateUrl` is already present in the current domain model
+- `media` is the planned long-term attachment contract
+- current domain still contains `CertificateUrl`, so implementation may temporarily support both fields during migration
 - `verificationStatus` maps to existing enum values `Pending`, `Verified`, `Rejected`
 - `rejectionReason` should be empty when status is not `Rejected`
 
@@ -67,7 +83,9 @@ Field notes:
   "issuingOrganization": "Vietnam Poison Control Academy",
   "issueDate": "2025-05-01T00:00:00Z",
   "expiryDate": "2028-05-01T00:00:00Z",
-  "certificateUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf"
+  "reportMediaIds": [
+    "d02d0d8b-8f2e-4621-a4c9-65351e9db52c"
+  ]
 }
 ```
 
@@ -77,7 +95,7 @@ Field notes:
 - `issuingOrganization`: required
 - `issueDate`: required
 - `expiryDate`: optional
-- `certificateUrl`: required
+- `reportMediaIds`: required in the target contract when the attachment source is fully pivoted to `ReportMedia`
 
 ## 3.3 Planned `AdminCreateExpertCertificateRequest`
 
@@ -88,7 +106,9 @@ Field notes:
   "issuingOrganization": "Vietnam Poison Control Academy",
   "issueDate": "2025-05-01T00:00:00Z",
   "expiryDate": "2028-05-01T00:00:00Z",
-  "certificateUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf",
+  "reportMediaIds": [
+    "d02d0d8b-8f2e-4621-a4c9-65351e9db52c"
+  ],
   "verificationStatus": "Pending",
   "rejectionReason": ""
 }
@@ -102,7 +122,9 @@ Field notes:
   "issuingOrganization": "Vietnam Poison Control Academy",
   "issueDate": "2025-05-01T00:00:00Z",
   "expiryDate": "2028-05-01T00:00:00Z",
-  "certificateUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001-v2.pdf"
+  "reportMediaIds": [
+    "d02d0d8b-8f2e-4621-a4c9-65351e9db52f"
+  ]
 }
 ```
 
@@ -114,7 +136,9 @@ Field notes:
   "issuingOrganization": "Vietnam Poison Control Academy",
   "issueDate": "2025-05-01T00:00:00Z",
   "expiryDate": "2028-05-01T00:00:00Z",
-  "certificateUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001-v2.pdf",
+  "reportMediaIds": [
+    "d02d0d8b-8f2e-4621-a4c9-65351e9db52f"
+  ],
   "verificationStatus": "Verified",
   "rejectionReason": ""
 }
@@ -126,6 +150,10 @@ Planned profile response behavior:
 
 - once implemented, `isVerified` should reflect persisted `ExpertProfile.IsVerified`
 - current active backend does not yet persist this field
+- target exposure surfaces:
+  - public expert directory
+  - expert my-profile
+  - admin user detail
 
 ## 4. Expert Business + Expert APIs
 
@@ -138,6 +166,7 @@ Planned behavior:
 - expert can create, list, view, update, and delete own certificates
 - creating a certificate does not automatically mark the expert as verified
 - verification changes only after admin review
+- any expert-side update resets the certificate back to `Pending`
 
 ### 4.1 Planned `POST /api/experts/me/certificates`
 
@@ -158,7 +187,9 @@ Request body:
   "issuingOrganization": "Vietnam Poison Control Academy",
   "issueDate": "2025-05-01T00:00:00Z",
   "expiryDate": "2028-05-01T00:00:00Z",
-  "certificateUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf"
+  "reportMediaIds": [
+    "d02d0d8b-8f2e-4621-a4c9-65351e9db52c"
+  ]
 }
 ```
 
@@ -176,7 +207,13 @@ Success response example:
     "issuingOrganization": "Vietnam Poison Control Academy",
     "issueDate": "2025-05-01T00:00:00Z",
     "expiryDate": "2028-05-01T00:00:00Z",
-    "certificateUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf",
+    "media": [
+      {
+        "id": "d02d0d8b-8f2e-4621-a4c9-65351e9db52c",
+        "mediaUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf",
+        "referenceType": "ExpertCertificate"
+      }
+    ],
     "verificationStatus": "Pending",
     "rejectionReason": ""
   }
@@ -187,6 +224,7 @@ Client notes:
 
 - `verificationStatus` should start as `Pending` unless business rules explicitly allow admin-side create with another initial state
 - frontend should not infer verification from create success alone
+- backend verification is profile-level and should remain `false` until all active certificates are `Verified`
 
 ### 4.2 Planned `GET /api/experts/me/certificates`
 
@@ -214,7 +252,13 @@ Success response example:
       "issuingOrganization": "Vietnam Poison Control Academy",
       "issueDate": "2025-05-01T00:00:00Z",
       "expiryDate": "2028-05-01T00:00:00Z",
-      "certificateUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf",
+      "media": [
+        {
+          "id": "d02d0d8b-8f2e-4621-a4c9-65351e9db52c",
+          "mediaUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf",
+          "referenceType": "ExpertCertificate"
+        }
+      ],
       "verificationStatus": "Pending",
       "rejectionReason": ""
     }
@@ -252,14 +296,16 @@ Request body:
   "issuingOrganization": "Vietnam Poison Control Academy",
   "issueDate": "2025-05-01T00:00:00Z",
   "expiryDate": "2028-05-01T00:00:00Z",
-  "certificateUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001-v2.pdf"
+  "reportMediaIds": [
+    "d02d0d8b-8f2e-4621-a4c9-65351e9db52f"
+  ]
 }
 ```
 
 Client notes:
 
-- if the chosen rule is to re-review changed files, expert updates may reset `verificationStatus` back to `Pending`
-- this exact rule is still open in `expert-certs.hallucination.md`
+- any expert-side update resets `verificationStatus` to `Pending`
+- frontend should treat update success as "submitted for re-review", not "still verified"
 
 ### 4.5 Planned `DELETE /api/experts/me/certificates/{certificateId}`
 
@@ -283,6 +329,9 @@ Planned behavior:
 - admin can manage certificates globally
 - admin review controls certificate verification state
 - expert verification state is derived from certificate review outcome
+- researched business cases currently in scope:
+  - free expert submission flow
+  - direct-recruit admin provisioning flow
 
 ### 5.1 Planned `POST /api/admin/expert/certificates`
 
@@ -304,7 +353,9 @@ Request body:
   "issuingOrganization": "Vietnam Poison Control Academy",
   "issueDate": "2025-05-01T00:00:00Z",
   "expiryDate": "2028-05-01T00:00:00Z",
-  "certificateUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf",
+  "reportMediaIds": [
+    "d02d0d8b-8f2e-4621-a4c9-65351e9db52c"
+  ],
   "verificationStatus": "Pending",
   "rejectionReason": ""
 }
@@ -312,7 +363,8 @@ Request body:
 
 Note:
 
-- whether admin truly has full create authority is still an open policy risk and is tracked in `expert-certs.hallucination.md`
+- researched business cases support admin-side create for direct-recruit expert onboarding
+- the remaining open decision is whether both admin cases ship in the first implementation phase
 
 ### 5.2 Planned `GET /api/admin/expert/certificates`
 
@@ -361,7 +413,9 @@ Request body:
   "issuingOrganization": "Vietnam Poison Control Academy",
   "issueDate": "2025-05-01T00:00:00Z",
   "expiryDate": "2028-05-01T00:00:00Z",
-  "certificateUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001-v2.pdf",
+  "reportMediaIds": [
+    "d02d0d8b-8f2e-4621-a4c9-65351e9db52f"
+  ],
   "verificationStatus": "Verified",
   "rejectionReason": ""
 }
@@ -381,7 +435,13 @@ Success response example:
     "issuingOrganization": "Vietnam Poison Control Academy",
     "issueDate": "2025-05-01T00:00:00Z",
     "expiryDate": "2028-05-01T00:00:00Z",
-    "certificateUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001-v2.pdf",
+    "media": [
+      {
+        "id": "d02d0d8b-8f2e-4621-a4c9-65351e9db52f",
+        "mediaUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001-v2.pdf",
+        "referenceType": "ExpertCertificate"
+      }
+    ],
     "verificationStatus": "Verified",
     "rejectionReason": ""
   }
@@ -390,8 +450,9 @@ Success response example:
 
 Client notes:
 
-- when `verificationStatus` becomes `Verified`, the backend should recalculate `ExpertProfile.isVerified`
-- when a verified certificate is later rejected, reset to pending, or deleted, the backend should recalculate again
+- when `verificationStatus` changes, the backend should recalculate `ExpertProfile.isVerified`
+- the chosen rule is strict: profile becomes verified only when all active certificates are `Verified`
+- a pending or rejected active certificate keeps the profile unverified
 
 ### 5.5 Planned `DELETE /api/admin/expert/certificates/{certificateId}`
 
@@ -406,7 +467,7 @@ Auth:
 
 ## 6. Verified Endpoint List
 
-Active endpoints as of 2026-04-21:
+Active endpoints as of 2026-04-22:
 
 - none for expert certificates
 
@@ -427,3 +488,5 @@ Planned endpoints:
 
 - 2026-04-21: initialized planning use guide for `expert-certs`
 - 2026-04-21: recorded verified current backend state and proposed expert/admin API contracts
+- 2026-04-22: merged decided risks for media reference, verification rule, update reset behavior, and profile exposure
+- 2026-04-22: added researched admin onboarding cases for free expert and direct-recruit expert flows
