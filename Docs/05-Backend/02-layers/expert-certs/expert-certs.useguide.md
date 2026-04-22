@@ -1,36 +1,41 @@
 ---
 module: expert-certs
 last_updated: 2026-04-22
-status: planning-contract
+status: active-contract
 audience: mobile-and-frontend
+source_of_truth: SnakeAid.Backend
 ---
 
 # Expert Certificates Use Guide
 
 ## 1. Overview
 
-This document describes the planned API contract for expert certificate management and the current backend state verified from the repository.
+This document describes the active backend contract for expert certificate management as implemented in `SnakeAid.Backend`.
 
-Current verified state:
+Current active backend state:
 
-- `ExpertCertificate` exists in the domain and persistence model
-- there is no active certificate CRUD endpoint yet
-- `ExpertProfile.IsVerified` is not yet persisted
-- public expert directory currently exposes `isVerified` in response shape but the backend currently hard-codes it to `false`
-
-Chosen planning direction:
-
-- add `MediaReferenceType.ExpertCertificate`
-- certificate attachments are keyed by `ReferenceId = ExpertCertificate.Id`
-- long-term source of truth for certificate files is `ReportMedia`
+- expert certificate CRUD endpoints are active for both `Expert` and `Admin`
+- `ExpertProfile.IsVerified` is now persisted
+- `isVerified` is exposed in:
+  - public expert directory
+  - expert my-profile
+  - admin user detail
+- certificate attachments use `ReportMedia`
+- certificate media must use:
+  - `ReferenceType = ExpertCertificate`
+  - `ReferenceId = ExpertCertificate.Id`
+- current response still includes `certificateUrl` as a compatibility field
 - any expert-side update resets `verificationStatus` to `Pending`
-- `isVerified = true` only when all active certificates are `Verified`
-- expose `isVerified` in public expert directory, expert my-profile, and admin user detail
+- profile verification is strict:
+  - `isVerified = true` only when all current certificates for that expert are `Verified`
+  - if any certificate is `Pending` or `Rejected`, `isVerified = false`
 
-This guide is therefore split into:
+Important current integration limitation:
 
-- current active backend facts
-- planned API contract for implementation
+- certificate create and update require `reportMediaIds`
+- those media records must already exist as `ReportMedia` with `type=ExpertCertificate`
+- current `POST /api/media/report` upload path only accepts image files (`.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`)
+- therefore the active certificate attachment flow is image-based in the current codebase, even though older planning examples used PDF URLs
 
 ## 2. Authentication and Authorization
 
@@ -43,10 +48,12 @@ This guide is therefore split into:
 
 - actor: authenticated `Admin`
 - scope: admin can access certificates across all experts
+- admin can create certificates for an existing expert account
+- admin direct-create supports direct-recruit onboarding for an already existing expert account
 
 ## 3. Shared Data Models
 
-## 3.1 Planned `ExpertCertificateResponse`
+## 3.1 Active `ExpertCertificateResponse`
 
 ```json
 {
@@ -56,11 +63,17 @@ This guide is therefore split into:
   "issuingOrganization": "Vietnam Poison Control Academy",
   "issueDate": "2025-05-01T00:00:00Z",
   "expiryDate": "2028-05-01T00:00:00Z",
+  "certificateUrl": "https://cdn.example.com/expert-cert-001.jpg",
   "media": [
     {
       "id": "d02d0d8b-8f2e-4621-a4c9-65351e9db52c",
-      "mediaUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf",
-      "referenceType": "ExpertCertificate"
+      "mediaUrl": "https://cdn.example.com/expert-cert-001.jpg",
+      "fileName": "expert-cert-001.jpg",
+      "contentType": "image/jpeg",
+      "fileSize": 245123,
+      "referenceType": "ExpertCertificate",
+      "purpose": "Evidence",
+      "requiresAIProcessing": false
     }
   ],
   "verificationStatus": "Pending",
@@ -70,12 +83,15 @@ This guide is therefore split into:
 
 Field notes:
 
-- `media` is the planned long-term attachment contract
-- current domain still contains `CertificateUrl`, so implementation may temporarily support both fields during migration
-- `verificationStatus` maps to existing enum values `Pending`, `Verified`, `Rejected`
-- `rejectionReason` should be empty when status is not `Rejected`
+- `certificateUrl` is still returned by the backend for compatibility
+- `media` is the active attachment contract and should be preferred by frontend/mobile
+- `verificationStatus` values are:
+  - `Pending`
+  - `Verified`
+  - `Rejected`
+- `rejectionReason` is empty unless the status is `Rejected`
 
-## 3.2 Planned `CreateExpertCertificateRequest`
+## 3.2 Active `CreateExpertCertificateRequest`
 
 ```json
 {
@@ -91,13 +107,14 @@ Field notes:
 
 Field notes:
 
-- `certificateName`: required
-- `issuingOrganization`: required
+- `certificateName`: required, max length `250`
+- `issuingOrganization`: required, max length `250`
 - `issueDate`: required
 - `expiryDate`: optional
-- `reportMediaIds`: required in the target contract when the attachment source is fully pivoted to `ReportMedia`
+- `reportMediaIds`: required, at least one item
+- if `expiryDate < issueDate`, the request is rejected
 
-## 3.3 Planned `AdminCreateExpertCertificateRequest`
+## 3.3 Active `AdminCreateExpertCertificateRequest`
 
 ```json
 {
@@ -109,12 +126,18 @@ Field notes:
   "reportMediaIds": [
     "d02d0d8b-8f2e-4621-a4c9-65351e9db52c"
   ],
-  "verificationStatus": "Pending",
+  "verificationStatus": "Verified",
   "rejectionReason": ""
 }
 ```
 
-## 3.4 Planned `UpdateExpertCertificateRequest`
+Field notes:
+
+- `expertId`: required and must point to an existing expert account
+- `verificationStatus` can be set by admin on create
+- `rejectionReason` is required when `verificationStatus = Rejected`
+
+## 3.4 Active `UpdateExpertCertificateRequest`
 
 ```json
 {
@@ -128,7 +151,7 @@ Field notes:
 }
 ```
 
-## 3.5 Planned `AdminUpdateExpertCertificateRequest`
+## 3.5 Active `AdminUpdateExpertCertificateRequest`
 
 ```json
 {
@@ -139,36 +162,53 @@ Field notes:
   "reportMediaIds": [
     "d02d0d8b-8f2e-4621-a4c9-65351e9db52f"
   ],
-  "verificationStatus": "Verified",
-  "rejectionReason": ""
+  "verificationStatus": "Rejected",
+  "rejectionReason": "Uploaded certificate image is unreadable."
 }
 ```
 
-## 3.6 Planned profile verification field
+## 3.6 Active profile verification field
 
-Planned profile response behavior:
+Current backend behavior:
 
-- once implemented, `isVerified` should reflect persisted `ExpertProfile.IsVerified`
-- current active backend does not yet persist this field
-- target exposure surfaces:
+- `isVerified` now reflects persisted `ExpertProfile.IsVerified`
+- active exposure surfaces:
   - public expert directory
   - expert my-profile
   - admin user detail
 
+## 3.7 Media upload prerequisite
+
+Before calling certificate create or update endpoints, the client must first upload media through the existing media API.
+
+Current upload contract:
+
+- endpoint: `POST /api/media/report`
+- auth: required
+- query param `type=ExpertCertificate`
+- current accepted file extensions:
+  - `.jpg`
+  - `.jpeg`
+  - `.png`
+  - `.gif`
+  - `.webp`
+
+Frontend/mobile notes:
+
+- the returned `ReportMedia.id` must be placed into `reportMediaIds`
+- the backend rejects `reportMediaIds` if the referenced media is not `ReferenceType = ExpertCertificate`
+- the backend rejects media that is already attached to another certificate
+
 ## 4. Expert Business + Expert APIs
 
-Current active state:
-
-- there is no active certificate endpoint yet for experts
-
-Planned behavior:
+Current active behavior:
 
 - expert can create, list, view, update, and delete own certificates
-- creating a certificate does not automatically mark the expert as verified
-- verification changes only after admin review
-- any expert-side update resets the certificate back to `Pending`
+- create does not automatically mark the expert verified
+- expert cannot directly control `verificationStatus`
+- any expert-side update resets the certificate to `Pending`
 
-### 4.1 Planned `POST /api/experts/me/certificates`
+### 4.1 `POST /api/experts/me/certificates`
 
 Purpose:
 
@@ -207,11 +247,17 @@ Success response example:
     "issuingOrganization": "Vietnam Poison Control Academy",
     "issueDate": "2025-05-01T00:00:00Z",
     "expiryDate": "2028-05-01T00:00:00Z",
+    "certificateUrl": "https://cdn.example.com/expert-cert-001.jpg",
     "media": [
       {
         "id": "d02d0d8b-8f2e-4621-a4c9-65351e9db52c",
-        "mediaUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf",
-        "referenceType": "ExpertCertificate"
+        "mediaUrl": "https://cdn.example.com/expert-cert-001.jpg",
+        "fileName": "expert-cert-001.jpg",
+        "contentType": "image/jpeg",
+        "fileSize": 245123,
+        "referenceType": "ExpertCertificate",
+        "purpose": "Evidence",
+        "requiresAIProcessing": false
       }
     ],
     "verificationStatus": "Pending",
@@ -222,11 +268,11 @@ Success response example:
 
 Client notes:
 
-- `verificationStatus` should start as `Pending` unless business rules explicitly allow admin-side create with another initial state
-- frontend should not infer verification from create success alone
-- backend verification is profile-level and should remain `false` until all active certificates are `Verified`
+- create response success does not mean the expert is verified
+- `verificationStatus` starts as `Pending`
+- frontend should refresh profile-level `isVerified` separately if it is displayed nearby
 
-### 4.2 Planned `GET /api/experts/me/certificates`
+### 4.2 `GET /api/experts/me/certificates`
 
 Purpose:
 
@@ -237,12 +283,17 @@ Auth:
 - required
 - role `Expert`
 
-Success response example:
+Success response shape:
+
+- `200 OK`
+- `data` is an array, not a paged object
+
+Example:
 
 ```json
 {
   "statusCode": 200,
-  "message": "Success",
+  "message": "Expert certificates retrieved.",
   "isSuccess": true,
   "data": [
     {
@@ -252,13 +303,8 @@ Success response example:
       "issuingOrganization": "Vietnam Poison Control Academy",
       "issueDate": "2025-05-01T00:00:00Z",
       "expiryDate": "2028-05-01T00:00:00Z",
-      "media": [
-        {
-          "id": "d02d0d8b-8f2e-4621-a4c9-65351e9db52c",
-          "mediaUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001.pdf",
-          "referenceType": "ExpertCertificate"
-        }
-      ],
+      "certificateUrl": "https://cdn.example.com/expert-cert-001.jpg",
+      "media": [],
       "verificationStatus": "Pending",
       "rejectionReason": ""
     }
@@ -266,7 +312,7 @@ Success response example:
 }
 ```
 
-### 4.3 Planned `GET /api/experts/me/certificates/{certificateId}`
+### 4.3 `GET /api/experts/me/certificates/{certificateId}`
 
 Purpose:
 
@@ -277,7 +323,12 @@ Auth:
 - required
 - role `Expert`
 
-### 4.4 Planned `PUT /api/experts/me/certificates/{certificateId}`
+Success response:
+
+- `200 OK`
+- `data` is one `ExpertCertificateResponse`
+
+### 4.4 `PUT /api/experts/me/certificates/{certificateId}`
 
 Purpose:
 
@@ -305,9 +356,10 @@ Request body:
 Client notes:
 
 - any expert-side update resets `verificationStatus` to `Pending`
-- frontend should treat update success as "submitted for re-review", not "still verified"
+- backend clears old rejection reason on expert update
+- frontend should treat update success as resubmission for re-review
 
-### 4.5 Planned `DELETE /api/experts/me/certificates/{certificateId}`
+### 4.5 `DELETE /api/experts/me/certificates/{certificateId}`
 
 Purpose:
 
@@ -318,23 +370,32 @@ Auth:
 - required
 - role `Expert`
 
+Success response example:
+
+```json
+{
+  "statusCode": 200,
+  "message": "Certificate deleted successfully.",
+  "isSuccess": true,
+  "data": null
+}
+```
+
+Client notes:
+
+- delete may change profile-level `isVerified`
+- after delete, the client should refresh the certificate list and any profile verification badge
+
 ## 5. Admin Business + Admin APIs
 
-Current active state:
+Current active behavior:
 
-- there is no active certificate endpoint yet for admins
+- admin can create, list, view, update, and delete certificates globally
+- admin can create certificates for an existing expert account
+- admin can set review state during create or update
+- admin direct-create supports direct-recruit onboarding for an already existing expert account
 
-Planned behavior:
-
-- admin can manage certificates globally
-- admin review controls certificate verification state
-- expert verification state is derived from certificate review outcome
-- researched business cases currently in scope:
-  - free expert submission flow
-  - direct-recruit admin provisioning flow
-- both business cases are in scope for the same implementation phase
-
-### 5.1 Planned `POST /api/admin/expert/certificates`
+### 5.1 `POST /api/admin/expert/certificates`
 
 Purpose:
 
@@ -357,18 +418,18 @@ Request body:
   "reportMediaIds": [
     "d02d0d8b-8f2e-4621-a4c9-65351e9db52c"
   ],
-  "verificationStatus": "Pending",
+  "verificationStatus": "Verified",
   "rejectionReason": ""
 }
 ```
 
-Note:
+Client notes:
 
-- researched business cases support admin-side create for direct-recruit expert onboarding
-- phase 1 includes both free expert onboarding and direct-recruit expert onboarding
-- this endpoint targets an existing expert account; account creation itself stays outside this module
+- `expertId` must be an existing expert account
+- admin can create directly with `Verified` status
+- this endpoint does not create the account itself
 
-### 5.2 Planned `GET /api/admin/expert/certificates`
+### 5.2 `GET /api/admin/expert/certificates`
 
 Purpose:
 
@@ -379,13 +440,26 @@ Auth:
 - required
 - role `Admin`
 
+Supported query params:
+
+- `pageNumber`
+- `pageSize`
+- `expertId`
+- `verificationStatus`
+
 Example query usage:
 
 - `/api/admin/expert/certificates`
+- `/api/admin/expert/certificates?pageNumber=1&pageSize=20`
 - `/api/admin/expert/certificates?expertId=7aaab7a4-6441-4f6c-88d0-e8451adf6d7b`
 - `/api/admin/expert/certificates?verificationStatus=Pending`
 
-### 5.3 Planned `GET /api/admin/expert/certificates/{certificateId}`
+Success response shape:
+
+- `200 OK`
+- `data` is a paged object with `items` and `meta`
+
+### 5.3 `GET /api/admin/expert/certificates/{certificateId}`
 
 Purpose:
 
@@ -396,7 +470,12 @@ Auth:
 - required
 - role `Admin`
 
-### 5.4 Planned `PUT /api/admin/expert/certificates/{certificateId}`
+Success response:
+
+- `200 OK`
+- `data` is one `ExpertCertificateResponse`
+
+### 5.4 `PUT /api/admin/expert/certificates/{certificateId}`
 
 Purpose:
 
@@ -418,8 +497,8 @@ Request body:
   "reportMediaIds": [
     "d02d0d8b-8f2e-4621-a4c9-65351e9db52f"
   ],
-  "verificationStatus": "Verified",
-  "rejectionReason": ""
+  "verificationStatus": "Rejected",
+  "rejectionReason": "Uploaded certificate image is unreadable."
 }
 ```
 
@@ -437,26 +516,32 @@ Success response example:
     "issuingOrganization": "Vietnam Poison Control Academy",
     "issueDate": "2025-05-01T00:00:00Z",
     "expiryDate": "2028-05-01T00:00:00Z",
+    "certificateUrl": "https://cdn.example.com/expert-cert-001-v2.jpg",
     "media": [
       {
         "id": "d02d0d8b-8f2e-4621-a4c9-65351e9db52f",
-        "mediaUrl": "https://res.cloudinary.com/demo/raw/upload/v1/expert-certificates/cert-001-v2.pdf",
-        "referenceType": "ExpertCertificate"
+        "mediaUrl": "https://cdn.example.com/expert-cert-001-v2.jpg",
+        "fileName": "expert-cert-001-v2.jpg",
+        "contentType": "image/jpeg",
+        "fileSize": 251442,
+        "referenceType": "ExpertCertificate",
+        "purpose": "Evidence",
+        "requiresAIProcessing": false
       }
     ],
-    "verificationStatus": "Verified",
-    "rejectionReason": ""
+    "verificationStatus": "Rejected",
+    "rejectionReason": "Uploaded certificate image is unreadable."
   }
 }
 ```
 
 Client notes:
 
-- when `verificationStatus` changes, the backend should recalculate `ExpertProfile.isVerified`
-- the chosen rule is strict: profile becomes verified only when all active certificates are `Verified`
-- a pending or rejected active certificate keeps the profile unverified
+- if admin sends `Rejected`, `rejectionReason` must be present
+- if admin sends `Pending` or `Verified`, backend clears `rejectionReason`
+- every admin review update recalculates profile-level `isVerified`
 
-### 5.5 Planned `DELETE /api/admin/expert/certificates/{certificateId}`
+### 5.5 `DELETE /api/admin/expert/certificates/{certificateId}`
 
 Purpose:
 
@@ -467,13 +552,20 @@ Auth:
 - required
 - role `Admin`
 
+Success response example:
+
+```json
+{
+  "statusCode": 200,
+  "message": "Certificate deleted successfully.",
+  "isSuccess": true,
+  "data": null
+}
+```
+
 ## 6. Verified Endpoint List
 
 Active endpoints as of 2026-04-22:
-
-- none for expert certificates
-
-Planned endpoints:
 
 - `POST /api/experts/me/certificates`
 - `GET /api/experts/me/certificates`
@@ -486,9 +578,16 @@ Planned endpoints:
 - `PUT /api/admin/expert/certificates/{certificateId}`
 - `DELETE /api/admin/expert/certificates/{certificateId}`
 
+Related active endpoints the client will usually need:
+
+- `POST /api/media/report?type=ExpertCertificate&purpose=Evidence`
+- `GET /api/experts`
+- `GET /api/experts/me/profile`
+- `GET /api/admin/users/{userId}`
+
 ## 7. Changelog
 
 - 2026-04-21: initialized planning use guide for `expert-certs`
-- 2026-04-21: recorded verified current backend state and proposed expert/admin API contracts
-- 2026-04-22: merged decided risks for media reference, verification rule, update reset behavior, and profile exposure
-- 2026-04-22: added researched admin onboarding cases for free expert and direct-recruit expert flows
+- 2026-04-21: recorded proposed expert/admin API contracts during planning
+- 2026-04-22: updated guide from planning contract to active contract after implementation
+- 2026-04-22: documented active route set, persisted `isVerified`, strict verification rule, and current image-based media upload limitation
