@@ -4,7 +4,7 @@ module: consultation-expert-absent
 kind: flow
 doc_type: usageguide
 status: active
-last_updated: 2026-04-21
+last_updated: 2026-04-22
 api_version: v1
 owners: [backend-team]
 verification_status: code-verified
@@ -31,6 +31,7 @@ Current status:
 
 - the absent-report feature is `implemented`
 - there is an active member API to report absent expert for scheduled consultation
+- there is an active admin API to mark absent-expert cases as handled
 - `Customer Report` is present in member and admin consultation DTOs
 - `CustomerReportSubmittedAt` is present in member and admin consultation DTOs
 
@@ -81,7 +82,7 @@ Query params:
 | ---------- | ------ | -------- | --------------------------------------------------------------------- |
 | pageNumber | int    | No       | Default `1`, range `>= 1`                                             |
 | pageSize   | int    | No       | Default `10`, range `1..100`                                          |
-| status     | string | No       | `Scheduled`, `Ongoing`, `Completed`, `Cancelled`, `UserAbsent`, `ExpertAbsent`, `AllAbsent` |
+| status     | string | No       | `Scheduled`, `Ongoing`, `Completed`, `Cancelled`, `UserAbsent`, `ExpertAbsent`, `ExpertAbsentHandled`, `AllAbsent` |
 | type       | string | No       | `Scheduled` or `Emergency`                                            |
 
 Example request:
@@ -228,6 +229,7 @@ Current admin consultation behavior:
 - admin can list consultations across the system
 - admin can open one consultation detail
 - admin can see `Customer Report` in consultation responses when it exists
+- admin can mark `ExpertAbsent` consultations as handled
 
 ### 5.2 Admin Endpoint
 
@@ -253,7 +255,7 @@ Query params:
 | ---------- | ------ | -------- | --------------------------------------------------------------------- |
 | pageNumber | int    | No       | Default `1`, range `>= 1`                                             |
 | pageSize   | int    | No       | Default `10`, range `1..100`                                          |
-| status     | string | No       | `Scheduled`, `Ongoing`, `Completed`, `Cancelled`, `UserAbsent`, `ExpertAbsent`, `AllAbsent` |
+| status     | string | No       | `Scheduled`, `Ongoing`, `Completed`, `Cancelled`, `UserAbsent`, `ExpertAbsent`, `ExpertAbsentHandled`, `AllAbsent` |
 | type       | string | No       | `Scheduled` or `Emergency`                                            |
 
 Example request:
@@ -312,6 +314,82 @@ Verified field notes:
 - admin can see status, room, booking data, and emergency-request data
 - admin can inspect absent-report text from current code
 
+#### 5.2.3 `POST /api/admin/consultations/{consultationId}/expert-absent/confirm-handled`
+
+Purpose:
+
+- admin confirms that an expert-absent case has been handled
+
+Status:
+
+- `Active`
+- Code-verified
+
+Auth:
+
+- JWT Bearer token is required
+- `Admin` role is required
+
+Route params:
+
+| Field          | Type | Required | Notes                    |
+| -------------- | ---- | -------- | ------------------------ |
+| consultationId | guid | Yes      | Existing `Consultation.Id` |
+
+Request body:
+
+- none
+
+Business rules:
+
+- consultation must exist
+- only consultations with `status = ExpertAbsent` can be marked as handled
+- successful action sets `Consultation.Status = ExpertAbsentHandled`
+- response returns the updated admin consultation object
+
+Example request:
+
+```http
+POST /api/admin/consultations/8ce96758-71b5-4310-bc35-d83525b2c54f/expert-absent/confirm-handled
+Authorization: Bearer <admin-jwt>
+```
+
+Success response:
+
+- `ApiResponse<AdminConsultationResponse>`
+
+Example response:
+
+```json
+{
+  "status_code": 200,
+  "message": "Expert absent case marked as handled successfully.",
+  "is_success": true,
+  "data": {
+    "consultationId": "8ce96758-71b5-4310-bc35-d83525b2c54f",
+    "type": "Scheduled",
+    "status": "ExpertAbsentHandled",
+    "userId": "0dbe91d2-b5ad-4e35-8f8d-daa44ac3196f",
+    "userName": "Nguyen Van A",
+    "expertId": "ba833fc7-6856-48b2-b032-9c5d985729d1",
+    "expertName": "Pham Thi D",
+    "roomId": "consultation-8ce96758-71b5-4310-bc35-d83525b2c54f",
+    "startTime": "2026-04-09T14:00:00Z",
+    "endTime": null,
+    "price": 150000,
+    "problemDescription": "Snakebite on finger",
+    "customerReport": "Expert did not join the room.",
+    "customerReportSubmittedAt": "2026-04-09T14:05:00Z",
+    "bookingId": "ef54ec06-bb65-47d1-a7c5-db86aad6a49b",
+    "bookingStatus": "Confirmed",
+    "slotStartTime": "2026-04-09T14:00:00Z",
+    "slotEndTime": "2026-04-09T14:30:00Z",
+    "emergencyRequestId": null
+  },
+  "error": null
+}
+```
+
 ## 6. Shared Data Models
 
 ### 6.1 Current `MyConsultationResponse`
@@ -360,6 +438,7 @@ Active endpoints relevant to this module:
 - `GET /api/experts/me/consultations`
 - `GET /api/admin/consultations`
 - `GET /api/admin/consultations/{consultationId}`
+- `POST /api/admin/consultations/{consultationId}/expert-absent/confirm-handled`
 
 ## 8. Changelog
 
@@ -367,3 +446,8 @@ Active endpoints relevant to this module:
 
 - Initialized use guide for the consultation expert-absent module
 - Updated the guide to the implemented absent-report contract
+
+### 2026-04-22
+
+- Added admin endpoint to mark `ExpertAbsent` consultations as handled
+- Added `ExpertAbsentHandled` to documented consultation status values

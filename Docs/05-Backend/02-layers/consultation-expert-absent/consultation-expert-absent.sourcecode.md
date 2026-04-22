@@ -4,7 +4,7 @@ module: consultation-expert-absent
 kind: engineering
 doc_type: sourcecode
 status: implemented
-last_updated: 2026-04-21
+last_updated: 2026-04-22
 owners: [backend-team]
 verification_status: code-verified
 ---
@@ -37,6 +37,7 @@ Relevant code-verified facts:
 - `AdminConsultationResponse` is the current admin history/detail DTO
 - `ConsultationService` owns member history and admin history logic
 - `ConsultationsController` owns member consultation endpoints
+- `AdminConsultationsController` owns admin consultation endpoints
 
 ## Current Class Diagram
 
@@ -107,6 +108,7 @@ Recommended direction:
 - add `CustomerReportSubmittedAt` in v1
 - project that field into member and admin DTOs
 - add one request DTO for the member command endpoint
+- add one admin command endpoint to mark the case as handled
 
 ```mermaid
 classDiagram
@@ -145,6 +147,7 @@ classDiagram
 
     class IConsultationService {
         +ReportExpertAbsentAsync(Guid consultationId, Guid memberId, ReportExpertAbsentRequest request)
+        +ConfirmExpertAbsentHandledAsync(Guid consultationId)
         +GetMyConsultationsAsync(Guid userId, MyConsultationsQueryRequest query)
         +GetAllConsultationsForAdminAsync(AdminConsultationsQueryRequest query)
         +GetConsultationByIdForAdminAsync(Guid consultationId)
@@ -155,7 +158,14 @@ classDiagram
         +GET /api/users/me/consultations
     }
 
+    class AdminConsultationsController {
+        +POST /api/admin/consultations/{consultationId}/expert-absent/confirm-handled
+        +GET /api/admin/consultations
+        +GET /api/admin/consultations/{consultationId}
+    }
+
     ConsultationsController --> IConsultationService
+    AdminConsultationsController --> IConsultationService
     IConsultationService --> Consultation
     IConsultationService --> MyConsultationResponse
     IConsultationService --> AdminConsultationResponse
@@ -214,6 +224,31 @@ sequenceDiagram
     API-->>Admin: ApiResponse<AdminConsultationResponse>
 ```
 
+## Admin Resolution Sequence
+
+```mermaid
+sequenceDiagram
+    actor Admin
+    participant API as AdminConsultationsController
+    participant Service as ConsultationService
+    participant Repo as UnitOfWork/Repositories
+    participant DB as Database
+
+    Admin->>API: POST /api/admin/consultations/{consultationId}/expert-absent/confirm-handled
+    API->>Service: ConfirmExpertAbsentHandledAsync(consultationId)
+    Service->>Repo: Load Consultation by Id
+    Repo->>DB: SELECT Consultation
+    DB-->>Repo: Consultation
+    Repo-->>Service: Consultation
+    Service->>Service: Validate Status == ExpertAbsent
+    Service->>Service: Set Status = ExpertAbsentHandled
+    Service->>Repo: Update entity and save
+    Repo->>DB: UPDATE Consultations
+    DB-->>Repo: Saved
+    Service-->>API: Updated AdminConsultationResponse
+    API-->>Admin: ApiResponse(updated consultation)
+```
+
 ## Notes For Resume
 
 If implementation resumes later, inspect these code areas first:
@@ -234,3 +269,9 @@ For v1, the preferred model is:
 - `CustomerReportSubmittedAt`
 
 Avoid putting admin-resolution fields into `Consultation` until there is an actual admin resolution workflow.
+
+Current implemented admin resolution is intentionally minimal:
+
+- status-only resolution through `ExpertAbsentHandled`
+- no extra admin note field
+- no handled-by / handled-at metadata yet

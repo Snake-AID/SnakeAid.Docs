@@ -4,7 +4,7 @@ module: consultation-expert-absent
 kind: layer
 doc_type: introduction
 status: implemented
-last_updated: 2026-04-21
+last_updated: 2026-04-22
 owners: [backend-team]
 verification_status: code-verified
 ---
@@ -22,6 +22,7 @@ Business goal:
 - the expert does not appear
 - the member must have a backend-supported way to report the absent expert
 - admin must be able to see that report and handle the case
+- admin must be able to confirm that the absent-expert case has been handled
 
 ## Scope Covered By This Module
 
@@ -60,7 +61,9 @@ Code-verified observations from the backend:
   - `CustomerReport`
   - `CustomerReportSubmittedAt`
 - `IConsultationService` now exposes a member report command
+- `IConsultationService` now exposes an admin handled-confirmation command
 - `ConsultationsController` now provides a member report endpoint
+- `AdminConsultationsController` now provides an admin handled-confirmation endpoint
 
 ## Recommended Implementation Direction
 
@@ -70,6 +73,7 @@ Recommended direction for this module:
 - expose that data outward through response DTOs
 - add one member-only command endpoint under `api/consultations`
 - keep admin visibility inside the existing admin consultation endpoints
+- add one admin-only command endpoint under `api/admin/consultations`
 
 Why this direction fits the current code:
 
@@ -108,7 +112,7 @@ Confirmed v1 metadata:
 Still out of current scope:
 
 - `CustomerReportSubmittedBy`
-- admin resolution fields
+- admin resolution metadata fields
 
 ## Implemented Backend Shape
 
@@ -144,10 +148,10 @@ In scope:
 - report submission changes consultation status to `ExpertAbsent`
 - member-facing consultation payload can show the report field if required by mobile
 - admin consultation list/detail includes the report field
+- admin can move `Consultation.Status` from `ExpertAbsent` to `ExpertAbsentHandled`
 
 Out of scope for this module unless explicitly requested later:
 
-- admin resolution workflow
 - expert penalty workflow
 - notification workflow
 - auto-detecting absence from video-room presence

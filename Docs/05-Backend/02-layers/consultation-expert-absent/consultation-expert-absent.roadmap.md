@@ -4,7 +4,7 @@ module: consultation-expert-absent
 kind: flow
 doc_type: roadmap
 status: implemented
-last_updated: 2026-04-21
+last_updated: 2026-04-22
 owners: [backend-team]
 verification_status: code-verified
 ---
@@ -19,6 +19,7 @@ verification_status: code-verified
   - absent-report command endpoint exists
   - consultation report fields exist
   - admin consultation responses expose `CustomerReport`
+  - admin handled-confirmation endpoint exists
 - docs status:
   - this doc set is aligned to implemented behavior
 
@@ -31,6 +32,7 @@ After implementation:
 3. member-facing consultation payload exposes the report field if required
 4. admin consultation endpoints expose the report field
 5. the feature is traceable in tests and docs
+6. admin can mark `ExpertAbsent` cases as handled
 
 ## Task Breakdown
 
@@ -124,6 +126,15 @@ Likely code targets:
 - [x] Add auth requirement `User`
 - [x] Return `ApiResponseBuilder.BuildSuccessResponse(...)` with updated consultation object
 
+### Admin Resolution
+
+- [x] Add `ExpertAbsentHandled` status for admin resolution
+- [x] Add admin handled-confirmation command to `IConsultationService`
+- [x] Add admin endpoint in `AdminConsultationsController`
+- [x] Restrict handled-confirmation to current `ExpertAbsent` status
+- [x] Return updated `AdminConsultationResponse`
+- [x] Treat `ExpertAbsentHandled` as terminal for message-history access
+
 ### Read Models
 
 - [x] Extend `MyConsultationResponse` with `CustomerReport`
@@ -205,3 +216,9 @@ If implementation resumes later, start with these facts:
 - Recorded confirmed decisions OD1 to OD6
 - Closed OD7 with v1 metadata = `CustomerReport` + `CustomerReportSubmittedAt`
 - Implemented backend code, migration, and focused test coverage
+
+### 2026-04-22
+
+- Added admin command endpoint to confirm expert-absent cases as handled
+- Added `ExpertAbsentHandled` as the resolved admin status
+- Added focused controller and integration coverage for admin handled-confirmation flow
