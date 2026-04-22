@@ -332,6 +332,7 @@ Planned behavior:
 - researched business cases currently in scope:
   - free expert submission flow
   - direct-recruit admin provisioning flow
+- both business cases are in scope for the same implementation phase
 
 ### 5.1 Planned `POST /api/admin/expert/certificates`
 
@@ -364,7 +365,8 @@ Request body:
 Note:
 
 - researched business cases support admin-side create for direct-recruit expert onboarding
-- the remaining open decision is whether both admin cases ship in the first implementation phase
+- phase 1 includes both free expert onboarding and direct-recruit expert onboarding
+- this endpoint targets an existing expert account; account creation itself stays outside this module
 
 ### 5.2 Planned `GET /api/admin/expert/certificates`
 

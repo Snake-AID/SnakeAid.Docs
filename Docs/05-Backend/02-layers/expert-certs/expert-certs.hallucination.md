@@ -17,9 +17,13 @@ Rule for maintenance:
 
 ## Open Risks
 
+- none
+
+## Closed Risks
+
 ### Risk 4. Can admin create certificates on behalf of an expert
 
-Status: `Open`
+Status: `Closed`
 
 Reason:
 
@@ -57,9 +61,11 @@ Recommended direction:
 
 Decision record:
 
-- No user decision recorded yet
-
-## Closed Risks
+- User selected the admin-create direction on 2026-04-22
+- Chosen scope: ship both `free expert onboarding` and `direct-recruit expert onboarding` in the same module
+- `Admin` is allowed to create certificates for an existing expert account
+- `Admin` is allowed to approve immediately during the direct-recruit flow
+- Scope guard: this workstream does not include creating the expert account itself; it only manages certificates for an already existing expert account
 
 ### Risk 1. Exact enum member name for certificate media
 

@@ -38,6 +38,7 @@ status: planning
 - any expert-side update resets `VerificationStatus` to `Pending`
 - `ExpertProfile.IsVerified = true` only when all active certificates are `Verified`
 - expose persisted `IsVerified` in public expert directory, expert my-profile, and admin user detail
+- ship both expert self-service and admin direct-create flows in the same module, limited to existing expert accounts
 
 ## Current Class Diagram
 

@@ -72,6 +72,7 @@ status: planning
 
 - [ ] Add expert routes under `/api/experts/me/certificates`
 - [ ] Add admin routes under `/api/admin/expert/certificates`
+- [ ] Support admin-side create for an existing expert account in the direct-recruit flow
 - [ ] Apply role authorization
 - [ ] Add swagger summaries and response contracts
 - [ ] Add route convention tests if this module adopts the same pattern as `MyProfile`

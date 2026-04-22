@@ -15,7 +15,7 @@ This workstream currently contains three requested tasks:
 
 1. extend `MediaReferenceType` in `ReportMedia` with a certificate-specific enum value
 2. add persisted `IsVerified` to `ExpertProfile`
-3. build CRUD APIs for `ExpertCertificate` for both `Expert` and `Admin`
+3. build CRUD APIs for `ExpertCertificate` for both `Expert` and `Admin`, including admin-side create for direct-recruit onboarding
 
 ## Verified Current Codebase State
 
@@ -53,6 +53,7 @@ The intended backend direction is:
 - expose certificate CRUD for:
   - expert self-service on own certificates
   - admin global management and review
+  - admin-side create for an existing expert account during direct-recruit onboarding
 
 ## Scope Boundaries
 
