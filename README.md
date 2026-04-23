@@ -1,106 +1,180 @@
+# SnakeAid
 
-# Project name: 
+**AI-Powered Platform for Snakebite First Aid and Rescue Support**
 
-English: **AI-Powered Platform for Snakebite First Aid and Rescue Support**  
-Vietnamese: Nền tảng hỗ trợ sơ cứu & cứu hộ rắn cắn ứng dụng AI  
-Abbreviation: SnakeAid
+SnakeAid is a web and mobile platform designed to improve how snakebite incidents and snake-catching requests are handled. It combines first-aid guidance, AI-assisted snake identification, severity assessment, operator-led rescue dispatching, expert consultation, treatment facility intelligence, and financial workflows into one coordinated system.
 
-## Context: 
+## Project Information
 
-   Snakebite incidents are often poorly handled due to lack of timely first aid, misidentification of snake species, limited access to nearby antivenom facilities, and slow rescue coordination. Patients frequently panic and perform harmful treatments, while rescuers face risk without accurate species information. Experts are not always available for quick verification, and incident data is fragmented. Administrators lack real-time visibility of high-risk areas and rescue efficiency. Therefore, an AI-powered platform integrating first-aid support, snake identification, rescue tracking, expert consultation, and incident monitoring is urgently needed.
+- **Project Name:** AI-Powered Platform for Snakebite First Aid and Rescue Support
+- **Software Type:** Web Application, Mobile App
+- **Product Name:** SnakeAid
 
-## Proposed Solutions 
+## Problem Statement
 
-   **AI-Powered Platform for Snakebite First Aid and Rescue Support** is a platform that provides a comprehensive solution involving patients, rescuers, snake experts, and administrators. Patients receive step-by-step first-aid guidance, AI-based snake identification and severity assessment, SOS emergency calls with GPS sharing, real-time map tracking of rescue teams, symptom monitoring, and direct payments for consultations and rescue services. Snake rescuers receive alerts, manage rescue tasks, identify snake species via AI, navigate to incident locations using map-based guidance, update status, and track revenue. Snake experts verify images, provide remote consultation, update treatment guidelines, and manage earnings. Admins oversee user roles, snake database, treatment facilities, content, system analytics, map-based activity monitoring, alerts, and platform-wide financial reports.
+Snakebite incidents are often mishandled because first aid is delayed, snake species are misidentified, nearby treatment facilities are not easy to find, and rescue coordination is slow. Victims may panic and perform harmful actions, rescuers may operate with incomplete field information, experts may not be available in time, and administrators may lack real-time visibility into incident hotspots and response efficiency.
 
-## Functional requirement
+SnakeAid addresses this by providing an AI-powered platform and coordination center that supports:
 
-#### Module for Patient
-  * Emergency first-aid guidance: step-by-step instructions, compression bandage guide, warnings about prohibited actions.  
-  * Emergency call: SOS button sends GPS location and directly calls the emergency hotline.  
-  * Locate nearest treatment facility with antivenom: map display based on admin-updated data.  
-  * Track bite and symptoms: input descriptions, take photos to monitor progression.  
-  * Snake species identification from image (AI): recognize the snake and provide appropriate first-aid guidance.  
-  * Assess severity from bite image and symptoms (AI): issue urgent alerts and suggest calling emergency services if critical.  
-  * Report snakebite incident / snake sighting: send location and images to the system or snake rescuer.  
-  * Snake prevention & education: articles, videos, FAQs.  
-  * Real-time map tracking:  
-    * Track snake rescue team’s real-time location after requesting rescue.  
-    * Receive notifications when the rescue team is approaching or has completed the mission.  
-    * Display estimated arrival route and time.  
-  * Service fee management:  
-    * Pay fees for expert snake consultation.  
-    * Pay snake rescue fees directly to rescue teams via the platform.  
-    * Track payment status and electronic invoices.
+- Immediate first-aid guidance
+- Snake image recognition
+- Severity assessment
+- SOS emergency handling
+- Real-time rescue tracking
+- Expert consultation
+- Hospital and antivenom intelligence
+- Payment, wallet, and reconciliation flows
+- Operational monitoring and governance
 
-#### Module for Snake Rescuer
-  * Receive snake sighting alerts / rescue requests: access location and images.  
-  * Verify & respond quickly: confirm snake type (venomous/non-venomous), update results.  
-  * Rescue task management: accept, handle, update progress (en route, completed).  
-  * Safety guidance for capturing and relocating snakes: standard operating procedures.  
-  * Communicate & collaborate with snake experts: exchange details for accurate identification and response.  
-  * Record & report rescue activities: document cases, locations, and timelines.  
-  * Map tracking:  
-    * Update team’s real-time movement.  
-    * Support navigation to patient’s location.  
-    * Send status notifications (on the way, completed).  
-  * Identify snake species from patient-submitted images (AI): provide risk warnings before arrival.  
-  * Rescue fee management:  
-    * Accept paid rescue requests (from patients).  
-    * Track revenue, payment status, and transaction history.  
-    * Receive payment via platform after rescue completion.  
-    * Rate and receive feedback to improve ranking priority.
+## Product Vision
 
-#### Module for Snake Expert 
-  * Verify identification data: confirm snake species from images/descriptions.  
-  * Support AI-based species identification to shorten verification time.  
-  * Update handling & first-aid guidelines by snake type.  
-  * Remote consultation: online support for patients or rescue teams.  
-  * Consultation revenue management:  
-    * Set online consultation fees.  
-    * Receive payments via platform and issue electronic invoices.  
-    * View monthly/quarterly revenue reports.
+SnakeAid aims to become a reliable snakebite first-aid platform and rescue coordination center for high-risk regions. The product connects Members, Rescuers, Experts, Operators, and Admins in a unified real-time system.
 
-#### Module for Admin
-  * User & role management: create accounts for patients, experts, and rescuers.  
-  * Snake species database management: images, traits, distribution, behavior.  
-  * Treatment facility management: facility name, location, available antivenom types.  
-  * Content management: update first-aid guidance, snake data, risk areas.  
-  * Data statistics & reporting: compile snakebite cases, rescues, consultations, and system activity.  
-  * Community alerts & announcements: send risk area alerts, prevention guidance.  
-  * Platform fee & revenue management:  
-    * Manage service fee (rescue, consultation).  
-    * Track total revenue, distribute earnings to rescuers/experts.  
-    * Manage payments among patients – rescuers/experts – platform.  
-    * Generate periodic financial reports.
+The core vision is to deliver:
 
-## Non-functional requirement: 
+- **Faster response:** Immediate first-aid guidance and faster case intake
+- **Better decision support:** AI-based snake identification and severity categorization
+- **Coordinated rescue operations:** Operator-managed dispatching and live mission tracking
+- **Accessible expertise:** Remote expert consultation through chat and video
+- **Data-driven administration:** Facility management, financial reporting, audit trails, and AI governance
 
-* The system is capable of keeping track of the user at the time when the user performs important processing functions in the system.  
-* Unicode font.
+## User Roles
 
-# Main proposal content (including result and product)   
+- **Member:** Requests help, receives guidance, tracks rescue, books consultations, pays for services, and manages wallet activity
+- **Rescuer:** Receives operator-assigned missions, updates field status, navigates to incidents, and records outcomes
+- **Expert:** Completes professional onboarding, provides consultation, and tracks revenue
+- **Operator:** Verifies incoming reports, triages cases, and assigns Rescuers
+- **Admin:** Manages pricing, KYC, facilities, snake data, content, finance, notifications, and AI governance
 
-## Theory and practice (document):
+## Core Functional Scope
 
-* Students should apply the software development process in the modelling system.   
-* The documents include User Requirement, Software Requirement Specification, Architecture Design, Detail Design, Testing Document, Installation Guide, User Guide, Sources Code.  
-* Server-side technologies:  
-* Server: .NET, Windows Azure/AWS, …  
-* Database Design: SQL Server, MySQL, …  
-* Client-side technologies:   
-* Web Client: HTML5, CSS3, Typescript, ReactJS, ....  
-* Mobile App:  Flutter, Xamarin, …
+### Member
 
-## Products: 
+- Authentication and profile management
+- AI snake image recognition
+- Snake species knowledge access
+- Severity assessment from symptoms and images
+- SOS emergency trigger with GPS capture
+- Medical facility lookup with ETA and navigation
+- Real-time rescue tracking
+- Snake catching service requests
+- Expert consultation via chat and video
+- First-aid and prevention knowledge hub
+- PayOS-based payment flows
+- Ratings and reviews
+- Wallet management
+- Notification center and real-time updates
 
-* Mobile/Web App for Patient.  
-* Mobile/Web App for Snake Rescuer.  
-* Mobile/Web App for Snake Expert.  
-* Web App for Admin.
+### Rescuer
 
-## Proposed Tasks:
+- Operator-assigned mission intake
+- SignalR dispatch alerts
+- Mission status updates
+- Mission history and performance review
+- Safety guidance and learning content
 
-* Task package 1: Develop the application.  
-* Task package 2: Build and Test the system.   
-* Task package 3: Prepare all the required documents: System analysis and Design, Test plan, Installation manual, User manual. 
+### Expert
+
+- Expert registration and professional onboarding
+- Verification workflow
+- Consultation delivery
+- Revenue tracking
+- Wallet withdrawals where applicable
+
+### Operator
+
+- Real-time emergency and catching queues
+- Verification and triage of incoming reports
+- Manual assignment of Rescuers
+- Monitoring of rescue progress and live location updates
+
+### Admin
+
+- Service pricing and fee configuration
+- KYC and professional verification
+- Hospital and antivenom management
+- Snake database administration
+- Content and lesson management
+- Notification orchestration
+- Platform revenue and commission management
+- Payment dispute and refund handling
+- Wallet and reconciliation oversight
+- Audit, compliance, and AI governance
+
+## Payment Model
+
+SnakeAid includes multiple financial flows defined by the standardized requirement set:
+
+- **PayOS** as the primary payment gateway
+- **Consultation booking escrow** with release or refund by policy
+- **Snake catching two-phase payment control**
+  - Round 1 travel fee
+  - Round 2 final service payment
+- **Wallet management** for supported user roles
+- **Callback and reconciliation** to synchronize final payment state
+
+## Main Business Flows
+
+### 1. Emergency Snakebite Response
+
+- Member receives immediate first-aid guidance
+- AI identifies snake species and estimates severity
+- SOS creates an emergency case
+- Operator verifies and dispatches a Rescuer
+- Member tracks rescue progress in real time
+- Member or Operator can reference nearby treatment facilities
+
+### 2. Snake Catching Service
+
+- Member submits a non-emergency snake catching request
+- System generates automatic price estimation
+- Member completes round 1 payment
+- Operator verifies and assigns a Rescuer
+- Rescuer executes the mission
+- Member completes round 2 payment and leaves feedback
+
+### 3. Expert Consultation
+
+- Expert completes onboarding and verification
+- Member creates an instant or scheduled booking
+- Booking enters waiting room and escrow flow
+- Consultation is delivered through chat or video
+- Escrow is released based on completion policy
+
+### 4. Education and Notifications
+
+- Members and Rescuers access safety guidance and learning content
+- Notification engine delivers service and area-based alerts
+- Notification center stores in-app updates and mission events
+
+### 5. Administration and Governance
+
+- Admin manages pricing, facilities, content, finance, compliance, and AI governance
+- Operator handles daily dispatch queues and rescue triage
+
+## Limitations and Exclusions
+
+SnakeAid follows the investor SRS constraints. Key points include:
+
+- The system does not replace hospital care or licensed medical treatment
+- AI outputs are decision-support only and may not be fully accurate
+- Availability of Rescuers and Experts depends on actual operational coverage
+- Stable internet is required for core workflows
+- Integration with public ambulance or government emergency infrastructure is out of scope
+- Offline-first behavior is excluded
+- SMS, phone, and VoIP dispatch channels are excluded
+- PayOS is the only supported payment gateway in scope
+- Multi-tenant SaaS behavior is excluded
+- Hardware and IoT integrations are excluded
+
+## Documentation Source of Truth
+
+Supporting functional documents include:
+
+- [Feature-Matrix.md](Docs/01-Functional-Specs/00-Concepts/Feature-Matrix.md)
+- [00-Flows-Overview.md](Docs/01-Functional-Specs/01-Core-Flows/00-Flows-Overview.md)
+- [01-Emergency-Response.md](Docs/01-Functional-Specs/01-Core-Flows/01-Emergency-Response.md)
+- [02-Rescue-Service.md](Docs/01-Functional-Specs/01-Core-Flows/02-Rescue-Service.md)
+- [03-Expert-Consultation.md](Docs/01-Functional-Specs/01-Core-Flows/03-Expert-Consultation.md)
+- [04-Community-Safety.md](Docs/01-Functional-Specs/01-Core-Flows/04-Community-Safety.md)
+- [05-Admin-Operations.md](Docs/01-Functional-Specs/01-Core-Flows/05-Admin-Operations.md)
