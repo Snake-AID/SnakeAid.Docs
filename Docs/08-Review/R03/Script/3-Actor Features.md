@@ -1,15 +1,11 @@
 # Script thuyết trình - Slide 3: Operator & Admin Features
 
-Sau khi đi qua các actor trực tiếp tham gia vào flow nghiệp vụ, phần cuối em xin chuyển sang hai vai trò hậu trường nhưng có ý nghĩa quyết định đối với vận hành hệ thống, đó là Operator và Admin.
+Phần cuối cùng là hai vai trò vận hành và quản trị, gồm Operator và Admin.
 
-Đầu tiên là Operator. Có thể xem đây là bộ phận điều phối trung tâm của nền tảng. Operator theo dõi các yêu cầu rescue hoặc bắt rắn, kiểm tra ca trực và giám sát quá trình xử lý thực tế. Trong các flow quan trọng của SnakeAid, đặc biệt là emergency snakebite và snake catching service, tất cả request đều đi vào hàng chờ của Operator trước khi được xác minh, phân loại ưu tiên và gán cho Rescuer phù hợp.
+Với Operator, thứ tự các ý trên slide thể hiện khá rõ quy trình điều phối thực tế. Đầu tiên là quản lý ca trực và mức độ sẵn sàng của lực lượng phản ứng, để hệ thống luôn biết ở thời điểm hiện tại có ai có thể nhận việc. Khi đã có bức tranh về nguồn lực, Operator tiếp nhận các yêu cầu SOS và yêu cầu bắt rắn đi vào hệ thống, sau đó thực hiện bước xác minh và phân loại mức độ ưu tiên cho từng ca.
 
-Vai trò của Operator giúp hệ thống tránh việc dispatch tự động một cách thiếu kiểm soát. Thay vào đó, hệ thống có một lớp kiểm duyệt nghiệp vụ để bảo đảm ca việc được xử lý đúng người, đúng mức độ ưu tiên và đúng trạng thái vận hành tại thời điểm đó.
+Sau khi đã hiểu rõ tình trạng của case, Operator sẽ gán Rescuer phù hợp và tiếp tục theo dõi tiến độ nhiệm vụ theo thời gian thực. Nhìn ở góc độ nghiệp vụ, Operator chính là lớp điều phối trung tâm, giúp các request từ người dùng không đi thẳng ra hiện trường một cách tự phát, mà được kiểm soát xuyên suốt từ lúc tiếp nhận cho tới lúc thực thi.
 
-Tiếp theo là Admin. Nếu Operator thiên về điều phối hằng ngày, thì Admin chịu trách nhiệm quản trị toàn bộ nền tảng. Admin quản lý người dùng và phân quyền, quản lý cơ sở dữ liệu loài rắn, cấu hình ca trực, quản lý request, quản lý cơ sở điều trị, quản lý nội dung, theo dõi thống kê báo cáo, cũng như quản lý giao dịch và các tác vụ vận hành khác.
+Với Admin, phạm vi trách nhiệm rộng hơn và mang tính nền tảng hơn. Bắt đầu từ quản lý người dùng và phân quyền, Admin quyết định ai được tham gia hệ thống với vai trò nào. Tiếp theo là quản lý cơ sở dữ liệu loài rắn, ca trực, request và cơ sở điều trị, tức là những thành phần cốt lõi ảnh hưởng trực tiếp tới độ chính xác của dữ liệu và độ ổn định của vận hành.
 
-Nói cách khác, Admin là vai trò bảo đảm nền tảng có dữ liệu đúng, cấu hình đúng và chính sách đúng. Đây cũng là nhóm chịu trách nhiệm duy trì chất lượng dữ liệu đầu vào cho AI, kiểm soát nội dung chuyên môn, theo dõi tài chính và hỗ trợ các yêu cầu về audit hoặc compliance nếu cần.
-
-Khi đặt phần này cạnh nhóm actor ở slide trước, có thể thấy SnakeAid được thiết kế theo một mô hình khá rõ. Phía trước là các actor tạo và xử lý nhu cầu thực tế, còn phía sau là các actor vận hành và quản trị để giữ cho toàn bộ hệ thống hoạt động ổn định, có kiểm soát và có khả năng mở rộng.
-
-Đó cũng là điểm em muốn nhấn mạnh ở phần này: SnakeAid không chỉ là một ứng dụng cho người dùng cuối, mà là một nền tảng hoàn chỉnh, có đầy đủ lớp tác nghiệp, điều phối và quản trị.
+Các phần còn lại như quản lý nội dung, thống kê báo cáo và giao dịch cho thấy Admin không chỉ làm công việc cấu hình ban đầu, mà còn chịu trách nhiệm duy trì chất lượng hệ thống trong suốt quá trình vận hành. Đây cũng là vai trò gắn với việc kiểm soát nội dung chuyên môn, theo dõi tài chính, hỗ trợ audit và tạo nền cho các quyết định mở rộng sản phẩm về sau.

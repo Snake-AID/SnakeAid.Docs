@@ -2,8 +2,11 @@
 
 ## Operator
 
-- Rescue & capture monitor
-- Workshift checking
+- Manage workshifts and responder availability
+- Receive SOS and snake capture requests
+- Verify and triage incoming cases
+- Assign suitable Rescuers
+- Monitor mission progress in real time
 
 ## Admin
 
