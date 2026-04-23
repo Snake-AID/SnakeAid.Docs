@@ -3,28 +3,27 @@
 ## Member
 
 - Emergency first-aid guidance
-- Locate nearest treatment facility with antivenom
-- Real-time map tracking
-- Track bite and symptoms
-- Service fee management
-- Snake species identification from image (AI)
-- Report snakebite incident / snake sighting
-- Snake prevention & blogs
-- Book consultation
+- Snake image capture, symptom tracking & AI assessment
+- SOS trigger, GPS sharing & rescue tracking
+- Nearest treatment facility lookup when needed
+- Snake sighting / catching service request
+- Expert consultation booking
+- Wallet, payments & notifications
+- Safety knowledge hub & community alerts
 
 ## Rescuer
 
-- Receive snake sighting alerts / rescue requests
-- Rescue task management
-- Safety guidance for capturing and relocating snakes
-- Record & report rescue activities
-- Map tracking
+- Receive dispatch alerts & acknowledge assignment
+- Mission execution & status updates
+- Real-time tracking & navigation
+- Rescue guidance, activity logs & reporting
+- Mission history, feedback & role-based wallet access
 
 ## Expert
 
-- Offer instant 1-on-1 emergency consultation
-- Manage personal consultation schedule
-- Remote consultation
-- Verify snake species from images
-- View monthly/quarterly revenue reports
-- Set online consultation fees
+- Professional onboarding & verification
+- Availability & consultation schedule management
+- Instant or scheduled remote consultation
+- Snake image review & expert verification
+- Consultation summary, ratings & reviews
+- Revenue tracking & payout management

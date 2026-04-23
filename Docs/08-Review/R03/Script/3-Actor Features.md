@@ -1,11 +1,11 @@
 # Script thuyết trình - Slide 3: Operator & Admin Features
 
-Phần cuối cùng là hai vai trò vận hành và quản trị, gồm Operator và Admin.
+Kế đến là hai vai trò vận hành và quản trị, gồm Operator và Admin.
 
-Với Operator, thứ tự các ý trên slide thể hiện khá rõ quy trình điều phối thực tế. Đầu tiên là quản lý ca trực và mức độ sẵn sàng của lực lượng phản ứng, để hệ thống luôn biết ở thời điểm hiện tại có ai có thể nhận việc. Khi đã có bức tranh về nguồn lực, Operator tiếp nhận các yêu cầu SOS và yêu cầu bắt rắn đi vào hệ thống, sau đó thực hiện bước xác minh và phân loại mức độ ưu tiên cho từng ca.
+Với Operator, trọng tâm là nhóm chức năng điều phối trung tâm của hệ thống. Trước hết là theo dõi hàng chờ request, bao gồm cả ca SOS và yêu cầu bắt rắn. Từ đó, Operator thực hiện bước xác minh và triage để đánh giá mức độ ưu tiên, rồi gán Rescuer phù hợp cho từng case.
 
-Sau khi đã hiểu rõ tình trạng của case, Operator sẽ gán Rescuer phù hợp và tiếp tục theo dõi tiến độ nhiệm vụ theo thời gian thực. Nhìn ở góc độ nghiệp vụ, Operator chính là lớp điều phối trung tâm, giúp các request từ người dùng không đi thẳng ra hiện trường một cách tự phát, mà được kiểm soát xuyên suốt từ lúc tiếp nhận cho tới lúc thực thi.
+Sau khi đã phân công, Operator tiếp tục theo dõi tiến độ nhiệm vụ theo thời gian thực. Bên cạnh đó, phần operational notifications và shift coordination cho thấy Operator không chỉ xử lý từng ca riêng lẻ, mà còn phải bảo đảm nguồn lực luôn sẵn sàng và thông tin vận hành được lưu thông đúng lúc.
 
-Với Admin, phạm vi trách nhiệm rộng hơn và mang tính nền tảng hơn. Bắt đầu từ quản lý người dùng và phân quyền, Admin quyết định ai được tham gia hệ thống với vai trò nào. Tiếp theo là quản lý cơ sở dữ liệu loài rắn, ca trực, request và cơ sở điều trị, tức là những thành phần cốt lõi ảnh hưởng trực tiếp tới độ chính xác của dữ liệu và độ ổn định của vận hành.
+Với Admin, phạm vi trách nhiệm rộng hơn và mang tính nền tảng cho toàn bộ hệ thống. Trước hết là quản lý người dùng, phân quyền và xác minh chuyên môn, để kiểm soát ai được tham gia nền tảng với vai trò nào. Tiếp theo là quản lý dữ liệu loài rắn, cơ sở điều trị, cùng các cấu hình vận hành và request governance, tức là những thành phần ảnh hưởng trực tiếp tới độ đúng của dữ liệu và độ ổn định của quy trình nghiệp vụ.
 
-Các phần còn lại như quản lý nội dung, thống kê báo cáo và giao dịch cho thấy Admin không chỉ làm công việc cấu hình ban đầu, mà còn chịu trách nhiệm duy trì chất lượng hệ thống trong suốt quá trình vận hành. Đây cũng là vai trò gắn với việc kiểm soát nội dung chuyên môn, theo dõi tài chính, hỗ trợ audit và tạo nền cho các quyết định mở rộng sản phẩm về sau.
+Ngoài ra, Admin còn phụ trách nội dung, thông báo và kho kiến thức của hệ thống; đồng thời quản lý tài chính, giao dịch, commission, thống kê, audit và AI governance. Điều này cho thấy Admin không chỉ cấu hình hệ thống ở mức ban đầu, mà còn chịu trách nhiệm duy trì tính nhất quán, an toàn và khả năng mở rộng của nền tảng về lâu dài.

@@ -2,20 +2,17 @@
 
 ## Operator
 
-- Manage workshifts and responder availability
-- Receive SOS and snake capture requests
-- Verify and triage incoming cases
-- Assign suitable Rescuers
-- Monitor mission progress in real time
+- Request queue monitoring
+- Case verification & triage
+- Rescuer assignment
+- Real-time mission monitoring
+- Operational notifications & shift coordination
 
 ## Admin
 
-- User & role management
-- Snake species database management
-- Work shift Management
-- Request Management
-- Treatment facility management
-- Content management
-- Data statistics & reporting
-- Transactions management
-- etc...
+- User, role & professional verification management
+- Snake database & treatment facility management
+- Operational configuration & request governance
+- Content, notifications & knowledge management
+- Finance, transactions & commission management
+- Statistics, audit & AI governance
