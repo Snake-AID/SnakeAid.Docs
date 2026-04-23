@@ -4,7 +4,7 @@
 
 Current status:
 
-- open
+- partially closed
 
 ## Purpose
 
@@ -43,9 +43,19 @@ The business request says `price before` and `price after`, but the public API s
 - easier for mobile and backend to read later
 - avoids confusion with other before/after concepts such as tax, discount, or settlement timing
 
+### Decision
+
+- closed
+
 ### Decision Record
 
-- pending
+- chosen option: Option C
+- chosen fields:
+  - `grossPrice`
+  - `netPrice`
+- decision date: `2026-04-23`
+- rationale from requester:
+  - prefers concise money naming over fee-specific wording
 
 ## Risk 2. Backward Compatibility For Legacy `price`
 
@@ -69,9 +79,19 @@ Removing `price` immediately is cleaner, but keeping it temporarily may reduce r
 - simpler to deploy backend first without breaking older app builds
 - still allows a later cleanup once Flutter is migrated
 
+### Decision
+
+- closed
+
 ### Decision Record
 
-- pending
+- chosen option: Option A
+- chosen behavior:
+  - remove legacy `price` in the same release
+  - treat the response change as a breaking API-contract change
+- decision date: `2026-04-23`
+- rationale from requester:
+  - wants the contract cleaned in one step instead of carrying an ambiguous legacy field
 
 ## Risk 3. Source Of Truth For `priceAfterPlatformFee`
 
@@ -100,9 +120,19 @@ That creates a data-truth question:
 - preserves the difference between settled truth and projected value
 - avoids silently showing a net number that may never match the eventual payout
 
+### Decision
+
+- closed
+
 ### Decision Record
 
-- pending
+- chosen option: Option B
+- chosen behavior:
+  - prefer persisted `ExpertPayout`
+  - if payout does not exist yet, `netPrice = null`
+- decision date: `2026-04-23`
+- rationale:
+  - keep net value tied to persisted payout truth only
 
 ## Risk 4. Scheduled `priceAfterPlatformFee` Before Settlement
 
@@ -126,9 +156,18 @@ Scheduled consultations currently expose gross booking price in expert history. 
 - it avoids projected numbers being mistaken as settled truth
 - it is safer if platform fee percent becomes configurable per period later
 
+### Decision
+
+- closed
+
 ### Decision Record
 
-- pending
+- chosen option: Option A
+- chosen behavior:
+  - for scheduled consultations, `netPrice = null` until actual payout exists
+- decision date: `2026-04-23`
+- rationale:
+  - do not expose projected net payout as if it were settled truth
 
 ## Risk 5. Scope Boundary
 
@@ -151,6 +190,41 @@ The urgent bug is on expert history, but nearby APIs already expose consultation
 - fastest path to remove the active Flutter bug
 - smallest breaking surface
 - easier to test and coordinate
+
+### Clarification
+
+Why this needs a clearer decision before coding:
+
+- `GET /api/experts/me/consultations` is the confirmed broken integration path today
+- `GET /api/users/me/consultations` already uses a different money source for emergency items:
+  - it prefers `ConsultationPayment` by `ConsultationPingRequest.Id`
+- `GET /api/admin/consultations` and `GET /api/admin/consultations/{consultationId}` already have their own documented money semantics:
+  - scheduled price from `ConsultationBooking.Price`
+  - emergency price prefers `ConsultationPayment`, then falls back to `ExpertPayout`
+
+So Risk 5 is not just about how much work to do.
+
+It changes the public meaning of money fields across actor-specific APIs:
+
+- expert history is expert-facing money
+- member history is customer-facing money
+- admin history is operational/audit-facing money
+
+If all three are changed together:
+
+- naming consistency improves
+- but rollout risk becomes larger
+- and each actor path may still need different source rules even with the same field names
+
+If only expert history is changed now:
+
+- the urgent Flutter bug is fixed faster
+- but docs must explicitly note that adjacent APIs may still keep older price semantics until a later alignment pass
+
+### Current Hold Status
+
+- open
+- blocked on scope choice from requester
 
 ### Decision Record
 

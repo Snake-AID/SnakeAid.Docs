@@ -39,6 +39,13 @@ Important integration note:
 - emergency expert-history `price` currently means expert payout after platform fee
 - client must not assume one universal fee rule can safely be applied to every item returned by this endpoint
 
+Planned contract direction already locked for the next implementation step:
+
+- remove `price`
+- add `grossPrice`
+- add `netPrice`
+- `netPrice` will only reflect persisted payout truth; if payout does not exist yet, it will be `null`
+
 ## 3. Authentication & Authorization
 
 ### Expert Operations
@@ -56,6 +63,12 @@ Current code-verified facts:
 - response type is `PagingResponse<ExpertConsultationResponse>`
 - scheduled and emergency items share one DTO
 - the current single `price` field is semantically inconsistent across consultation types
+
+Locked target direction for the next contract version:
+
+- `grossPrice` = gross consultation amount before fee
+- `netPrice` = persisted expert payout after fee
+- legacy `price` will be removed in the same release
 
 ### 4.2 `GET /api/experts/me/consultations`
 
@@ -161,7 +174,18 @@ Current mobile risk:
 - emergency items can be discounted twice
 - scheduled items and emergency items can render inconsistent totals in the same list
 
-### 4.4 Expected Failure Behavior
+### 4.4 Locked Migration Direction
+
+The following migration decisions are already locked for implementation:
+
+- new expert-history DTO fields:
+  - `grossPrice`
+  - `netPrice`
+- remove `price` in the same release
+- do not synthesize `netPrice` from current config when payout truth is absent
+- for scheduled consultations without actual payout, `netPrice = null`
+
+### 4.5 Expected Failure Behavior
 
 - missing token or invalid token -> `401`
 - user without `Expert` role -> `403`
@@ -188,11 +212,18 @@ Current mobile risk:
 | roomId             | string?   | Consultation room id |
 | startTime          | datetime? | Consultation start time |
 | endTime            | datetime? | Consultation end time |
-| price              | decimal?  | Current implemented price field with mixed semantics |
+| price              | decimal?  | Current implemented field; mixed semantics today and planned for removal |
 | bookingId          | Guid?     | Present for scheduled items |
 | slotStartTime      | datetime? | Present for scheduled items |
 | slotEndTime        | datetime? | Present for scheduled items |
 | emergencyRequestId | Guid?     | Present for emergency items |
+
+### Planned Next Contract For `ExpertConsultationResponse`
+
+| Field              | Type      | Description |
+| ------------------ | --------- | ----------- |
+| grossPrice         | decimal?  | Gross consultation amount before platform fee |
+| netPrice           | decimal?  | Persisted expert payout after platform fee; `null` if payout does not exist |
 
 ### `ApiResponse<T>`
 
@@ -228,3 +259,10 @@ Code-verified related endpoints:
 - documented the active expert-history endpoint
 - documented the current mixed semantics of `price`
 - captured the mobile double-deduction risk as an integration note
+
+### 2026-04-23 Decision Update
+
+- locked next contract field names as `grossPrice` and `netPrice`
+- locked same-release removal of `price`
+- locked `netPrice` as persisted payout truth only
+- locked scheduled `netPrice = null` until actual payout exists

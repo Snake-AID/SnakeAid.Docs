@@ -21,11 +21,12 @@ Business target:
 - expose both gross and net price from backend
 - remove the current ambiguity where one response returns pre-fee price and another returns post-fee price
 
-Recommended target contract direction:
+Chosen target contract direction:
 
-- replace the single ambiguous `price` meaning with two explicit values:
-  - `priceBeforePlatformFee`
-  - `priceAfterPlatformFee`
+- remove the single ambiguous `price` field
+- replace it with:
+  - `grossPrice`
+  - `netPrice`
 
 ## Resume Summary
 
@@ -112,8 +113,14 @@ Planned direction for this module:
 
 ## Main Constraint
 
-One important unresolved design constraint remains:
+Locked money semantics for the current baseline:
 
-- for consultations where expert payout is not yet persisted, the source of truth for `priceAfterPlatformFee` is not fully locked
+- `grossPrice` is the gross consultation amount before platform fee
+- `netPrice` is the persisted expert payout after platform fee
+- if expert payout does not exist yet, `netPrice = null`
 
-That decision is tracked in `consultation-information-response.hallucination.md`.
+Current remaining open constraint:
+
+- whether this response-contract cleanup applies only to expert history now, or whether adjacent consultation-history APIs should be aligned in the same release
+
+That scope decision remains tracked in `consultation-information-response.hallucination.md`.

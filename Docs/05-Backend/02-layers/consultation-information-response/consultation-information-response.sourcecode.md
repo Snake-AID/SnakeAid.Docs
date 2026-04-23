@@ -83,12 +83,18 @@ Current emergency branch in `ConsultationService.GetExpertConsultationsAsync(...
 
 ## 4. Planned Target Shape
 
-Recommended target response direction:
+Locked target response direction:
 
-- `priceBeforePlatformFee`
-- `priceAfterPlatformFee`
+- remove legacy `price`
+- add:
+  - `grossPrice`
+  - `netPrice`
 
-Legacy `price` is not locked yet and depends on `hallucination` decisions.
+Locked money-source direction:
+
+- `grossPrice` = gross consultation amount before platform fee
+- `netPrice` = persisted `ExpertPayout.Amount`
+- if persisted payout is absent, `netPrice = null`
 
 ## 5. Class Diagram
 
@@ -110,7 +116,8 @@ classDiagram
         +Guid ConsultationId
         +string Type
         +string Status
-        +decimal? Price
+        +decimal? GrossPrice
+        +decimal? NetPrice
         +Guid? BookingId
         +Guid? EmergencyRequestId
     }
@@ -196,8 +203,8 @@ sequenceDiagram
     App->>API: GET /api/experts/me/consultations
     API->>Service: GetExpertConsultationsAsync(expertId, query)
     Service->>Service: resolve gross source
-    Service->>Service: resolve actual/projected net source
-    Service->>Service: populate explicit before/after fields
+    Service->>Service: resolve persisted payout source
+    Service->>Service: populate grossPrice and netPrice
     Service-->>API: PagingResponse<ExpertConsultationResponse>
     API-->>App: ApiResponse(...)
 ```
@@ -206,6 +213,6 @@ sequenceDiagram
 
 - scheduled history returns explicit gross source from booking
 - emergency history returns explicit net source from payout
-- missing payout behavior matches the locked business decision
+- missing payout behavior returns `netPrice = null`
 - client no longer needs hardcoded fee subtraction
 - docs/examples stay aligned with final implemented DTO

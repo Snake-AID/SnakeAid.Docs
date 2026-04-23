@@ -57,9 +57,9 @@ Recommended follow-up scope after that:
 - [x] Treat this as a response-contract cleanup, not a Flutter-only workaround
 - [x] Baseline docs must reflect current code before implementation starts
 - [x] Use docs to record actual current money semantics for both scheduled and emergency
-- [ ] Lock final field names
-- [ ] Lock backward-compatibility strategy for legacy `price`
-- [ ] Lock the source of truth for `priceAfterPlatformFee` when payout data does not yet exist
+- [x] Lock final field names as `grossPrice` and `netPrice`
+- [x] Lock backward-compatibility strategy: remove legacy `price` in the same release
+- [x] Lock `netPrice` source of truth as persisted `ExpertPayout`, otherwise `null`
 - [ ] Lock whether the change applies only to expert history or also to adjacent consultation-history APIs
 
 ## Implementation Checklist
@@ -67,15 +67,15 @@ Recommended follow-up scope after that:
 ### Phase 1. Contract Lock
 
 - [ ] Decide final field names for gross/net price
-- [ ] Decide whether legacy `price` stays temporarily
-- [ ] Decide nullability rule for both new fields
-- [ ] Decide exact source rules for scheduled and emergency items
+- [x] Decide whether legacy `price` stays temporarily
+- [x] Decide nullability rule for both new fields
+- [x] Decide exact source rules for scheduled and emergency items
 
 ### Phase 2. Response DTO
 
 - [ ] Update `ExpertConsultationResponse`
-- [ ] Add explicit gross/net fields
-- [ ] Remove or deprecate ambiguous field depending on migration decision
+- [ ] Add explicit `grossPrice` and `netPrice`
+- [ ] Remove ambiguous `price`
 
 ### Phase 3. Service Mapping
 
@@ -86,11 +86,10 @@ Recommended follow-up scope after that:
 
 ### Phase 4. Tests
 
-- [ ] Replace single-price assertions with before/after assertions
+- [ ] Replace single-price assertions with `grossPrice/netPrice` assertions
 - [ ] Add scheduled case coverage
 - [ ] Add emergency case coverage
 - [ ] Add missing-transaction edge case coverage
-- [ ] Add compatibility test if legacy `price` is kept during migration
 
 ### Phase 5. Documentation Sync
 
@@ -114,7 +113,7 @@ Implementation should be considered done only when all of these are verified:
 1. scheduled expert-history items return deterministic gross/net values
 2. emergency expert-history items return deterministic gross/net values
 3. emergency items no longer require Flutter-side percentage deduction
-4. missing-transaction cases behave according to the locked nullability rule
+4. missing-payout cases return `netPrice = null` according to the locked rule
 5. docs and response examples match the code exactly
 
 ## Change Log
@@ -126,3 +125,11 @@ Implementation should be considered done only when all of these are verified:
 - documented the current Flutter double-deduction risk
 - narrowed the minimum safe scope to expert consultation history response
 - opened unresolved design risks in `hallucination`
+
+### 2026-04-23 Decision Update
+
+- locked new field names as `grossPrice` and `netPrice`
+- locked same-release removal of legacy `price`
+- locked `netPrice` to persisted payout truth only
+- locked scheduled `netPrice = null` until actual payout exists
+- kept scope-boundary risk open for later decision
