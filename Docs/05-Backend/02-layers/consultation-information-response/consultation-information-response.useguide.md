@@ -30,21 +30,16 @@ This document reflects the current implemented consultation-history response beh
 Current verified backend behavior:
 
 - expert consultation history is exposed by `GET /api/experts/me/consultations`
-- the response currently exposes a single field named `price`
-- `price` does not currently have the same business meaning for scheduled and emergency items
+- the response now exposes `grossPrice` and `netPrice`
+- legacy `price` has been removed from expert history
 
 Important integration note:
 
-- scheduled expert-history `price` currently means gross amount before platform fee
-- emergency expert-history `price` currently means expert payout after platform fee
-- client must not assume one universal fee rule can safely be applied to every item returned by this endpoint
-
-Planned contract direction already locked for the next implementation step:
-
-- remove `price`
-- add `grossPrice`
-- add `netPrice`
-- `netPrice` will only reflect persisted payout truth; if payout does not exist yet, it will be `null`
+- scheduled expert-history `grossPrice` means gross amount before platform fee
+- scheduled expert-history `netPrice` means persisted payout truth when available, otherwise `null`
+- emergency expert-history `grossPrice` means persisted consultation payment amount
+- emergency expert-history `netPrice` means persisted expert payout amount
+- client should render these values directly and must not re-calculate platform fee locally for this endpoint
 
 ## 3. Authentication & Authorization
 
@@ -62,13 +57,7 @@ Current code-verified facts:
 - route is `GET /api/experts/me/consultations`
 - response type is `PagingResponse<ExpertConsultationResponse>`
 - scheduled and emergency items share one DTO
-- the current single `price` field is semantically inconsistent across consultation types
-
-Locked target direction for the next contract version:
-
-- `grossPrice` = gross consultation amount before fee
-- `netPrice` = persisted expert payout after fee
-- legacy `price` will be removed in the same release
+- this endpoint now uses explicit money fields instead of one ambiguous price field
 
 ### 4.2 `GET /api/experts/me/consultations`
 
@@ -124,7 +113,8 @@ Example response:
         "roomId": "consultation-1b1d73f4-a32d-4a3c-95f5-bb0c3b7d8c01",
         "startTime": "2026-04-20T09:00:00Z",
         "endTime": "2026-04-20T09:25:00Z",
-        "price": 5000000,
+        "grossPrice": 5000000,
+        "netPrice": null,
         "bookingId": "c3b5f18d-8871-4ea0-97d2-6ac4b5fd4f2f",
         "slotStartTime": "2026-04-20T09:00:00Z",
         "slotEndTime": "2026-04-20T09:30:00Z",
@@ -139,7 +129,8 @@ Example response:
         "roomId": "consultation-51bc626d-5f03-43df-8549-22729b5b3cb4",
         "startTime": "2026-04-20T11:00:00Z",
         "endTime": "2026-04-20T11:12:00Z",
-        "price": 4000000,
+        "grossPrice": 5000000,
+        "netPrice": 4000000,
         "bookingId": null,
         "slotStartTime": null,
         "slotEndTime": null,
@@ -159,33 +150,22 @@ Example response:
 
 Field notes:
 
-- scheduled `price` currently comes from `ConsultationBooking.Price`
-- emergency `price` currently comes from `ExpertPayout.Amount`
-- emergency `price` may already be net after platform fee
-- scheduled `price` is not currently normalized to the same meaning
+- scheduled `grossPrice` comes from `ConsultationBooking.Price`
+- scheduled `netPrice` comes from persisted `ExpertPayout` for the consultation when available, otherwise `null`
+- emergency `grossPrice` comes from `ConsultationPayment` using `ConsultationPingRequest.Id`
+- emergency `netPrice` comes from `ExpertPayout` using `Consultation.Id`
 - `bookingId`, `slotStartTime`, `slotEndTime` are scheduled-only fields
 - `emergencyRequestId` is an emergency-only field
 
-### 4.3 Current Client Risk
+### 4.3 Current Client Risk Resolved
 
-Current mobile risk:
+This endpoint no longer requires Flutter to subtract platform fee locally.
 
-- if the client subtracts platform fee for every item uniformly
-- emergency items can be discounted twice
-- scheduled items and emergency items can render inconsistent totals in the same list
+Remaining integration note:
 
-### 4.4 Locked Migration Direction
+- adjacent member/admin consultation-history endpoints have not been aligned in this release
 
-The following migration decisions are already locked for implementation:
-
-- new expert-history DTO fields:
-  - `grossPrice`
-  - `netPrice`
-- remove `price` in the same release
-- do not synthesize `netPrice` from current config when payout truth is absent
-- for scheduled consultations without actual payout, `netPrice = null`
-
-### 4.5 Expected Failure Behavior
+### 4.4 Expected Failure Behavior
 
 - missing token or invalid token -> `401`
 - user without `Expert` role -> `403`
@@ -212,18 +192,12 @@ The following migration decisions are already locked for implementation:
 | roomId             | string?   | Consultation room id |
 | startTime          | datetime? | Consultation start time |
 | endTime            | datetime? | Consultation end time |
-| price              | decimal?  | Current implemented field; mixed semantics today and planned for removal |
+| grossPrice         | decimal?  | Gross consultation amount before platform fee |
+| netPrice           | decimal?  | Persisted expert payout amount after platform fee; `null` if payout does not exist |
 | bookingId          | Guid?     | Present for scheduled items |
 | slotStartTime      | datetime? | Present for scheduled items |
 | slotEndTime        | datetime? | Present for scheduled items |
 | emergencyRequestId | Guid?     | Present for emergency items |
-
-### Planned Next Contract For `ExpertConsultationResponse`
-
-| Field              | Type      | Description |
-| ------------------ | --------- | ----------- |
-| grossPrice         | decimal?  | Gross consultation amount before platform fee |
-| netPrice           | decimal?  | Persisted expert payout after platform fee; `null` if payout does not exist |
 
 ### `ApiResponse<T>`
 
@@ -266,3 +240,9 @@ Code-verified related endpoints:
 - locked same-release removal of `price`
 - locked `netPrice` as persisted payout truth only
 - locked scheduled `netPrice = null` until actual payout exists
+
+### 2026-04-23 Implementation Update
+
+- implemented `grossPrice` and `netPrice` on `GET /api/experts/me/consultations`
+- removed `price` from `ExpertConsultationResponse`
+- documented that only expert history changed in this release

@@ -4,7 +4,7 @@
 
 Current status:
 
-- partially closed
+- closed
 
 ## Purpose
 
@@ -221,11 +221,16 @@ If only expert history is changed now:
 - the urgent Flutter bug is fixed faster
 - but docs must explicitly note that adjacent APIs may still keep older price semantics until a later alignment pass
 
-### Current Hold Status
+### Decision
 
-- open
-- blocked on scope choice from requester
+- closed
 
 ### Decision Record
 
-- pending
+- chosen option: Option A
+- chosen scope:
+  - change only `GET /api/experts/me/consultations` now
+- decision date: `2026-04-23`
+- rationale from requester:
+  - fix the confirmed expert-history integration bug first
+  - keep member/admin consultation-history contracts unchanged in this release

@@ -1,5 +1,5 @@
 ---
-doc_role: planning
+doc_role: implementation
 module: consultation-information-response
 kind: flow
 doc_type: roadmap
@@ -13,7 +13,7 @@ verification_status: code-verified
 
 ## Current Status Snapshot
 
-- module status: `Planning`
+- module status: `Implemented`
 - backend issue confirmed: `Yes`
 - endpoint currently affected: `GET /api/experts/me/consultations`
 - response ambiguity confirmed in code: `Yes`
@@ -60,43 +60,43 @@ Recommended follow-up scope after that:
 - [x] Lock final field names as `grossPrice` and `netPrice`
 - [x] Lock backward-compatibility strategy: remove legacy `price` in the same release
 - [x] Lock `netPrice` source of truth as persisted `ExpertPayout`, otherwise `null`
-- [ ] Lock whether the change applies only to expert history or also to adjacent consultation-history APIs
+- [x] Lock scope to `GET /api/experts/me/consultations` only
 
 ## Implementation Checklist
 
 ### Phase 1. Contract Lock
 
-- [ ] Decide final field names for gross/net price
+- [x] Decide final field names for gross/net price
 - [x] Decide whether legacy `price` stays temporarily
 - [x] Decide nullability rule for both new fields
 - [x] Decide exact source rules for scheduled and emergency items
 
 ### Phase 2. Response DTO
 
-- [ ] Update `ExpertConsultationResponse`
-- [ ] Add explicit `grossPrice` and `netPrice`
-- [ ] Remove ambiguous `price`
+- [x] Update `ExpertConsultationResponse`
+- [x] Add explicit `grossPrice` and `netPrice`
+- [x] Remove ambiguous `price`
 
 ### Phase 3. Service Mapping
 
-- [ ] Update scheduled expert-history mapping
-- [ ] Update emergency expert-history mapping
-- [ ] Handle edge cases where transaction data is missing
-- [ ] Keep pagination and filters unchanged
+- [x] Update scheduled expert-history mapping
+- [x] Update emergency expert-history mapping
+- [x] Handle edge cases where transaction data is missing
+- [x] Keep pagination and filters unchanged
 
 ### Phase 4. Tests
 
-- [ ] Replace single-price assertions with `grossPrice/netPrice` assertions
-- [ ] Add scheduled case coverage
-- [ ] Add emergency case coverage
-- [ ] Add missing-transaction edge case coverage
+- [x] Replace single-price assertions with `grossPrice/netPrice` assertions
+- [x] Add scheduled case coverage
+- [x] Add emergency case coverage
+- [x] Add missing-transaction edge case coverage
 
 ### Phase 5. Documentation Sync
 
-- [ ] Update `introduction` after decisions are locked
-- [ ] Update `sourcecode` diagrams to the final DTO and mapper flow
-- [ ] Update `useguide` only when the contract is implemented
-- [ ] Merge resolved risks into baseline docs and close them in `hallucination`
+- [x] Update `introduction` after decisions are locked
+- [x] Update `sourcecode` diagrams to the final DTO and mapper flow
+- [x] Update `useguide` when the contract is implemented
+- [x] Merge resolved risks into baseline docs and close them in `hallucination`
 
 ## Suggested Execution Order
 
@@ -132,4 +132,13 @@ Implementation should be considered done only when all of these are verified:
 - locked same-release removal of legacy `price`
 - locked `netPrice` to persisted payout truth only
 - locked scheduled `netPrice = null` until actual payout exists
-- kept scope-boundary risk open for later decision
+- locked scope to expert history only
+
+### 2026-04-23 Implementation Update
+
+- implemented `grossPrice` and `netPrice` for `GET /api/experts/me/consultations`
+- removed legacy `price` from `ExpertConsultationResponse`
+- mapped scheduled `grossPrice` from booking and `netPrice` from persisted payout when present
+- mapped emergency `grossPrice` from consultation payment and `netPrice` from persisted payout
+- left member/admin consultation-history contracts unchanged
+- added expert-history integration tests for scheduled and emergency price semantics

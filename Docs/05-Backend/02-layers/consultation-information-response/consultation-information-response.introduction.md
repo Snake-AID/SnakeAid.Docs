@@ -1,5 +1,5 @@
 ---
-doc_role: planning
+doc_role: implementation
 module: consultation-information-response
 kind: flow
 doc_type: introduction
@@ -13,15 +13,15 @@ verification_status: code-verified
 
 ## Goal
 
-This module plans the response-contract cleanup for consultation history APIs where `price` currently means different things depending on consultation type.
+This module documents the implemented response-contract cleanup for expert consultation history where `price` previously meant different things depending on consultation type.
 
-Business target:
+Implemented target:
 
 - stop forcing Flutter to calculate platform fee locally
 - expose both gross and net price from backend
 - remove the current ambiguity where one response returns pre-fee price and another returns post-fee price
 
-Chosen target contract direction:
+Implemented contract direction:
 
 - remove the single ambiguous `price` field
 - replace it with:
@@ -94,14 +94,15 @@ The deeper issue is that one field currently represents two different business m
 
 That creates integration ambiguity and makes client rendering depend on hidden server-side branching.
 
-## Planned Direction
+## Implemented Direction
 
-Planned direction for this module:
+Implemented direction for this module:
 
-- keep the endpoint surface stable unless a stronger refactor is approved
-- make response semantics explicit with separate gross/net fields
-- update tests so scheduled and emergency history items both expose deterministic price meaning
-- sync docs so mobile developers can consume the response without reverse-engineering the service logic
+- change only `GET /api/experts/me/consultations`
+- remove legacy `price`
+- expose `grossPrice` and `netPrice`
+- keep `grossPrice` and `netPrice` explicit instead of client-calculated
+- leave member/admin consultation-history contracts unchanged in this release
 
 ## Likely Impacted Areas
 
@@ -111,16 +112,17 @@ Planned direction for this module:
 - `SnakeAid.Tests/Integration/ConsultationPricePreservationTests.cs`
 - possibly mobile integration docs and admin-facing consultation history docs if scope is expanded
 
-## Main Constraint
+## Locked Money Semantics
 
-Locked money semantics for the current baseline:
+Locked money semantics for the current implementation:
 
-- `grossPrice` is the gross consultation amount before platform fee
-- `netPrice` is the persisted expert payout after platform fee
+- scheduled `grossPrice` = `ConsultationBooking.Price`
+- scheduled `netPrice` = persisted `ExpertPayout.Amount`, otherwise `null`
+- emergency `grossPrice` = persisted `ConsultationPayment.Amount` by `ConsultationPingRequest.Id`
+- emergency `netPrice` = persisted `ExpertPayout.Amount` by `Consultation.Id`
 - if expert payout does not exist yet, `netPrice = null`
 
-Current remaining open constraint:
+Scope boundary already locked:
 
-- whether this response-contract cleanup applies only to expert history now, or whether adjacent consultation-history APIs should be aligned in the same release
-
-That scope decision remains tracked in `consultation-information-response.hallucination.md`.
+- only expert history changed in this release
+- adjacent member/admin history APIs still keep their previous contracts

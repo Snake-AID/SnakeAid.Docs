@@ -1,5 +1,5 @@
 ---
-doc_role: planning
+doc_role: implementation
 module: consultation-information-response
 kind: flow
 doc_type: sourcecode
@@ -36,19 +36,24 @@ Current response class:
 
 - `ExpertConsultationResponse`
 
-Current money field:
+Current money fields:
 
-- `Price`
+- `GrossPrice`
+- `NetPrice`
 
 ### Persistence Inputs Used By The Current Mapper
 
-Current scheduled source:
+Current scheduled sources:
 
 - `ConsultationBooking.Price`
+- `ExpertPayout.Amount` by `Consultation.Id` when payout exists
 
-Current emergency source:
+Current emergency sources:
 
-- latest `Transaction.Amount` where:
+- latest gross transaction where:
+  - `TransactionType = ConsultationPayment`
+  - `ReferenceId = ConsultationPingRequest.Id`
+- latest net transaction where:
   - `TransactionType = ExpertPayout`
   - `ReferenceId = Consultation.Id`
 
@@ -67,7 +72,8 @@ Current scheduled branch in `ConsultationService.GetExpertConsultationsAsync(...
 1. query `ConsultationBooking` by `ExpertId`
 2. include `User`, `TimeSlot`, `Consultation`
 3. map each item to `ExpertConsultationResponse`
-4. assign `Price = ConsultationBooking.Price`
+4. assign `GrossPrice = ConsultationBooking.Price`
+5. assign `NetPrice = ExpertPayout.Amount` by `Consultation.Id` when payout exists, otherwise `null`
 
 ### 3.2 Emergency Expert History
 
@@ -75,15 +81,18 @@ Current emergency branch in `ConsultationService.GetExpertConsultationsAsync(...
 
 1. query accepted `ConsultationPingRequest` by `ExpertId`
 2. include `Rescuer`, `Consultation`
-3. batch-load `Transaction` rows where:
+3. batch-load gross `Transaction` rows where:
+   - `TransactionType = ConsultationPayment`
+   - `ReferenceId in ConsultationPingRequest.Id`
+4. batch-load net `Transaction` rows where:
    - `TransactionType = ExpertPayout`
    - `ReferenceId in ConsultationIds`
-4. build lookup by `Consultation.Id`
-5. assign `Price = ExpertPayout.Amount` when found, otherwise `null`
+5. assign `GrossPrice = ConsultationPayment.Amount` when found, otherwise `null`
+6. assign `NetPrice = ExpertPayout.Amount` when found, otherwise `null`
 
-## 4. Planned Target Shape
+## 4. Implemented Target Shape
 
-Locked target response direction:
+Locked response direction:
 
 - remove legacy `price`
 - add:
@@ -191,7 +200,7 @@ sequenceDiagram
     API-->>App: ApiResponse(...)
 ```
 
-### 6.3 Planned Contract Direction
+### 6.3 Implemented Contract Direction
 
 ```mermaid
 sequenceDiagram
