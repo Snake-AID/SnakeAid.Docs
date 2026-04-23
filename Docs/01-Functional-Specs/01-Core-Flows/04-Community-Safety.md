@@ -1,60 +1,57 @@
-# 5. Luồng phụ: Giáo dục và phòng ngừa
+# 4. Supporting Flow: Education, Notifications, and Prevention
+
+## 4.1 Objective
+
+- Provide a knowledge hub for Members and Rescuers.
+- Deliver notifications by role and area.
+- Support notification center behavior and real-time connection reliability.
 
 ---
 
-> [!NOTE]
-> Changed Requirement
->
-> [Current]
-> This file is less impacted than rescue dispatch flows. Community alerts remain relevant, especially when center operations decide a situation should be broadcast more widely.
->
-> [Legacy]
-> Previous iterations sometimes used community alerting as a more direct fallback from member-side rescue handling patterns.
->
-> [Migration Impact]
-> Keep alerting loosely coupled from dispatch so rescue workflow changes do not silently break public warning flows.
+## 4.2 Knowledge Hub
 
-## 5.1 Tra cứu thông tin rắn
+**Flow 4.1 - Learning and Reference**
 
-**Flow 5.1 — Người dùng tìm hiểu về rắn**
-
-1. Member mở phần **"Kiến thức về rắn"**.
-2. Xem nội dung giáo dục:
-   - Bài viết: "10 loài rắn độc thường gặp ở Việt Nam"
-   - Video: "Cách phòng tránh rắn cắn khi vào rừng"
-   - FAQ: "Rắn hổ mang có nguy hiểm không?"
-   - Infographic: "Phân biệt rắn độc và không độc"
-3. Tìm kiếm theo khu vực:
-   - Chọn tỉnh/thành phố → hệ thống hiển thị loài phổ biến, đặc điểm và mức độ nguy hiểm.
-4. Đọc hướng dẫn phòng tránh:
-   - Khi đi vào rừng, khi làm vườn, khi phát hiện rắn trong nhà; bảo vệ trẻ em và vật nuôi.
-5. Xem câu chuyện thực tế:
-   - Các ca rắn cắn đã được xử lý thành công, kinh nghiệm từ Rescuer và lời khuyên từ Expert.
+1. The Member or Rescuer opens the knowledge hub.
+2. The system provides:
+   - First-aid instructions.
+   - Compression bandaging tutorials.
+   - Prevention articles.
+   - FAQ content.
+   - Search by topic or snake group.
+3. The Admin manages blogs for Members and lessons for Rescuers.
 
 ---
 
-## 5.2 Nhận cảnh báo khu vực
+## 4.3 Smart Notification Orchestration
 
-**Flow 5.2 — Hệ thống cảnh báo chủ động**
+**Flow 4.2 - Notification Delivery**
 
-> [!NOTE]
-> [Current]
-> Community alerting should be triggered by operational or administrative decision, not assumed as the default substitute for every unassigned rescue request.
->
-> [Legacy]
-> Earlier flow revisions temporarily used community alerting as an automatic fallback when no rescuer accepted a request.
-
-1. Admin phát hiện khu vực có nhiều sự cố rắn độc.
-2. Admin tạo cảnh báo cộng đồng:
-   - Tiêu đề, nội dung mô tả và phạm vi trên bản đồ.
-3. Hệ thống gửi thông báo push:
-   - Đến Member trong khu vực, ưu tiên người có GPS trong vùng nguy hiểm.
-4. Member nhận cảnh báo:
-   - Notification → xem chi tiết cảnh báo và bản đồ vùng nguy hiểm → đọc hướng dẫn phòng tránh.
-5. Cảnh báo theo mùa:
-   - Mùa mưa: "Rắn thường vào nhà tránh lũ".
-   - Mùa khô: "Rắn hay ra ruộng tìm nước".
-   - Đầu hè: "Mùa sinh sản, rắn dễ tấn công".
-6. Lưu lịch sử cảnh báo: Member có thể xem lại cảnh báo cũ và theo dõi tình hình khu vực.
+1. The system receives an event from a service flow or an Admin campaign.
+2. The notification engine determines:
+   - The target recipients by role.
+   - The target recipients by area.
+   - The delivery channel, such as in-app or real-time event.
+3. Users receive:
+   - Service push notifications.
+   - In-app alerts for system updates.
+   - Real-time mission events when relevant.
 
 ---
+
+## 4.4 Notification Center and Reliability
+
+**Flow 4.3 - Notification Synchronization**
+
+1. The user opens the notification center inbox.
+2. The user views the notification list by time.
+3. When the app resumes or the network changes, the system reconnects automatically.
+4. The user configures personal notification preferences.
+
+---
+
+## 4.5 Business Rules
+
+- Notifications must support role-based and area-based rules.
+- Critical mission events must prioritize real-time delivery.
+- When the real-time connection is interrupted, the system must support reconnect behavior.

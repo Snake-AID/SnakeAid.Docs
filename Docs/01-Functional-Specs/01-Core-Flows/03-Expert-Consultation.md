@@ -1,79 +1,73 @@
-# 3. Luồng chính: Tư vấn chuyên gia
+# 3. Main Flow: Expert Consultation
+
+## 3.1 Objective
+
+- Connect Members with Experts through chat or video consultation.
+- Support booking lifecycle, waiting room, escrow hold, release, and refund.
+- Support Expert revenue tracking and payout control.
 
 ---
 
-> [!IMPORTANT]
-> Changed Requirement
->
-> [Current]
-> Expert consultation remains in scope, and external snake experts may participate in the system for professional support.
->
-> [Legacy]
-> Older requirements described experts more as tightly embedded platform actors without explicitly highlighting external participation.
->
-> [Migration Impact]
-> Review expert identity, onboarding, availability, and ownership boundaries in backend design.
+## 3.2 Onboarding and Availability Stage (Expert)
 
-## 3.1 Giai đoạn yêu cầu tư vấn (Member)
+**Flow 3.1 - Professional Onboarding**
 
-**Flow 3.1 — Đặt lịch tư vấn với chuyên gia**
-
-1. Member truy cập **"Tư vấn chuyên gia"**.
-2. Xem danh sách Snake Expert:
-   - Hiển thị: Tên, Chuyên môn, Rating, Phí tư vấn
-   - Lọc theo: Chuyên ngành (Rắn độc Việt Nam / Rắn ngoại lai / Điều trị nọc độc)
-   - Sắp xếp theo: Rating / Phí tư vấn
-3. Chọn một Expert.
-4. Chọn loại tư vấn:
-   - **[A]** Tư vấn ngay (nếu Expert online).
-   - **[B]** Đặt lịch tư vấn — chọn ngày giờ.
-5. Upload tài liệu cần tư vấn:
-   - Ảnh rắn hoặc vết cắn
-   - Mô tả vấn đề
-   - Câu hỏi cụ thể
-6. Thanh toán phí tư vấn trước:
-   - Số tiền tạm giữ (escrow)
-   - Chỉ chuyển cho Expert sau khi tư vấn xong
-7. Kịch bản:
-   - **Nếu [A]** → Expert nhận thông báo → nếu chấp nhận → bắt đầu chat/video call → chuyển sang **Flow 3.3**.
-   - **Nếu [B]** → Expert nhận yêu cầu → xác nhận lịch → gửi lịch hẹn & nhắc nhở 30 phút.
+1. The Expert registers an account.
+2. The Expert uploads certifications and identity documents.
+3. The Expert completes the professional profile.
+4. The Expert submits a verification request.
+5. The Admin reviews and approves or declines the request.
+6. Once approved, the Expert can toggle real-time availability.
 
 ---
 
-## 3.2 Giai đoạn Rescuer xin hỗ trợ từ Expert
+## 3.3 Booking Creation Stage (Member)
 
-**Flow 3.2 — Tư vấn khẩn cấp cho Rescuer**
+**Flow 3.2 - Create Consultation Booking**
 
-> [!NOTE]
-> [Current]
-> This support flow still exists, but it now operates inside a center-dispatched rescue mission rather than a more direct or loosely assigned rescue model.
->
-> [Legacy]
-> Earlier rescue flows assumed Rescuer could enter this path from self-picked or system-matched jobs.
-
-1. Rescuer tại hiện trường gặp khó khăn nhận diện rắn.
-2. Trong app Rescuer chọn **"Yêu cầu hỗ trợ chuyên gia"**.
-3. Chụp ảnh/video rắn real-time.
-4. Hệ thống tìm Expert đang online (ưu tiên chuyên về khu vực này) và gửi thông báo khẩn cấp đến top 3.
-5. Expert phản hồi nhanh nhất sẽ được kết nối.
-6. Bắt đầu tư vấn qua chat/video call: Expert xác định loài rắn, tư vấn cách bắt an toàn và cảnh báo rủi ro.
-7. Sau tư vấn: Expert cập nhật kết quả vào hệ thống; Rescuer kết thúc phiên.
-8. Thanh toán tự động theo chính sách (nền tảng trả phí cho Expert hoặc Rescuer chia sẻ % theo thỏa thuận).
+1. The Member opens the Expert list.
+2. The Member selects an Expert and chooses:
+   - Instant consultation.
+   - Scheduled consultation.
+3. The Member uploads media and a consultation description.
+4. The system creates the booking state.
+5. The system locks the Expert time slot when the booking is confirmed.
+6. The Member pays through PayOS.
+7. The system holds the payment in escrow.
+8. The system creates a waiting room before the consultation starts.
 
 ---
 
-## 3.3 Giai đoạn tư vấn trực tuyến
+## 3.4 Live Consultation Stage
 
-**Flow 3.3 — Buổi tư vấn giữa Member và Expert**
+**Flow 3.3 - Consultation Session**
 
-1. Đến giờ hẹn, cả hai nhận thông báo.
-2. Bắt đầu phiên tư vấn — Chat text hoặc Video call.
-3. Expert xem thông tin Member đã gửi: ảnh, mô tả, câu hỏi.
-4. Expert tư vấn, đưa khuyến nghị, có thể yêu cầu thêm thông tin.
-5. Expert có thể: cập nhật hướng dẫn sơ cứu, cung cấp thông tin liều lượng huyết thanh hoặc khuyến nghị đến bệnh viện.
-6. Kết thúc buổi tư vấn: Expert đánh dấu "Hoàn thành" và thời gian tư vấn được ghi nhận.
-7. Hệ thống xử lý thanh toán: chuyển tiền từ escrow sang Expert, trừ phí nền tảng 10%, xuất hóa đơn.
-8. Member đánh giá Expert (1–5 sao + nhận xét).
-9. Lưu lịch sử tư vấn và báo cáo cho Member / Expert / Admin.
+1. At the scheduled time or after Expert acceptance, both parties enter the waiting room.
+2. The system opens:
+   - A real-time chat session.
+   - A peer-to-peer video call for triage.
+3. The Member can share additional images or media.
+4. The Expert evaluates the case and provides recommendations.
+5. At the end of the session, the Expert submits a consultation summary.
+6. The system stores session status and related history.
 
 ---
+
+## 3.5 Escrow Release and Revenue Tracking Stage
+
+**Flow 3.4 - Settlement**
+
+1. After valid session completion, the system releases escrow according to policy.
+2. The system deducts platform fees based on configuration.
+3. The remaining amount is recorded for Expert payout.
+4. The Expert views monthly revenue reports and transaction history.
+5. If the booking is cancelled, the system applies refund rules based on cancellation policy.
+
+---
+
+## 3.6 Business Rules
+
+- Consultation bookings must use booking lifecycle and escrow control.
+- Expert time slots must be automatically locked or released based on booking state.
+- Expert revenue must be calculated after platform fee deduction.
+- The system must keep the consultation summary and relevant audit trail.

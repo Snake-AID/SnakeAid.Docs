@@ -1,97 +1,96 @@
-# MAIN FLOW - HỆ THỐNG SNAKEAID
+# MAIN FLOWS - SNAKEAID SYSTEM
 
-## Thông tin dự án
-- **Tên dự án:** AI-Powered Platform for Snakebite First Aid and Rescue Support (SnakeAid)
-- **Mục đích:** Xác định luồng chính của hệ thống cho các tình huống sử dụng quan trọng
+## Project Information
+- **Project Name:** AI-Powered Platform for Snakebite First Aid and Rescue Support (SnakeAid)
+- **Purpose:** Standardize the main business flows based on the investor SRS
 
 ---
 
-> [!IMPORTANT]
-> Changed Requirement Summary
->
-> [Current]
-> The new operating model is center-led: `Operator` sees requests first, verifies with the Member, assigns an in-shift / online Rescuer, and monitors execution.
->
-> [Legacy]
-> Older flows emphasized more direct system-to-rescuer or rescuer-self-pick handling.
->
-> [Migration Impact]
-> Use this file as a high-level map of changed business flow. Detailed legacy notes appear in the affected flow files.
-
-## SƠ ĐỒ TỔNG QUAN CÁC LUỒNG CHÍNH
-
-**Phiên bản văn bản (Headings & Bullet list):**
+## Overview of Main Flows
 
 ### MEMBER
-- **[1] Bị rắn cắn**
-  - Sơ cứu
-  - Nhận diện AI
-  - Gọi SOS
-  - Gửi yêu cầu cứu hộ
-  - Thanh toán
+- **[1] Emergency Snakebite Incident**
+  - Receive immediate first-aid guidance
+  - Capture snake or bite images
+  - Use AI identification and severity assessment
+  - Trigger SOS
+  - Share GPS and track rescue progress
+  - Find the nearest treatment facility when needed
+
+- **[2] Snake Sighting / Catching Service Request**
+  - Submit image, location, and description
+  - Receive automatic price estimation
+  - Pay in two phases
+  - Track rescuers and mission status
+
+- **[3] Expert Consultation**
+  - Select an Expert
+  - Request instant consultation or schedule a booking
+  - Join the waiting room
+  - Pay through escrow flow
+  - Submit a rating after the session
+
+- **[4] Wallet, Payments, and Notifications**
+  - Top up wallet
+  - Withdraw funds
+  - View transaction history
+  - Receive real-time notifications
+
+- **[5] Education and Community Alerts**
+  - Read snake knowledge content
+  - Search by topic or species
+  - Receive area-based alerts
 
 ### OPERATOR
-- **[2] Tiếp nhận và điều phối yêu cầu**
-  - Nhìn thấy request đầu tiên
-  - Xác minh với Member
-  - Kiểm tra Rescuer online / trong ca trực
-  - Assign Rescuer
-  - Theo dõi trạng thái nhiệm vụ trên map
-
-> [!NOTE]
-> [Legacy]
-> Previously documented rescue flows let the system or Rescuer take a more direct role in selecting missions.
+- **[6] Request Intake and Dispatching**
+  - View SOS and snake catching queues
+  - Verify and triage requests
+  - Assign Rescuers
+  - Monitor mission progress
 
 ### RESCUER
-- **[3] Nhận nhiệm vụ đã được điều phối**
-  - Nhận rescue ping request
-  - Chấp nhận nhiệm vụ
-  - Di chuyển & chia sẻ vị trí
-  - Bắt rắn
-  - Báo cáo & cập nhật hệ thống
-  - Nhận thanh toán
+- **[7] Mission Execution**
+  - Receive SignalR dispatch alerts
+  - Acknowledge assignment reception
+  - Travel to the incident location
+  - Update mission status
+  - Review mission history and performance
 
 ### EXPERT
-- **[4] Xác minh / tư vấn**
-  - Tư vấn (chat / video)
-  - Cập nhật database loài rắn
-  - Nhận thanh toán
+- **[8] Consultation and Professional Validation**
+  - Complete onboarding and verification
+  - Provide chat or video consultation
+  - Receive payment after escrow release
+  - Track revenue
 
 ### ADMIN
-- **Vai trò chính (giám sát & quản lý):**
-  - Quản lý User
-  - Quản lý Database Rắn
-  - Quản trị cấu hình trung tâm
-  - Giám sát Real-time
-  - Gửi Cảnh báo Cộng đồng
-  - Quản lý Tài chính & báo cáo
-
-> **Ghi chú:** Các hoạt động của Member / Rescuer / Expert đều được ghi nhận và/hoặc chuyển tiếp về Admin để giám sát, cập nhật DB hoặc kích hoạt các hành động tiếp theo.
+- **[9] System Administration**
+  - Manage pricing and commission
+  - Manage hospitals and antivenom data
+  - Manage snake database
+  - Manage content
+  - Manage KYC, finance, audit, and AI governance
 
 ---
 
-## 7. MA TRẬN TƯƠNG TÁC GIỮA CÁC MODULE
+## Interaction Matrix Across Modules
 
-| Tình huống | Member | Operator | Rescuer | Expert | Admin / Manager | AI System |
-|------------|--------|----------|---------|--------|-----------------|-----------|
-| Rắn cắn khẩn cấp | Kích hoạt | Tiếp nhận / xác minh | Thực hiện nếu được điều phối | (Nếu cần) | Giám sát | Nhận diện + Đánh giá |
-| Cứu hộ rắn | Tạo yêu cầu | Verify + assign | Nhận ping + thực hiện | (Hỗ trợ) | Giám sát | Nhận diện sơ bộ |
-| Tư vấn từ xa | Yêu cầu | - | - | Tư vấn | Giám sát | - |
-| Cập nhật database | - | - | Góp ảnh | Xác minh | Quản lý | Học từ dữ liệu mới |
-| Cảnh báo cộng đồng | Nhận | Theo dõi / kích hoạt theo vận hành | Nhận | - | Gửi | Phân tích xu hướng |
-| Thanh toán | Trả tiền | - | Nhận tiền | Nhận tiền | Quản lý | - |
+| Scenario | Member | Operator | Rescuer | Expert | Admin | AI System |
+|----------|--------|----------|---------|--------|-------|-----------|
+| Emergency snakebite incident | Send SOS, images, and symptoms | Verify and triage | Execute if assigned | Support if needed | Monitor | Identification + severity assessment |
+| Non-emergency snake catching | Create request and pay by phase | Queue and assign | Accept and execute mission | Support if needed | Monitor pricing and performance | Price estimation + preliminary identification |
+| Expert consultation | Book, join waiting room, pay escrow | - | - | Consult and close session | Monitor payout and compliance | Support initial triage |
+| Facility lookup | Search hospitals | - | Use as reference if needed | - | Manage data | Calculate distance and ETA |
+| Wallet and finance | Top up, pay, view history | - | Follow role policy | Receive payout | Manage commission | Reconcile status |
+| Community alerts | Receive alerts | Trigger operationally when needed | Receive internal alerts if relevant | - | Configure and publish | Analyze trends |
 
 ---
 
-## 8. THỜI GIAN XỬ LÝ DỰ KIẾN
+## Core Business Principles
 
-| Luồng | Thời gian dự kiến | Ghi chú |
-|-------|-------------------|---------|
-| Nhận diện rắn bằng AI | < 5 giây | Tùy chất lượng ảnh |
-| Đánh giá mức độ nghiêm trọng | < 3 giây | AI xử lý |
-| Tìm cơ sở điều trị gần nhất | < 2 giây | Truy vấn database |
-| Operator verify và assign Rescuer | 1-5 phút | Tùy tốc độ xác minh và trạng thái ca trực |
-| Rescuer di chuyển đến hiện trường | 10-30 phút | Tùy khoảng cách |
-| Bắt rắn | 5-20 phút | Tùy loài và tình huống |
-| Tư vấn chuyên gia | 15-30 phút | Tùy độ phức tạp |
-| Thanh toán qua cổng | < 10 giây | Nếu mạng ổn định |
+- All emergency cases and snake catching requests enter the `Operator` queue.
+- Hospital and antivenom intelligence are in scope.
+- `PayOS` is the primary payment gateway.
+- Consultation uses booking lifecycle and escrow control.
+- Snake catching service uses two-phase payment control.
+- Wallet, callback reconciliation, audit logging, and AI governance are part of the target state.
