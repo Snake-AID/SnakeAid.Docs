@@ -25,7 +25,7 @@ This document records the implemented amendment over the first backend avatar pa
 Decision from Anh Khoa on 2026-05-03:
 
 - `GET /api/users/me/consultations` should keep returning the consulted expert avatar.
-- `GET /api/experts/me/consultations` should expose the member/rescuer avatar, because expert screens need to show the other participant.
+- `GET /api/experts/me/consultations` should expose the avatar of the other user shown to the expert.
 - The expert does not need to fetch their own avatar from `GET /api/experts/me/consultations`.
 
 ## Current Implemented Backend State
@@ -35,7 +35,7 @@ Code-verified on 2026-05-03:
 - `MyConsultationResponse` already has nullable `ExpertAvatarUrl`.
 - `GET /api/users/me/consultations` already maps expert avatar from the consulted expert account.
 - `ExpertConsultationResponse` has nullable `UserAvatarUrl`.
-- `GET /api/experts/me/consultations` maps `UserAvatarUrl` from the member/rescuer account.
+- `GET /api/experts/me/consultations` maps `UserAvatarUrl` from the other user account.
 - `ExpertConsultationResponse` no longer exposes `ExpertAvatarUrl`.
 
 Important code locations:
@@ -60,7 +60,8 @@ Amended expert endpoint behavior:
 - add nullable `userAvatarUrl`
 - value means other participant avatar:
   - scheduled consultation: member account avatar
-  - emergency consultation: rescuer account avatar
+  - emergency consultation: emergency requester account avatar
+- code note: emergency requester is currently stored on `ConsultationPingRequest.Rescuer`.
 - removes `expertAvatarUrl` from this response because expert screen does not need the authenticated expert's own avatar
 
 ## Implementation Result
@@ -69,10 +70,10 @@ Completed as a contract correction over the implemented backend:
 
 1. Added nullable `UserAvatarUrl` to `ExpertConsultationResponse`.
 2. Mapped scheduled expert-history `UserAvatarUrl` from `ConsultationBooking.User.AvatarUrl` or fallback `Consultation.Caller.AvatarUrl`.
-3. Mapped emergency expert-history `UserAvatarUrl` from `ConsultationPingRequest.Rescuer.AvatarUrl`.
+3. Mapped emergency expert-history `UserAvatarUrl` from the emergency requester account via `ConsultationPingRequest.Rescuer.AvatarUrl`.
 4. Removed `ExpertAvatarUrl` from `ExpertConsultationResponse` and its mappings/tests.
 5. Kept `MyConsultationResponse.ExpertAvatarUrl` unchanged.
-6. Updated tests to assert member/rescuer avatar on expert history.
+6. Updated tests to assert the other user's avatar on expert history.
 7. Updated useguide examples after code changes.
 
 ## Non-Goals

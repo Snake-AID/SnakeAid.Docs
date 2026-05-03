@@ -27,7 +27,7 @@ Verified code facts:
 - `MyConsultationResponse` has `ExpertId`, `ExpertName`, and nullable `ExpertAvatarUrl`.
 - `GET /api/users/me/consultations` maps `ExpertAvatarUrl` from the consulted expert account.
 - `ExpertConsultationResponse` has `UserId`, `UserName`, and nullable `UserAvatarUrl`.
-- `GET /api/experts/me/consultations` maps `UserAvatarUrl` from the member/rescuer participant account.
+- `GET /api/experts/me/consultations` maps `UserAvatarUrl` from the other user account.
 - `GET /api/experts/me/consultations` no longer returns `ExpertAvatarUrl`.
 
 Frontend decision from Anh Khoa:
@@ -40,7 +40,7 @@ Frontend decision from Anh Khoa:
 After this amendment:
 
 1. `GET /api/users/me/consultations` still returns `expertAvatarUrl` for the consulted expert.
-2. `GET /api/experts/me/consultations` returns `userAvatarUrl` for the member/rescuer participant.
+2. `GET /api/experts/me/consultations` returns `userAvatarUrl` for the other user shown to the expert.
 3. `GET /api/experts/me/consultations` no longer returns `expertAvatarUrl`.
 4. Tests prove scheduled and emergency expert-history rows map `userAvatarUrl` from the participant account.
 5. Docs describe current implemented behavior plus this correction, so agents remove the old expert self-avatar behavior deliberately.
@@ -61,6 +61,7 @@ Steps:
 - [x] Remove nullable `string? ExpertAvatarUrl` from `ExpertConsultationResponse`.
 - [x] In scheduled expert-history mapping, set `UserAvatarUrl = b.User?.AvatarUrl`.
 - [x] In emergency expert-history mapping, set `UserAvatarUrl = p.Rescuer?.AvatarUrl`.
+  Code note: `ConsultationPingRequest.Rescuer` stores the emergency requester account in this flow.
 - [x] In orphaned scheduled fallback mapping, set `UserAvatarUrl = c.Caller?.AvatarUrl`.
 - [x] Remove authenticated expert-account avatar lookup when it is only used for expert-history `ExpertAvatarUrl`.
 - [x] Do not change `MyConsultationResponse`.
@@ -111,10 +112,10 @@ Steps:
 
 ## Resume Checklist
 
-- [ ] Treat current expert-history `ExpertAvatarUrl` implementation as code to replace, not preserve.
-- [ ] Add `UserAvatarUrl` for expert history and remove expert-history `ExpertAvatarUrl`.
-- [ ] Keep docs written as an amendment until code is patched.
-- [ ] Update docs immediately after code changes.
+- [x] Treat current expert-history `ExpertAvatarUrl` implementation as code to replace, not preserve.
+- [x] Add `UserAvatarUrl` for expert history and remove expert-history `ExpertAvatarUrl`.
+- [x] Keep docs written as an amendment until code is patched.
+- [x] Update docs immediately after code changes.
 
 ## Changelog
 
@@ -125,5 +126,5 @@ Steps:
 - Verification: `dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "FullyQualifiedName~Consultation" --no-restore` passed 105 tests.
 - Added amendment plan from Anh Khoa frontend clarification.
 - Recorded that member endpoint implementation is correct.
-- Recorded that expert endpoint needs participant avatar via `userAvatarUrl`.
+- Recorded that expert endpoint needs other-user avatar via `userAvatarUrl`.
 - Updated decision: expert endpoint must remove `expertAvatarUrl` and keep only `userAvatarUrl`.

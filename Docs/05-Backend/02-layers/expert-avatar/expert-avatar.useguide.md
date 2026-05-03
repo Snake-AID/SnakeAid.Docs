@@ -34,12 +34,12 @@ Previous first pass:
 Implemented amendment:
 
 - `GET /api/users/me/consultations` remains correct.
-- `GET /api/experts/me/consultations` replaces `expertAvatarUrl` with `userAvatarUrl` for the member/rescuer shown on the expert screen.
+- `GET /api/experts/me/consultations` replaces `expertAvatarUrl` with `userAvatarUrl` for the other user shown on the expert screen.
 
 Client null rule:
 
 - `expertAvatarUrl = null` means expert avatar is unavailable.
-- `userAvatarUrl = null` means member/rescuer avatar is unavailable.
+- `userAvatarUrl = null` means the other user's avatar is unavailable.
 
 ## 3. Authentication & Authorization
 
@@ -99,7 +99,7 @@ Success response item:
 Purpose:
 
 - expert retrieves own consultation history
-- mobile renders the member/rescuer participant on the expert screen
+- mobile renders the other user shown on the expert screen
 
 Success response item:
 
@@ -127,7 +127,8 @@ Important client notes:
 
 - `userId`, `userName`, and `userAvatarUrl` describe the other participant shown to the expert.
 - for scheduled rows, `userAvatarUrl` is the member avatar.
-- for emergency rows, `userAvatarUrl` is the rescuer avatar.
+- for emergency rows, `userAvatarUrl` is the emergency requester avatar.
+- backend code note: the emergency requester is stored on `ConsultationPingRequest.Rescuer`.
 - `expertAvatarUrl` must be removed from this endpoint.
 
 ## 5. Shared Data Models
@@ -166,4 +167,4 @@ Important client notes:
 - Implemented amendment: `GET /api/experts/me/consultations` now returns participant `userAvatarUrl` and no longer returns `expertAvatarUrl`.
 - Reframed docs as an amendment over already implemented backend work.
 - Kept member endpoint as implemented: `expertAvatarUrl`.
-- Changed expert endpoint target: remove `expertAvatarUrl`, add participant `userAvatarUrl` for member/rescuer avatar.
+- Changed expert endpoint target: remove `expertAvatarUrl`, add participant `userAvatarUrl` for the other user's avatar.

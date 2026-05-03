@@ -41,7 +41,7 @@ Original decision:
 Superseding note:
 
 - This implementation is removed by the latest decision.
-- New frontend decision requires participant avatar only for expert screen.
+- New frontend decision requires the other user's avatar only for expert screen.
 
 ### Decision 2. Frontend Clarification
 
@@ -52,14 +52,14 @@ Decision date: 2026-05-03
 Decision:
 
 - `GET /api/users/me/consultations` keeps `expertAvatarUrl`.
-- `GET /api/experts/me/consultations` must provide the other participant avatar.
+- `GET /api/experts/me/consultations` must provide the other user's avatar.
 - Implement this as additive `userAvatarUrl` on `ExpertConsultationResponse`.
 - Remove implemented `expertAvatarUrl` from `ExpertConsultationResponse`.
 
 Reason:
 
 - member screen displays expert info.
-- expert screen displays member/rescuer info.
+- expert screen displays the other user's info.
 - changing docs as an amendment reduces risk that future agents overwrite or miss already implemented avatar work.
 
 ### Decision 3. Remove Expert Self Avatar From Expert History
@@ -76,5 +76,5 @@ Decision:
 
 Reason:
 
-- frontend explicitly needs member/rescuer avatar on expert screen.
+- frontend explicitly needs the other user's avatar on expert screen.
 - authenticated expert's own avatar is not needed in this endpoint.

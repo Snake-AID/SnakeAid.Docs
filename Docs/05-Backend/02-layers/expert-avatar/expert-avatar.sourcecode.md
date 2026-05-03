@@ -34,7 +34,7 @@ class ExpertConsultationResponse {
 }
 
 Account <.. MyConsultationResponse : consulted expert AvatarUrl
-Account <.. ExpertConsultationResponse : member/rescuer AvatarUrl via UserAvatarUrl
+Account <.. ExpertConsultationResponse : other user AvatarUrl via UserAvatarUrl
 ```
 
 ## Current Implemented Sequence: Member Consultation History
@@ -67,8 +67,8 @@ participant DB as Database
 M->>C: GET /api/experts/me/consultations
 C->>S: GetExpertConsultationsAsync(expertId, query)
 S->>DB: Load scheduled bookings with User
-S->>DB: Load emergency requests with Rescuer
-S->>S: Map UserAvatarUrl from member/rescuer Account.AvatarUrl
+S->>DB: Load emergency requests with requester account via Rescuer navigation
+S->>S: Map UserAvatarUrl from other user Account.AvatarUrl
 S-->>C: PagingResponse<ExpertConsultationResponse>
 C-->>M: userId, userName, userAvatarUrl
 ```
