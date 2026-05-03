@@ -252,7 +252,7 @@ sequenceDiagram
 
 ## Follow-up Sequence: Mobile Ends Call After Expert-Absent Report
 
-This sequence is planned for the follow-up implementation.
+This sequence is implemented and code-verified.
 
 ```mermaid
 sequenceDiagram
@@ -287,6 +287,44 @@ Implementation notes:
 - do not set `ConsultationBooking.Status = Completed` from this expert-absent end-call path
 - do not call `SettleConsultationEscrowAsync(...)` from this expert-absent end-call path
 - keep room cleanup behavior separate from business completion
+
+### Important Extension Point For Future Side-effect Work
+
+The implemented guard in `ConsultationService.EndConsultationAsync(...)` is the intentional extension point for future expert-absent side effects.
+
+Current shape:
+
+```csharp
+if (consultation.Status is ConsultationStatus.ExpertAbsent or ConsultationStatus.ExpertAbsentHandled)
+{
+    consultation.EndTime ??= DateTime.UtcNow;
+    consultationRepo.Update(consultation);
+    await _unitOfWork.CommitAsync();
+    return;
+}
+```
+
+When the open side-effect research is closed, update this branch directly.
+
+Do:
+
+- add the approved expert-absent payment or booking-state handling inside this branch or delegate from this branch to a clearly named helper
+- keep the normal `Completed` path below this branch reserved for successful consultation completion
+- keep tests that prove `ExpertAbsent` and `ExpertAbsentHandled` are not overwritten by `Completed`
+- add new tests for any approved refund, settlement, booking-status, or admin-resolution side effect
+
+Do not:
+
+- remove the guard and rely on later code to undo `Completed`
+- let execution fall through into the normal `Completed` flow for expert-absent cases
+- add an outer workaround in the controller to compensate for service behavior
+- create a second end-call path that duplicates room cleanup
+- settle escrow or mutate booking state from `/end` unless that exact behavior has been approved by the follow-up research
+
+Reason:
+
+- this branch separates runtime call cleanup from business completion
+- future side effects must preserve that boundary instead of patching over it later
 
 ## Follow-up Sequence: Scheduled Auto-complete Denylist
 

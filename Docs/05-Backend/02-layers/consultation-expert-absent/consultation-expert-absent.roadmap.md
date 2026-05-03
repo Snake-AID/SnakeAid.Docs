@@ -167,12 +167,12 @@ Likely code targets:
 
 ### Follow-up: Protect ExpertAbsent From Completion Overwrite
 
-- [ ] Add tests proving `EndConsultationAsync` preserves `ExpertAbsent`
-- [ ] Add tests proving `EndConsultationAsync` preserves `ExpertAbsentHandled`
-- [ ] In `EndConsultationAsync`, keep SignalR/LiveKit cleanup behavior for expert-absent calls
-- [ ] In `EndConsultationAsync`, set `EndTime` for expert-absent calls when the call is ended
-- [ ] In `EndConsultationAsync`, do not set `Consultation.Status = Completed` for `ExpertAbsent` or `ExpertAbsentHandled`
-- [ ] In `EndConsultationAsync`, do not run completion side effects for expert-absent cases
+- [x] Add tests proving `EndConsultationAsync` preserves `ExpertAbsent`
+- [x] Add tests proving `EndConsultationAsync` preserves `ExpertAbsentHandled`
+- [x] In `EndConsultationAsync`, keep SignalR/LiveKit cleanup behavior for expert-absent calls
+- [x] In `EndConsultationAsync`, set `EndTime` for expert-absent calls when the call is ended
+- [x] In `EndConsultationAsync`, do not set `Consultation.Status = Completed` for `ExpertAbsent` or `ExpertAbsentHandled`
+- [x] In `EndConsultationAsync`, do not run completion side effects for expert-absent cases
 - [ ] Extend scheduled auto-complete denylist from `Completed` to include `ExpertAbsent` and `ExpertAbsentHandled`
 - [ ] Add tests proving scheduled auto-complete does not overwrite `ExpertAbsent`
 - [ ] Keep mobile flow simple: mobile may report absent and then call normal end-consultation; backend preserves expert-absent business status
@@ -255,3 +255,4 @@ If implementation resumes later, start with these facts:
 - Locked follow-up behavior: backend preserves `ExpertAbsent` / `ExpertAbsentHandled` and sets `EndTime`
 - Locked scheduled auto-complete approach: keep denylist style and add `ExpertAbsent` / `ExpertAbsentHandled`
 - Moved refund, settlement, and booking terminal-state decisions to separate research tracking
+- Implemented and verified `EndConsultationAsync` cleanup behavior for `ExpertAbsent` / `ExpertAbsentHandled`

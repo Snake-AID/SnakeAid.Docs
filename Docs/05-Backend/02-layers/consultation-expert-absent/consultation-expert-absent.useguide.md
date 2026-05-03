@@ -4,7 +4,7 @@ module: consultation-expert-absent
 kind: flow
 doc_type: usageguide
 status: active
-last_updated: 2026-04-22
+last_updated: 2026-05-04
 api_version: v1
 owners: [backend-team]
 verification_status: code-verified
@@ -21,7 +21,8 @@ verification_status: code-verified
 - [5. Admin Business + Admin APIs](#5-admin-business--admin-apis)
 - [6. Shared Data Models](#6-shared-data-models)
 - [7. Verified Endpoint List](#7-verified-endpoint-list)
-- [8. Changelog](#8-changelog)
+- [8. Open Research For Follow-up](#8-open-research-for-follow-up)
+- [9. Changelog](#9-changelog)
 
 ## 2. Overview
 
@@ -138,6 +139,7 @@ Field notes:
 - `customerReport` is present when expert absence has been reported for that consultation
 - `problemDescription` is booking problem content, not an expert-absent report
 - successful absent-report submission sets consultation `status` to `ExpertAbsent`
+- after a successful absent report, calling `POST /api/consultations/{consultationId}/end` closes the call and sets `endTime` without changing `status` from `ExpertAbsent`
 
 #### 4.2.2 `POST /api/consultations/{consultationId}/expert-absent-report`
 
@@ -176,6 +178,9 @@ Business rules:
 - current time must be after `StartTime`
 - duplicate report is rejected
 - successful report sets `Consultation.Status = ExpertAbsent`
+- normal end-call after an expert-absent report preserves `Consultation.Status = ExpertAbsent`
+- end-call cleanup for `ExpertAbsent` or `ExpertAbsentHandled` sets `EndTime` but does not mark the consultation `Completed`
+- end-call cleanup for `ExpertAbsent` or `ExpertAbsentHandled` does not complete the scheduled booking or settle escrow
 
 Example request:
 
@@ -186,6 +191,60 @@ Content-Type: application/json
 
 {
   "customerReport": "Expert did not join the room."
+}
+```
+
+#### 4.2.3 `POST /api/consultations/{consultationId}/end` after expert-absent report
+
+Purpose:
+
+- member closes the consultation call after submitting an expert-absent report
+
+Status:
+
+- `Active`
+- Code-verified for `ExpertAbsent` / `ExpertAbsentHandled` status preservation
+
+Auth:
+
+- JWT Bearer token is required
+- caller must be a participant of the consultation
+
+Route params:
+
+| Field          | Type | Required | Notes                    |
+| -------------- | ---- | -------- | ------------------------ |
+| consultationId | guid | Yes      | Existing `Consultation.Id` |
+
+Business rules for expert-absent cases:
+
+- when current consultation status is `ExpertAbsent` or `ExpertAbsentHandled`, this endpoint preserves that status
+- endpoint sets `EndTime` when ending the call
+- endpoint still performs runtime cleanup such as realtime end-call notification and LiveKit room deletion when configured
+- endpoint does not set `Consultation.Status = Completed`
+- endpoint does not set `ConsultationBooking.Status = Completed`
+- endpoint does not settle consultation escrow
+
+Example request:
+
+```http
+POST /api/consultations/8ce96758-71b5-4310-bc35-d83525b2c54f/end
+Authorization: Bearer <member-jwt>
+```
+
+Success response:
+
+- `ApiResponse<string>`
+
+Example response:
+
+```json
+{
+  "status_code": 200,
+  "message": "Consultation ended successfully.",
+  "is_success": true,
+  "data": "Consultation ended successfully.",
+  "error": null
 }
 ```
 
@@ -435,12 +494,57 @@ Active endpoints relevant to this module:
 
 - `GET /api/users/me/consultations`
 - `POST /api/consultations/{consultationId}/expert-absent-report`
+- `POST /api/consultations/{consultationId}/end`
 - `GET /api/experts/me/consultations`
 - `GET /api/admin/consultations`
 - `GET /api/admin/consultations/{consultationId}`
 - `POST /api/admin/consultations/{consultationId}/expert-absent/confirm-handled`
 
-## 8. Changelog
+## 8. Open Research For Follow-up
+
+These items are not active frontend/mobile contract yet. They are listed here so client and backend teams do not infer behavior that is not implemented.
+
+### 8.1 Payment Resolution
+
+Current verified behavior:
+
+- expert-absent report does not refund the member
+- expert-absent end-call does not settle escrow to the expert
+- admin handled-confirmation currently changes consultation status to `ExpertAbsentHandled`
+
+Open research:
+
+- whether admin handling should refund the member
+- whether admin handling should settle the expert
+- whether admin needs a selectable payment outcome for expert-absent cases
+
+### 8.2 Booking Final Status
+
+Current verified behavior:
+
+- expert-absent end-call does not set `ConsultationBooking.Status = Completed`
+- paid scheduled booking usually remains `Confirmed` after expert-absent report and call cleanup
+
+Open research:
+
+- whether booking should remain `Confirmed`
+- whether booking should move to an existing terminal status
+- whether a new booking status is needed for expert-absent or dispute cases
+
+### 8.3 Escrow Dispute State
+
+Current verified behavior:
+
+- scheduled consultation payment can already be in escrow before the expert-absent report
+- cleanup-call keeps that escrow unresolved
+
+Open research:
+
+- whether admin/mobile should display a pending dispute or escrow-resolution state
+- what audit fields are required when the escrow is resolved
+- how duplicate refund or settlement attempts should be prevented
+
+## 9. Changelog
 
 ### 2026-04-21
 
@@ -451,3 +555,9 @@ Active endpoints relevant to this module:
 
 - Added admin endpoint to mark `ExpertAbsent` consultations as handled
 - Added `ExpertAbsentHandled` to documented consultation status values
+
+### 2026-05-04
+
+- Documented code-verified end-call behavior for `ExpertAbsent` / `ExpertAbsentHandled`
+- Clarified that expert-absent end-call cleanup preserves status, sets `EndTime`, and does not complete booking or settle escrow
+- Added frontend-visible open research notes for payment resolution, booking final status, and escrow dispute state
