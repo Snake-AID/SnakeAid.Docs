@@ -3,41 +3,15 @@ doc_role: implementation
 module: expert-avatar
 kind: diagrams
 doc_type: sourcecode
-status: amendment-planning
+status: implemented
 last_updated: 2026-05-03
 owners: [backend-team]
-verification_status: code-inspected
+verification_status: code-verified
 ---
 
 # Expert Avatar Source Code Notes
 
-## Current Implemented Class Diagram
-
-```mermaid
-classDiagram
-class Account {
-  +Guid Id
-  +string FullName
-  +string? AvatarUrl
-}
-
-class MyConsultationResponse {
-  +Guid ExpertId
-  +string? ExpertName
-  +string? ExpertAvatarUrl
-}
-
-class ExpertConsultationResponse {
-  +Guid UserId
-  +string? UserName
-  +string? ExpertAvatarUrl
-}
-
-Account <.. MyConsultationResponse : consulted expert AvatarUrl
-Account <.. ExpertConsultationResponse : authenticated expert AvatarUrl
-```
-
-## Amendment Target Class Diagram
+## Implemented Class Diagram
 
 ```mermaid
 classDiagram
@@ -81,25 +55,7 @@ S-->>C: PagingResponse<MyConsultationResponse>
 C-->>M: expertId, expertName, expertAvatarUrl
 ```
 
-## Current Implemented Sequence: Expert Consultation History
-
-```mermaid
-sequenceDiagram
-participant M as Mobile
-participant C as ExpertController
-participant S as ConsultationService
-participant DB as Database
-
-M->>C: GET /api/experts/me/consultations
-C->>S: GetExpertConsultationsAsync(expertId, query)
-S->>DB: Load authenticated expert Account
-S->>DB: Load scheduled bookings and emergency requests
-S->>S: Map ExpertAvatarUrl from authenticated expert Account.AvatarUrl
-S-->>C: PagingResponse<ExpertConsultationResponse>
-C-->>M: userId, userName, expertAvatarUrl
-```
-
-## Amendment Sequence: Expert Consultation History
+## Implemented Sequence: Expert Consultation History
 
 ```mermaid
 sequenceDiagram

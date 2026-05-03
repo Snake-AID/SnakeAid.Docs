@@ -3,11 +3,11 @@ doc_role: integration
 module: expert-avatar
 kind: response-contract-amendment
 doc_type: useguide
-status: amendment-planning
+status: implemented
 last_updated: 2026-05-03
 api_version: v1
 owners: [backend-team]
-verification_status: code-inspected
+verification_status: code-verified
 ---
 
 # Expert Avatar Useguide
@@ -24,17 +24,17 @@ verification_status: code-inspected
 
 ## 2. Overview
 
-This guide is written as a contract amendment over the already implemented backend response.
+This guide records the implemented contract amendment over the first backend avatar pass.
 
-Implemented today:
+Previous first pass:
 
 - `GET /api/users/me/consultations` returns `expertAvatarUrl`.
-- `GET /api/experts/me/consultations` returns `expertAvatarUrl` for the authenticated expert.
+- `GET /api/experts/me/consultations` returned `expertAvatarUrl` for the authenticated expert.
 
-Frontend amendment:
+Implemented amendment:
 
 - `GET /api/users/me/consultations` remains correct.
-- `GET /api/experts/me/consultations` must replace `expertAvatarUrl` with `userAvatarUrl` for the member/rescuer shown on the expert screen.
+- `GET /api/experts/me/consultations` replaces `expertAvatarUrl` with `userAvatarUrl` for the member/rescuer shown on the expert screen.
 
 Client null rule:
 
@@ -101,29 +101,7 @@ Purpose:
 - expert retrieves own consultation history
 - mobile renders the member/rescuer participant on the expert screen
 
-Current implemented response item:
-
-```json
-{
-  "consultationId": "1b1d73f4-a32d-4a3c-95f5-bb0c3b7d8c01",
-  "type": "Scheduled",
-  "status": "Completed",
-  "userId": "bd4f9968-53f8-4757-a3a0-53f2049a8c2f",
-  "userName": "Nguyen Van A",
-  "expertAvatarUrl": "https://cdn.example.com/avatars/expert-a.png",
-  "roomId": "consultation-1b1d73f4-a32d-4a3c-95f5-bb0c3b7d8c01",
-  "startTime": "2026-04-20T09:00:00Z",
-  "endTime": "2026-04-20T09:25:00Z",
-  "grossPrice": 500000,
-  "netPrice": 400000,
-  "bookingId": "c3b5f18d-8871-4ea0-97d2-6ac4b5fd4f2f",
-  "slotStartTime": "2026-04-20T09:00:00Z",
-  "slotEndTime": "2026-04-20T09:30:00Z",
-  "emergencyRequestId": null
-}
-```
-
-Amended response item:
+Success response item:
 
 ```json
 {
@@ -185,6 +163,7 @@ Important client notes:
 
 ### 2026-05-03
 
+- Implemented amendment: `GET /api/experts/me/consultations` now returns participant `userAvatarUrl` and no longer returns `expertAvatarUrl`.
 - Reframed docs as an amendment over already implemented backend work.
 - Kept member endpoint as implemented: `expertAvatarUrl`.
 - Changed expert endpoint target: remove `expertAvatarUrl`, add participant `userAvatarUrl` for member/rescuer avatar.

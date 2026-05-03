@@ -3,10 +3,10 @@ doc_role: implementation
 module: expert-avatar
 kind: response-contract-amendment
 doc_type: introduction
-status: amendment-planning
+status: implemented
 last_updated: 2026-05-03
 owners: [backend-team]
-verification_status: code-inspected
+verification_status: code-verified
 ---
 
 # Expert Avatar Introduction
@@ -18,7 +18,7 @@ Frontend needs avatar data on the two consultation-history screens:
 - member screen: `GET /api/users/me/consultations`
 - expert screen: `GET /api/experts/me/consultations`
 
-This document is an amendment over the currently implemented backend contract. Do not treat it as a fresh rewrite from the original state.
+This document records the implemented amendment over the first backend avatar pass.
 
 ## Frontend Clarification
 
@@ -30,12 +30,13 @@ Decision from Anh Khoa on 2026-05-03:
 
 ## Current Implemented Backend State
 
-Code-inspected on 2026-05-03:
+Code-verified on 2026-05-03:
 
 - `MyConsultationResponse` already has nullable `ExpertAvatarUrl`.
 - `GET /api/users/me/consultations` already maps expert avatar from the consulted expert account.
-- `ExpertConsultationResponse` already has nullable `ExpertAvatarUrl`.
-- `GET /api/experts/me/consultations` currently maps `ExpertAvatarUrl` from the authenticated expert account.
+- `ExpertConsultationResponse` has nullable `UserAvatarUrl`.
+- `GET /api/experts/me/consultations` maps `UserAvatarUrl` from the member/rescuer account.
+- `ExpertConsultationResponse` no longer exposes `ExpertAvatarUrl`.
 
 Important code locations:
 
@@ -45,7 +46,7 @@ Important code locations:
 - `SnakeAid.Tests/Integration/ConsultationPriceBugConditionTests.cs`
 - `SnakeAid.Tests/Integration/ExpertConsultationPriceResponseTests.cs`
 
-## Required Amendment
+## Implemented Amendment
 
 Keep implemented member endpoint behavior:
 
@@ -53,26 +54,26 @@ Keep implemented member endpoint behavior:
 - response keeps `expertAvatarUrl`
 - value means consulted expert avatar
 
-Amend expert endpoint behavior:
+Amended expert endpoint behavior:
 
 - `GET /api/experts/me/consultations`
 - add nullable `userAvatarUrl`
 - value means other participant avatar:
   - scheduled consultation: member account avatar
   - emergency consultation: rescuer account avatar
-- remove `expertAvatarUrl` from this response because expert screen does not need the authenticated expert's own avatar
+- removes `expertAvatarUrl` from this response because expert screen does not need the authenticated expert's own avatar
 
-## Implementation Direction
+## Implementation Result
 
-Do this as a contract correction over the implemented backend:
+Completed as a contract correction over the implemented backend:
 
-1. Add nullable `UserAvatarUrl` to `ExpertConsultationResponse`.
-2. Map scheduled expert-history `UserAvatarUrl` from `ConsultationBooking.User.AvatarUrl` or fallback `Consultation.Caller.AvatarUrl`.
-3. Map emergency expert-history `UserAvatarUrl` from `ConsultationPingRequest.Rescuer.AvatarUrl`.
-4. Remove `ExpertAvatarUrl` from `ExpertConsultationResponse` and its mappings/tests.
-5. Keep `MyConsultationResponse.ExpertAvatarUrl` unchanged.
-6. Update tests to assert member/rescuer avatar on expert history.
-7. Update useguide examples after code changes.
+1. Added nullable `UserAvatarUrl` to `ExpertConsultationResponse`.
+2. Mapped scheduled expert-history `UserAvatarUrl` from `ConsultationBooking.User.AvatarUrl` or fallback `Consultation.Caller.AvatarUrl`.
+3. Mapped emergency expert-history `UserAvatarUrl` from `ConsultationPingRequest.Rescuer.AvatarUrl`.
+4. Removed `ExpertAvatarUrl` from `ExpertConsultationResponse` and its mappings/tests.
+5. Kept `MyConsultationResponse.ExpertAvatarUrl` unchanged.
+6. Updated tests to assert member/rescuer avatar on expert history.
+7. Updated useguide examples after code changes.
 
 ## Non-Goals
 
@@ -82,4 +83,4 @@ Do this as a contract correction over the implemented backend:
 
 ## Resume Rule
 
-When resuming this task, start from the current implemented backend state, then apply the amendment. Do not repeat the old implementation plan as if no avatar work has landed.
+When resuming this module, treat the amendment as implemented. Do not restore the old expert self-avatar behavior.
