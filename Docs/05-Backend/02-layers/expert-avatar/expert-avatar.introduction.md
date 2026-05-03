@@ -1,81 +1,85 @@
 ---
 doc_role: implementation
 module: expert-avatar
-kind: response-contract
+kind: response-contract-amendment
 doc_type: introduction
-status: implemented
+status: amendment-planning
 last_updated: 2026-05-03
 owners: [backend-team]
-verification_status: code-verified
+verification_status: code-inspected
 ---
 
 # Expert Avatar Introduction
 
 ## Goal
 
-Mobile and frontend screens that display expert information should receive the expert avatar from backend responses without doing extra profile lookups.
+Frontend needs avatar data on the two consultation-history screens:
 
-Implemented target:
+- member screen: `GET /api/users/me/consultations`
+- expert screen: `GET /api/experts/me/consultations`
 
-- add avatar data to `GET /api/experts/me/consultations`
-- add avatar data to `GET /api/users/me/consultations`
+This document is an amendment over the currently implemented backend contract. Do not treat it as a fresh rewrite from the original state.
 
-Implemented scope:
+## Frontend Clarification
 
-- add avatar data only to the two consultation-history endpoints:
-  - `GET /api/experts/me/consultations`
-  - `GET /api/users/me/consultations`
+Decision from Anh Khoa on 2026-05-03:
 
-## Current Codebase State
+- `GET /api/users/me/consultations` should keep returning the consulted expert avatar.
+- `GET /api/experts/me/consultations` should expose the member/rescuer avatar, because expert screens need to show the other participant.
+- The expert does not need to fetch their own avatar from `GET /api/experts/me/consultations`.
 
-Verified from backend code on 2026-05-03:
+## Current Implemented Backend State
 
-- `Account` already stores `AvatarUrl`.
-- consultation history response DTOs now expose nullable `ExpertAvatarUrl` for the two in-scope endpoints.
+Code-inspected on 2026-05-03:
 
-Important verified response classes:
+- `MyConsultationResponse` already has nullable `ExpertAvatarUrl`.
+- `GET /api/users/me/consultations` already maps expert avatar from the consulted expert account.
+- `ExpertConsultationResponse` already has nullable `ExpertAvatarUrl`.
+- `GET /api/experts/me/consultations` currently maps `ExpertAvatarUrl` from the authenticated expert account.
+
+Important code locations:
 
 - `SnakeAid.Core/Responses/Consultation/MyConsultationResponse.cs`
 - `SnakeAid.Core/Responses/Consultation/ExpertConsultationResponse.cs`
+- `SnakeAid.Service/Implements/ConsultationService.cs`
+- `SnakeAid.Tests/Integration/ConsultationPriceBugConditionTests.cs`
+- `SnakeAid.Tests/Integration/ExpertConsultationPriceResponseTests.cs`
 
-Important verified services:
+## Required Amendment
 
-- `ConsultationService.GetExpertConsultationsAsync(Guid expertId, MyConsultationsQueryRequest query)`
-- `ConsultationService.GetMyConsultationsAsync(Guid userId, MyConsultationsQueryRequest query)`
-- `ConsultationService.BuildMyConsultationResponse(Consultation consultation, ConsultationBooking? booking = null)`
+Keep implemented member endpoint behavior:
 
-## Verified Endpoint Surfaces
+- `GET /api/users/me/consultations`
+- response keeps `expertAvatarUrl`
+- value means consulted expert avatar
+
+Amend expert endpoint behavior:
 
 - `GET /api/experts/me/consultations`
-- `GET /api/users/me/consultations`
+- add nullable `userAvatarUrl`
+- value means other participant avatar:
+  - scheduled consultation: member account avatar
+  - emergency consultation: rescuer account avatar
+- remove `expertAvatarUrl` from this response because expert screen does not need the authenticated expert's own avatar
 
 ## Implementation Direction
 
-Implemented contract shape:
+Do this as a contract correction over the implemented backend:
 
-- nullable `ExpertAvatarUrl` exists on `MyConsultationResponse`
-- nullable `ExpertAvatarUrl` exists on `ExpertConsultationResponse`
-- mappings read from `Account.AvatarUrl`
-- existing response fields remain unchanged for backward compatibility
-- avatar nullability remains explicit: `null` means account has no avatar or the relation is not loaded/available
-
-Implemented verification:
-
-- `ConsultationPriceBugConditionTests` covers member scheduled and emergency avatar mapping.
-- `ExpertConsultationPriceResponseTests` covers expert scheduled and emergency avatar mapping.
+1. Add nullable `UserAvatarUrl` to `ExpertConsultationResponse`.
+2. Map scheduled expert-history `UserAvatarUrl` from `ConsultationBooking.User.AvatarUrl` or fallback `Consultation.Caller.AvatarUrl`.
+3. Map emergency expert-history `UserAvatarUrl` from `ConsultationPingRequest.Rescuer.AvatarUrl`.
+4. Remove `ExpertAvatarUrl` from `ExpertConsultationResponse` and its mappings/tests.
+5. Keep `MyConsultationResponse.ExpertAvatarUrl` unchanged.
+6. Update tests to assert member/rescuer avatar on expert history.
+7. Update useguide examples after code changes.
 
 ## Non-Goals
 
+- Do not rewrite existing `GET /api/users/me/consultations` avatar implementation.
+- Do not add avatar fields to endpoints outside the two consultation-history endpoints.
 - Do not change avatar upload/storage behavior.
-- Do not introduce new media endpoints.
-- Do not remove existing name/id fields.
 
-## Current Risk Summary
+## Resume Rule
 
-Resolved scope decision:
-
-- user decision on 2026-05-02: only add avatar to the two get-consultation endpoints for expert and member.
-- `GET /api/experts/me/consultations` should add `expertAvatarUrl` for the authenticated expert.
-- `GET /api/users/me/consultations` should add `expertAvatarUrl` for the consulted expert.
-
-See `expert-avatar.hallucination.md`.
+When resuming this task, start from the current implemented backend state, then apply the amendment. Do not repeat the old implementation plan as if no avatar work has landed.

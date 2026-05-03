@@ -1,24 +1,23 @@
 ---
 doc_role: implementation
 module: expert-avatar
-kind: response-contract
+kind: response-contract-amendment
 doc_type: roadmap
-status: implemented
+status: amendment-planning
 last_updated: 2026-05-03
 owners: [backend-team]
-verification_status: code-verified
+verification_status: code-inspected
 ---
 
-# Expert Avatar Roadmap
+# Expert Avatar Amendment Roadmap
 
 ## Current Status Snapshot
 
-- module status: `Implemented`
-- backend code changed: `Yes`
-- baseline docs initialized: `Yes`
-- primary endpoint requested: `GET /api/experts/me/consultations`
-- second endpoint in scope: `GET /api/users/me/consultations`
-- unresolved business decisions: `No`
+- module status: `Amendment required`
+- backend already implemented first avatar pass: `Yes`
+- member endpoint current behavior: `Correct`
+- expert endpoint current behavior: `Needs replacement`
+- docs must be resumed from implemented state: `Yes`
 
 ## Current Truth To Resume From
 
@@ -26,59 +25,68 @@ Verified code facts:
 
 - `Account.AvatarUrl` exists.
 - `MyConsultationResponse` has `ExpertId`, `ExpertName`, and nullable `ExpertAvatarUrl`.
+- `GET /api/users/me/consultations` maps `ExpertAvatarUrl` from the consulted expert account.
 - `ExpertConsultationResponse` has `UserId`, `UserName`, and nullable `ExpertAvatarUrl`.
-- user decision on 2026-05-02 limits implementation to `GET /api/experts/me/consultations` and `GET /api/users/me/consultations`.
+- `GET /api/experts/me/consultations` currently maps `ExpertAvatarUrl` from the authenticated expert account.
 
-## Outcome
+Frontend decision from Anh Khoa:
 
-Implemented result:
+- expert screen needs avatar of the other participant, not the expert's own avatar.
+- member screen behavior remains correct: member history needs expert avatar.
 
-1. both in-scope consultation-history endpoints return `expertAvatarUrl`
-2. existing endpoint behavior, filters, pagination, and authorization stay unchanged
-3. existing response fields remain backward compatible
-4. tests protect avatar mapping for scheduled and emergency rows inside both in-scope history endpoints
-5. docs reflect active code after the contract change
+## Amendment Outcome
+
+After this amendment:
+
+1. `GET /api/users/me/consultations` still returns `expertAvatarUrl` for the consulted expert.
+2. `GET /api/experts/me/consultations` returns `userAvatarUrl` for the member/rescuer participant.
+3. `GET /api/experts/me/consultations` no longer returns `expertAvatarUrl`.
+4. Tests prove scheduled and emergency expert-history rows map `userAvatarUrl` from the participant account.
+5. Docs describe current implemented behavior plus this correction, so agents remove the old expert self-avatar behavior deliberately.
 
 ## Task Plan
 
-### Task 1. Add Member Consultation Avatar Contract
-
-Files:
-
-- Modify: `SnakeAid.Core/Responses/Consultation/MyConsultationResponse.cs`
-- Modify: `SnakeAid.Service/Implements/ConsultationService.cs`
-- Test: `SnakeAid.Tests/Integration/Consultation*`
-
-Steps:
-
-- [x] Add nullable `string? ExpertAvatarUrl` beside `ExpertName` in `MyConsultationResponse`.
-- [x] Update scheduled user consultation mapping in `BuildMyConsultationResponse(...)`.
-- [x] Update emergency user consultation mapping in `GetMyConsultationsAsync(...)`.
-- [x] Map from `Account.AvatarUrl` through `booking.Expert`, `consultation.Callee`, or `ping.Expert`.
-- [x] Add or update tests proving `ExpertAvatarUrl` is populated for scheduled member consultation rows.
-- [x] Add or update tests proving `ExpertAvatarUrl` is populated for emergency member consultation rows.
-- [x] Sync `expert-avatar.useguide.md` with active response examples.
-
-### Task 2. Add Expert Consultation Avatar Contract
+### Task 1. Add Expert-History Participant Avatar
 
 Files:
 
 - Modify: `SnakeAid.Core/Responses/Consultation/ExpertConsultationResponse.cs`
 - Modify: `SnakeAid.Service/Implements/ConsultationService.cs`
-- Test: expert consultation history tests
+- Test: `SnakeAid.Tests/Integration/ExpertConsultationPriceResponseTests.cs`
 
 Steps:
 
-- [x] Add nullable `string? ExpertAvatarUrl` to `ExpertConsultationResponse`.
-- [x] Map `ExpertAvatarUrl` from the authenticated expert account for scheduled expert-history rows.
-- [x] Map `ExpertAvatarUrl` from the authenticated expert account for emergency expert-history rows.
-- [x] Map `ExpertAvatarUrl` for orphaned scheduled fallback rows if still emitted.
-- [x] Avoid adding fields that are not part of the two endpoint contracts.
-- [x] Add tests proving `ExpertAvatarUrl` is populated for scheduled expert consultation rows.
-- [x] Add tests proving `ExpertAvatarUrl` is populated for emergency expert consultation rows.
-- [x] Sync `expert-avatar.useguide.md` with active response examples.
+- [ ] Add nullable `string? UserAvatarUrl` beside `UserName` in `ExpertConsultationResponse`.
+- [ ] Remove nullable `string? ExpertAvatarUrl` from `ExpertConsultationResponse`.
+- [ ] In scheduled expert-history mapping, set `UserAvatarUrl = b.User?.AvatarUrl`.
+- [ ] In emergency expert-history mapping, set `UserAvatarUrl = p.Rescuer?.AvatarUrl`.
+- [ ] In orphaned scheduled fallback mapping, set `UserAvatarUrl = c.Caller?.AvatarUrl`.
+- [ ] Remove authenticated expert-account avatar lookup when it is only used for expert-history `ExpertAvatarUrl`.
+- [ ] Do not change `MyConsultationResponse`.
 
-### Task 3. Final Documentation Sync
+### Task 2. Amend Tests
+
+Files:
+
+- Modify: `SnakeAid.Tests/Integration/ExpertConsultationPriceResponseTests.cs`
+- Leave as-is unless failing: `SnakeAid.Tests/Integration/ConsultationPriceBugConditionTests.cs`
+
+Steps:
+
+- [ ] Add scheduled expert-history assertion for `UserAvatarUrl`.
+- [ ] Add emergency expert-history assertion for `UserAvatarUrl`.
+- [ ] Keep existing member-history assertions for `ExpertAvatarUrl`.
+- [ ] Remove existing expert-history `ExpertAvatarUrl` assertions.
+- [ ] Add assertions that `ExpertConsultationResponse` does not expose `ExpertAvatarUrl` if route/contract tests exist.
+- [ ] Run focused consultation tests.
+
+Focused command:
+
+```powershell
+dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "FullyQualifiedName~ExpertConsultationPriceResponseTests|FullyQualifiedName~ConsultationPriceBugConditionTests"
+```
+
+### Task 3. Sync Baseline Docs After Code Change
 
 Files:
 
@@ -90,53 +98,28 @@ Files:
 
 Steps:
 
-- [x] Update `Current Truth To Resume From` after code lands.
-- [x] Mark completed roadmap checkboxes.
-- [x] Keep resolved hallucination risks as decision records.
-- [x] Update class and sequence diagrams to match final code.
-- [x] Update all API response examples to match actual JSON fields.
+- [ ] Mark this amendment as implemented only after backend tests pass.
+- [ ] Update useguide response example for `GET /api/experts/me/consultations` to include `userAvatarUrl`.
+- [ ] Keep member useguide example with `expertAvatarUrl`.
+- [ ] Record final code verification commands and results in roadmap changelog.
 
-## Verification Strategy
+## Manual API Verification Targets
 
-Run focused tests first:
-
-```powershell
-dotnet test SnakeAid.Tests/SnakeAid.Tests.csproj --filter "FullyQualifiedName~Consultation"
-```
-
-Run broader tests after focused pass:
-
-```powershell
-dotnet test
-```
-
-Manual API verification targets:
-
-- `GET /api/experts/me/consultations`
 - `GET /api/users/me/consultations`
+- `GET /api/experts/me/consultations`
 
 ## Resume Checklist
 
-- [ ] Read `expert-avatar.hallucination.md` first.
-- [ ] Confirm scope remains limited to the two in-scope endpoints before coding.
-- [ ] Use graph tools before grep for code discovery.
-- [ ] Write or update tests before changing mappings.
-- [ ] Update baseline docs after every backend contract change.
-- [ ] Keep useguide frontend/mobile focused.
+- [ ] Treat current expert-history `ExpertAvatarUrl` implementation as code to replace, not preserve.
+- [ ] Add `UserAvatarUrl` for expert history and remove expert-history `ExpertAvatarUrl`.
+- [ ] Keep docs written as an amendment until code is patched.
+- [ ] Update docs immediately after code changes.
 
-## Change Log
+## Changelog
 
 ### 2026-05-03
 
-- Implemented nullable `ExpertAvatarUrl` on member and expert consultation-history responses.
-- Added focused integration coverage for scheduled and emergency avatar mapping.
-- Removed context not directly related to the two requested endpoints.
-- Kept roadmap focused on `GET /api/experts/me/consultations` and `GET /api/users/me/consultations`.
-
-### 2026-05-02
-
-- Created baseline planning docs.
-- Confirmed `Account.AvatarUrl` exists.
-- Identified the two consultation-history DTOs missing expert avatar.
-- Logged ambiguity around `GET /api/experts/me/consultations`.
-- Adjusted scope by user decision: only `GET /api/experts/me/consultations` and `GET /api/users/me/consultations` remain in scope.
+- Added amendment plan from Anh Khoa frontend clarification.
+- Recorded that member endpoint implementation is correct.
+- Recorded that expert endpoint needs participant avatar via `userAvatarUrl`.
+- Updated decision: expert endpoint must remove `expertAvatarUrl` and keep only `userAvatarUrl`.
