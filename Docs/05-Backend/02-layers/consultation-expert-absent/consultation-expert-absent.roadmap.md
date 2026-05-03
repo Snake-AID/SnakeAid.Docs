@@ -3,8 +3,8 @@ doc_role: planning
 module: consultation-expert-absent
 kind: flow
 doc_type: roadmap
-status: implemented
-last_updated: 2026-04-22
+status: implemented-with-follow-up-planned
+last_updated: 2026-05-04
 owners: [backend-team]
 verification_status: code-verified
 ---
@@ -20,6 +20,9 @@ verification_status: code-verified
   - consultation report fields exist
   - admin consultation responses expose `CustomerReport`
   - admin handled-confirmation endpoint exists
+- follow-up code status:
+  - end-flow protection for `ExpertAbsent` is planned
+  - refund and booking terminal-state policy requires separate research
 - docs status:
   - this doc set is aligned to implemented behavior
 
@@ -33,6 +36,7 @@ After implementation:
 4. admin consultation endpoints expose the report field
 5. the feature is traceable in tests and docs
 6. admin can mark `ExpertAbsent` cases as handled
+7. member-triggered end-call and scheduled auto-complete do not overwrite `ExpertAbsent` with `Completed`
 
 ## Task Breakdown
 
@@ -161,6 +165,19 @@ Likely code targets:
 - [x] Update `sourcecode` diagrams after implementation is stable
 - [x] Record all decisions in `hallucination` as closed or resolved
 
+### Follow-up: Protect ExpertAbsent From Completion Overwrite
+
+- [ ] Add tests proving `EndConsultationAsync` preserves `ExpertAbsent`
+- [ ] Add tests proving `EndConsultationAsync` preserves `ExpertAbsentHandled`
+- [ ] In `EndConsultationAsync`, keep SignalR/LiveKit cleanup behavior for expert-absent calls
+- [ ] In `EndConsultationAsync`, set `EndTime` for expert-absent calls when the call is ended
+- [ ] In `EndConsultationAsync`, do not set `Consultation.Status = Completed` for `ExpertAbsent` or `ExpertAbsentHandled`
+- [ ] In `EndConsultationAsync`, do not run completion side effects for expert-absent cases
+- [ ] Extend scheduled auto-complete denylist from `Completed` to include `ExpertAbsent` and `ExpertAbsentHandled`
+- [ ] Add tests proving scheduled auto-complete does not overwrite `ExpertAbsent`
+- [ ] Keep mobile flow simple: mobile may report absent and then call normal end-consultation; backend preserves expert-absent business status
+- [ ] Record refund and booking terminal-state questions in `hallucination`
+
 ## Recommended File Targets
 
 ### Backend
@@ -191,6 +208,9 @@ Likely code targets:
 
 1. Allowing reporting any time after `StartTime` is broad and may require later safeguards if very old consultations should be blocked.
 2. The current consultation history implementation merges scheduled and emergency paths separately, so the new field must be populated consistently in both list/detail branches.
+3. If end-call cleanup and business completion remain coupled, `ExpertAbsent` can be overwritten by `Completed`.
+4. If escrow settlement runs during an expert-absent end-call, money can be released as if the consultation completed normally.
+5. Booking terminal status and refund policy for expert-absent cases are not yet decided.
 
 ## Resume Notes
 
@@ -205,6 +225,11 @@ If implementation resumes later, start with these facts:
 - confirmed baseline field name is `Customer Report`
 - confirmed persistence target is `Consultation`
 - confirmed command should return updated consultation object
+- follow-up decision: mobile may call normal end-consultation after reporting absent
+- follow-up decision: backend must preserve `ExpertAbsent` and set `EndTime` rather than completing the consultation
+- follow-up decision: scheduled auto-complete should remain denylist-based, with `ExpertAbsent` and `ExpertAbsentHandled` added to the denylist
+- follow-up open research: refund or settlement policy for expert-absent cases
+- follow-up open research: final booking status for expert-absent cases
 
 ## Change Log
 
@@ -222,3 +247,11 @@ If implementation resumes later, start with these facts:
 - Added admin command endpoint to confirm expert-absent cases as handled
 - Added `ExpertAbsentHandled` as the resolved admin status
 - Added focused controller and integration coverage for admin handled-confirmation flow
+
+### 2026-05-04
+
+- Added follow-up implementation target to prevent end-consultation and auto-complete flows from overwriting `ExpertAbsent`
+- Locked mobile flow assumption: mobile can call the normal end-consultation endpoint after reporting absent
+- Locked follow-up behavior: backend preserves `ExpertAbsent` / `ExpertAbsentHandled` and sets `EndTime`
+- Locked scheduled auto-complete approach: keep denylist style and add `ExpertAbsent` / `ExpertAbsentHandled`
+- Moved refund, settlement, and booking terminal-state decisions to separate research tracking

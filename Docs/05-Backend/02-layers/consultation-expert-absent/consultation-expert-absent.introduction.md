@@ -3,8 +3,8 @@ doc_role: planning
 module: consultation-expert-absent
 kind: layer
 doc_type: introduction
-status: implemented
-last_updated: 2026-04-22
+status: implemented-with-follow-up-planned
+last_updated: 2026-05-04
 owners: [backend-team]
 verification_status: code-verified
 ---
@@ -149,6 +149,7 @@ In scope:
 - member-facing consultation payload can show the report field if required by mobile
 - admin consultation list/detail includes the report field
 - admin can move `Consultation.Status` from `ExpertAbsent` to `ExpertAbsentHandled`
+- follow-up implementation must protect `ExpertAbsent` and `ExpertAbsentHandled` from being overwritten by consultation end flows
 
 Out of scope for this module unless explicitly requested later:
 
@@ -156,6 +157,22 @@ Out of scope for this module unless explicitly requested later:
 - notification workflow
 - auto-detecting absence from video-room presence
 - emergency consultation absent-report flow
+- final refund or settlement policy for expert-absent cases
+- final booking terminal status for expert-absent cases
+
+## Follow-up Implementation Decision: End-Flow Protection
+
+The current follow-up implementation target is narrow:
+
+- after a member submits an expert-absent report, mobile may call the normal end-consultation endpoint to close the call
+- backend must not treat that end-call action as a successful consultation completion
+- `EndConsultationAsync` must preserve `Consultation.Status = ExpertAbsent` or `ExpertAbsentHandled`
+- `EndConsultationAsync` should still set `EndTime` when ending an expert-absent call
+- `EndConsultationAsync` may still perform runtime cleanup such as SignalR end-call notification and LiveKit room deletion
+- scheduled auto-complete must use a denylist that excludes at least `Completed`, `ExpertAbsent`, and `ExpertAbsentHandled` from completion
+- auto-complete must not convert an expert-absent case into `Completed`
+
+This follow-up does not decide refund, settlement, or a new booking terminal status. Those require a separate research pass and are tracked in `consultation-expert-absent.hallucination.md`.
 
 ## File Areas Likely To Change
 

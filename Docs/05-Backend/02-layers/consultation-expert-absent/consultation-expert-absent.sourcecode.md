@@ -3,8 +3,8 @@ doc_role: planning
 module: consultation-expert-absent
 kind: engineering
 doc_type: sourcecode
-status: implemented
-last_updated: 2026-04-22
+status: implemented-with-follow-up-planned
+last_updated: 2026-05-04
 owners: [backend-team]
 verification_status: code-verified
 ---
@@ -18,6 +18,7 @@ This file captures:
 - the current code-verified structure
 - the recommended target structure
 - the sequence of the planned member absent-report flow
+- the follow-up implementation target for end-flow protection
 
 ## Current Code-Verified Structure
 
@@ -249,6 +250,68 @@ sequenceDiagram
     API-->>Admin: ApiResponse(updated consultation)
 ```
 
+## Follow-up Sequence: Mobile Ends Call After Expert-Absent Report
+
+This sequence is planned for the follow-up implementation.
+
+```mermaid
+sequenceDiagram
+    actor Member
+    participant API as ConsultationsController
+    participant Service as ConsultationService
+    participant SignalR as ConsultationHub
+    participant LiveKit as LiveKitService
+    participant Repo as UnitOfWork/Repositories
+    participant DB as Database
+
+    Member->>API: POST /api/consultations/{consultationId}/end
+    API->>Service: EndConsultationAsync(consultationId, memberId)
+    Service->>Repo: Load Consultation
+    Repo-->>Service: Consultation(Status = ExpertAbsent)
+    Service->>Service: Validate actor is participant
+    Service->>Service: Detect ExpertAbsent or ExpertAbsentHandled
+    Service->>SignalR: Send ConsultationCallEnded signal if available
+    Service->>LiveKit: Delete room if available
+    Service->>Service: Preserve Status = ExpertAbsent
+    Service->>Service: Set EndTime if null
+    Service->>Repo: Update Consultation only
+    Repo->>DB: UPDATE Consultations
+    DB-->>Repo: Saved
+    API-->>Member: Success
+```
+
+Implementation notes:
+
+- do not set `Consultation.Status = Completed` when current status is `ExpertAbsent` or `ExpertAbsentHandled`
+- do set `EndTime` for expert-absent calls when the call is ended
+- do not set `ConsultationBooking.Status = Completed` from this expert-absent end-call path
+- do not call `SettleConsultationEscrowAsync(...)` from this expert-absent end-call path
+- keep room cleanup behavior separate from business completion
+
+## Follow-up Sequence: Scheduled Auto-complete Denylist
+
+This sequence is planned for the follow-up implementation.
+
+```mermaid
+sequenceDiagram
+    participant Job as ConsultationLifecycleBackgroundService
+    participant Booking as BookingService
+    participant Repo as UnitOfWork/Repositories
+
+    Job->>Booking: AutoCompleteElapsedScheduledConsultationsAsync()
+    Booking->>Repo: Query elapsed confirmed bookings
+    Repo-->>Booking: Bookings where Consultation.Status not in denylist
+    Booking->>Booking: Denylist includes Completed, ExpertAbsent, ExpertAbsentHandled
+    Booking->>Booking: Complete only remaining consultations
+```
+
+Implementation notes:
+
+- keep the existing denylist style
+- extend the current denylist from `Completed` to include `ExpertAbsent` and `ExpertAbsentHandled`
+- do not auto-complete expert-absent cases
+- do not settle expert-absent escrow from scheduled auto-complete
+
 ## Notes For Resume
 
 If implementation resumes later, inspect these code areas first:
@@ -260,6 +323,8 @@ If implementation resumes later, inspect these code areas first:
 - `SnakeAid.Service/Interfaces/IConsultationService.cs`
 - `SnakeAid.Service/Implements/ConsultationService.cs`
 - `SnakeAid.Api/Controllers/ConsultationsController.cs`
+- `SnakeAid.Service/Implements/BookingService.cs`
+- `SnakeAid.Service/Implements/ConsultationLifecycleBackgroundService.cs`
 
 ## Metadata Recommendation
 
@@ -275,3 +340,13 @@ Current implemented admin resolution is intentionally minimal:
 - status-only resolution through `ExpertAbsentHandled`
 - no extra admin note field
 - no handled-by / handled-at metadata yet
+
+## Follow-up Open Research
+
+These topics are intentionally not part of the end-flow protection patch:
+
+- whether `ConfirmExpertAbsentHandledAsync(...)` should also refund the member, settle the expert, or accept an admin-selected payment outcome
+- whether `ConsultationBooking.Status` should remain `Confirmed` for expert-absent cases or move to a future dedicated terminal status
+- whether a dedicated payment-dispute state is needed for scheduled consultation escrow
+
+Track these questions in `consultation-expert-absent.hallucination.md` before implementing payment or booking-status changes.
