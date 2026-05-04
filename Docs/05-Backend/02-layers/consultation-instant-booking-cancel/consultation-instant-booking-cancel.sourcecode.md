@@ -3,10 +3,10 @@ doc_role: implementation
 module: consultation-instant-booking-cancel
 kind: flow
 doc_type: sourcecode
-status: decision-updated-implementation-paused
+status: implemented
 last_updated: 2026-05-05
 owners: [backend-team]
-verification_status: decision-recorded
+verification_status: verified
 ---
 
 # Consultation Instant Booking Cancel Sourcecode
@@ -24,7 +24,7 @@ Active backend surface:
 - `MyConsultationResponse` for expert absent response, unchanged by history union
 - `ExpertConsultationResponse` for existing expert consultation row contracts, not used as request-level DTO
 
-Target response surface:
+Implemented response surface:
 
 - `Responses/Consultation/History/MyConsultationHistoryUnionResponse.cs`
 - `Responses/Consultation/History/MyConsultationHistoryResponse.cs`
@@ -136,11 +136,11 @@ Previous result:
 - expert-rejected instant/emergency requests did not appear in history
 - expired instant/emergency requests did not appear in history
 
-## 4. Target Code
+## 4. Implemented Code
 
-The selected implementation direction is a typed union dedicated to the History usecase.
+The implementation uses a typed union dedicated to the History usecase.
 
-### Target Union Mapping
+### Implemented Union Mapping
 
 ```mermaid
 flowchart TD
@@ -176,7 +176,7 @@ Not currently covered:
 - `AcceptedByExpert`: has linked `Consultation`
 - `RescuerCancelled`: enum value exists, but no production flow currently sets it
 
-### Target Member DTO Shape For `kind = instant`
+### Implemented Member DTO Shape For `kind = instant`
 
 ```csharp
 new MyInstantConsultationRequestHistoryResponse
@@ -192,7 +192,7 @@ new MyInstantConsultationRequestHistoryResponse
 }
 ```
 
-### Target Expert DTO Shape For `kind = instant`
+### Implemented Expert DTO Shape For `kind = instant`
 
 ```csharp
 new ExpertInstantConsultationRequestHistoryResponse
@@ -222,7 +222,7 @@ Do not expose these fields for request-level rows:
 - `grossPrice`
 - `netPrice`
 
-### Target Service Contracts
+### Implemented Service Contracts
 
 ```csharp
 Task<PagingResponse<MyConsultationHistoryUnionResponse>> GetMyConsultationsAsync(...)
@@ -230,11 +230,15 @@ Task<PagingResponse<ExpertConsultationHistoryUnionResponse>> GetExpertConsultati
 Task<MyConsultationResponse> ReportExpertAbsentAsync(...)
 ```
 
-## 5. Open Code Decision
+## 5. Code Decision Status
 
 No open product decision remains for member/expert history.
 
-The code implementation is paused and must be realigned to H-003 before verification is considered current.
+The H-003 DTO boundary has been implemented:
+
+- history has typed union DTOs
+- expert absent remains `Task<MyConsultationResponse>`
+- existing `MyConsultationResponse` and `ExpertConsultationResponse` remain free of `kind` and instant request fields
 
 H-002 is closed with conservative behavior:
 
@@ -256,8 +260,9 @@ H-002 is closed with conservative behavior:
 - `MyConsultationResponse` remains unchanged for expert absent
 - serialization test proves derived history DTO fields appear in JSON
 
-Verification command:
+Verification commands:
 
 ```bash
 dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests
+dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter "ConsultationPriceBugConditionTests|ConsultationPricePreservationTests|ExpertConsultationPriceResponseTests|ConsultationExpertAbsentIntegrationTests|ConsultationPropertyTests"
 ```

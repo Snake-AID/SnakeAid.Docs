@@ -3,10 +3,10 @@ doc_role: implementation
 module: consultation-instant-booking-cancel
 kind: flow
 doc_type: introduction
-status: decision-updated-implementation-paused
+status: implemented
 last_updated: 2026-05-05
 owners: [backend-team]
-verification_status: decision-recorded
+verification_status: verified
 ---
 
 # Consultation Instant Booking Cancel Introduction
@@ -40,7 +40,7 @@ Current instant/emergency flow:
 9. expiration sets `ConsultationPingRequest.Status = Expired`
 10. expiration does not create a `Consultation`
 
-Target history behavior:
+Implemented history behavior:
 
 - accepted instant/emergency requests appear in member/expert consultation history
 - expert-rejected instant/emergency requests appear in member/expert consultation history as `kind = instant`
@@ -80,11 +80,11 @@ Usecase boundary decision:
 - Do not expose history contracts as `object` or `dynamic`.
 - Runtime serialization of derived history DTOs is acceptable; the remaining tradeoff is Swagger/OpenAPI schema quality.
 
-Target DTO location:
+Implemented DTO location:
 
 - `SnakeAid.Core/Responses/Consultation/History/`
 
-Target DTO names:
+Implemented DTO names:
 
 - `MyConsultationHistoryUnionResponse`
 - `MyConsultationHistoryResponse`
@@ -129,4 +129,5 @@ This avoids mapping `ConsultationStatus` values to `ConsultationPingStatus` valu
 
 ## Verification
 
-- Pending after the DTO naming/usecase-boundary decision is applied in code.
+- `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests`
+- `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter "ConsultationPriceBugConditionTests|ConsultationPricePreservationTests|ExpertConsultationPriceResponseTests|ConsultationExpertAbsentIntegrationTests|ConsultationPropertyTests"`

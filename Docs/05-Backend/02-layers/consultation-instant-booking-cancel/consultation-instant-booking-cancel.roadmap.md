@@ -3,17 +3,17 @@ doc_role: implementation
 module: consultation-instant-booking-cancel
 kind: flow
 doc_type: roadmap
-status: decision-updated-implementation-paused
+status: implemented
 last_updated: 2026-05-05
 owners: [backend-team]
-verification_status: decision-recorded
+verification_status: verified
 ---
 
 # Consultation Instant Booking Cancel Roadmap
 
 ## Current Status Snapshot
 
-- module status: `Implementation paused after DTO boundary decision update`
+- module status: `Implemented and verified`
 - current instant request endpoint: `Available`
 - current expert accept endpoint: `Available`
 - current expert reject endpoint: `Available`
@@ -34,8 +34,8 @@ Code-verified state:
 - `EmergencyConsultationService.AcceptEmergencyRequestAsync(...)` creates the `Consultation` row.
 - `EmergencyConsultationService.RejectEmergencyRequestAsync(...)` does not create a `Consultation` row.
 - `ConsultationPaymentService.ExpireEmergencyRequestsAsync(...)` expires pending instant/emergency requests without creating a `Consultation` row.
-- `ConsultationService.GetMyConsultationsAsync(...)` must return `PagingResponse<MyConsultationHistoryUnionResponse>` after implementation is resumed.
-- `ConsultationService.GetExpertConsultationsAsync(...)` must return `PagingResponse<ExpertConsultationHistoryUnionResponse>` after implementation is resumed.
+- `ConsultationService.GetMyConsultationsAsync(...)` returns `PagingResponse<MyConsultationHistoryUnionResponse>`.
+- `ConsultationService.GetExpertConsultationsAsync(...)` returns `PagingResponse<ExpertConsultationHistoryUnionResponse>`.
 - `ReportExpertAbsentAsync(...)` must remain `Task<MyConsultationResponse>` and must not inherit or reuse history DTOs.
 - `RescuerCancelled` exists in `ConsultationPingStatus` but no production flow currently sets it.
 
@@ -94,33 +94,33 @@ Out of scope:
 
 ### Phase 3. Service Implementation
 
-- [ ] add `Responses/Consultation/History/MyConsultationHistoryUnionResponse.cs`
-- [ ] add `Responses/Consultation/History/MyConsultationHistoryResponse.cs`
-- [ ] add `Responses/Consultation/History/MyInstantConsultationRequestHistoryResponse.cs`
-- [ ] add `Responses/Consultation/History/ExpertConsultationHistoryUnionResponse.cs`
-- [ ] add `Responses/Consultation/History/ExpertConsultationHistoryResponse.cs`
-- [ ] add `Responses/Consultation/History/ExpertInstantConsultationRequestHistoryResponse.cs`
-- [ ] keep `MyConsultationResponse` and `ExpertConsultationResponse` free of `kind`, instant fields, and `JsonIgnore` changes
-- [ ] change `GetMyConsultationsAsync(...)` to `PagingResponse<MyConsultationHistoryUnionResponse>`
-- [ ] change `GetExpertConsultationsAsync(...)` to `PagingResponse<ExpertConsultationHistoryUnionResponse>`
-- [ ] update `GetMyConsultationsAsync(...)` to query `DeclinedByExpert` and `Expired` pings for `kind = instant`
-- [ ] update `GetExpertConsultationsAsync(...)` to query `DeclinedByExpert` and `Expired` pings for `kind = instant`
-- [ ] preserve accepted emergency consultation behavior as `kind = consultation`
-- [ ] sort `kind = instant` rows by `respondedAt`
-- [ ] implement status filter behavior after H-002 is closed
+- [x] add `Responses/Consultation/History/MyConsultationHistoryUnionResponse.cs`
+- [x] add `Responses/Consultation/History/MyConsultationHistoryResponse.cs`
+- [x] add `Responses/Consultation/History/MyInstantConsultationRequestHistoryResponse.cs`
+- [x] add `Responses/Consultation/History/ExpertConsultationHistoryUnionResponse.cs`
+- [x] add `Responses/Consultation/History/ExpertConsultationHistoryResponse.cs`
+- [x] add `Responses/Consultation/History/ExpertInstantConsultationRequestHistoryResponse.cs`
+- [x] keep `MyConsultationResponse` and `ExpertConsultationResponse` free of `kind`, instant fields, and `JsonIgnore` changes
+- [x] change `GetMyConsultationsAsync(...)` to `PagingResponse<MyConsultationHistoryUnionResponse>`
+- [x] change `GetExpertConsultationsAsync(...)` to `PagingResponse<ExpertConsultationHistoryUnionResponse>`
+- [x] update `GetMyConsultationsAsync(...)` to query `DeclinedByExpert` and `Expired` pings for `kind = instant`
+- [x] update `GetExpertConsultationsAsync(...)` to query `DeclinedByExpert` and `Expired` pings for `kind = instant`
+- [x] preserve accepted emergency consultation behavior as `kind = consultation`
+- [x] sort `kind = instant` rows by `respondedAt`
+- [x] implement status filter behavior after H-002 is closed
 
 ### Phase 4. Tests
 
-- [ ] member history includes `DeclinedByExpert` instant request as `kind = instant`
-- [ ] expert history includes `DeclinedByExpert` instant request as `kind = instant`
-- [ ] member history includes `Expired` instant request as `kind = instant`
-- [ ] expert history includes `Expired` instant request as `kind = instant`
-- [ ] accepted emergency consultation history still maps from linked `Consultation` as `kind = consultation`
-- [ ] `kind = instant` rows do not expose consultation-scoped action ids
-- [ ] sorting behavior uses `respondedAt` for terminal request rows
-- [ ] status filtering behavior matches the selected H-002 contract
-- [ ] serialization test proves derived history DTO properties appear at runtime
-- [ ] expert absent tests prove `MyConsultationResponse` contract remains unchanged
+- [x] member history includes `DeclinedByExpert` instant request as `kind = instant`
+- [x] expert history includes `DeclinedByExpert` instant request as `kind = instant`
+- [x] member history includes `Expired` instant request as `kind = instant`
+- [x] expert history includes `Expired` instant request as `kind = instant`
+- [x] accepted emergency consultation history still maps from linked `Consultation` as `kind = consultation`
+- [x] `kind = instant` rows do not expose consultation-scoped action ids
+- [x] sorting behavior uses `respondedAt` for terminal request rows
+- [x] status filtering behavior matches the selected H-002 contract
+- [x] serialization test proves derived history DTO properties appear at runtime
+- [x] expert absent tests prove `MyConsultationResponse` contract remains unchanged
 
 ### Phase 5. Docs Sync
 
@@ -133,11 +133,20 @@ Out of scope:
 
 ## Next Resume Step
 
-Next resume step: replace the paused `object`/`dynamic`/temporary DTO work with the named history DTOs under `Responses/Consultation/History/`, then run focused history and expert-absent tests.
+Next resume step: review Swagger/OpenAPI schema quality for the polymorphic history response if frontend tooling requires generated typed clients.
 
 ## Change Log
 
 ### 2026-05-05
+
+- Implemented typed member/expert history union DTOs under `SnakeAid.Core/Responses/Consultation/History/`.
+- Updated member/expert history service contracts and API action response types.
+- Added terminal `DeclinedByExpert` and `Expired` instant request rows for member/expert history when `status` is omitted.
+- Preserved accepted emergency requests as `kind = consultation`.
+- Added focused integration tests for instant history, status filter behavior, serialization, and expert-absent DTO separation.
+- Verification passed:
+  - `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests`
+  - `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter "ConsultationPriceBugConditionTests|ConsultationPricePreservationTests|ExpertConsultationPriceResponseTests|ConsultationExpertAbsentIntegrationTests|ConsultationPropertyTests"`
 
 - Updated DTO design decision after review: history gets its own typed union DTOs, expert absent keeps `MyConsultationResponse`.
 - Rejected `JsonIgnore(WhenWritingNull)` as a contract-shaping mechanism.
