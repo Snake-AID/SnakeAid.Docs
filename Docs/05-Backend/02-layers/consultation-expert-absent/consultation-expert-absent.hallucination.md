@@ -56,7 +56,61 @@ Reason:
 - this is a narrow patch that matches current implementation style
 - it prevents absent cases from being completed by the lifecycle worker
 
-## Open Research Questions
+### HD4: Admin approval refunds the member
+
+Decision:
+
+- `ConfirmExpertAbsentHandledAsync(...)` must perform the member refund in the same transaction/flow as the admin approval.
+- The member is not refunded when the report is submitted.
+- The expert is not settled for approved expert-absent cases.
+
+Reason:
+
+- report-time refund can be abused
+- admin approval is the verification point for the member refund
+- expert absence should not be paid as a successfully completed consultation
+
+Implementation impact:
+
+- update `ConfirmExpertAbsentHandledAsync(...)` to refund the scheduled consultation escrow to the member
+- keep report submission payment-neutral
+- create no expert payout/settlement for this path
+
+### HD5: Approved expert-absent cases become handled and refunded
+
+Decision:
+
+- after admin approval, set `Consultation.Status = ExpertAbsentHandled`
+- after refund completes, set `ConsultationBooking.Status = Refunded`
+
+Reason:
+
+- `ExpertAbsentHandled` represents the consultation-level admin resolution
+- `ConsultationBooking.BookingStatus.Refunded` is the chosen booking terminal state for approved expert-absent cases
+
+Implementation impact:
+
+- do not leave the booking in `Confirmed` after refund
+- do not convert approved expert-absent bookings to `Completed`
+
+### HD6: Expert-absent refund is idempotent
+
+Decision:
+
+- if the booking is already `Refunded` or the consultation is already `ExpertAbsentHandled`, the admin approval flow must not create a duplicate refund
+- return the current state for repeat approval attempts
+
+Reason:
+
+- admin retries or double-clicks must not credit the member twice
+- the API should be safe to retry after a transient client/network issue
+
+Implementation impact:
+
+- check existing consultation and booking state before creating refund transactions
+- return the current admin consultation response when the case is already handled/refunded
+
+## Closed Research Questions
 
 ### HR1: Refund or settlement policy for expert-absent cases
 
@@ -64,23 +118,24 @@ Question:
 
 - when admin handles an `ExpertAbsent` case, should the system refund the member, settle the expert, or let admin choose?
 
+Status:
+
+- Closed by HD4 on 2026-05-04.
+
 Current verified behavior:
 
 - `ReportExpertAbsentAsync(...)` does not refund
 - `ConfirmExpertAbsentHandledAsync(...)` only changes status to `ExpertAbsentHandled`
 - scheduled booking cancel docs define refund for expert-cancel and settlement for member-cancel, but do not define expert-absent payment resolution
 
-Do not implement:
+Resolved policy:
 
-- automatic refund from report submission
-- automatic settlement from end-call
-- payment changes inside `ConfirmExpertAbsentHandledAsync(...)`
+- do not refund at report submission
+- refund the member during admin approval
+- do not settle the expert
 
-Research needed:
+Still not part of the decision:
 
-- expected admin workflow
-- financial policy for no-show expert
-- audit fields needed for payment resolution
 - whether admin should provide reason or evidence notes
 
 ### HR2: Final booking status for expert-absent cases
@@ -89,6 +144,10 @@ Question:
 
 - should `ConsultationBooking.Status` remain `Confirmed`, move to an existing status, or gain a dedicated expert-absent/disputed status?
 
+Status:
+
+- Closed by HD5 on 2026-05-04.
+
 Current verified behavior:
 
 - paid scheduled booking becomes `Confirmed`
@@ -96,22 +155,20 @@ Current verified behavior:
 - cancel flow can move booking to `Cancelled`
 - `BookingStatus.Refunded` exists but current scheduled refund flow records refund transactions and does not use it as a booking state in the observed code
 
-Current follow-up decision:
+Resolved policy:
 
 - do not set booking to `Completed` from expert-absent end-call or auto-complete
-- leave booking status unchanged during this narrow patch
-
-Research needed:
-
-- whether admin history and mobile history need a booking-level terminal state for expert-absent cases
-- whether existing `Cancelled` or `Refunded` would misrepresent the absent-report flow
-- whether a new status such as `Disputed` or `ExpertAbsent` is needed
+- set `ConsultationBooking.Status = Refunded` after admin approval refund succeeds
 
 ### HR3: Escrow dispute state
 
 Question:
 
 - should scheduled consultation escrow have a visible dispute state when consultation is `ExpertAbsent`?
+
+Status:
+
+- Closed by HD4 and HD6 on 2026-05-04.
 
 Current verified behavior:
 
@@ -121,16 +178,29 @@ Current verified behavior:
 - member-cancel settles escrow without refund
 - expert-absent flow does not define escrow resolution
 
-Current follow-up decision:
+Resolved policy:
 
 - do not settle escrow from end-call or auto-complete when consultation is `ExpertAbsent` / `ExpertAbsentHandled`
-- keep escrow unresolved until a dedicated payment-resolution design exists
+- keep escrow unresolved after member report until admin approval
+- reverse/refund escrow to the member during admin approval
+- prevent duplicate refund on repeated approval attempts
 
-Research needed:
+## Remaining Open Questions
 
-- payment status shown to member/admin
-- admin operations needed to resolve escrow
-- idempotency and duplicate-resolution rules
+### HR4: Admin approval note/report input
+
+Question:
+
+- should admin approval accept an admin-authored note/report field?
+
+Current verified behavior:
+
+- `POST /api/admin/consultations/{consultationId}/expert-absent/confirm-handled` has no request body
+- `AdminConsultationsController.ConfirmExpertAbsentHandled(...)` only receives `consultationId`
+- `ConfirmExpertAbsentHandledAsync(...)` only changes the consultation status today
+- no admin note, handled-by, or handled-at field exists in the current endpoint contract
+
+Decision needed before implementation only if the approval flow must capture admin notes.
 
 ## Change Log
 
@@ -138,3 +208,5 @@ Research needed:
 
 - Added closed decisions for expert-absent end-call protection
 - Added open research items for refund, booking status, and escrow dispute handling
+- Closed refund, booking terminal-status, and escrow-resolution research with admin-approval refund policy
+- Added open research for optional admin approval note/report input

@@ -17,8 +17,8 @@ This file captures:
 
 - the current code-verified structure
 - the recommended target structure
-- the sequence of the planned member absent-report flow
-- the follow-up implementation target for end-flow protection
+- the sequence of the implemented member absent-report flow
+- the follow-up implementation targets for scheduled auto-complete protection and admin-approval refund
 
 ## Current Code-Verified Structure
 
@@ -379,12 +379,20 @@ Current implemented admin resolution is intentionally minimal:
 - no extra admin note field
 - no handled-by / handled-at metadata yet
 
-## Follow-up Open Research
+## Follow-up Implementation Decisions
 
-These topics are intentionally not part of the end-flow protection patch:
+These topics are intentionally not part of the end-flow protection patch, but are now decided for the next implementation pass:
 
-- whether `ConfirmExpertAbsentHandledAsync(...)` should also refund the member, settle the expert, or accept an admin-selected payment outcome
-- whether `ConsultationBooking.Status` should remain `Confirmed` for expert-absent cases or move to a future dedicated terminal status
-- whether a dedicated payment-dispute state is needed for scheduled consultation escrow
+- `ConfirmExpertAbsentHandledAsync(...)` must refund the member in the same transaction/flow as admin approval
+- approved expert-absent cases must set `Consultation.Status = ExpertAbsentHandled`
+- approved expert-absent refunds must set `ConsultationBooking.Status = Refunded`
+- expert-absent approval must reverse/refund escrow to the member and must not settle the expert
+- repeat approval when booking is already `Refunded` or consultation is already `ExpertAbsentHandled` must not create a second refund; return the current state
 
-Track these questions in `consultation-expert-absent.hallucination.md` before implementing payment or booking-status changes.
+Current code verification:
+
+- `AdminConsultationsController.ConfirmExpertAbsentHandled(...)` has no request body
+- current `ConfirmExpertAbsentHandledAsync(...)` only changes consultation status
+- no admin-authored report/note input exists in the current endpoint contract
+
+Track the optional admin note/report input question in `consultation-expert-absent.hallucination.md` before adding request fields.

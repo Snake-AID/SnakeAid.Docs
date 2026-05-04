@@ -157,8 +157,7 @@ Out of scope for this module unless explicitly requested later:
 - notification workflow
 - auto-detecting absence from video-room presence
 - emergency consultation absent-report flow
-- final refund or settlement policy for expert-absent cases
-- final booking terminal status for expert-absent cases
+- admin approval note/report capture unless explicitly added to the follow-up contract
 
 ## Follow-up Implementation Decision: End-Flow Protection
 
@@ -172,7 +171,16 @@ The current follow-up implementation target is narrow:
 - scheduled auto-complete must use a denylist that excludes at least `Completed`, `ExpertAbsent`, and `ExpertAbsentHandled` from completion
 - auto-complete must not convert an expert-absent case into `Completed`
 
-This follow-up does not decide refund, settlement, or a new booking terminal status. Those require a separate research pass and are tracked in `consultation-expert-absent.hallucination.md`.
+Refund and booking terminal-state policy is now decided for the next follow-up implementation:
+
+- report submission does not refund the member
+- admin approval through `ConfirmExpertAbsentHandledAsync(...)` refunds the member in the same transaction/flow
+- approved expert-absent cases set `Consultation.Status = ExpertAbsentHandled`
+- approved expert-absent refunds set `ConsultationBooking.Status = Refunded`
+- escrow is refunded/reversed to the member and not settled to the expert
+- repeat approval returns the current state without creating a duplicate refund when already handled/refunded
+
+Current code verification: the admin handled-confirmation endpoint has no request body, so admin-authored note/report input remains a separate decision.
 
 ## File Areas Likely To Change
 

@@ -21,7 +21,7 @@ verification_status: code-verified
 - [5. Admin Business + Admin APIs](#5-admin-business--admin-apis)
 - [6. Shared Data Models](#6-shared-data-models)
 - [7. Verified Endpoint List](#7-verified-endpoint-list)
-- [8. Open Research For Follow-up](#8-open-research-for-follow-up)
+- [8. Follow-up Decisions](#8-follow-up-decisions)
 - [9. Changelog](#9-changelog)
 
 ## 2. Overview
@@ -500,9 +500,9 @@ Active endpoints relevant to this module:
 - `GET /api/admin/consultations/{consultationId}`
 - `POST /api/admin/consultations/{consultationId}/expert-absent/confirm-handled`
 
-## 8. Open Research For Follow-up
+## 8. Follow-up Decisions
 
-These items are not active frontend/mobile contract yet. They are listed here so client and backend teams do not infer behavior that is not implemented.
+These items are follow-up implementation decisions, not active frontend/mobile contract yet. They are listed here so client and backend teams do not infer behavior that is not implemented.
 
 ### 8.1 Payment Resolution
 
@@ -511,12 +511,13 @@ Current verified behavior:
 - expert-absent report does not refund the member
 - expert-absent end-call does not settle escrow to the expert
 - admin handled-confirmation currently changes consultation status to `ExpertAbsentHandled`
+- admin handled-confirmation currently has no request body/admin note form
 
-Open research:
+Follow-up decision:
 
-- whether admin handling should refund the member
-- whether admin handling should settle the expert
-- whether admin needs a selectable payment outcome for expert-absent cases
+- member report submission must not refund immediately
+- admin approval through `ConfirmExpertAbsentHandledAsync(...)` refunds the member in the same transaction/flow
+- expert is not settled for approved expert-absent cases
 
 ### 8.2 Booking Final Status
 
@@ -525,11 +526,10 @@ Current verified behavior:
 - expert-absent end-call does not set `ConsultationBooking.Status = Completed`
 - paid scheduled booking usually remains `Confirmed` after expert-absent report and call cleanup
 
-Open research:
+Follow-up decision:
 
-- whether booking should remain `Confirmed`
-- whether booking should move to an existing terminal status
-- whether a new booking status is needed for expert-absent or dispute cases
+- after admin approval refund succeeds, set `ConsultationBooking.Status = Refunded`
+- do not set the booking to `Completed`
 
 ### 8.3 Escrow Dispute State
 
@@ -538,11 +538,22 @@ Current verified behavior:
 - scheduled consultation payment can already be in escrow before the expert-absent report
 - cleanup-call keeps that escrow unresolved
 
+Follow-up decision:
+
+- escrow remains unresolved until admin approval
+- admin approval reverses/refunds escrow to the member
+- repeated approval must not create duplicate refund; return the current handled/refunded state when already resolved
+
+### 8.4 Admin Approval Note Input
+
+Current verified behavior:
+
+- `POST /api/admin/consultations/{consultationId}/expert-absent/confirm-handled` has no request body
+- admin currently cannot submit an admin-authored report/note in this endpoint
+
 Open research:
 
-- whether admin/mobile should display a pending dispute or escrow-resolution state
-- what audit fields are required when the escrow is resolved
-- how duplicate refund or settlement attempts should be prevented
+- whether the follow-up approval request needs an admin note/report field
 
 ## 9. Changelog
 
@@ -561,3 +572,5 @@ Open research:
 - Documented code-verified end-call behavior for `ExpertAbsent` / `ExpertAbsentHandled`
 - Clarified that expert-absent end-call cleanup preserves status, sets `EndTime`, and does not complete booking or settle escrow
 - Added frontend-visible open research notes for payment resolution, booking final status, and escrow dispute state
+- Recorded follow-up decisions: refund on admin approval, booking status `Refunded`, no expert settlement, idempotent repeat approval
+- Verified admin handled-confirmation currently has no request body/admin note form

@@ -13,16 +13,18 @@ verification_status: code-verified
 
 ## Current Status Snapshot
 
-- module status: `Planned`
-- module status: `Implemented`
+- implemented scope status: `Implemented`
+- follow-up scope status: `Planned`
 - code status:
   - absent-report command endpoint exists
   - consultation report fields exist
   - admin consultation responses expose `CustomerReport`
   - admin handled-confirmation endpoint exists
 - follow-up code status:
-  - end-flow protection for `ExpertAbsent` is planned
-  - refund and booking terminal-state policy requires separate research
+  - `EndConsultationAsync` protection for `ExpertAbsent` / `ExpertAbsentHandled` is implemented
+  - scheduled auto-complete denylist protection is still planned
+  - refund and booking terminal-state policy is decided for follow-up implementation
+  - admin handled-confirmation currently has no request body/admin note form
 - docs status:
   - this doc set is aligned to implemented behavior
 
@@ -176,7 +178,17 @@ Likely code targets:
 - [ ] Extend scheduled auto-complete denylist from `Completed` to include `ExpertAbsent` and `ExpertAbsentHandled`
 - [ ] Add tests proving scheduled auto-complete does not overwrite `ExpertAbsent`
 - [ ] Keep mobile flow simple: mobile may report absent and then call normal end-consultation; backend preserves expert-absent business status
-- [ ] Record refund and booking terminal-state questions in `hallucination`
+- [x] Record refund and booking terminal-state decisions in `hallucination`
+
+### Follow-up: Admin Approval Refund
+
+- [ ] Update `ConfirmExpertAbsentHandledAsync(...)` to refund the member in the same transaction/flow
+- [ ] Set `Consultation.Status = ExpertAbsentHandled` after admin approval
+- [ ] Reverse/refund scheduled consultation escrow to the member
+- [ ] Do not settle the expert for approved expert-absent cases
+- [ ] Set `ConsultationBooking.Status = Refunded` after refund succeeds
+- [ ] Make repeat approval idempotent: if booking is already `Refunded` or consultation is already `ExpertAbsentHandled`, do not create a second refund and return current state
+- [ ] Decide whether the admin approval endpoint needs an admin-authored note/report request body before adding request fields
 
 ## Recommended File Targets
 
@@ -210,7 +222,8 @@ Likely code targets:
 2. The current consultation history implementation merges scheduled and emergency paths separately, so the new field must be populated consistently in both list/detail branches.
 3. If end-call cleanup and business completion remain coupled, `ExpertAbsent` can be overwritten by `Completed`.
 4. If escrow settlement runs during an expert-absent end-call, money can be released as if the consultation completed normally.
-5. Booking terminal status and refund policy for expert-absent cases are not yet decided.
+5. Booking terminal status and refund policy for expert-absent cases are decided, but not implemented.
+6. Admin approval note/report input is not decided; current endpoint has no request body.
 
 ## Resume Notes
 
@@ -228,8 +241,12 @@ If implementation resumes later, start with these facts:
 - follow-up decision: mobile may call normal end-consultation after reporting absent
 - follow-up decision: backend must preserve `ExpertAbsent` and set `EndTime` rather than completing the consultation
 - follow-up decision: scheduled auto-complete should remain denylist-based, with `ExpertAbsent` and `ExpertAbsentHandled` added to the denylist
-- follow-up open research: refund or settlement policy for expert-absent cases
-- follow-up open research: final booking status for expert-absent cases
+- follow-up decision: member report does not refund immediately
+- follow-up decision: admin approval refunds the member in the same transaction/flow
+- follow-up decision: approved expert-absent refund sets `ConsultationBooking.Status = Refunded`
+- follow-up decision: approved expert-absent cases do not settle the expert
+- follow-up decision: repeat approval returns current state without duplicate refund when already handled/refunded
+- follow-up open research: whether admin approval needs an admin-authored note/report request body
 
 ## Change Log
 
@@ -256,3 +273,5 @@ If implementation resumes later, start with these facts:
 - Locked scheduled auto-complete approach: keep denylist style and add `ExpertAbsent` / `ExpertAbsentHandled`
 - Moved refund, settlement, and booking terminal-state decisions to separate research tracking
 - Implemented and verified `EndConsultationAsync` cleanup behavior for `ExpertAbsent` / `ExpertAbsentHandled`
+- Closed refund and booking terminal-state research with admin-approval refund policy
+- Verified admin handled-confirmation currently has no request body/admin note form
