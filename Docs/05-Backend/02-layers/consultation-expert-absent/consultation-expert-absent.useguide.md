@@ -35,6 +35,8 @@ Current status:
 - there is an active admin API to mark absent-expert cases as handled
 - `Customer Report` is present in member and admin consultation DTOs
 - `CustomerReportSubmittedAt` is present in member and admin consultation DTOs
+- scheduled auto-complete does not convert `ExpertAbsent` or `ExpertAbsentHandled` consultations to `Completed`
+- admin handled-confirmation refunds the scheduled consultation escrow to the member and sets booking status to `Refunded`
 
 ## 3. Authentication & Authorization
 
@@ -147,8 +149,6 @@ Purpose:
 
 - member reports that the expert did not join the scheduled consultation
 
-## 5. Admin Business + Admin APIs
-
 Status:
 
 - `Active`
@@ -181,6 +181,7 @@ Business rules:
 - normal end-call after an expert-absent report preserves `Consultation.Status = ExpertAbsent`
 - end-call cleanup for `ExpertAbsent` or `ExpertAbsentHandled` sets `EndTime` but does not mark the consultation `Completed`
 - end-call cleanup for `ExpertAbsent` or `ExpertAbsentHandled` does not complete the scheduled booking or settle escrow
+- scheduled auto-complete also preserves `ExpertAbsent` and `ExpertAbsentHandled`; it does not complete the booking or settle escrow for those statuses
 
 Example request:
 
@@ -280,6 +281,8 @@ Example response:
   "error": null
 }
 ```
+
+## 5. Admin Business + Admin APIs
 
 ### 5.1 Business Scope
 
@@ -404,6 +407,9 @@ Business rules:
 - consultation must exist
 - only consultations with `status = ExpertAbsent` can be marked as handled
 - successful action sets `Consultation.Status = ExpertAbsentHandled`
+- successful action refunds the scheduled consultation escrow to the member
+- successful action sets linked `ConsultationBooking.Status = Refunded`
+- repeated action after the case is already handled/refunded returns the current state and does not create a duplicate refund
 - response returns the updated admin consultation object
 
 Example request:
@@ -440,7 +446,7 @@ Example response:
     "customerReport": "Expert did not join the room.",
     "customerReportSubmittedAt": "2026-04-09T14:05:00Z",
     "bookingId": "ef54ec06-bb65-47d1-a7c5-db86aad6a49b",
-    "bookingStatus": "Confirmed",
+    "bookingStatus": "Refunded",
     "slotStartTime": "2026-04-09T14:00:00Z",
     "slotEndTime": "2026-04-09T14:30:00Z",
     "emergencyRequestId": null
@@ -502,7 +508,7 @@ Active endpoints relevant to this module:
 
 ## 8. Follow-up Decisions
 
-These items are follow-up implementation decisions, not active frontend/mobile contract yet. They are listed here so client and backend teams do not infer behavior that is not implemented.
+These items record the verified payment/booking behavior and the remaining optional admin-note research.
 
 ### 8.1 Payment Resolution
 
@@ -510,26 +516,18 @@ Current verified behavior:
 
 - expert-absent report does not refund the member
 - expert-absent end-call does not settle escrow to the expert
-- admin handled-confirmation currently changes consultation status to `ExpertAbsentHandled`
+- scheduled auto-complete does not settle escrow for `ExpertAbsent` or `ExpertAbsentHandled`
+- admin handled-confirmation sets consultation status to `ExpertAbsentHandled`
+- admin handled-confirmation refunds the scheduled consultation escrow to the member
 - admin handled-confirmation currently has no request body/admin note form
-
-Follow-up decision:
-
-- member report submission must not refund immediately
-- admin approval through `ConfirmExpertAbsentHandledAsync(...)` refunds the member in the same transaction/flow
-- expert is not settled for approved expert-absent cases
 
 ### 8.2 Booking Final Status
 
 Current verified behavior:
 
 - expert-absent end-call does not set `ConsultationBooking.Status = Completed`
-- paid scheduled booking usually remains `Confirmed` after expert-absent report and call cleanup
-
-Follow-up decision:
-
-- after admin approval refund succeeds, set `ConsultationBooking.Status = Refunded`
-- do not set the booking to `Completed`
+- scheduled auto-complete does not set expert-absent bookings to `Completed`
+- after admin approval refund succeeds, `ConsultationBooking.Status = Refunded`
 
 ### 8.3 Escrow Dispute State
 
@@ -537,12 +535,9 @@ Current verified behavior:
 
 - scheduled consultation payment can already be in escrow before the expert-absent report
 - cleanup-call keeps that escrow unresolved
-
-Follow-up decision:
-
 - escrow remains unresolved until admin approval
 - admin approval reverses/refunds escrow to the member
-- repeated approval must not create duplicate refund; return the current handled/refunded state when already resolved
+- repeated approval does not create a duplicate refund; it returns the current handled/refunded state when already resolved
 
 ### 8.4 Admin Approval Note Input
 
@@ -574,3 +569,4 @@ Open research:
 - Added frontend-visible open research notes for payment resolution, booking final status, and escrow dispute state
 - Recorded follow-up decisions: refund on admin approval, booking status `Refunded`, no expert settlement, idempotent repeat approval
 - Verified admin handled-confirmation currently has no request body/admin note form
+- Promoted scheduled auto-complete denylist and admin approval refund/idempotency to code-verified active behavior

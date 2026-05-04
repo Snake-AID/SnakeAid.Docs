@@ -72,9 +72,9 @@ Reason:
 
 Implementation impact:
 
-- update `ConfirmExpertAbsentHandledAsync(...)` to refund the scheduled consultation escrow to the member
+- implemented: `ConfirmExpertAbsentHandledAsync(...)` refunds the scheduled consultation escrow to the member
 - keep report submission payment-neutral
-- create no expert payout/settlement for this path
+- creates no expert payout/settlement for this path
 
 ### HD5: Approved expert-absent cases become handled and refunded
 
@@ -90,8 +90,8 @@ Reason:
 
 Implementation impact:
 
-- do not leave the booking in `Confirmed` after refund
-- do not convert approved expert-absent bookings to `Completed`
+- implemented: do not leave the booking in `Confirmed` after refund
+- implemented: do not convert approved expert-absent bookings to `Completed`
 
 ### HD6: Expert-absent refund is idempotent
 
@@ -182,8 +182,8 @@ Resolved policy:
 
 - do not settle escrow from end-call or auto-complete when consultation is `ExpertAbsent` / `ExpertAbsentHandled`
 - keep escrow unresolved after member report until admin approval
-- reverse/refund escrow to the member during admin approval
-- prevent duplicate refund on repeated approval attempts
+- implemented: reverse/refund escrow to the member during admin approval
+- implemented: prevent duplicate refund on repeated approval attempts
 
 ## Remaining Open Questions
 
@@ -210,3 +210,4 @@ Decision needed before implementation only if the approval flow must capture adm
 - Added open research items for refund, booking status, and escrow dispute handling
 - Closed refund, booking terminal-status, and escrow-resolution research with admin-approval refund policy
 - Added open research for optional admin approval note/report input
+- Marked admin approval refund, booking `Refunded`, and repeat-approval idempotency as implemented

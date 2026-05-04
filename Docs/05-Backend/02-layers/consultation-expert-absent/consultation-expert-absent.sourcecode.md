@@ -18,7 +18,7 @@ This file captures:
 - the current code-verified structure
 - the recommended target structure
 - the sequence of the implemented member absent-report flow
-- the follow-up implementation targets for scheduled auto-complete protection and admin-approval refund
+- the implemented follow-up behavior for scheduled auto-complete protection and admin-approval refund
 
 ## Current Code-Verified Structure
 
@@ -328,7 +328,7 @@ Reason:
 
 ## Follow-up Sequence: Scheduled Auto-complete Denylist
 
-This sequence is planned for the follow-up implementation.
+This sequence is implemented and code-verified.
 
 ```mermaid
 sequenceDiagram
@@ -349,6 +349,37 @@ Implementation notes:
 - extend the current denylist from `Completed` to include `ExpertAbsent` and `ExpertAbsentHandled`
 - do not auto-complete expert-absent cases
 - do not settle expert-absent escrow from scheduled auto-complete
+
+## Follow-up Sequence: Admin Approval Refund
+
+This sequence is implemented and code-verified.
+
+```mermaid
+sequenceDiagram
+    actor Admin
+    participant API as AdminConsultationsController
+    participant Service as ConsultationService
+    participant Payment as ConsultationPaymentService
+    participant Repo as UnitOfWork/Repositories
+
+    Admin->>API: POST /api/admin/consultations/{consultationId}/expert-absent/confirm-handled
+    API->>Service: ConfirmExpertAbsentHandledAsync(consultationId)
+    Service->>Repo: Load Consultation and ConsultationBooking
+    Service->>Service: Allow ExpertAbsent; return current state when already handled/refunded
+    Service->>Payment: RefundScheduledBookingAsync(bookingId, memberId, reason)
+    Payment-->>Service: Refund created or already exists
+    Service->>Repo: Set Booking.Status = Refunded
+    Service->>Repo: Set Consultation.Status = ExpertAbsentHandled
+    Service-->>API: Updated AdminConsultationResponse
+```
+
+Implementation notes:
+
+- refund target is `ConsultationBooking.UserId`
+- refund reference is the scheduled booking id
+- booking status becomes `Refunded`
+- repeated approval when already handled/refunded returns the current admin response without creating another refund
+- no expert payout or settlement is created by this path
 
 ## Notes For Resume
 
@@ -373,26 +404,28 @@ For v1, the preferred model is:
 
 Avoid putting admin-resolution fields into `Consultation` until there is an actual admin resolution workflow.
 
-Current implemented admin resolution is intentionally minimal:
+Current implemented admin resolution is payment-aware but metadata-minimal:
 
-- status-only resolution through `ExpertAbsentHandled`
+- status resolution through `ExpertAbsentHandled`
+- scheduled booking refund to the member
+- linked booking status update to `Refunded`
 - no extra admin note field
 - no handled-by / handled-at metadata yet
 
 ## Follow-up Implementation Decisions
 
-These topics are intentionally not part of the end-flow protection patch, but are now decided for the next implementation pass:
+These topics are implemented:
 
-- `ConfirmExpertAbsentHandledAsync(...)` must refund the member in the same transaction/flow as admin approval
-- approved expert-absent cases must set `Consultation.Status = ExpertAbsentHandled`
-- approved expert-absent refunds must set `ConsultationBooking.Status = Refunded`
-- expert-absent approval must reverse/refund escrow to the member and must not settle the expert
-- repeat approval when booking is already `Refunded` or consultation is already `ExpertAbsentHandled` must not create a second refund; return the current state
+- `ConfirmExpertAbsentHandledAsync(...)` refunds the member in the same transaction/flow as admin approval
+- approved expert-absent cases set `Consultation.Status = ExpertAbsentHandled`
+- approved expert-absent refunds set `ConsultationBooking.Status = Refunded`
+- expert-absent approval reverses/refunds escrow to the member and does not settle the expert
+- repeat approval when already handled/refunded does not create a second refund; it returns the current state
 
 Current code verification:
 
 - `AdminConsultationsController.ConfirmExpertAbsentHandled(...)` has no request body
-- current `ConfirmExpertAbsentHandledAsync(...)` only changes consultation status
+- current `ConfirmExpertAbsentHandledAsync(...)` changes consultation status, refunds escrow, and sets booking status to `Refunded`
 - no admin-authored report/note input exists in the current endpoint contract
 
 Track the optional admin note/report input question in `consultation-expert-absent.hallucination.md` before adding request fields.

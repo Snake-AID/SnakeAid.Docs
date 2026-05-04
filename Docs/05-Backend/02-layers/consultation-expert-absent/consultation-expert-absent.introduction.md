@@ -180,6 +180,8 @@ Refund and booking terminal-state policy is now decided for the next follow-up i
 - escrow is refunded/reversed to the member and not settled to the expert
 - repeat approval returns the current state without creating a duplicate refund when already handled/refunded
 
+Current code verification: scheduled auto-complete denylist protection and admin approval refund/idempotency are implemented.
+
 Current code verification: the admin handled-confirmation endpoint has no request body, so admin-authored note/report input remains a separate decision.
 
 ## File Areas Likely To Change
