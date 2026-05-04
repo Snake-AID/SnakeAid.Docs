@@ -3,10 +3,10 @@ doc_role: implementation
 module: consultation-instant-booking-cancel
 kind: flow
 doc_type: introduction
-status: implemented
+status: decision-updated-implementation-paused
 last_updated: 2026-05-05
 owners: [backend-team]
-verification_status: code-and-tests-verified
+verification_status: decision-recorded
 ---
 
 # Consultation Instant Booking Cancel Introduction
@@ -40,7 +40,7 @@ Current instant/emergency flow:
 9. expiration sets `ConsultationPingRequest.Status = Expired`
 10. expiration does not create a `Consultation`
 
-Implemented history behavior:
+Target history behavior:
 
 - accepted instant/emergency requests appear in member/expert consultation history
 - expert-rejected instant/emergency requests appear in member/expert consultation history as `kind = instant`
@@ -71,6 +71,28 @@ Each history item is one of:
 
 `kind = instant` is a separate DTO, not a consultation DTO with nullable/fake fields.
 
+Usecase boundary decision:
+
+- History is its own usecase and may use a typed union response for the mixed timeline.
+- Expert absent remains a separate usecase and continues to use `MyConsultationResponse`.
+- `MyConsultationResponse` and `ExpertConsultationResponse` must not be converted into union DTOs.
+- Do not use `JsonIgnore(WhenWritingNull)` to hide non-applicable history fields.
+- Do not expose history contracts as `object` or `dynamic`.
+- Runtime serialization of derived history DTOs is acceptable; the remaining tradeoff is Swagger/OpenAPI schema quality.
+
+Target DTO location:
+
+- `SnakeAid.Core/Responses/Consultation/History/`
+
+Target DTO names:
+
+- `MyConsultationHistoryUnionResponse`
+- `MyConsultationHistoryResponse`
+- `MyInstantConsultationRequestHistoryResponse`
+- `ExpertConsultationHistoryUnionResponse`
+- `ExpertConsultationHistoryResponse`
+- `ExpertInstantConsultationRequestHistoryResponse`
+
 Locked `kind = instant` behavior:
 
 - uses `instantRequestId`
@@ -83,7 +105,7 @@ Locked `kind = instant` behavior:
 
 ## Status Filter Decision
 
-Status filter behavior is implemented conservatively.
+Status filter behavior is selected conservatively.
 
 When `status` is not supplied:
 
@@ -107,4 +129,4 @@ This avoids mapping `ConsultationStatus` values to `ConsultationPingStatus` valu
 
 ## Verification
 
-- `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests`
+- Pending after the DTO naming/usecase-boundary decision is applied in code.

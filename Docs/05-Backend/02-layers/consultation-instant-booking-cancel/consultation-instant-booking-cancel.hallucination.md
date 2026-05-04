@@ -6,7 +6,7 @@ doc_type: hallucination
 status: current
 last_updated: 2026-05-05
 owners: [backend-team]
-verification_status: code-investigated
+verification_status: decision-recorded
 ---
 # Rủi Ro Hallucination: Lịch Sử Huỷ Instant Consultation
 
@@ -316,6 +316,80 @@ Tác động implementation dự kiến:
 - Accepted instant/emergency request vẫn map từ linked `Consultation` và trả về `kind = consultation`.
 - Rejected/expired instant/emergency request phải map từ `ConsultationPingRequest`, không map từ fake consultation.
 - Mobile phải branch UI theo kind thay vì suy luận từ `consultationId`, `roomId`, hoặc `status`.
+
+## H-003: History DTO có được dùng chung với `MyConsultationResponse` / `ExpertConsultationResponse` không?
+
+- trạng thái: `Closed`
+- ngày phát hiện: `2026-05-05`
+- ngày chốt: `2026-05-05`
+- phạm vi: member history, expert history, expert absent response, DTO contract
+- endpoint liên quan:
+  - `GET /api/users/me/consultations`
+  - `GET /api/experts/me/consultations`
+  - `POST /api/consultations/{consultationId}/expert-absent-report`
+
+## 1. Lý do decision
+
+`MyConsultationResponse` đang được dùng cho usecase expert absent, không chỉ cho member history.
+
+Nếu thêm `kind`, instant request fields, nullable fake fields, hoặc `JsonIgnore(WhenWritingNull)` vào DTO này, flow expert absent có thể bị đổi JSON shape ngoài ý muốn.
+
+`ExpertConsultationResponse` cũng là consultation-row DTO hiện hữu và không nên bị ép thành request-level union DTO.
+
+## 2. Rejected implementation choices
+
+Không dùng:
+
+- `JsonIgnore(WhenWritingNull)` để che field không áp dụng.
+- `object` trong public history response contract.
+- `dynamic` trong public history response contract.
+- instant request fields trên `MyConsultationResponse`.
+- instant request fields trên `ExpertConsultationResponse`.
+- inheritance từ history union DTO vào `MyConsultationResponse` hoặc `ExpertConsultationResponse`.
+
+Lý do:
+
+- `JsonIgnore(WhenWritingNull)` làm mất field null hợp lệ của consultation rows.
+- `object` / `dynamic` làm mất type-safety và làm contract khó bảo trì.
+- DTO expert absent không được bị ảnh hưởng bởi history union.
+
+## 3. Decision Record
+
+History là usecase riêng và được dùng typed union DTO riêng.
+
+Expert absent là usecase riêng và tiếp tục dùng `MyConsultationResponse`.
+
+Target DTO folder:
+
+```text
+SnakeAid.Core/Responses/Consultation/History/
+```
+
+Target member history DTOs:
+
+- `MyConsultationHistoryUnionResponse`
+- `MyConsultationHistoryResponse`
+- `MyInstantConsultationRequestHistoryResponse`
+
+Target expert history DTOs:
+
+- `ExpertConsultationHistoryUnionResponse`
+- `ExpertConsultationHistoryResponse`
+- `ExpertInstantConsultationRequestHistoryResponse`
+
+Target public service contracts:
+
+```csharp
+Task<PagingResponse<MyConsultationHistoryUnionResponse>> GetMyConsultationsAsync(...)
+Task<PagingResponse<ExpertConsultationHistoryUnionResponse>> GetExpertConsultationsAsync(...)
+Task<MyConsultationResponse> ReportExpertAbsentAsync(...)
+```
+
+Runtime serialization note:
+
+- The runtime response can contain derived history DTO instances in the `items` collection.
+- The main tradeoff is Swagger/OpenAPI schema quality, not runtime behavior.
+- Add a serialization test to verify derived DTO fields appear in JSON.
 
 ## H-002: Status filter mapping cho `kind = instant` nên hoạt động như thế nào?
 

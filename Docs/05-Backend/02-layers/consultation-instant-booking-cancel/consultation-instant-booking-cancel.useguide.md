@@ -3,11 +3,11 @@ doc_role: usageguide
 module: consultation-instant-booking-cancel
 kind: flow
 doc_type: useguide
-status: implemented
+status: decision-updated-implementation-paused
 last_updated: 2026-05-05
 api_version: v1
 owners: [backend-team]
-verification_status: code-and-tests-verified
+verification_status: decision-recorded
 ---
 
 # Consultation Instant Booking Cancel Useguide
@@ -22,7 +22,7 @@ Current verified backend behavior:
 - expert-rejected instant/emergency requests appear in member/expert consultation history as `kind = instant`
 - expired instant/emergency requests appear in member/expert consultation history as `kind = instant`
 
-Implemented contract:
+Target contract:
 
 - history response items use `kind = consultation | instant`
 - `kind = consultation` represents a real `Consultation`
@@ -32,10 +32,12 @@ Implemented contract:
 
 Implementation status:
 
-- backend implementation is done for member/expert history
+- backend implementation is paused after DTO boundary review
 - `status` filters consultation rows only
 - `kind = instant` rows are returned only when `status` is omitted
 - request-level `requestStatus` filtering is not available yet
+- history endpoints should use typed union DTOs under `Responses/Consultation/History`
+- expert absent remains separate and continues to use `MyConsultationResponse`
 
 ## 2. Authentication & Authorization
 
@@ -117,7 +119,7 @@ Current verified behavior:
 - returns expert-rejected instant/emergency request rows as `kind = instant`
 - returns expired instant/emergency request rows as `kind = instant`
 
-Implemented behavior:
+Target behavior:
 
 - returns `kind = consultation` rows for real consultations
 - returns `kind = instant` rows for member-owned instant/emergency requests with:
@@ -193,7 +195,7 @@ Current verified behavior:
 - returns expert-rejected instant/emergency request rows as `kind = instant`
 - returns expired instant/emergency request rows as `kind = instant`
 
-Implemented behavior:
+Target behavior:
 
 - returns `kind = consultation` rows for real consultations
 - returns `kind = instant` rows for assigned instant/emergency requests with:
@@ -253,6 +255,15 @@ Important client rules:
 - use `respondedAt` as the display/sort time for `kind = instant`
 
 ## 6. Shared Data Models
+
+Target backend DTO names:
+
+- `MyConsultationHistoryUnionResponse`
+- `MyConsultationHistoryResponse`
+- `MyInstantConsultationRequestHistoryResponse`
+- `ExpertConsultationHistoryUnionResponse`
+- `ExpertConsultationHistoryResponse`
+- `ExpertInstantConsultationRequestHistoryResponse`
 
 ### `kind = consultation`
 
@@ -333,18 +344,19 @@ Current verified endpoints:
 - `GET /api/users/me/consultations`
 - `GET /api/experts/me/consultations`
 
-Implemented response changes:
+Target response changes:
 
-- `GET /api/users/me/consultations` returns union rows
-- `GET /api/experts/me/consultations` returns union rows
+- `GET /api/users/me/consultations` returns `PagingResponse<MyConsultationHistoryUnionResponse>`
+- `GET /api/experts/me/consultations` returns `PagingResponse<ExpertConsultationHistoryUnionResponse>`
 
 ## 8. Changelog
 
 ### 2026-05-05
 
-- Implemented union history rows for member/expert instant terminal requests.
+- Updated target implementation to typed history union DTOs with no `object`, no `dynamic`, and no DTO reuse with expert absent.
+- Chosen DTO folder: `Responses/Consultation/History/`.
+- Chosen target DTOs: `MyConsultationHistoryUnionResponse`, `MyConsultationHistoryResponse`, `MyInstantConsultationRequestHistoryResponse`, `ExpertConsultationHistoryUnionResponse`, `ExpertConsultationHistoryResponse`, `ExpertInstantConsultationRequestHistoryResponse`.
 - Documented conservative filter behavior: `status` filters only consultation rows; instant rows appear when `status` is omitted.
-- Verified with `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests`.
 - Locked the frontend/mobile history direction to a union response contract.
 - Added `kind = instant` member and expert DTO examples.
 - Documented `DeclinedByExpert` and `Expired` as active request-level history rows.

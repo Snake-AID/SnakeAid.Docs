@@ -3,10 +3,10 @@ doc_role: implementation
 module: consultation-instant-booking-cancel
 kind: flow
 doc_type: sourcecode
-status: implemented
+status: decision-updated-implementation-paused
 last_updated: 2026-05-05
 owners: [backend-team]
-verification_status: code-and-tests-verified
+verification_status: decision-recorded
 ---
 
 # Consultation Instant Booking Cancel Sourcecode
@@ -21,14 +21,19 @@ Active backend surface:
 - `ConsultationService`
 - `ConsultationPingRequest`
 - `Consultation`
-- `MyConsultationResponse`
-- `ExpertConsultationResponse`
+- `MyConsultationResponse` for expert absent response, unchanged by history union
+- `ExpertConsultationResponse` for existing expert consultation row contracts, not used as request-level DTO
 
-Implemented response surface:
+Target response surface:
 
-- member history response model includes union row fields: `kind = consultation | instant`
-- expert history response model includes union row fields: `kind = consultation | instant`
-- `kind = instant` is serialized without consultation-scoped fields when they are `null`
+- `Responses/Consultation/History/MyConsultationHistoryUnionResponse.cs`
+- `Responses/Consultation/History/MyConsultationHistoryResponse.cs`
+- `Responses/Consultation/History/MyInstantConsultationRequestHistoryResponse.cs`
+- `Responses/Consultation/History/ExpertConsultationHistoryUnionResponse.cs`
+- `Responses/Consultation/History/ExpertConsultationHistoryResponse.cs`
+- `Responses/Consultation/History/ExpertInstantConsultationRequestHistoryResponse.cs`
+- no `object` / `dynamic` public response contracts
+- no `JsonIgnore(WhenWritingNull)` for shaping history DTOs
 
 ## 2. Current HTTP Surface
 
@@ -131,11 +136,11 @@ Previous result:
 - expert-rejected instant/emergency requests did not appear in history
 - expired instant/emergency requests did not appear in history
 
-## 4. Implemented Code
+## 4. Target Code
 
-The selected implementation direction is now implemented for member/expert history.
+The selected implementation direction is a typed union dedicated to the History usecase.
 
-### Implemented Union Mapping
+### Target Union Mapping
 
 ```mermaid
 flowchart TD
@@ -171,12 +176,11 @@ Not currently covered:
 - `AcceptedByExpert`: has linked `Consultation`
 - `RescuerCancelled`: enum value exists, but no production flow currently sets it
 
-### Implemented Member DTO Shape For `kind = instant`
+### Target Member DTO Shape For `kind = instant`
 
 ```csharp
-new MyConsultationResponse
+new MyInstantConsultationRequestHistoryResponse
 {
-    Kind = "instant",
     InstantRequestId = ping.Id,
     Type = "Emergency",
     RequestStatus = ping.Status.ToString(),
@@ -188,12 +192,11 @@ new MyConsultationResponse
 }
 ```
 
-### Implemented Expert DTO Shape For `kind = instant`
+### Target Expert DTO Shape For `kind = instant`
 
 ```csharp
-new ExpertConsultationResponse
+new ExpertInstantConsultationRequestHistoryResponse
 {
-    Kind = "instant",
     InstantRequestId = ping.Id,
     Type = "Emergency",
     RequestStatus = ping.Status.ToString(),
@@ -219,9 +222,19 @@ Do not expose these fields for request-level rows:
 - `grossPrice`
 - `netPrice`
 
+### Target Service Contracts
+
+```csharp
+Task<PagingResponse<MyConsultationHistoryUnionResponse>> GetMyConsultationsAsync(...)
+Task<PagingResponse<ExpertConsultationHistoryUnionResponse>> GetExpertConsultationsAsync(...)
+Task<MyConsultationResponse> ReportExpertAbsentAsync(...)
+```
+
 ## 5. Open Code Decision
 
-No open code decision remains for member/expert history.
+No open product decision remains for member/expert history.
+
+The code implementation is paused and must be realigned to H-003 before verification is considered current.
 
 H-002 is closed with conservative behavior:
 
@@ -239,7 +252,9 @@ H-002 is closed with conservative behavior:
 - selected contract behavior is explicit and tested
 - paging and sorting handle `respondedAt` for `kind = instant`
 - status filtering follows H-002
-- consultation-scoped ids are null for `kind = instant` and are JSON-ignored when null
+- `kind = instant` DTOs do not define consultation-scoped fields
+- `MyConsultationResponse` remains unchanged for expert absent
+- serialization test proves derived history DTO fields appear in JSON
 
 Verification command:
 
