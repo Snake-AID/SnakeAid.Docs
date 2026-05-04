@@ -4,7 +4,7 @@ module: scheduled-booking-cancel
 kind: flow
 doc_type: introduction
 status: current
-last_updated: 2026-05-04
+last_updated: 2026-04-21
 owners: [backend-team]
 verification_status: implemented-and-code-verified
 ---
@@ -141,7 +141,6 @@ Delivered migration behavior:
 
 - `scheduled-booking-cancel.introduction.md`
 - `scheduled-booking-cancel.roadmap.md`
-- `scheduled-booking-cancel.hallucination.md`
 - `scheduled-booking-cancel.sourcecode.md`
 - `scheduled-booking-cancel.useguide.md`
 

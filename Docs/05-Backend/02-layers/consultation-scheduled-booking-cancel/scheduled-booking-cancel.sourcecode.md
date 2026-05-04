@@ -4,7 +4,7 @@ module: scheduled-booking-cancel
 kind: flow
 doc_type: sourcecode
 status: current
-last_updated: 2026-05-04
+last_updated: 2026-04-21
 owners: [backend-team]
 verification_status: implemented-and-code-verified
 ---
@@ -56,7 +56,6 @@ verification_status: implemented-and-code-verified
 
 ### Refund lifecycle
 
-- emergency consultation rejection can call `RefundEmergencyEscrowAsync(...)`
 - scheduled expert-cancel can call `RefundScheduledBookingAsync(...)`
 - refund uses existing escrow balance checks
 - refund credits the receiver wallet
@@ -93,7 +92,6 @@ Current role:
 - refund scheduled booking escrow
 - cancel pending scheduled booking payment intent
 - settle consultation escrow
-- refund emergency escrow
 
 ### `NotificationQueueService`
 
@@ -296,59 +294,3 @@ sequenceDiagram
 - paid booking cancelled after PayOs confirmation follows the same refund rule as wallet payment
 - duplicate cancel or duplicate refund is blocked
 - started or completed booking cancellation is rejected
-
-## 9. Investigation: Scheduled Cancel History vs Instant Reject History
-
-Code-verified on 2026-05-04.
-
-### Scheduled cancel path
-
-Relevant code:
-
-- `ConsultationScheduledController.CancelScheduledBooking(...)`
-- `BookingService.CancelScheduledBookingAsync(...)`
-- `ConsultationService.GetMyConsultationsAsync(...)`
-- `ConsultationService.GetExpertConsultationsAsync(...)`
-
-Current behavior:
-
-1. scheduled booking creation creates both `ConsultationBooking` and linked `Consultation`
-2. cancel keeps `ConsultationBooking.ConsultationId`
-3. cancel sets `ConsultationBooking.Status = Cancelled`
-4. cancel sets linked `Consultation.Status = Cancelled`
-5. member and expert history read scheduled rows from `ConsultationBooking` where `ConsultationId.HasValue`
-
-Result:
-
-- cancelled scheduled bookings appear in both member and expert consultation history
-
-### Instant/emergency expert reject path
-
-Relevant code:
-
-- `ConsultationInstantController.RejectEmergencyConsultationRequest(...)`
-- `EmergencyConsultationService.RejectEmergencyRequestAsync(...)`
-- `ConsultationService.GetMyConsultationsAsync(...)`
-- `ConsultationService.GetExpertConsultationsAsync(...)`
-
-Current behavior:
-
-1. instant/emergency request starts as `ConsultationPingRequest`
-2. `Consultation` is created only inside `AcceptEmergencyRequestAsync(...)`
-3. accept sets `ConsultationPingRequest.Status = AcceptedByExpert`
-4. accept sets `ConsultationPingRequest.ConsultationId`
-5. reject sets `ConsultationPingRequest.Status = DeclinedByExpert`
-6. reject does not create a `Consultation`
-7. member and expert history read emergency rows only when `ConsultationId.HasValue` and `Status == AcceptedByExpert`
-
-Result:
-
-- expert-rejected instant/emergency requests do not appear in member or expert consultation history
-
-### Root Cause
-
-Scheduled cancel is a cancellation of an existing consultation session record.
-
-Instant expert reject is currently modeled as rejection of a pending ping request before a consultation session exists.
-
-The history endpoints are consultation-session history endpoints, not full instant/emergency request-history endpoints.

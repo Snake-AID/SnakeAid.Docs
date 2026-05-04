@@ -4,7 +4,7 @@ module: scheduled-booking-cancel
 kind: flow
 doc_type: roadmap
 status: current
-last_updated: 2026-05-04
+last_updated: 2026-04-21
 owners: [backend-team]
 verification_status: implemented-and-code-verified
 ---
@@ -39,8 +39,6 @@ Current verified state:
 - expert-cancel now also queues a Vietnamese push notification to the booking owner/member
 - member-cancel of a paid booking does not refund and settles escrow
 - scheduled auto-complete settles escrow to the expert at the end of the slot
-- investigation note: cancelled scheduled bookings appear in member/expert consultation history because `BookingService.CancelScheduledBookingAsync(...)` keeps the linked `ConsultationBooking.ConsultationId` and sets the linked `Consultation.Status = Cancelled`
-- investigation note: expert-rejected instant/emergency requests do not appear in member/expert consultation history because `EmergencyConsultationService.RejectEmergencyRequestAsync(...)` sets `ConsultationPingRequest.Status = DeclinedByExpert` before any `Consultation` row is created, while both member and expert history queries include emergency items only when `ConsultationPingRequest.Status == AcceptedByExpert` and `ConsultationId.HasValue`
 
 ## Delivered Outcome
 
@@ -178,9 +176,3 @@ Additional implemented verification:
 - Implemented expert-cancel member push notification through `INotificationQueueService`
 - Locked Vietnamese-only push copy for this user-facing flow
 - Updated baseline docs from planned notification extension to active behavior
-
-### 2026-05-04
-
-- Investigated why expert-cancelled scheduled consultations appear in `GET /api/users/me/consultations` and `GET /api/experts/me/consultations`, while expert-rejected instant/emergency requests do not.
-- Root cause found in code: scheduled cancel updates an existing linked `Consultation` to `Cancelled`; instant expert reject updates only `ConsultationPingRequest.Status = DeclinedByExpert` and leaves `ConsultationId = null`.
-- Recorded open product decision in `scheduled-booking-cancel.hallucination.md`: whether rejected instant/emergency requests should be added to consultation history or exposed as a separate request history surface.
