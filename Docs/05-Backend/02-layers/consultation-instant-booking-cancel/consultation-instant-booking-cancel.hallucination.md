@@ -12,7 +12,7 @@ verification_status: code-investigated
 
 ## H-001: Expert huỷ instant request thì có nên xuất hiện trong lịch sử consultation không?
 
-- trạng thái: `Open`
+- trạng thái: `Closed`
 - ngày phát hiện: `2026-05-04`
 - phạm vi: member history và expert history
 - endpoint liên quan:
@@ -248,3 +248,68 @@ Quyết định này ảnh hưởng trực tiếp tới:
 - logic query trong consultation history service
 - cách mobile render history
 - cách backend bảo vệ các action chỉ hợp lệ với consultation thật
+
+## 8. Decision Record
+
+- trạng thái: `Closed`
+- ngày chốt: `2026-05-04`
+- người chốt: user
+- lựa chọn: Phương án 1 - tách bạch API contract để history có thể biểu diễn cả real consultation row và instant request row.
+
+Quyết định:
+
+- Expert-rejected instant/emergency request phải được biểu diễn như request-level history row, không tạo Fake `Consultation`.
+- Backend không được dùng `Guid.Empty`, random id, hoặc `emergencyRequestId` để giả lập `consultationId`.
+- `consultationId` của request-level row phải nullable hoặc không được coi là id consultation thật.
+- Contract cần có discriminator để mobile render đúng loại row.
+- Discriminator kind dùng các value:
+  - `consultation`: row có record `Consultation` thật trong `Consultation.cs`.
+  - `instant`: row request-level cho instant/emergency request bị expert cancel/reject trước khi có record `Consultation`.
+- `kind = instant` là một DTO riêng trong cùng API contract/list response, không phải consultation DTO được ép nullable field.
+- History response nên được hiểu như union contract: mỗi item là `kind = consultation` hoặc `kind = instant`.
+- `kind = instant` chỉ được tạo cho trường hợp không có record `Consultation`.
+- Scheduled consultation và các instant/emergency request đã có pair với `Consultation` vẫn là `kind = consultation`.
+- Accepted instant/emergency request không thuộc phạm vi contract row mới; vì đã có linked `Consultation`, nó tiếp tục được xử lý như consultation history row.
+
+Ghi chú contract còn mở:
+
+- Field contract chính cho DTO `kind = instant` đã được chốt trong decision bổ sung ngày `2026-05-05`.
+- Status filter mapping cho `kind = instant` vẫn để mở. Decision này có thể cần được mở lại khi phân tích admin endpoint/history contract.
+- Các doc khác trong pack chưa cập nhật ngay vì cần cân nhắc tiếp field contract cho kind `instant`.
+- `consultation-instant-booking-cancel.useguide.md`, `consultation-instant-booking-cancel.roadmap.md`, `consultation-instant-booking-cancel.sourcecode.md`, và `consultation-instant-booking-cancel.introduction.md` sẽ được sync sau khi status filter decision được xử lý đủ rõ.
+
+Decision bổ sung ngày `2026-05-05` cho DTO `kind = instant`:
+
+- DTO `kind = instant` giữ field phẳng, không dùng nested `counterparty`.
+- Id field dùng `instantRequestId`, map từ `ConsultationPingRequest.Id`.
+- Status field dùng `requestStatus`, map từ `ConsultationPingRequest.Status`, không dùng `status` để tránh nhầm với `ConsultationStatus`.
+- Timestamp field dùng `requestedAt` và `respondedAt`.
+- `respondedAt` là thời điểm phù hợp để hiển thị/sort row terminal như expert cancel/reject hoặc expired.
+- DTO `kind = instant` không expose `rescueMissionId` trong scope history này.
+- DTO `kind = instant` không expose `expiresAt` trong scope history này.
+- DTO `kind = instant` không expose `price`, `grossPrice`, hoặc `netPrice` trong scope history này vì row không đại diện cho consultation/payment settlement đã hoàn thành.
+- Member history dùng field phẳng phía expert:
+  - `expertId`
+  - `expertName`
+  - `expertAvatarUrl`
+- Expert history dùng field phẳng phía member/user:
+  - `userId`
+  - `userName`
+  - `userAvatarUrl`
+- `kind = instant` hiện cover các `ConsultationPingStatus` terminal không có `Consultation`:
+  - `DeclinedByExpert`
+  - `Expired`
+- Verification ngày `2026-05-05`: đã kiểm tra production code liên quan `ConsultationPingRequest` trong `EmergencyConsultationService`, `ConsultationPaymentService`, và `ConsultationService`.
+- `AcceptedByExpert` là flow duy nhất tạo record `Consultation` và set `ConsultationPingRequest.ConsultationId`.
+- `DeclinedByExpert` là terminal request-level flow không tạo `Consultation`.
+- `Expired` là terminal request-level flow không tạo `Consultation`; flow expire chỉ update `ConsultationPingRequest.Status = Expired`, set `RespondedAt`, và refund escrow nếu cần.
+- `PendingPayment` và `PendingExpertResponse` cũng chưa có `Consultation`, nhưng là active request states, không phải terminal history row trong scope này.
+- `RescuerCancelled` hiện chỉ tồn tại trong enum `ConsultationPingStatus`; chưa thấy production endpoint/service flow nào set trạng thái này. Không đưa vào `kind = instant` history cho tới khi có flow active/current trong code.
+- Status filter behavior cho `kind = instant` chưa chốt trong lượt này. Tạm giữ là open decision vì có thể liên quan đến admin history endpoint và filter contract tổng thể.
+
+Tác động implementation dự kiến:
+
+- Member history và expert history cần query thêm `ConsultationPingRequest` terminal thuộc scope `kind = instant`, trước mắt gồm `DeclinedByExpert` và `Expired`.
+- Accepted instant/emergency request vẫn map từ linked `Consultation` và trả về `kind = consultation`.
+- Rejected/expired instant/emergency request phải map từ `ConsultationPingRequest`, không map từ fake consultation.
+- Mobile phải branch UI theo kind thay vì suy luận từ `consultationId`, `roomId`, hoặc `status`.
