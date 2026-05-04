@@ -4,7 +4,7 @@ module: consultation-instant-booking-cancel
 kind: flow
 doc_type: introduction
 status: current
-last_updated: 2026-05-04
+last_updated: 2026-05-05
 owners: [backend-team]
 verification_status: code-investigated
 ---
@@ -13,15 +13,17 @@ verification_status: code-investigated
 
 ## Goal
 
-This documentation pack tracks the instant/emergency consultation cancellation and expert-rejection history behavior.
+This documentation pack tracks how instant/emergency consultation request terminal events should appear in member and expert consultation history.
 
-The current business question is scoped only to instant/emergency consultations:
+The scope is:
 
-- when an expert rejects or cancels an instant/emergency request
-- should that request appear in `GET /api/users/me/consultations`
-- should that request appear in `GET /api/experts/me/consultations`
+- expert rejects an instant/emergency request
+- instant/emergency request expires before expert accepts
+- request-level rows appear in:
+  - `GET /api/users/me/consultations`
+  - `GET /api/experts/me/consultations`
 
-Scheduled booking cancellation is out of scope for this pack except as a known working comparison point.
+Scheduled booking cancellation is out of scope except as a comparison point for real `Consultation` rows.
 
 ## Current Code-Verified State
 
@@ -35,11 +37,14 @@ Current instant/emergency flow:
 6. expert accept sets `ConsultationPingRequest.ConsultationId`
 7. expert reject sets `ConsultationPingRequest.Status = DeclinedByExpert`
 8. expert reject does not create a `Consultation`
+9. expiration sets `ConsultationPingRequest.Status = Expired`
+10. expiration does not create a `Consultation`
 
 Current history behavior:
 
 - accepted instant/emergency requests appear in member/expert consultation history
 - expert-rejected instant/emergency requests do not appear in member/expert consultation history
+- expired instant/emergency requests do not appear in member/expert consultation history
 
 ## Root Cause Summary
 
@@ -50,55 +55,37 @@ They include instant/emergency rows only when a `ConsultationPingRequest` has:
 - `ConsultationId.HasValue`
 - `Status == AcceptedByExpert`
 
-Expert-rejected instant/emergency requests remain request records only:
+Rejected or expired instant/emergency requests remain request records only:
 
 - `ConsultationId = null`
-- `Status = DeclinedByExpert`
+- `Status = DeclinedByExpert` or `Expired`
 
-## Decision Space
+## Locked Decision
 
-There are three candidate directions for showing expert-rejected instant/emergency requests in history.
+The selected direction is a union history contract.
 
-### Approach 1: Split The Contract And Force Mobile To Build Two History Screens
+Each history item is one of:
 
-The history contract explicitly supports both real `Consultation` rows and request-level `ConsultationPingRequest` rows.
+- `kind = consultation`: a real `Consultation` row
+- `kind = instant`: a request-level `ConsultationPingRequest` row that has no `Consultation`
 
-Expected behavior:
+`kind = instant` is a separate DTO, not a consultation DTO with nullable/fake fields.
 
-- accepted scheduled and emergency consultations remain real consultation rows
-- expert-rejected instant/emergency requests appear as request-level rows
-- request-level rows do not fabricate `Consultation` data
-- mobile must build two history screens or sections:
-  - consultation history
-  - instant request history
+Locked `kind = instant` behavior:
 
-### Approach 2: Keep The Old Contract And Force `ConsultationPingRequest` Into Consultation History
+- uses `instantRequestId`
+- uses `requestStatus`
+- uses `requestedAt` and `respondedAt`
+- keeps member/expert actor fields flat
+- omits `consultationId`, `roomId`, `startTime`, `endTime`, `rescueMissionId`, `expiresAt`, and price fields
+- currently covers `DeclinedByExpert` and `Expired`
+- does not cover `RescuerCancelled` until a production flow sets that status
 
-The backend fetches rejected `ConsultationPingRequest` records and maps them into the existing history response shape without creating `Consultation` rows.
+## Remaining Open Decision
 
-Expected behavior:
+Only status filter mapping remains open.
 
-- database stays cleaner than the Fake Consultation approach
-- rejected request rows are mixed into the existing `/me/consultations` response
-- the response contract becomes ambiguous unless special values or extra fields are introduced
-- mobile must avoid treating request-only rows as real consultations
-
-### Approach 3: Keep The Old Contract By Creating A Fake `Consultation`
-
-The backend creates a Fake cancelled emergency `Consultation` only to satisfy the existing non-null `consultationId` contract.
-
-Expected behavior:
-
-- history rows keep a real `consultationId`
-- mobile sees the rejected request as a cancelled consultation row
-- the database contains a Fake `Consultation` that does not represent a real session
-- consultation-scoped flows such as room, chat, review, payment, cleanup, and reporting need guards to avoid treating the Fake `Consultation` as a real session
-
-## Current Recommendation Status
-
-No implementation direction is locked in this pack.
-
-The next decision is to choose one of the three approaches above before changing code or frontend/mobile contracts.
+The unresolved question is how `status` filters should interact with `kind = instant`, especially when admin history/filter contracts are considered.
 
 ## Delivered Artifacts
 

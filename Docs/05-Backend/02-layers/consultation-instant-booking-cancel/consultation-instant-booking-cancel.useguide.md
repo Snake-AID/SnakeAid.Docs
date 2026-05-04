@@ -4,7 +4,7 @@ module: consultation-instant-booking-cancel
 kind: flow
 doc_type: useguide
 status: planned
-last_updated: 2026-05-04
+last_updated: 2026-05-05
 api_version: v1
 owners: [backend-team]
 verification_status: planned-not-implemented
@@ -20,12 +20,21 @@ Current verified backend behavior:
 
 - accepted instant/emergency requests can appear in member/expert consultation history
 - expert-rejected instant/emergency requests do not currently appear in member/expert consultation history
+- expired instant/emergency requests do not currently appear in member/expert consultation history
 
-Decision status:
+Selected planned contract:
 
-- no final integration contract is locked yet
-- three approaches are under review
-- frontend/mobile impact depends on the selected approach
+- history response items use `kind = consultation | instant`
+- `kind = consultation` represents a real `Consultation`
+- `kind = instant` represents a terminal instant/emergency request without `Consultation`
+- `kind = instant` is a separate DTO with flat fields
+- `kind = instant` currently covers `DeclinedByExpert` and `Expired`
+
+Implementation status:
+
+- planned contract is locked
+- backend implementation is not done
+- status filter behavior for `kind = instant` is still open
 
 ## 2. Authentication & Authorization
 
@@ -47,6 +56,11 @@ Auth:
 
 - role `User`
 
+Side effect:
+
+- creates `ConsultationPingRequest`
+- starts before a `Consultation` exists
+
 ### `POST /api/consultations/instant/{requestId}/accept`
 
 Accepts an instant/emergency request.
@@ -61,6 +75,10 @@ Current side effect:
 - sets `ConsultationPingRequest.Status = AcceptedByExpert`
 - sets `ConsultationPingRequest.ConsultationId`
 
+History effect:
+
+- accepted request remains `kind = consultation` in planned history contract
+
 ### `POST /api/consultations/instant/{requestId}/reject`
 
 Rejects an instant/emergency request.
@@ -72,107 +90,233 @@ Auth:
 Current side effect:
 
 - sets `ConsultationPingRequest.Status = DeclinedByExpert`
+- sets `ConsultationPingRequest.RespondedAt`
 - does not create a `Consultation`
 - returns a response where `consultationId` may be null
 
-## 4. Current Verified History APIs
+Planned history effect:
+
+- rejected request appears as `kind = instant`
+- rejected request does not expose `consultationId` or `roomId`
+
+## 4. Member Business + Member APIs
 
 ### `GET /api/users/me/consultations`
 
-Current behavior:
+Returns the member's consultation history.
+
+Auth:
+
+- role `User`
+
+Current verified behavior:
 
 - returns scheduled consultation rows
 - returns accepted instant/emergency consultation rows
 - does not return expert-rejected instant/emergency request rows
+- does not return expired instant/emergency request rows
 
-### `GET /api/experts/me/consultations`
+Planned behavior:
 
-Current behavior:
+- returns `kind = consultation` rows for real consultations
+- returns `kind = instant` rows for member-owned instant/emergency requests with:
+  - `requestStatus = DeclinedByExpert`
+  - `requestStatus = Expired`
 
-- returns scheduled consultation rows
-- returns accepted instant/emergency consultation rows
-- does not return expert-rejected instant/emergency request rows
+Query params:
 
-## 5. Candidate History Contract Approaches
+- existing paging params continue to apply
+- existing `type` behavior should continue to include emergency rows when emergency history is requested
+- `status` filter behavior for `kind = instant` is not finalized
 
-No approach in this section is implemented yet.
-
-### Approach 1: Split The Contract And Force Mobile To Build Two History Screens
-
-The history contract explicitly separates real consultation rows from request-level instant request rows.
-
-Potential row kinds:
-
-- `Consultation`
-- `EmergencyRequest`
-
-Example request-level row:
+Success response shape:
 
 ```json
 {
-  "recordKind": "EmergencyRequest",
-  "consultationId": null,
-  "emergencyRequestId": "11111111-1111-1111-1111-111111111111",
-  "type": "Emergency",
-  "status": "Cancelled",
-  "requestStatus": "DeclinedByExpert",
-  "expertId": "22222222-2222-2222-2222-222222222222",
-  "expertName": "Dr. Snake Aid",
-  "expertAvatarUrl": null,
-  "roomId": null,
-  "startTime": "2026-05-04T03:10:00Z",
-  "endTime": "2026-05-04T03:10:00Z",
-  "price": 150000
+  "items": [
+    {
+      "kind": "consultation",
+      "consultationId": "33333333-3333-3333-3333-333333333333",
+      "type": "Emergency",
+      "status": "Completed",
+      "expertId": "22222222-2222-2222-2222-222222222222",
+      "expertName": "Khiêm Expert",
+      "expertAvatarUrl": null,
+      "roomId": "consultation-33333333-3333-3333-3333-333333333333",
+      "startTime": "2026-05-04T03:10:00Z",
+      "endTime": "2026-05-04T03:40:00Z",
+      "price": 5000,
+      "emergencyRequestId": "11111111-1111-1111-1111-111111111111"
+    },
+    {
+      "kind": "instant",
+      "instantRequestId": "44444444-4444-4444-4444-444444444444",
+      "type": "Emergency",
+      "requestStatus": "DeclinedByExpert",
+      "requestedAt": "2026-05-04T04:00:00Z",
+      "respondedAt": "2026-05-04T04:01:00Z",
+      "expertId": "22222222-2222-2222-2222-222222222222",
+      "expertName": "Khiêm Expert",
+      "expertAvatarUrl": null
+    }
+  ],
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalCount": 2
 }
 ```
 
-Frontend/mobile impact:
+Important client rules:
 
-- mobile must render by row kind
-- mobile must build two screens or sections:
-  - consultation history
-  - instant request history
-- request-level rows must not expose consultation-scoped actions
+- branch UI by `kind`
+- do not call consultation detail, join room, review, report absent, or message history using a `kind = instant` row
+- use `respondedAt` as the display/sort time for `kind = instant`
+- do not infer row type from missing `consultationId`, `roomId`, or `status`
 
-### Approach 2: Keep The Old Contract And Force `ConsultationPingRequest` Rows Into Consultation History
+## 5. Expert Business + Expert APIs
 
-The backend fetches rejected `ConsultationPingRequest` records and maps them into the existing history response shape without creating `Consultation` rows.
+### `GET /api/experts/me/consultations`
 
-Frontend/mobile impact:
+Returns the expert's consultation history.
 
-- mobile receives rows that look like consultation history rows
-- backend must define how fields such as `consultationId`, `roomId`, `startTime`, `endTime`, and `status` behave for request-only rows
-- if no discriminator is added, mobile must infer row type from special values, which is fragile
+Auth:
 
-Open contract questions:
+- role `Expert`
 
-- should `consultationId` be `Guid.Empty`, null, reused from `emergencyRequestId`, or omitted?
-- should `status` expose `Cancelled` or `DeclinedByExpert`?
-- how should mobile identify that the row is not a real consultation?
+Current verified behavior:
 
-### Approach 3: Keep The Old Contract By Creating A Fake `Consultation`
+- returns scheduled consultation rows
+- returns accepted instant/emergency consultation rows
+- does not return expert-rejected instant/emergency request rows
+- does not return expired instant/emergency request rows
 
-The backend creates a Fake cancelled emergency `Consultation` when the expert rejects the instant request.
+Planned behavior:
 
-Frontend/mobile impact:
+- returns `kind = consultation` rows for real consultations
+- returns `kind = instant` rows for assigned instant/emergency requests with:
+  - `requestStatus = DeclinedByExpert`
+  - `requestStatus = Expired`
 
-- mobile can keep receiving a non-null `consultationId`
-- the rejected request appears as a cancelled consultation row
-- mobile may need fewer response-model changes
+Query params:
 
-Backend/domain impact:
+- existing paging params continue to apply
+- existing `type` behavior should continue to include emergency rows when emergency history is requested
+- `status` filter behavior for `kind = instant` is not finalized
 
-- database contains a Fake `Consultation` that did not represent a real session
-- `RoomId`, `StartTime`, `EndTime`, and `Status` must be synthesized
-- room, chat, review, payment, cleanup, reporting, and admin flows need guards so they do not treat the Fake `Consultation` as a real session
+Success response shape:
 
-## 6. Field Notes
+```json
+{
+  "items": [
+    {
+      "kind": "consultation",
+      "consultationId": "33333333-3333-3333-3333-333333333333",
+      "type": "Emergency",
+      "status": "Completed",
+      "userId": "55555555-5555-5555-5555-555555555555",
+      "userName": "Khiêm User",
+      "userAvatarUrl": null,
+      "roomId": "consultation-33333333-3333-3333-3333-333333333333",
+      "startTime": "2026-05-04T03:10:00Z",
+      "endTime": "2026-05-04T03:40:00Z",
+      "grossPrice": 5000,
+      "netPrice": 4000,
+      "emergencyRequestId": "11111111-1111-1111-1111-111111111111"
+    },
+    {
+      "kind": "instant",
+      "instantRequestId": "44444444-4444-4444-4444-444444444444",
+      "type": "Emergency",
+      "requestStatus": "Expired",
+      "requestedAt": "2026-05-04T04:00:00Z",
+      "respondedAt": "2026-05-04T04:02:00Z",
+      "userId": "55555555-5555-5555-5555-555555555555",
+      "userName": "Khiêm User",
+      "userAvatarUrl": null
+    }
+  ],
+  "pageNumber": 1,
+  "pageSize": 10,
+  "totalCount": 2
+}
+```
 
-- `ConsultationPingRequest.Status = DeclinedByExpert` is the current exact backend state for expert-rejected instant/emergency requests.
-- `ConsultationPingRequest.ConsultationId = null` is the current reason these rows do not fit the existing consultation-only history contract.
-- Approach 1 requires explicit row typing in the API contract and mobile two-screen work.
-- Approach 2 keeps database semantics cleaner than Approach 3 but risks ambiguous response fields.
-- Approach 3 keeps the response shape closest to today but introduces Fake `Consultation` data.
+Important client rules:
+
+- branch UI by `kind`
+- do not expose message, room, payout detail, absent report, or consultation detail actions for `kind = instant`
+- use `respondedAt` as the display/sort time for `kind = instant`
+
+## 6. Shared Data Models
+
+### `kind = consultation`
+
+Represents a real consultation/session row.
+
+Important fields:
+
+- `kind`: `consultation`
+- `consultationId`: non-null id of `Consultation`
+- `type`: `Scheduled` or `Emergency`
+- `status`: `ConsultationStatus`
+- `roomId`: room id for consultation-scoped actions
+- `startTime`: session start time
+- `endTime`: session end time when available
+
+### `kind = instant`
+
+Represents a terminal request-level row without a `Consultation`.
+
+Member shape:
+
+```json
+{
+  "kind": "instant",
+  "instantRequestId": "44444444-4444-4444-4444-444444444444",
+  "type": "Emergency",
+  "requestStatus": "DeclinedByExpert",
+  "requestedAt": "2026-05-04T04:00:00Z",
+  "respondedAt": "2026-05-04T04:01:00Z",
+  "expertId": "22222222-2222-2222-2222-222222222222",
+  "expertName": "Khiêm Expert",
+  "expertAvatarUrl": null
+}
+```
+
+Expert shape:
+
+```json
+{
+  "kind": "instant",
+  "instantRequestId": "44444444-4444-4444-4444-444444444444",
+  "type": "Emergency",
+  "requestStatus": "Expired",
+  "requestedAt": "2026-05-04T04:00:00Z",
+  "respondedAt": "2026-05-04T04:02:00Z",
+  "userId": "55555555-5555-5555-5555-555555555555",
+  "userName": "Khiêm User",
+  "userAvatarUrl": null
+}
+```
+
+`kind = instant` does not expose:
+
+- `consultationId`
+- `roomId`
+- `startTime`
+- `endTime`
+- `rescueMissionId`
+- `expiresAt`
+- `price`
+- `grossPrice`
+- `netPrice`
+
+Current planned `requestStatus` values:
+
+- `DeclinedByExpert`
+- `Expired`
+
+`RescuerCancelled` is not documented as active/current behavior because no production flow currently sets it.
 
 ## 7. Verified Endpoint List
 
@@ -184,7 +328,20 @@ Current verified endpoints:
 - `GET /api/users/me/consultations`
 - `GET /api/experts/me/consultations`
 
+Planned response changes:
+
+- `GET /api/users/me/consultations` will return union rows after implementation
+- `GET /api/experts/me/consultations` will return union rows after implementation
+
 ## 8. Changelog
+
+### 2026-05-05
+
+- Locked the frontend/mobile history direction to a union response contract.
+- Added planned `kind = instant` member and expert DTO examples.
+- Documented `DeclinedByExpert` and `Expired` as planned request-level history rows.
+- Documented fields omitted from `kind = instant`.
+- Kept status filter behavior open.
 
 ### 2026-05-04
 

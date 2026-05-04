@@ -4,7 +4,7 @@ module: consultation-instant-booking-cancel
 kind: flow
 doc_type: sourcecode
 status: current
-last_updated: 2026-05-04
+last_updated: 2026-05-05
 owners: [backend-team]
 verification_status: code-investigated
 ---
@@ -17,12 +17,18 @@ Active backend surface:
 
 - `ConsultationInstantController`
 - `EmergencyConsultationService`
+- `ConsultationPaymentService`
 - `ConsultationService`
 - `ConsultationPingRequest`
 - `Consultation`
 - `MyConsultationResponse`
 - `ExpertConsultationResponse`
-- `ConsultationPaymentService`
+
+Planned response surface:
+
+- member history union row: `kind = consultation | instant`
+- expert history union row: `kind = consultation | instant`
+- `kind = instant` DTO is separate from the current consultation response DTOs
 
 ## 2. Current HTTP Surface
 
@@ -35,7 +41,9 @@ Current verified endpoints:
 - `GET /api/users/me/consultations`
 - `GET /api/experts/me/consultations`
 
-## 3. Current Instant Request Flow
+## 3. Observed Current Code
+
+### Instant Request Creation
 
 ```mermaid
 sequenceDiagram
@@ -47,10 +55,11 @@ sequenceDiagram
     User->>Api: POST /api/consultations/instant
     Api->>Service: CreateEmergencyRequestAsync(userId, request)
     Service->>DB: insert ConsultationPingRequest
+    Service->>DB: Status = PendingPayment
     Service-->>Api: EmergencyConsultationRequestResponse
 ```
 
-## 4. Current Expert Accept Flow
+### Expert Accept Flow
 
 ```mermaid
 sequenceDiagram
@@ -67,7 +76,7 @@ sequenceDiagram
     Service-->>Api: response with consultationId and roomId
 ```
 
-## 5. Current Expert Reject Flow
+### Expert Reject Flow
 
 ```mermaid
 sequenceDiagram
@@ -80,11 +89,27 @@ sequenceDiagram
     Expert->>Api: POST /api/consultations/instant/{requestId}/reject
     Api->>Service: RejectEmergencyRequestAsync(requestId, expertId)
     Service->>DB: set ping Status = DeclinedByExpert
+    Service->>DB: set ping RespondedAt
     Service->>Payment: RefundEmergencyEscrowAsync(requestId, reason)
     Service-->>Api: response with consultationId = null
 ```
 
-## 6. Current History Query Behavior
+### Expiration Flow
+
+```mermaid
+sequenceDiagram
+    participant Worker as ConsultationLifecycleBackgroundService
+    participant Payment as ConsultationPaymentService
+    participant DB as Database
+
+    Worker->>Payment: ExpireEmergencyRequestsAsync()
+    Payment->>DB: find PendingPayment/PendingExpertResponse pings past expiry
+    Payment->>DB: set ping Status = Expired
+    Payment->>DB: set ping RespondedAt
+    Payment->>Payment: refund escrow when needed
+```
+
+### Current History Query Behavior
 
 Current member history emergency branch:
 
@@ -104,94 +129,110 @@ Result:
 
 - accepted instant/emergency requests appear in history
 - expert-rejected instant/emergency requests do not appear in history
+- expired instant/emergency requests do not appear in history
 
-## 7. Desired/Planned Code By Candidate Approach
+## 4. Desired/Planned Code
 
-No implementation approach is locked yet.
+The selected implementation direction is a union response contract.
 
-### Approach 1: Split The Contract And Force Mobile To Build Two History Screens
+### Planned Union Mapping
 
-Planned code shape:
+```mermaid
+flowchart TD
+    A[History query] --> B{Source row}
+    B -->|Consultation exists| C[kind = consultation]
+    B -->|Ping terminal without Consultation| D[kind = instant]
+    C --> E[Expose consultationId, roomId, startTime, endTime, consultation status]
+    D --> F[Expose instantRequestId, requestStatus, requestedAt, respondedAt, flat actor fields]
+```
 
-- update member/expert history response DTOs or introduce a new row model that can represent both `Consultation` and `ConsultationPingRequest`
-- add a row discriminator, for example `RecordKind`
-- allow request-level rows to have no `ConsultationId`
-- add exact request status, for example `RequestStatus`
-- document that mobile must build separate consultation history and instant request history screens/sections
-- include rejected pings in member/expert emergency history queries
-- map rejected pings as request-level rows
-- keep accepted pings mapped from linked `Consultation`
+### `kind = consultation`
 
-Example request-level mapping:
+Rows with real `Consultation` records remain consultation rows.
+
+Includes:
+
+- scheduled consultations
+- accepted instant/emergency requests linked by `ConsultationPingRequest.ConsultationId`
+
+### `kind = instant`
+
+Rows without `Consultation` are request-level rows.
+
+Currently covered statuses:
+
+- `ConsultationPingStatus.DeclinedByExpert`
+- `ConsultationPingStatus.Expired`
+
+Not currently covered:
+
+- `PendingPayment`: active request state
+- `PendingExpertResponse`: active request state
+- `AcceptedByExpert`: has linked `Consultation`
+- `RescuerCancelled`: enum value exists, but no production flow currently sets it
+
+### Planned Member DTO Shape For `kind = instant`
 
 ```csharp
-new MyConsultationResponse
+new MemberInstantHistoryResponse
 {
-    RecordKind = "EmergencyRequest",
-    ConsultationId = null,
-    EmergencyRequestId = ping.Id,
+    Kind = "instant",
+    InstantRequestId = ping.Id,
     Type = "Emergency",
-    Status = "Cancelled",
     RequestStatus = ping.Status.ToString(),
+    RequestedAt = ping.RequestedAt,
+    RespondedAt = ping.RespondedAt,
     ExpertId = ping.ExpertId,
     ExpertName = ping.Expert?.FullName,
-    RoomId = null,
-    StartTime = ping.RespondedAt ?? ping.RequestedAt,
-    EndTime = ping.RespondedAt,
-    Price = ResolveLookupAmount(paymentLookup, ping.Id)
+    ExpertAvatarUrl = ping.Expert?.AvatarUrl
 }
 ```
 
-### Approach 2: Keep The Old Contract And Force `ConsultationPingRequest` Rows Into Consultation History
-
-Planned code shape:
-
-- leave existing history DTOs as close as possible to their current shape
-- query `DeclinedByExpert` pings for member/expert history
-- map rejected pings into the current consultation history response
-- choose a concrete representation for missing `ConsultationId`
-- choose concrete semantics for `RoomId`, `StartTime`, `EndTime`, and `Status`
-
-High-risk mapping choices:
-
-- `ConsultationId = Guid.Empty`
-- `ConsultationId = ping.Id`
-- `ConsultationId = null` while the old contract still documents it as non-null
-- `Status = "Cancelled"` even though the source enum is `ConsultationPingStatus.DeclinedByExpert`
-
-### Approach 3: Keep The Old Contract By Creating A Fake `Consultation`
-
-Planned code shape:
-
-- update `EmergencyConsultationService.RejectEmergencyRequestAsync(...)`
-- create a Fake cancelled emergency `Consultation` when the expert rejects the request
-- set `ConsultationPingRequest.ConsultationId` to the new consultation id
-- make member/expert history pick up the row through the existing accepted-linked-consultation path or a modified emergency query
-- add guards so consultation-scoped flows do not treat the Fake `Consultation` as a real call session
-
-Fake `Consultation` creation sketch:
+### Planned Expert DTO Shape For `kind = instant`
 
 ```csharp
-var consultation = new Consultation
+new ExpertInstantHistoryResponse
 {
-    Id = Guid.NewGuid(),
-    CallerId = ping.RescuerId,
-    CalleeId = ping.ExpertId,
-    RoomId = /* synthesized value */,
-    StartTime = ping.RespondedAt ?? ping.RequestedAt,
-    EndTime = ping.RespondedAt,
-    Status = ConsultationStatus.Cancelled,
-    Type = ConsultationType.Emergency
-};
+    Kind = "instant",
+    InstantRequestId = ping.Id,
+    Type = "Emergency",
+    RequestStatus = ping.Status.ToString(),
+    RequestedAt = ping.RequestedAt,
+    RespondedAt = ping.RespondedAt,
+    UserId = ping.RescuerId,
+    UserName = ping.Rescuer?.FullName,
+    UserAvatarUrl = ping.Rescuer?.AvatarUrl
+}
 ```
 
-## 8. Test Focus
+### Fields Not Exposed By `kind = instant`
 
-- rejected instant request appears in member history
-- rejected instant request appears in expert history
-- accepted instant request behavior remains unchanged
+Do not expose these fields for request-level rows:
+
+- `consultationId`
+- `roomId`
+- `startTime`
+- `endTime`
+- `rescueMissionId`
+- `expiresAt`
+- `price`
+- `grossPrice`
+- `netPrice`
+
+## 5. Open Code Decision
+
+Status filter mapping is still open.
+
+The implementation must not guess whether `status=Cancelled` includes `requestStatus=DeclinedByExpert`, or how `Expired` should be filtered, until H-002 is closed.
+
+## 6. Test Focus
+
+- member history includes `DeclinedByExpert` instant request as `kind = instant`
+- expert history includes `DeclinedByExpert` instant request as `kind = instant`
+- member history includes `Expired` instant request as `kind = instant`
+- expert history includes `Expired` instant request as `kind = instant`
+- accepted instant request behavior remains unchanged as `kind = consultation`
 - selected contract behavior is explicit and tested
-- paging and sorting handle the selected representation
-- status filtering follows the selected contract
-- consultation-scoped actions are blocked or hidden for non-real consultation rows or Fake `Consultation` rows
-- admin/reporting/payment/cleanup side effects are covered if Approach 3 is selected
+- paging and sorting handle `respondedAt` for `kind = instant`
+- status filtering follows H-002 after it is closed
+- consultation-scoped actions are hidden or unavailable for `kind = instant`

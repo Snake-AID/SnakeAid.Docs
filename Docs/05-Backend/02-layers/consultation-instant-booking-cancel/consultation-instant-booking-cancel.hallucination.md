@@ -4,13 +4,13 @@ module: consultation-instant-booking-cancel
 kind: flow
 doc_type: hallucination
 status: current
-last_updated: 2026-05-04
+last_updated: 2026-05-05
 owners: [backend-team]
 verification_status: code-investigated
 ---
 # Rủi Ro Hallucination: Lịch Sử Huỷ Instant Consultation
 
-## H-001: Expert huỷ instant request thì có nên xuất hiện trong lịch sử consultation không?
+## H-001: Terminal instant request không có `Consultation` thì có nên xuất hiện trong lịch sử consultation không?
 
 - trạng thái: `Closed`
 - ngày phát hiện: `2026-05-04`
@@ -37,59 +37,62 @@ Khi expert reject/cancel:
 - `ConsultationPingRequest.ConsultationId = null`
 - request này hiện không xuất hiện trong consultation history
 
-Vấn đề cần quyết định: request bị expert huỷ là một request-level event, nhưng frontend/mobile muốn nhìn thấy nó trong phần lịch sử. Có 3 hướng xử lý khả thi.
+Khi request hết hạn:
 
-## 2. Phương án 1: Sửa api contract thành 2 loại riêng, bắt mobile code 2 màn hình lịch sử
+- backend không tạo `Consultation`
+- `ConsultationPingRequest.Status = Expired`
+- `ConsultationPingRequest.ConsultationId = null`
+- request này hiện không xuất hiện trong consultation history
+
+Vấn đề đã quyết định: terminal instant request không có `Consultation` là request-level event, nhưng frontend/mobile vẫn cần nhìn thấy nó trong lịch sử. Ba hướng xử lý đã được phân tích trước khi chốt union contract.
+
+## 2. Phương án 1: Union contract với DTO riêng cho request-level row
 
 ### Mô tả
 
-Sửa contract của history endpoint để response có thể trả về cả:
+Sửa contract của history endpoint để response có thể trả về union row:
 
-- history row từ `Consultation`
-- history row từ `ConsultationPingRequest`
+- `kind = consultation`: history row từ `Consultation`
+- `kind = instant`: request-level history row từ `ConsultationPingRequest`
 
 Backend vẫn có thể dùng endpoint hiện tại:
 
 - `GET /api/users/me/consultations`
 - `GET /api/experts/me/consultations`
 
-Nhưng contract phải nói rõ một row có thể là consultation thật hoặc instant request.
+Nhưng contract phải nói rõ một item có thể là consultation thật hoặc instant request-level row. `kind = instant` là DTO riêng, không phải consultation DTO được ép nullable field.
 
 ### Hành vi hệ thống
 
 - Accepted scheduled consultation vẫn là consultation row.
 - Accepted emergency consultation vẫn là consultation row vì đã có `Consultation`.
-- Expert-rejected emergency request được trả về như request row.
+- Expert-rejected emergency request được trả về như request-level row.
+- Expired emergency request được trả về như request-level row.
 - Request row không có consultation thật.
 - Request row không có room thật.
 - Request row không được dùng cho các action chỉ dành cho consultation.
 
-Ví dụ response row cho request bị expert huỷ:
+Ví dụ member history row cho request bị expert huỷ:
 
 ```json
 {
-  "recordKind": "EmergencyRequest",
-  "consultationId": null,
-  "emergencyRequestId": "11111111-1111-1111-1111-111111111111",
+  "kind": "instant",
+  "instantRequestId": "11111111-1111-1111-1111-111111111111",
   "type": "Emergency",
-  "status": "Cancelled",
   "requestStatus": "DeclinedByExpert",
-  "roomId": null,
-  "startTime": "2026-05-04T03:10:00Z",
-  "endTime": "2026-05-04T03:10:00Z"
+  "requestedAt": "2026-05-04T03:09:30Z",
+  "respondedAt": "2026-05-04T03:10:00Z",
+  "expertId": "22222222-2222-2222-2222-222222222222",
+  "expertName": "Khiêm Expert",
+  "expertAvatarUrl": null
 }
 ```
 
 ### Tác động tới mobile
 
-Mobile phải hiểu history có 2 loại dữ liệu.
+Mobile phải hiểu history có 2 loại dữ liệu và branch UI theo `kind`.
 
-Mobile phải code UI theo 2 màn hình/section riêng:
-
-- consultation history
-- instant request history
-
-Backend contract vẫn nên có field phân biệt rõ loại row để tránh mobile phải tự đoán hoặc trộn nhầm action giữa 2 màn hình.
+Backend contract phải có field phân biệt rõ loại row để tránh mobile phải tự đoán hoặc trộn nhầm action giữa consultation row và instant request row.
 
 ### Ưu điểm
 
@@ -102,8 +105,7 @@ Backend contract vẫn nên có field phân biệt rõ loại row để tránh m
 ### Rủi ro
 
 - Đây là breaking/change contract cho mobile.
-- `consultationId` cần nullable hoặc cần model response mới.
-- Mobile phải sửa UI/render logic.
+- Mobile phải sửa UI/render logic theo union DTO.
 - Cần document rõ action nào không được phép với request row.
 
 ## 3. Phương án 2: Giữ contract cũ, trộn `ConsultationPingRequest` vào consultation history response
@@ -216,7 +218,7 @@ Vì vậy "Consultation rỗng" không thật sự rỗng được. Backend vẫ
 
 ## 5. So sánh nhanh
 
-| Tiêu chí                                    | Phương án 1: Tách contract + mobile 2 screen | Phương án 2: Giữ contract, ép ping vào response | Phương án 3: Tạo Fake `Consultation`          |
+| Tiêu chí                                    | Phương án 1: Union contract + DTO riêng | Phương án 2: Giữ contract, ép ping vào response | Phương án 3: Tạo Fake `Consultation`          |
 | --------------------------------------------- | ------------------------------------------------ | ----------------------------------------------------- | --------------------------------------------------- |
 | Đúng bản chất domain                      | Cao                                              | Trung bình thấp                                     | Thấp                                               |
 | Có fake `Consultation` trong DB            | Không                                           | Không                                                | Có                                                 |
@@ -226,21 +228,22 @@ Vì vậy "Consultation rỗng" không thật sự rỗng được. Backend vẫ
 | Rủi ro reporting/payment/cleanup             | Thấp                                            | Trung bình                                           | Cao                                                 |
 | Dễ maintain lâu dài                        | Cao                                              | Thấp                                                 | Thấp                                               |
 
-## 6. Nhận định hiện tại
+## 6. Nhận định đã chốt
 
-Nếu mục tiêu là đúng domain và dễ maintain lâu dài, phương án 1 là sạch nhất.
+Nếu mục tiêu là đúng domain và dễ maintain lâu dài, phương án 1 là sạch nhất và đã được chọn.
 
 Nếu mục tiêu là đổi ít ở database nhưng vẫn giữ endpoint cũ, phương án 2 có thể làm được nhưng contract sẽ mơ hồ nếu không thêm field phân biệt.
 
 Nếu mục tiêu là giữ nguyên contract bằng mọi giá, phương án 3 giải quyết được bề mặt API nhưng tạo rủi ro lớn nhất cho domain, reporting, room/chat, payment và các flow consultation-scoped.
 
-## 7. Quyết định cần chốt
+## 7. Quyết định đã chốt
 
-Cần chọn một trong 3 hướng:
+Đã chọn hướng 1:
 
-1. Tách bạch API contract để hỗ trợ cả `Consultation` và `ConsultationPingRequest`, đồng thời mobile code 2 màn hình/section lịch sử.
-2. Giữ API contract, fetch thêm `ConsultationPingRequest` rồi ép/trộn vào history response.
-3. Giữ API contract, khi expert huỷ thì tạo Fake `Consultation` để thoả contract.
+1. Tách bạch API contract để hỗ trợ cả `Consultation` row và `ConsultationPingRequest` request-level row trong cùng history response.
+2. Không tạo Fake `Consultation`.
+3. Không ép request-level row vào consultation DTO.
+4. Dùng union contract với discriminator `kind`.
 
 Quyết định này ảnh hưởng trực tiếp tới:
 
@@ -248,6 +251,8 @@ Quyết định này ảnh hưởng trực tiếp tới:
 - logic query trong consultation history service
 - cách mobile render history
 - cách backend bảo vệ các action chỉ hợp lệ với consultation thật
+
+Decision còn mở duy nhất trong file này là status filter mapping cho `kind = instant`.
 
 ## 8. Decision Record
 
@@ -258,7 +263,7 @@ Quyết định này ảnh hưởng trực tiếp tới:
 
 Quyết định:
 
-- Expert-rejected instant/emergency request phải được biểu diễn như request-level history row, không tạo Fake `Consultation`.
+- Expert-rejected và expired instant/emergency request phải được biểu diễn như request-level history row, không tạo Fake `Consultation`.
 - Backend không được dùng `Guid.Empty`, random id, hoặc `emergencyRequestId` để giả lập `consultationId`.
 - `consultationId` của request-level row phải nullable hoặc không được coi là id consultation thật.
 - Contract cần có discriminator để mobile render đúng loại row.
@@ -271,12 +276,10 @@ Quyết định:
 - Scheduled consultation và các instant/emergency request đã có pair với `Consultation` vẫn là `kind = consultation`.
 - Accepted instant/emergency request không thuộc phạm vi contract row mới; vì đã có linked `Consultation`, nó tiếp tục được xử lý như consultation history row.
 
-Ghi chú contract còn mở:
+Ghi chú contract:
 
 - Field contract chính cho DTO `kind = instant` đã được chốt trong decision bổ sung ngày `2026-05-05`.
 - Status filter mapping cho `kind = instant` vẫn để mở. Decision này có thể cần được mở lại khi phân tích admin endpoint/history contract.
-- Các doc khác trong pack chưa cập nhật ngay vì cần cân nhắc tiếp field contract cho kind `instant`.
-- `consultation-instant-booking-cancel.useguide.md`, `consultation-instant-booking-cancel.roadmap.md`, `consultation-instant-booking-cancel.sourcecode.md`, và `consultation-instant-booking-cancel.introduction.md` sẽ được sync sau khi status filter decision được xử lý đủ rõ.
 
 Decision bổ sung ngày `2026-05-05` cho DTO `kind = instant`:
 
@@ -313,3 +316,58 @@ Tác động implementation dự kiến:
 - Accepted instant/emergency request vẫn map từ linked `Consultation` và trả về `kind = consultation`.
 - Rejected/expired instant/emergency request phải map từ `ConsultationPingRequest`, không map từ fake consultation.
 - Mobile phải branch UI theo kind thay vì suy luận từ `consultationId`, `roomId`, hoặc `status`.
+
+## H-002: Status filter mapping cho `kind = instant` nên hoạt động như thế nào?
+
+- trạng thái: `Open`
+- ngày phát hiện: `2026-05-05`
+- phạm vi: member history, expert history, có thể mở rộng sang admin history
+- endpoint liên quan:
+  - `GET /api/users/me/consultations`
+  - `GET /api/experts/me/consultations`
+  - admin history endpoint nếu áp dụng cùng union/filter model sau này
+
+## 1. Lý do còn mở
+
+Query history hiện có `status` filter theo `ConsultationStatus`.
+
+DTO `kind = instant` dùng `requestStatus` từ `ConsultationPingStatus`, trước mắt gồm:
+
+- `DeclinedByExpert`
+- `Expired`
+
+Hai enum này không cùng nghĩa:
+
+- `ConsultationStatus.Cancelled` là trạng thái của consultation/session thật.
+- `ConsultationPingStatus.DeclinedByExpert` là request bị expert từ chối trước khi có `Consultation`.
+- `ConsultationPingStatus.Expired` là request hết hạn trước khi có `Consultation`.
+
+## 2. Impact nếu đoán sai
+
+- Mobile có thể filter lịch sử nhưng không thấy request-level row dù row đang tồn tại.
+- Backend có thể map `Cancelled` sang `DeclinedByExpert` quá sớm và làm admin/reporting hiểu nhầm request-level cancellation là consultation cancellation.
+- Nếu admin history dùng cùng filter sau này, filter contract có thể cần phân biệt `status` và `requestStatus`.
+
+## 3. Candidate options
+
+### Option A: `status` chỉ filter `kind = consultation`
+
+- `kind = instant` không bị ảnh hưởng bởi `status`.
+- Đơn giản cho backend hiện tại.
+- Có thể gây bất ngờ nếu mobile kỳ vọng `status=Cancelled` bao gồm request bị expert reject.
+
+### Option B: `status=Cancelled` bao gồm `requestStatus=DeclinedByExpert`
+
+- Gần với UI label "Đã huỷ".
+- Có nguy cơ trộn `ConsultationStatus` với `ConsultationPingStatus`.
+- Chưa đủ rõ cho `Expired`.
+
+### Option C: thêm/duy trì filter riêng `requestStatus`
+
+- Rõ ràng nhất về contract.
+- Mobile/admin có thể filter đúng request-level status.
+- Là thay đổi contract rộng hơn và cần cân nhắc chung với admin endpoint.
+
+## 4. Required user decision
+
+Chưa chốt trong lượt này. Giữ open cho tới khi phân tích filter contract của member/expert history và admin history đủ rõ.
