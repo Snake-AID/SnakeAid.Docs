@@ -89,13 +89,11 @@ Out of scope:
 
 ## Next Resume Step
 
-Ask the user to choose the exact Option 2 contract shape:
+Ask the user to choose H-001 direction:
 
-- nullable `consultationId`
-- `recordKind`
-- unified `status`
-- exact `requestStatus`
-- filter behavior for `status=Cancelled` and/or `requestStatus=DeclinedByExpert`
+- `Option 1`: keep current session-only history
+- `Option 2B`: mixed consultation/request history with nullable `consultationId`, `recordKind`, unified `status`, exact `requestStatus`, and `status=Cancelled` including `DeclinedByExpert`
+- `Option 3`: separate instant/emergency request history endpoint
 
 ## Change Log
 
@@ -104,3 +102,4 @@ Ask the user to choose the exact Option 2 contract shape:
 - Created isolated documentation pack for instant/emergency cancellation history.
 - Moved instant/emergency history analysis out of `consultation-scheduled-booking-cancel`.
 - Recorded current root cause and proposed implementation impact for request-only history rows.
+- Expanded H-001 option analysis with a decision matrix, code evidence, Option 2A risks, Option 2B filter behavior, and an explicit Option 1/2B/3 decision path.
