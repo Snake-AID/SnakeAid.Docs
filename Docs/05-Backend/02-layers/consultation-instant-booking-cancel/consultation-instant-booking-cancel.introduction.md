@@ -55,25 +55,50 @@ Expert-rejected instant/emergency requests remain request records only:
 - `ConsultationId = null`
 - `Status = DeclinedByExpert`
 
-## Locked Implementation Direction
+## Decision Space
 
-Option 2B is locked.
+There are three candidate directions for showing expert-rejected instant/emergency requests in history.
 
-The backend should include expert-rejected instant/emergency requests in the existing member/expert history endpoints as request-level rows.
+### Approach 1: Split The Contract And Force Mobile To Build Two History Screens
 
-This requires an explicit response contract because rejected rows do not have a real consultation id or room id.
+The history contract explicitly supports both real `Consultation` rows and request-level `ConsultationPingRequest` rows.
 
-Expected system behavior after implementation:
+Expected behavior:
 
-- accepted scheduled and emergency rows continue to represent real consultation sessions
-- expert-rejected instant/emergency rows appear in the same history list as request-level rows
-- request-level rows are marked with `recordKind = "EmergencyRequest"`
-- request-level rows return `consultationId = null`
-- request-level rows return `emergencyRequestId`
-- request-level rows return `status = "Cancelled"` for history grouping
-- request-level rows return `requestStatus = "DeclinedByExpert"` for exact backend state
-- request-level rows return `roomId = null`
-- clients must not use request-level rows for room join, consultation detail, message history, review, or settlement actions
+- accepted scheduled and emergency consultations remain real consultation rows
+- expert-rejected instant/emergency requests appear as request-level rows
+- request-level rows do not fabricate `Consultation` data
+- mobile must build two history screens or sections:
+  - consultation history
+  - instant request history
+
+### Approach 2: Keep The Old Contract And Force `ConsultationPingRequest` Into Consultation History
+
+The backend fetches rejected `ConsultationPingRequest` records and maps them into the existing history response shape without creating `Consultation` rows.
+
+Expected behavior:
+
+- database stays cleaner than the Fake Consultation approach
+- rejected request rows are mixed into the existing `/me/consultations` response
+- the response contract becomes ambiguous unless special values or extra fields are introduced
+- mobile must avoid treating request-only rows as real consultations
+
+### Approach 3: Keep The Old Contract By Creating A Fake `Consultation`
+
+The backend creates a Fake cancelled emergency `Consultation` only to satisfy the existing non-null `consultationId` contract.
+
+Expected behavior:
+
+- history rows keep a real `consultationId`
+- mobile sees the rejected request as a cancelled consultation row
+- the database contains a Fake `Consultation` that does not represent a real session
+- consultation-scoped flows such as room, chat, review, payment, cleanup, and reporting need guards to avoid treating the Fake `Consultation` as a real session
+
+## Current Recommendation Status
+
+No implementation direction is locked in this pack.
+
+The next decision is to choose one of the three approaches above before changing code or frontend/mobile contracts.
 
 ## Delivered Artifacts
 

@@ -8,205 +8,63 @@ last_updated: 2026-05-04
 owners: [backend-team]
 verification_status: code-investigated
 ---
+# Rủi Ro Hallucination: Lịch Sử Huỷ Instant Consultation
 
-# Consultation Instant Booking Cancel Hallucination Risks
+## H-001: Expert huỷ instant request thì có nên xuất hiện trong lịch sử consultation không?
 
-## H-001: Should Expert-Rejected Instant Requests Appear In Consultation History?
+- trạng thái: `Open`
+- ngày phát hiện: `2026-05-04`
+- phạm vi: member history và expert history
+- endpoint liên quan:
+  - `GET /api/users/me/consultations`
+  - `GET /api/experts/me/consultations`
 
-- status: `Closed`
-- discovered: `2026-05-04`
-- closed: `2026-05-04`
-- chosen option: `Option 2B`
+## 1. Sự thật hiện tại trong code
 
-### Why This Requires A Decision
+Instant/emergency request hiện được lưu bằng `ConsultationPingRequest`.
 
-Expert-rejected instant/emergency requests currently exist as `ConsultationPingRequest` records, not `Consultation` records.
+Khi expert accept:
 
-Current code:
+- backend tạo một `Consultation`
+- `ConsultationPingRequest.Status = AcceptedByExpert`
+- `ConsultationPingRequest.ConsultationId` có giá trị
+- request này có thể xuất hiện trong consultation history
 
-- creates `Consultation` only when the expert accepts the instant request
-- sets rejected instant requests to `ConsultationPingStatus.DeclinedByExpert`
-- leaves rejected instant requests with `ConsultationId = null`
-- returns instant/emergency history only for accepted requests that have a linked `Consultation`
+Khi expert reject/cancel:
 
-The product decision is whether request-level rejected instant rows should appear inside the existing consultation history endpoints.
+- backend không tạo `Consultation`
+- `ConsultationPingRequest.Status = DeclinedByExpert`
+- `ConsultationPingRequest.ConsultationId = null`
+- request này hiện không xuất hiện trong consultation history
 
-### Impact If Guessed Wrong
+Vấn đề cần quyết định: request bị expert huỷ là một request-level event, nhưng frontend/mobile muốn nhìn thấy nó trong phần lịch sử. Có 3 hướng xử lý khả thi.
 
-- Mobile may need to render history rows with no consultation room.
-- Clients may currently assume `consultationId` is always present.
-- Mapping request status into consultation status can create misleading UI if not explicit.
-- Keeping rejected requests hidden may make users think the request disappeared.
+## 2. Phương án 1: Sửa api contract thành 2 loại riêng, bắt mobile code 2 màn hình lịch sử
 
-### Decision Options
+### Mô tả
 
-#### Option 1: Keep Current Session-Only History
+Sửa contract của history endpoint để response có thể trả về cả:
 
-Behavior:
+- history row từ `Consultation`
+- history row từ `ConsultationPingRequest`
 
-- rejected instant requests remain invisible in member/expert consultation history
-- accepted instant requests continue to appear because they have a linked `Consultation`
-- current DTOs remain unchanged:
-  - `MyConsultationResponse.ConsultationId: Guid`
-  - `ExpertConsultationResponse.ConsultationId: Guid`
-  - `AdminConsultationResponse.ConsultationId: Guid`
+Backend vẫn có thể dùng endpoint hiện tại:
 
-Pros:
+- `GET /api/users/me/consultations`
+- `GET /api/experts/me/consultations`
 
-- lowest implementation risk
-- no mobile breaking change
-- preserves the existing meaning of consultation history as actual sessions only
-- no ambiguity around chat room, review, message history, or payment settlement actions
+Nhưng contract phải nói rõ một row có thể là consultation thật hoặc instant request.
 
-Cons:
+### Hành vi hệ thống
 
-- rejected instant requests disappear from the user's visible history
-- expert rejection accountability is not visible in the same place as accepted emergency sessions
-- mobile may need another source to explain why an instant request ended
+- Accepted scheduled consultation vẫn là consultation row.
+- Accepted emergency consultation vẫn là consultation row vì đã có `Consultation`.
+- Expert-rejected emergency request được trả về như request row.
+- Request row không có consultation thật.
+- Request row không có room thật.
+- Request row không được dùng cho các action chỉ dành cho consultation.
 
-Best fit when:
-
-- product defines consultation history as completed/created consultation sessions only
-- rejected requests are treated as notification/activity events, not history records
-
-#### Option 2: Add Rejected Requests To Existing Consultation History
-
-Behavior:
-
-- member/expert history endpoints return a mixed list:
-  - real `Consultation` session rows
-  - request-only `ConsultationPingRequest` rows for `DeclinedByExpert`
-- request-only rows must be explicitly distinguishable from consultation rows
-
-Pros:
-
-- rejected instant requests appear where users already look for consultation outcomes
-- no extra mobile screen or endpoint is required for the narrow rejected-request case
-- accepted and rejected emergency outcomes can sort together in one timeline
-
-Cons:
-
-- current response contract is not compatible with request-only rows because `consultationId` is non-null
-- mobile must handle rows with no room and no created consultation
-- status filtering becomes ambiguous unless `ConsultationStatus` and `ConsultationPingStatus` are separated
-- follow-up actions tied to real consultations must be guarded by `recordKind`
-
-Best fit when:
-
-- product wants one unified history timeline
-- mobile is ready to handle a discriminator and nullable consultation fields
-- the scope is limited to terminal request outcomes such as `DeclinedByExpert`, not all live pending requests
-
-#### Option 3: Add A Separate Instant/Emergency Request History Endpoint
-
-Behavior:
-
-- existing consultation history remains session-only
-- a new request-history endpoint returns request lifecycle rows such as pending, accepted, declined, expired, and cancelled
-- request history uses `ConsultationPingRequest.Id` as the primary id and includes optional `ConsultationId`
-
-Pros:
-
-- cleanest domain contract: consultation history stays about sessions; request history stays about ping/request lifecycle
-- avoids making `consultationId` nullable in existing history DTOs
-- can support pending/expired/cancelled request states without overloading consultation status
-- lower risk of breaking existing mobile assumptions
-
-Cons:
-
-- requires a new endpoint, mobile integration path, and API documentation
-- accepted emergency sessions may appear in both request history and consultation history unless the contract documents the relationship clearly
-- does not satisfy a strict requirement to show rejected requests inside the existing history list
-
-Best fit when:
-
-- product needs a full instant request audit trail, not only expert-rejected rows
-- mobile can add a separate request history screen/section
-- preserving existing consultation history semantics is more important than a single timeline
-
-### Option Comparison
-
-| Criterion | Option 1: Keep Current | Option 2: Mixed History | Option 3: Separate Request History |
-| --- | --- | --- | --- |
-| Shows expert-rejected instant requests | No | Yes, in existing history | Yes, in new request history |
-| Existing endpoint contract impact | None | High | None or low |
-| Requires nullable `consultationId` in existing DTOs | No | Yes, if done correctly | No |
-| Mobile rendering complexity | Low | Medium to high | Medium |
-| Domain clarity | High for session history | Medium | High |
-| Future support for pending/expired requests | Poor | Risky in history list | Strong |
-| Fastest implementation | Option 1 | Option 2A only, but unsafe | Moderate |
-| Best long-term extensibility | Weak | Medium | Strong |
-
-### Evidence From Current Code
-
-- `EmergencyConsultationService.AcceptEmergencyRequestAsync(...)` creates a `Consultation` and assigns `ConsultationPingRequest.ConsultationId`.
-- `EmergencyConsultationService.RejectEmergencyRequestAsync(...)` sets `Status = ConsultationPingStatus.DeclinedByExpert`, sets `RespondedAt`, and does not create a `Consultation`.
-- `GetMyConsultationsAsync(...)` only includes emergency requests where:
-  - `p.RescuerId == userId`
-  - `p.ConsultationId.HasValue`
-  - `p.Status == ConsultationPingStatus.AcceptedByExpert`
-- `GetExpertConsultationsAsync(...)` only includes emergency requests where:
-  - `p.ExpertId == expertId`
-  - `p.ConsultationId.HasValue`
-  - `p.Status == ConsultationPingStatus.AcceptedByExpert`
-- current member/expert DTOs require `ConsultationId` as non-null `Guid`.
-- admin history has richer accepted emergency metadata (`EmergencyRequestId`, `EmergencyRequestStatus`, request timestamps), but still uses non-null `ConsultationId`.
-
-### Option 2 Analysis
-
-Option 2B is the locked product/contract direction.
-
-System behavior after Option 2B is implemented:
-
-- existing member/expert consultation history endpoints return a mixed timeline
-- accepted scheduled and emergency sessions remain `recordKind = "Consultation"`
-- expert-rejected instant/emergency requests appear as `recordKind = "EmergencyRequest"`
-- request-only rows use `consultationId = null`
-- request-only rows keep `emergencyRequestId = ConsultationPingRequest.Id`
-- request-only rows use `status = "Cancelled"` for unified history grouping
-- request-only rows use `requestStatus = "DeclinedByExpert"` for exact backend state
-- request-only rows have `roomId = null` because no consultation room was created
-- request-only rows do not support consultation detail, room join, message history, review, or consultation settlement actions
-- accepted emergency consultation behavior remains unchanged and still maps from linked `Consultation`
-
-#### Option 2A: Minimal Contract Change
-
-Implementation shape:
-
-- include `ConsultationPingStatus.DeclinedByExpert` in emergency history queries
-- map rejected rows directly from `ConsultationPingRequest`
-- set `EmergencyRequestId = ping.Id`
-- set `Type = "Emergency"`
-- set `RoomId = null`
-- synthesize `StartTime = ping.RespondedAt ?? ping.RequestedAt`
-- set price from request payment transaction when available
-
-Problem:
-
-- current `consultationId` is a non-null `Guid`
-- rejected instant rows have no real consultation id
-- using `Guid.Empty` would be ambiguous and should be avoided
-
-Additional risk:
-
-- the history list would contain rows that look like consultations but cannot support consultation actions
-- `status=Cancelled` would be synthesized from request status, not loaded from `Consultation.Status`
-- existing tests that assert history invariants around non-null `consultationId` would need updates or new exceptions
-- clients may accidentally call consultation detail, message history, room join, or review APIs with a fake id
-
-#### Option 2B: Contract-Correct Request-Level Row
-
-Preferred shape if Option 2 is selected:
-
-- make `consultationId` nullable for history responses
-- add `recordKind = "Consultation" | "EmergencyRequest"`
-- add exact `requestStatus`, e.g. `DeclinedByExpert`
-- use a unified `status` only for UI grouping if needed
-- keep `roomId = null` for request-only rows
-- keep `startTime` and `endTime` derived from request timestamps only for timeline display
-- document that request-only rows do not support room join, message history, review, or consultation detail APIs
-
-Recommended request-only row:
+Ví dụ response row cho request bị expert huỷ:
 
 ```json
 {
@@ -222,77 +80,171 @@ Recommended request-only row:
 }
 ```
 
-Implementation notes:
+### Tác động tới mobile
 
-- member response model and expert response model both need the same discriminator/nullability change.
-- admin response can reuse existing emergency request metadata fields, but it still needs either nullable `ConsultationId` or a separate request-history response if rejected requests are added there later.
-- sorting should use `RespondedAt ?? RequestedAt` for request-only rows so declined requests appear at the time the expert acted when available.
-- pagination should happen after merging consultation rows and request-only rows, matching the current in-memory merge pattern.
+Mobile phải hiểu history có 2 loại dữ liệu.
 
-### Status Mapping Decision Inside Option 2
+Mobile phải code UI theo 2 màn hình/section riêng:
 
-Current code has two status enums:
+- consultation history
+- instant request history
 
-- `ConsultationStatus`
-- `ConsultationPingStatus`
+Backend contract vẫn nên có field phân biệt rõ loại row để tránh mobile phải tự đoán hoặc trộn nhầm action giữa 2 màn hình.
 
-Sub-decision required:
+### Ưu điểm
 
-1. return raw ping status in `status`
-2. map rejected request rows to a unified `status = "Cancelled"`
-3. return both `status = "Cancelled"` and `requestStatus = "DeclinedByExpert"`
+- Đúng bản chất dữ liệu.
+- Không tạo fake `Consultation`.
+- Không cần fake `consultationId`.
+- Frontend biết rõ row nào là session thật, row nào chỉ là request bị huỷ.
+- Ít gây nhiễu cho room, chat, review, payment, settlement, admin report.
 
-Recommended shape:
+### Rủi ro
 
-- return both unified display status and exact request status
-- document that `requestStatus` is only meaningful for `recordKind = "EmergencyRequest"`
+- Đây là breaking/change contract cho mobile.
+- `consultationId` cần nullable hoặc cần model response mới.
+- Mobile phải sửa UI/render logic.
+- Cần document rõ action nào không được phép với request row.
 
-### Filter Behavior Decision Inside Option 2
+## 3. Phương án 2: Giữ contract cũ, trộn `ConsultationPingRequest` vào consultation history response
 
-Current history filters parse `query.Status` as `ConsultationStatus`. That means `DeclinedByExpert` is not currently a valid history status filter.
+### Mô tả
 
-Sub-decision required:
+Giữ response contract gần như hiện tại của `/me/consultations`, nhưng backend query thêm các `ConsultationPingRequest` bị expert huỷ rồi trộn vào danh sách history cùng với `Consultation`.
 
-1. `status=Cancelled` includes request-only rows with `requestStatus=DeclinedByExpert`.
-   - Pros: mobile can reuse the existing status filter.
-   - Cons: backend is mapping a ping status into a consultation status bucket.
+Phương án này không tạo thêm `Consultation` trong database.
 
-2. add `requestStatus=DeclinedByExpert` as a separate query parameter.
-   - Pros: precise and domain-correct.
-   - Cons: API surface grows and mobile must understand two filters.
+### Hành vi hệ thống
 
-3. include request-only rows only when no `status` filter is provided.
-   - Pros: avoids ambiguous status mapping.
-   - Cons: users filtering to cancelled history would not see expert-declined instant requests.
+- Backend lấy các consultation thật như hiện tại.
+- Backend lấy thêm các ping request có `Status = DeclinedByExpert`.
+- Backend map ping request thành history row trong cùng response contract.
+- Row bị huỷ vẫn không có `Consultation` thật phía database.
 
-Recommended shape if Option 2 is selected:
+### Vấn đề chính
 
-- support `status=Cancelled` as the unified mobile grouping
-- add `requestStatus` to the response for exact meaning
-- defer a `requestStatus` query parameter unless product needs direct filtering by ping lifecycle state
+Contract hiện tại được thiết kế cho consultation row, không phải request row.
 
-### Decision Record
+Các field dễ bị sai nghĩa:
 
-- date: `2026-05-04`
-- chosen option: `Option 2B`
-- user decision: lock Option 2B
-- rationale: show expert-rejected instant/emergency requests inside existing member/expert consultation history while avoiding fake consultation ids and preserving exact request state.
+- `consultationId`: request bị huỷ không có consultation id.
+- `roomId`: request bị huỷ không có room.
+- `startTime`: nếu dùng `RequestedAt` hoặc `RespondedAt` thì đây là thời điểm request, không phải thời điểm session bắt đầu.
+- `endTime`: nếu dùng `RespondedAt` thì đây là thời điểm expert huỷ, không phải thời điểm session kết thúc.
+- `status`: `DeclinedByExpert` là `ConsultationPingStatus`, không phải `ConsultationStatus`.
 
-Implementation impact:
+### Các cách lách contract và rủi ro
 
-- make history `consultationId` nullable for member/expert history response rows
-- add `recordKind`
-- add `requestStatus`
-- include `DeclinedByExpert` pings in member/expert emergency history
-- map declined pings without creating or faking a `Consultation`
-- apply `status=Cancelled` as the unified history status for declined request-only rows
+Nếu `consultationId` vẫn non-null, backend phải chọn một cách không sạch:
 
-Documentation impact:
+- dùng `Guid.Empty`
+- nhét `emergencyRequestId` vào `consultationId`
+- sinh random id không tồn tại trong bảng `Consultation`
+- trả `null` dù contract cũ không nói nullable
 
-- `consultation-instant-booking-cancel.roadmap.md` must continue from implementation, not decision discovery
-- `consultation-instant-booking-cancel.useguide.md` should present Option 2B as planned contract, not an open option
-- `consultation-instant-booking-cancel.sourcecode.md` should describe desired implementation under Option 2B
+Các cách này đều làm mobile dễ hiểu nhầm row đó là consultation thật.
 
-### Remaining Open Decisions
+### Rủi ro tiềm tàng
 
-None for H-001.
+- Mobile có thể gọi nhầm consultation detail bằng id không hợp lệ.
+- Mobile có thể gọi nhầm message history, review, join room, report absent.
+- UI phải suy luận bằng giá trị đặc biệt thay vì contract rõ ràng.
+- Sorting/filtering dễ mơ hồ vì trộn `ConsultationStatus` với `ConsultationPingStatus`.
+- Sau này khi có cancelled consultation thật, frontend khó phân biệt với request bị expert reject.
+
+### Khi nào có thể chấp nhận
+
+Chỉ nên cân nhắc nếu muốn thay đổi backend rất nhanh và mobile chấp nhận xử lý technical debt rõ ràng.
+
+Nếu chọn hướng này, vẫn nên thêm ít nhất một discriminator như `recordKind`; nhưng khi thêm discriminator/nullability thì thực chất đã chuyển gần sang Phương án 1.
+
+## 4. Phương án 3: Giữ contract cũ bằng cách tạo Fake `Consultation`
+
+### Mô tả
+
+Khi expert huỷ instant request, backend tạo một `Consultation` dù không có session thật. Mục tiêu là để history response vẫn có `consultationId` thật và không phải sửa contract.
+
+Sau đó:
+
+- `ConsultationPingRequest.ConsultationId` trỏ tới consultation mới tạo
+- history endpoint có thể fetch như accepted emergency consultation
+- response nhìn giống consultation history row bình thường
+
+### Hành vi hệ thống
+
+- Expert reject request.
+- Backend tạo một `Consultation` trạng thái `Cancelled`.
+- Backend gắn consultation này vào `ConsultationPingRequest`.
+- History trả về row có `consultationId` non-null.
+
+### Vấn đề chính
+
+Database sẽ có một Fake `Consultation` không đại diện cho consultation session thật.
+
+Trong domain hiện tại, `Consultation` là session/call entity. Nó có các field required:
+
+- `CallerId`
+- `CalleeId`
+- `RoomId`
+- `StartTime`
+- `Status`
+- `Type`
+
+Vì vậy "Consultation rỗng" không thật sự rỗng được. Backend vẫn phải tự điền các field bắt buộc.
+
+### Rủi ro tiềm tàng
+
+- `RoomId` phải được fake hoặc tạo dù không có call room thật.
+- Chat/SignalR/room join có thể nhầm đây là consultation thật nếu chỉ check `consultationId`.
+- Review/message history/detail API có thể nhìn thấy consultation này.
+- Admin/reporting có thể đếm nhầm rejected request thành cancelled consultation.
+- Payment/settlement/cleanup job phải thêm guard để không xử lý fake consultation như session thật.
+- Các query theo `Consultation.Type = Emergency` bị nhiễu vì có cả emergency session thật và Fake `Consultation`.
+- Business logic sau này phải nhớ phân biệt "cancelled consultation thật" với "request bị expert reject nhưng được tạo consultation để thoả contract".
+
+### Ưu điểm
+
+- Ít thay đổi API contract nhất ở bề mặt.
+- Mobile có thể tiếp tục nhận `consultationId` non-null.
+- Dễ làm cho history endpoint nếu chỉ nhìn từ response hiện tại.
+
+### Nhược điểm
+
+- Đẩy complexity xuống database và domain model.
+- Tạo dữ liệu không phản ánh đúng nghiệp vụ.
+- Rủi ro dài hạn cao hơn hai phương án còn lại.
+
+## 5. So sánh nhanh
+
+| Tiêu chí                                    | Phương án 1: Tách contract + mobile 2 screen | Phương án 2: Giữ contract, ép ping vào response | Phương án 3: Tạo Fake `Consultation`          |
+| --------------------------------------------- | ------------------------------------------------ | ----------------------------------------------------- | --------------------------------------------------- |
+| Đúng bản chất domain                      | Cao                                              | Trung bình thấp                                     | Thấp                                               |
+| Có fake `Consultation` trong DB            | Không                                           | Không                                                | Có                                                 |
+| Có fake/mơ hồ `consultationId` trong API | Không                                           | Có nguy cơ cao                                      | Không, nhưng bản thân `Consultation` là fake |
+| Tác động mobile                            | Cao, phải sửa rõ ràng                        | Trung bình, nhưng dễ suy luận mơ hồ             | Thấp ban đầu                                     |
+| Rủi ro room/chat/review                      | Thấp                                            | Trung bình                                           | Cao                                                 |
+| Rủi ro reporting/payment/cleanup             | Thấp                                            | Trung bình                                           | Cao                                                 |
+| Dễ maintain lâu dài                        | Cao                                              | Thấp                                                 | Thấp                                               |
+
+## 6. Nhận định hiện tại
+
+Nếu mục tiêu là đúng domain và dễ maintain lâu dài, phương án 1 là sạch nhất.
+
+Nếu mục tiêu là đổi ít ở database nhưng vẫn giữ endpoint cũ, phương án 2 có thể làm được nhưng contract sẽ mơ hồ nếu không thêm field phân biệt.
+
+Nếu mục tiêu là giữ nguyên contract bằng mọi giá, phương án 3 giải quyết được bề mặt API nhưng tạo rủi ro lớn nhất cho domain, reporting, room/chat, payment và các flow consultation-scoped.
+
+## 7. Quyết định cần chốt
+
+Cần chọn một trong 3 hướng:
+
+1. Tách bạch API contract để hỗ trợ cả `Consultation` và `ConsultationPingRequest`, đồng thời mobile code 2 màn hình/section lịch sử.
+2. Giữ API contract, fetch thêm `ConsultationPingRequest` rồi ép/trộn vào history response.
+3. Giữ API contract, khi expert huỷ thì tạo Fake `Consultation` để thoả contract.
+
+Quyết định này ảnh hưởng trực tiếp tới:
+
+- DTO response của member/expert history
+- logic query trong consultation history service
+- cách mobile render history
+- cách backend bảo vệ các action chỉ hợp lệ với consultation thật

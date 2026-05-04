@@ -105,50 +105,24 @@ Result:
 - accepted instant/emergency requests appear in history
 - expert-rejected instant/emergency requests do not appear in history
 
-## 7. Desired/Planned Code For Locked Option 2B
+## 7. Desired/Planned Code By Candidate Approach
 
-Option 2B is chosen.
+No implementation approach is locked yet.
 
-- update history response DTOs to allow `ConsultationId` to be null
-- add `RecordKind`
-- add `RequestStatus`
-- include rejected pings in emergency history queries
-- map rejected pings as request-only rows
+### Approach 1: Split The Contract And Force Mobile To Build Two History Screens
+
+Planned code shape:
+
+- update member/expert history response DTOs or introduce a new row model that can represent both `Consultation` and `ConsultationPingRequest`
+- add a row discriminator, for example `RecordKind`
+- allow request-level rows to have no `ConsultationId`
+- add exact request status, for example `RequestStatus`
+- document that mobile must build separate consultation history and instant request history screens/sections
+- include rejected pings in member/expert emergency history queries
+- map rejected pings as request-level rows
 - keep accepted pings mapped from linked `Consultation`
 
-### Planned Runtime Behavior
-
-Member history:
-
-- query accepted emergency pings exactly as today for real consultation rows
-- additionally query `DeclinedByExpert` pings for the current member where `ConsultationId == null`
-- map declined pings to `MyConsultationResponse` request-only rows
-- merge scheduled, accepted emergency, and declined emergency request rows before sorting/pagination
-
-Expert history:
-
-- query accepted emergency pings exactly as today for real consultation rows
-- additionally query `DeclinedByExpert` pings for the current expert where `ConsultationId == null`
-- map declined pings to `ExpertConsultationResponse` request-only rows
-- merge scheduled, accepted emergency, and declined emergency request rows before sorting/pagination
-
-Accepted emergency preservation:
-
-- accepted emergency rows stay `RecordKind = "Consultation"`
-- accepted emergency rows keep non-null `ConsultationId`
-- accepted emergency rows keep current `RoomId`, `StartTime`, `EndTime`, and pricing behavior
-
-Rejected emergency mapping:
-
-- rejected emergency rows become `RecordKind = "EmergencyRequest"`
-- rejected emergency rows set `ConsultationId = null`
-- rejected emergency rows set `EmergencyRequestId = ping.Id`
-- rejected emergency rows set `Status = "Cancelled"`
-- rejected emergency rows set `RequestStatus = "DeclinedByExpert"`
-- rejected emergency rows set `RoomId = null`
-- rejected emergency rows use `RespondedAt ?? RequestedAt` as timeline time
-
-Planned request-only mapping:
+Example request-level mapping:
 
 ```csharp
 new MyConsultationResponse
@@ -168,13 +142,56 @@ new MyConsultationResponse
 }
 ```
 
+### Approach 2: Keep The Old Contract And Force `ConsultationPingRequest` Rows Into Consultation History
+
+Planned code shape:
+
+- leave existing history DTOs as close as possible to their current shape
+- query `DeclinedByExpert` pings for member/expert history
+- map rejected pings into the current consultation history response
+- choose a concrete representation for missing `ConsultationId`
+- choose concrete semantics for `RoomId`, `StartTime`, `EndTime`, and `Status`
+
+High-risk mapping choices:
+
+- `ConsultationId = Guid.Empty`
+- `ConsultationId = ping.Id`
+- `ConsultationId = null` while the old contract still documents it as non-null
+- `Status = "Cancelled"` even though the source enum is `ConsultationPingStatus.DeclinedByExpert`
+
+### Approach 3: Keep The Old Contract By Creating A Fake `Consultation`
+
+Planned code shape:
+
+- update `EmergencyConsultationService.RejectEmergencyRequestAsync(...)`
+- create a Fake cancelled emergency `Consultation` when the expert rejects the request
+- set `ConsultationPingRequest.ConsultationId` to the new consultation id
+- make member/expert history pick up the row through the existing accepted-linked-consultation path or a modified emergency query
+- add guards so consultation-scoped flows do not treat the Fake `Consultation` as a real call session
+
+Fake `Consultation` creation sketch:
+
+```csharp
+var consultation = new Consultation
+{
+    Id = Guid.NewGuid(),
+    CallerId = ping.RescuerId,
+    CalleeId = ping.ExpertId,
+    RoomId = /* synthesized value */,
+    StartTime = ping.RespondedAt ?? ping.RequestedAt,
+    EndTime = ping.RespondedAt,
+    Status = ConsultationStatus.Cancelled,
+    Type = ConsultationType.Emergency
+};
+```
+
 ## 8. Test Focus
 
 - rejected instant request appears in member history
 - rejected instant request appears in expert history
-- rejected row has `consultationId = null`
-- rejected row has `emergencyRequestId`
-- rejected row has `roomId = null`
 - accepted instant request behavior remains unchanged
-- paging and sorting handle request-only rows
-- status filtering follows the chosen contract
+- selected contract behavior is explicit and tested
+- paging and sorting handle the selected representation
+- status filtering follows the selected contract
+- consultation-scoped actions are blocked or hidden for non-real consultation rows or Fake `Consultation` rows
+- admin/reporting/payment/cleanup side effects are covered if Approach 3 is selected

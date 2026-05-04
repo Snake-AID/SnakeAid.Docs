@@ -19,7 +19,7 @@ verification_status: code-investigated
 - current expert reject endpoint: `Available`
 - current member/expert history inclusion for accepted instant requests: `Available`
 - current member/expert history inclusion for expert-rejected instant requests: `Not implemented`
-- proposed direction: `Option 2B locked`
+- proposed direction: `Three approaches under decision`
 
 ## Current Truth To Resume From
 
@@ -51,37 +51,34 @@ Out of scope:
 - scheduled booking push notification copy
 - admin consultation history unless later requested
 
-## Proposed Implementation Checklist
+## Proposed Decision And Implementation Checklist
 
 ### Phase 1. Decision Lock
 
-- [x] decide whether rejected instant requests should appear in existing consultation history endpoints
-- [x] decide response shape for request-only rows
-- [x] decide status mapping and filtering behavior
+- [ ] choose Approach 1: split the API contract and require mobile to build two history screens
+- [ ] choose Approach 2: keep the old API contract and force `ConsultationPingRequest` rows into consultation history
+- [ ] choose Approach 3: keep the old API contract by creating a Fake `Consultation` when the expert rejects
+- [ ] document the selected response behavior for member history
+- [ ] document the selected response behavior for expert history
 
-Decision:
+Decision options:
 
-- expert-rejected instant/emergency requests will appear in existing member/expert consultation history endpoints
-- rejected requests will be request-only rows, not fake consultations
-- chosen contract is Option 2B:
-  - `consultationId = null`
-  - `recordKind = "EmergencyRequest"`
-  - `status = "Cancelled"`
-  - `requestStatus = "DeclinedByExpert"`
-  - `roomId = null`
+- Approach 1 changes the contract so history can explicitly separate `Consultation` and `ConsultationPingRequest` rows, and mobile must build two history screens or sections.
+- Approach 2 keeps the current contract shape and forces rejected `ConsultationPingRequest` records into it without creating `Consultation` rows.
+- Approach 3 keeps the current contract shape by creating a Fake cancelled `Consultation` when the expert rejects.
 
 ### Phase 2. Contract Design
 
-- [ ] make `consultationId` nullable in member/expert history response models
-- [ ] add `recordKind`
-- [ ] add exact request status as `requestStatus`
-- [ ] document nullability for `roomId`, `startTime`, and `endTime`
+- [ ] if Approach 1 is selected, define the mixed row contract and discriminator
+- [ ] if Approach 2 is selected, define how the existing fields represent request-only rows
+- [ ] if Approach 3 is selected, define the Fake `Consultation` status, room id, timestamps, and guards
+- [ ] update frontend/mobile contract notes after the selected approach is locked
 
 ### Phase 3. Service Implementation
 
-- [ ] update `GetMyConsultationsAsync(...)` emergency branch
-- [ ] update `GetExpertConsultationsAsync(...)` emergency branch
-- [ ] map `DeclinedByExpert` request-only rows without fake consultation ids
+- [ ] update `GetMyConsultationsAsync(...)` according to the selected approach
+- [ ] update `GetExpertConsultationsAsync(...)` according to the selected approach
+- [ ] include expert-rejected instant/emergency requests in the selected representation
 - [ ] preserve accepted emergency consultation behavior
 
 ### Phase 4. Tests
@@ -89,23 +86,23 @@ Decision:
 - [ ] user history includes expert-rejected instant request
 - [ ] expert history includes expert-rejected instant request
 - [ ] accepted emergency consultation history still maps from linked `Consultation`
-- [ ] sorting handles request-only timestamps
-- [ ] status filtering behavior matches the chosen contract
+- [ ] sorting behavior matches the selected representation
+- [ ] status filtering behavior matches the selected contract
+- [ ] consultation-scoped actions are protected from request-only rows or Fake `Consultation` rows
 
 ### Phase 5. Docs Sync
 
-- [ ] update `consultation-instant-booking-cancel.useguide.md` after the contract is chosen
-- [ ] update sourcecode diagrams after implementation
-- [ ] close the hallucination decision after user confirmation
+- [ ] update `consultation-instant-booking-cancel.useguide.md` after one approach is chosen
+- [ ] update sourcecode diagrams after implementation approach is locked
+- [ ] close H-001 in `consultation-instant-booking-cancel.hallucination.md` after user confirmation
 
 ## Next Resume Step
 
-Implement Option 2B in the backend:
+Ask the user to choose one of the three H-001 approaches:
 
-1. update member/expert history response DTOs for nullable `ConsultationId`, `RecordKind`, and `RequestStatus`
-2. update `ConsultationService.GetMyConsultationsAsync(...)` to merge `DeclinedByExpert` request-only rows
-3. update `ConsultationService.GetExpertConsultationsAsync(...)` with the same request-only mapping
-4. add tests for rejected request rows, accepted emergency preservation, sorting, and `status=Cancelled` filtering
+1. split the API contract to support both `Consultation` and `ConsultationPingRequest`, and require mobile to build two history screens
+2. keep the API contract and force rejected `ConsultationPingRequest` rows into history
+3. keep the API contract and create a Fake cancelled `Consultation` when the expert rejects
 
 ## Change Log
 
@@ -114,5 +111,5 @@ Implement Option 2B in the backend:
 - Created isolated documentation pack for instant/emergency cancellation history.
 - Moved instant/emergency history analysis out of `consultation-scheduled-booking-cancel`.
 - Recorded current root cause and proposed implementation impact for request-only history rows.
-- Expanded H-001 option analysis with a decision matrix, code evidence, Option 2A risks, Option 2B filter behavior, and an explicit Option 1/2B/3 decision path.
-- Locked H-001 to Option 2B and updated the next resume step from decision selection to backend implementation.
+- Reframed H-001 around three user-defined approaches: split contract with mobile two-screen work, contract-preserving response merge, and Fake `Consultation` creation.
+- Reset the roadmap from a locked implementation path back to decision selection.

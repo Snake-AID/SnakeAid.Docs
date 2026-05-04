@@ -21,12 +21,11 @@ Current verified backend behavior:
 - accepted instant/emergency requests can appear in member/expert consultation history
 - expert-rejected instant/emergency requests do not currently appear in member/expert consultation history
 
-Locked planned behavior:
+Decision status:
 
-- include expert-rejected instant/emergency requests in existing history endpoints as request-level rows
-- do not fabricate a consultation id for rows that do not have a `Consultation`
-- expose request-only rows with `recordKind = "EmergencyRequest"`
-- expose exact request state through `requestStatus`
+- no final integration contract is locked yet
+- three approaches are under review
+- frontend/mobile impact depends on the selected approach
 
 ## 2. Authentication & Authorization
 
@@ -94,47 +93,20 @@ Current behavior:
 - returns accepted instant/emergency consultation rows
 - does not return expert-rejected instant/emergency request rows
 
-## 5. Planned History Contract For Option 2B
+## 5. Candidate History Contract Approaches
 
-This contract is not implemented yet.
+No approach in this section is implemented yet.
 
-Request-only rows should be distinguishable from real consultation rows.
+### Approach 1: Split The Contract And Force Mobile To Build Two History Screens
 
-### System Behavior After Option 2B Is Implemented
+The history contract explicitly separates real consultation rows from request-level instant request rows.
 
-History endpoints return a single timeline with two row kinds.
+Potential row kinds:
 
-`recordKind = "Consultation"`:
+- `Consultation`
+- `EmergencyRequest`
 
-- represents a real `Consultation` row
-- has a non-null `consultationId`
-- may have a `roomId`
-- can be used for supported consultation actions such as detail, message history, room join when still active, review when eligible, and other consultation-scoped flows
-- applies to scheduled consultations and accepted emergency consultations
-
-`recordKind = "EmergencyRequest"`:
-
-- represents a rejected instant/emergency request, not a consultation session
-- has `consultationId = null`
-- has `emergencyRequestId`
-- has `roomId = null`
-- uses `status = "Cancelled"` for the existing history status grouping
-- uses `requestStatus = "DeclinedByExpert"` for the exact backend request state
-- cannot be used for consultation-scoped actions
-
-Sorting behavior:
-
-- real consultation rows sort by their existing consultation start time
-- request-only rows sort by `respondedAt` when available
-- request-only rows fall back to `requestedAt` when `respondedAt` is not available
-
-Filtering behavior:
-
-- no `status` filter returns both consultation rows and rejected request-only rows
-- `status=Cancelled` includes request-only rows with `requestStatus = "DeclinedByExpert"`
-- other consultation status filters apply only to real consultation rows unless future requirements add more request lifecycle mappings
-
-Planned user history row example:
+Example request-level row:
 
 ```json
 {
@@ -154,37 +126,53 @@ Planned user history row example:
 }
 ```
 
-Planned expert history row example:
+Frontend/mobile impact:
 
-```json
-{
-  "recordKind": "EmergencyRequest",
-  "consultationId": null,
-  "emergencyRequestId": "11111111-1111-1111-1111-111111111111",
-  "type": "Emergency",
-  "status": "Cancelled",
-  "requestStatus": "DeclinedByExpert",
-  "userId": "33333333-3333-3333-3333-333333333333",
-  "userName": "Member User",
-  "userAvatarUrl": null,
-  "roomId": null,
-  "startTime": "2026-05-04T03:10:00Z",
-  "endTime": "2026-05-04T03:10:00Z",
-  "grossPrice": 150000,
-  "netPrice": null
-}
-```
+- mobile must render by row kind
+- mobile must build two screens or sections:
+  - consultation history
+  - instant request history
+- request-level rows must not expose consultation-scoped actions
+
+### Approach 2: Keep The Old Contract And Force `ConsultationPingRequest` Rows Into Consultation History
+
+The backend fetches rejected `ConsultationPingRequest` records and maps them into the existing history response shape without creating `Consultation` rows.
+
+Frontend/mobile impact:
+
+- mobile receives rows that look like consultation history rows
+- backend must define how fields such as `consultationId`, `roomId`, `startTime`, `endTime`, and `status` behave for request-only rows
+- if no discriminator is added, mobile must infer row type from special values, which is fragile
+
+Open contract questions:
+
+- should `consultationId` be `Guid.Empty`, null, reused from `emergencyRequestId`, or omitted?
+- should `status` expose `Cancelled` or `DeclinedByExpert`?
+- how should mobile identify that the row is not a real consultation?
+
+### Approach 3: Keep The Old Contract By Creating A Fake `Consultation`
+
+The backend creates a Fake cancelled emergency `Consultation` when the expert rejects the instant request.
+
+Frontend/mobile impact:
+
+- mobile can keep receiving a non-null `consultationId`
+- the rejected request appears as a cancelled consultation row
+- mobile may need fewer response-model changes
+
+Backend/domain impact:
+
+- database contains a Fake `Consultation` that did not represent a real session
+- `RoomId`, `StartTime`, `EndTime`, and `Status` must be synthesized
+- room, chat, review, payment, cleanup, reporting, and admin flows need guards so they do not treat the Fake `Consultation` as a real session
 
 ## 6. Field Notes
 
-- `recordKind = "EmergencyRequest"` means this row is a request-level event, not a completed consultation session.
-- `consultationId = null` means no `Consultation` was created.
-- `roomId = null` means no call room was created.
-- `requestStatus = "DeclinedByExpert"` is the exact backend request status.
-- `status = "Cancelled"` is the locked unified display status for expert-rejected instant/emergency request rows.
-- `emergencyRequestId` is the stable id for request-only rows.
-- `startTime` and `endTime` on request-only rows are timeline timestamps, not consultation session timestamps.
-- frontend/mobile must branch by `recordKind` before showing actions.
+- `ConsultationPingRequest.Status = DeclinedByExpert` is the current exact backend state for expert-rejected instant/emergency requests.
+- `ConsultationPingRequest.ConsultationId = null` is the current reason these rows do not fit the existing consultation-only history contract.
+- Approach 1 requires explicit row typing in the API contract and mobile two-screen work.
+- Approach 2 keeps database semantics cleaner than Approach 3 but risks ambiguous response fields.
+- Approach 3 keeps the response shape closest to today but introduces Fake `Consultation` data.
 
 ## 7. Verified Endpoint List
 
@@ -200,6 +188,6 @@ Current verified endpoints:
 
 ### 2026-05-04
 
-- Created planned frontend/mobile contract for showing expert-rejected instant/emergency requests in existing member/expert history endpoints.
-- Marked request-only history rows as planned and not implemented.
-- Locked Option 2B behavior: mixed history rows, nullable `consultationId`, `recordKind`, `requestStatus`, and `status=Cancelled` mapping for `DeclinedByExpert`.
+- Documented three candidate frontend/mobile integration approaches for expert-rejected instant/emergency history with stronger wording.
+- Marked all candidate history contracts as planned and not implemented.
+- Removed the previous single-path framing from this guide.
