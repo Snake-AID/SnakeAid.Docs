@@ -3,317 +3,429 @@ doc_role: usageguide
 module: consultation-instant-booking-cancel
 kind: flow
 doc_type: useguide
-status: decision-updated-implementation-paused
+status: implemented
 last_updated: 2026-05-05
 api_version: v1
 owners: [backend-team]
-verification_status: decision-recorded
+verification_status: verified
 ---
 
 # Consultation Instant Booking Cancel Useguide
 
-## 1. Overview
+## Overview
 
 This guide is for frontend/mobile integration.
 
-Current verified backend behavior:
+This module is implemented and verified.
 
-- accepted instant/emergency requests can appear in member/expert consultation history
-- expert-rejected instant/emergency requests appear in member/expert consultation history as `kind = instant`
-- expired instant/emergency requests appear in member/expert consultation history as `kind = instant`
+Current member/expert consultation history is a typed union contract:
 
-Target contract:
+- `kind = consultation`: a real `Consultation` row
+- `kind = instant`: a terminal instant request row (`ConsultationPingRequest`) without linked `Consultation`
 
-- history response items use `kind = consultation | instant`
-- `kind = consultation` represents a real `Consultation`
-- `kind = instant` represents a terminal instant/emergency request without `Consultation`
-- `kind = instant` uses flat request-level fields and omits consultation-scoped fields
-- `kind = instant` currently covers `DeclinedByExpert` and `Expired`
+Current request-level statuses included in history:
 
-Implementation status:
+- `DeclinedByExpert`
+- `Expired`
 
-- backend implementation is paused after DTO boundary review
-- `status` filters consultation rows only
-- `kind = instant` rows are returned only when `status` is omitted
-- request-level `requestStatus` filtering is not available yet
-- history endpoints should use typed union DTOs under `Responses/Consultation/History`
-- expert absent remains separate and continues to use `MyConsultationResponse`
+Out of scope for this module:
 
-## 2. Authentication & Authorization
+- Admin consultation history behavior
+- New request-level query parameter filtering such as `requestStatus`
 
-JWT Bearer token is required.
+## Authentication & Authorization
 
-Relevant roles:
+All endpoints in this guide require JWT Bearer authentication.
 
-- `User` reads own consultation history
-- `Expert` reads own consultation history
-- `Expert` can reject an assigned instant/emergency request while it is pending expert response
+Role rules:
 
-## 3. Current Verified Instant APIs
+- `User`: create/pay instant request, read own consultation history
+- `Expert`: accept/reject assigned instant request, read own consultation history
 
-### `POST /api/consultations/instant`
+## Expert/Member Business + Expert/Member APIs
 
-Creates an instant/emergency consultation request.
+### Business Flow Summary
 
-Auth:
+1. User creates an emergency request.
+2. User pays emergency request escrow.
+3. Expert accepts or rejects while request is pending.
+4. Background lifecycle worker can expire pending requests.
+5. Consultation history returns mixed rows by `kind`.
 
-- role `User`
+### POST /api/consultations/instant
 
-Side effect:
-
-- creates `ConsultationPingRequest`
-- starts before a `Consultation` exists
-
-### `POST /api/consultations/instant/{requestId}/accept`
-
-Accepts an instant/emergency request.
+Create emergency consultation request.
 
 Auth:
 
-- role `Expert`
+- `User`
 
-Current side effect:
-
-- creates a `Consultation`
-- sets `ConsultationPingRequest.Status = AcceptedByExpert`
-- sets `ConsultationPingRequest.ConsultationId`
-
-History effect:
-
-- accepted request remains `kind = consultation` in history
-
-### `POST /api/consultations/instant/{requestId}/reject`
-
-Rejects an instant/emergency request.
-
-Auth:
-
-- role `Expert`
-
-Current side effect:
-
-- sets `ConsultationPingRequest.Status = DeclinedByExpert`
-- sets `ConsultationPingRequest.RespondedAt`
-- does not create a `Consultation`
-- returns a response where `consultationId` may be null
-
-History effect:
-
-- rejected request appears as `kind = instant`
-- rejected request does not expose `consultationId` or `roomId`
-
-## 4. Member Business + Member APIs
-
-### `GET /api/users/me/consultations`
-
-Returns the member's consultation history.
-
-Auth:
-
-- role `User`
-
-Current verified behavior:
-
-- returns scheduled consultation rows
-- returns accepted instant/emergency consultation rows
-- returns expert-rejected instant/emergency request rows as `kind = instant`
-- returns expired instant/emergency request rows as `kind = instant`
-
-Target behavior:
-
-- returns `kind = consultation` rows for real consultations
-- returns `kind = instant` rows for member-owned instant/emergency requests with:
-  - `requestStatus = DeclinedByExpert`
-  - `requestStatus = Expired`
-
-Query params:
-
-- existing paging params continue to apply
-- existing `type` behavior should continue to include emergency rows when emergency history is requested
-- when `status` is omitted, `kind = instant` rows are included
-- when `status` is supplied, only `kind = consultation` rows matching `ConsultationStatus` are returned
-- no `requestStatus` query parameter exists yet
-
-Success response shape:
+Request body:
 
 ```json
 {
-  "items": [
-    {
-      "kind": "consultation",
-      "consultationId": "33333333-3333-3333-3333-333333333333",
-      "type": "Emergency",
-      "status": "Completed",
-      "expertId": "22222222-2222-2222-2222-222222222222",
-      "expertName": "Khiêm Expert",
-      "expertAvatarUrl": null,
-      "roomId": "consultation-33333333-3333-3333-3333-333333333333",
-      "startTime": "2026-05-04T03:10:00Z",
-      "endTime": "2026-05-04T03:40:00Z",
-      "price": 5000,
-      "emergencyRequestId": "11111111-1111-1111-1111-111111111111"
-    },
-    {
-      "kind": "instant",
-      "instantRequestId": "44444444-4444-4444-4444-444444444444",
-      "type": "Emergency",
-      "requestStatus": "DeclinedByExpert",
-      "requestedAt": "2026-05-04T04:00:00Z",
-      "respondedAt": "2026-05-04T04:01:00Z",
-      "expertId": "22222222-2222-2222-2222-222222222222",
-      "expertName": "Khiêm Expert",
-      "expertAvatarUrl": null
-    }
-  ],
-  "pageNumber": 1,
-  "pageSize": 10,
-  "totalCount": 2
+  "expertId": "22222222-2222-2222-2222-222222222222"
 }
 ```
 
-Important client rules:
+Request constraints:
 
-- branch UI by `kind`
-- do not call consultation detail, join room, review, report absent, or message history using a `kind = instant` row
-- use `respondedAt` as the display/sort time for `kind = instant`
-- do not infer row type from missing `consultationId`, `roomId`, or `status`
+- `expertId` is required.
+- `expertId` must belong to an active expert account.
+- Duplicate active request for same user-expert pair is rejected.
 
-## 5. Expert Business + Expert APIs
-
-### `GET /api/experts/me/consultations`
-
-Returns the expert's consultation history.
-
-Auth:
-
-- role `Expert`
-
-Current verified behavior:
-
-- returns scheduled consultation rows
-- returns accepted instant/emergency consultation rows
-- returns expert-rejected instant/emergency request rows as `kind = instant`
-- returns expired instant/emergency request rows as `kind = instant`
-
-Target behavior:
-
-- returns `kind = consultation` rows for real consultations
-- returns `kind = instant` rows for assigned instant/emergency requests with:
-  - `requestStatus = DeclinedByExpert`
-  - `requestStatus = Expired`
-
-Query params:
-
-- existing paging params continue to apply
-- existing `type` behavior should continue to include emergency rows when emergency history is requested
-- when `status` is omitted, `kind = instant` rows are included
-- when `status` is supplied, only `kind = consultation` rows matching `ConsultationStatus` are returned
-- no `requestStatus` query parameter exists yet
-
-Success response shape:
+Success response (200):
 
 ```json
 {
-  "items": [
-    {
-      "kind": "consultation",
-      "consultationId": "33333333-3333-3333-3333-333333333333",
-      "type": "Emergency",
-      "status": "Completed",
-      "userId": "55555555-5555-5555-5555-555555555555",
-      "userName": "Khiêm User",
-      "userAvatarUrl": null,
-      "roomId": "consultation-33333333-3333-3333-3333-333333333333",
-      "startTime": "2026-05-04T03:10:00Z",
-      "endTime": "2026-05-04T03:40:00Z",
-      "grossPrice": 5000,
-      "netPrice": 4000,
-      "emergencyRequestId": "11111111-1111-1111-1111-111111111111"
-    },
-    {
-      "kind": "instant",
-      "instantRequestId": "44444444-4444-4444-4444-444444444444",
-      "type": "Emergency",
-      "requestStatus": "Expired",
-      "requestedAt": "2026-05-04T04:00:00Z",
-      "respondedAt": "2026-05-04T04:02:00Z",
-      "userId": "55555555-5555-5555-5555-555555555555",
-      "userName": "Khiêm User",
-      "userAvatarUrl": null
-    }
-  ],
-  "pageNumber": 1,
-  "pageSize": 10,
-  "totalCount": 2
+  "data": {
+    "requestId": "11111111-1111-1111-1111-111111111111",
+    "requesterId": "55555555-5555-5555-5555-555555555555",
+    "expertId": "22222222-2222-2222-2222-222222222222",
+    "status": "PendingPayment",
+    "requestedAt": "2026-05-05T10:00:00Z",
+    "expiresAt": "2026-05-05T10:02:00Z",
+    "respondedAt": null,
+    "consultationId": null,
+    "roomId": null
+  }
 }
 ```
 
-Important client rules:
+Common errors:
 
-- branch UI by `kind`
-- do not expose message, room, payout detail, absent report, or consultation detail actions for `kind = instant`
-- use `respondedAt` as the display/sort time for `kind = instant`
+- `404`: selected expert not found
+- `409`: active emergency request already exists for this expert
 
-## 6. Shared Data Models
+Side effects:
 
-Target backend DTO names:
+- Insert `ConsultationPingRequest` with `Status = PendingPayment`
+- Send emergency request created notification
 
-- `MyConsultationHistoryUnionResponse`
-- `MyConsultationHistoryResponse`
-- `MyInstantConsultationRequestHistoryResponse`
-- `ExpertConsultationHistoryUnionResponse`
-- `ExpertConsultationHistoryResponse`
-- `ExpertInstantConsultationRequestHistoryResponse`
+Idempotency/retry note:
 
-### `kind = consultation`
+- Not idempotent. Retrying same payload can fail with `409` if first request succeeded.
 
-Represents a real consultation/session row.
+### POST /api/consultations/instant/{requestId}/payments
 
-Important fields:
+Pay emergency request escrow.
 
-- `kind`: `consultation`
-- `consultationId`: non-null id of `Consultation`
+Auth:
+
+- `User`
+
+Request body:
+
+```json
+{
+  "returnUrl": "https://app.example/success",
+  "cancelUrl": "https://app.example/cancel"
+}
+```
+
+Success response (200):
+
+```json
+{
+  "data": {
+    "transactionId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "bookingId": null,
+    "requestId": "11111111-1111-1111-1111-111111111111",
+    "status": "Pending",
+    "paymentUrl": "https://pay.example/checkout/123"
+  }
+}
+```
+
+Common errors:
+
+- `404`: request not found
+- `403`: request does not belong to caller
+- `409`: request no longer payable state
+
+Side effects:
+
+- Moves request from `PendingPayment` to `PendingExpertResponse` on successful payment creation/confirmation flow
+
+Idempotency/retry note:
+
+- Retry must be handled carefully; gateway/order state can already exist.
+
+### POST /api/consultations/instant/{requestId}/accept
+
+Expert accepts emergency request.
+
+Auth:
+
+- `Expert`
+
+Request body:
+
+- none
+
+Success response (200):
+
+```json
+{
+  "data": {
+    "requestId": "11111111-1111-1111-1111-111111111111",
+    "requesterId": "55555555-5555-5555-5555-555555555555",
+    "expertId": "22222222-2222-2222-2222-222222222222",
+    "status": "AcceptedByExpert",
+    "requestedAt": "2026-05-05T10:00:00Z",
+    "expiresAt": "2026-05-05T10:02:00Z",
+    "respondedAt": "2026-05-05T10:01:00Z",
+    "consultationId": "33333333-3333-3333-3333-333333333333",
+    "roomId": "consultation-33333333-3333-3333-3333-333333333333"
+  }
+}
+```
+
+Common errors:
+
+- `404`: request not found
+- `403`: request is not assigned to this expert
+- `409`: request not in pending-expert-response state or expired
+
+Side effects:
+
+- Create `Consultation`
+- Set request status `AcceptedByExpert`
+- Set `ConsultationId`
+
+Idempotency/retry note:
+
+- Not idempotent.
+
+### POST /api/consultations/instant/{requestId}/reject
+
+Expert rejects emergency request.
+
+Auth:
+
+- `Expert`
+
+Request body:
+
+- none
+
+Success response (200):
+
+```json
+{
+  "data": {
+    "requestId": "44444444-4444-4444-4444-444444444444",
+    "requesterId": "55555555-5555-5555-5555-555555555555",
+    "expertId": "22222222-2222-2222-2222-222222222222",
+    "status": "DeclinedByExpert",
+    "requestedAt": "2026-05-05T11:00:00Z",
+    "expiresAt": "2026-05-05T11:02:00Z",
+    "respondedAt": "2026-05-05T11:01:00Z",
+    "consultationId": null,
+    "roomId": null
+  }
+}
+```
+
+Common errors:
+
+- `404`: request not found
+- `403`: request is not assigned to this expert
+- `409`: request not in pending-expert-response state or expired
+
+Side effects:
+
+- Set request status `DeclinedByExpert`
+- Set `RespondedAt`
+- Trigger emergency escrow refund flow
+- No `Consultation` is created
+
+Idempotency/retry note:
+
+- Not idempotent.
+
+### GET /api/users/me/consultations
+
+Get member consultation history.
+
+Auth:
+
+- `User`
+
+Query params:
+
+- `pageNumber`, `pageSize`
 - `type`: `Scheduled` or `Emergency`
-- `status`: `ConsultationStatus`
-- `roomId`: room id for consultation-scoped actions
-- `startTime`: session start time
-- `endTime`: session end time when available
+- `status`: `ConsultationStatus` enum string
 
-### `kind = instant`
+Validation rules:
 
-Represents a terminal request-level row without a `Consultation`.
+- Invalid `type` or `status` enum values are rejected by backend parsing.
 
-Member shape:
+Filter behavior:
 
-```json
-{
-  "kind": "instant",
-  "instantRequestId": "44444444-4444-4444-4444-444444444444",
-  "type": "Emergency",
-  "requestStatus": "DeclinedByExpert",
-  "requestedAt": "2026-05-04T04:00:00Z",
-  "respondedAt": "2026-05-04T04:01:00Z",
-  "expertId": "22222222-2222-2222-2222-222222222222",
-  "expertName": "Khiêm Expert",
-  "expertAvatarUrl": null
-}
-```
+- `status` filters consultation rows only.
+- `kind = instant` rows are returned only when `status` is omitted.
 
-Expert shape:
+Success response (200):
 
 ```json
 {
-  "kind": "instant",
-  "instantRequestId": "44444444-4444-4444-4444-444444444444",
-  "type": "Emergency",
-  "requestStatus": "Expired",
-  "requestedAt": "2026-05-04T04:00:00Z",
-  "respondedAt": "2026-05-04T04:02:00Z",
-  "userId": "55555555-5555-5555-5555-555555555555",
-  "userName": "Khiêm User",
-  "userAvatarUrl": null
+  "data": {
+    "items": [
+      {
+        "kind": "consultation",
+        "consultationId": "33333333-3333-3333-3333-333333333333",
+        "type": "Emergency",
+        "status": "Completed",
+        "expertId": "22222222-2222-2222-2222-222222222222",
+        "expertName": "Expert A",
+        "expertAvatarUrl": null,
+        "roomId": "consultation-33333333-3333-3333-3333-333333333333",
+        "startTime": "2026-05-05T10:01:00Z",
+        "endTime": "2026-05-05T10:25:00Z",
+        "price": 5000,
+        "emergencyRequestId": "11111111-1111-1111-1111-111111111111"
+      },
+      {
+        "kind": "instant",
+        "instantRequestId": "44444444-4444-4444-4444-444444444444",
+        "type": "Emergency",
+        "requestStatus": "DeclinedByExpert",
+        "requestedAt": "2026-05-05T11:00:00Z",
+        "respondedAt": "2026-05-05T11:01:00Z",
+        "expertId": "22222222-2222-2222-2222-222222222222",
+        "expertName": "Expert A",
+        "expertAvatarUrl": null
+      }
+    ],
+    "meta": {
+      "currentPage": 1,
+      "pageSize": 10,
+      "totalItems": 2,
+      "totalPages": 1
+    }
+  }
 }
 ```
+
+Important client notes:
+
+- Branch UI strictly by `kind`.
+- For `kind = instant`, do not call consultation-scoped actions:
+  - consultation detail
+  - join room
+  - message history
+  - expert absent report
+  - review APIs
+- Timeline sorting is newest first using `respondedAt ?? requestedAt` for instant rows.
+
+### GET /api/experts/me/consultations
+
+Get expert consultation history.
+
+Auth:
+
+- `Expert`
+
+Query params and filter rules:
+
+- Same behavior as member history endpoint.
+
+Success response (200):
+
+```json
+{
+  "data": {
+    "items": [
+      {
+        "kind": "consultation",
+        "consultationId": "33333333-3333-3333-3333-333333333333",
+        "type": "Emergency",
+        "status": "Completed",
+        "userId": "55555555-5555-5555-5555-555555555555",
+        "userName": "Member A",
+        "userAvatarUrl": null,
+        "roomId": "consultation-33333333-3333-3333-3333-333333333333",
+        "startTime": "2026-05-05T10:01:00Z",
+        "endTime": "2026-05-05T10:25:00Z",
+        "grossPrice": 5000,
+        "netPrice": 4000,
+        "emergencyRequestId": "11111111-1111-1111-1111-111111111111"
+      },
+      {
+        "kind": "instant",
+        "instantRequestId": "66666666-6666-6666-6666-666666666666",
+        "type": "Emergency",
+        "requestStatus": "Expired",
+        "requestedAt": "2026-05-05T12:00:00Z",
+        "respondedAt": "2026-05-05T12:02:00Z",
+        "userId": "55555555-5555-5555-5555-555555555555",
+        "userName": "Member A",
+        "userAvatarUrl": null
+      }
+    ],
+    "meta": {
+      "currentPage": 1,
+      "pageSize": 10,
+      "totalItems": 2,
+      "totalPages": 1
+    }
+  }
+}
+```
+
+Important client notes:
+
+- Branch UI by `kind`.
+- Do not expose consultation-scoped actions for `kind = instant`.
+- `RescuerCancelled` exists in enum but is not currently documented as active runtime behavior for this history flow.
+
+## Admin Business + Admin APIs
+
+No admin API contract change is introduced by this module.
+
+Admin consultation history is managed in a separate admin-focused documentation/topic.
+
+## Shared Data Models
+
+### History DTO Union
+
+Member endpoint returns:
+
+- `PagingResponse<MyConsultationHistoryUnionResponse>`
+
+Expert endpoint returns:
+
+- `PagingResponse<ExpertConsultationHistoryUnionResponse>`
+
+Concrete DTOs:
+
+- `MyConsultationHistoryResponse` (`kind = consultation`)
+- `MyInstantConsultationRequestHistoryResponse` (`kind = instant`)
+- `ExpertConsultationHistoryResponse` (`kind = consultation`)
+- `ExpertInstantConsultationRequestHistoryResponse` (`kind = instant`)
+
+### kind = consultation fields
+
+Consultation-scoped fields can include:
+
+- `consultationId`
+- `status`
+- `roomId`
+- `startTime`, `endTime`
+- price fields
+- `emergencyRequestId` (for accepted emergency consultation rows)
+
+### kind = instant fields
+
+Request-scoped fields:
+
+- `instantRequestId`
+- `requestStatus`
+- `requestedAt`
+- `respondedAt`
+- actor fields (`expert*` for member history, `user*` for expert history)
 
 `kind = instant` does not expose:
 
@@ -327,43 +439,30 @@ Expert shape:
 - `grossPrice`
 - `netPrice`
 
-Current `requestStatus` values:
+## Verified Endpoint List
 
-- `DeclinedByExpert`
-- `Expired`
-
-`RescuerCancelled` is not documented as active/current behavior because no production flow currently sets it.
-
-## 7. Verified Endpoint List
-
-Current verified endpoints:
+Implemented endpoints in this module scope:
 
 - `POST /api/consultations/instant`
+- `POST /api/consultations/instant/{requestId}/payments`
 - `POST /api/consultations/instant/{requestId}/accept`
 - `POST /api/consultations/instant/{requestId}/reject`
 - `GET /api/users/me/consultations`
 - `GET /api/experts/me/consultations`
 
-Target response changes:
-
-- `GET /api/users/me/consultations` returns `PagingResponse<MyConsultationHistoryUnionResponse>`
-- `GET /api/experts/me/consultations` returns `PagingResponse<ExpertConsultationHistoryUnionResponse>`
-
-## 8. Changelog
+## Changelog
 
 ### 2026-05-05
 
-- Updated target implementation to typed history union DTOs with no `object`, no `dynamic`, and no DTO reuse with expert absent.
-- Chosen DTO folder: `Responses/Consultation/History/`.
-- Chosen target DTOs: `MyConsultationHistoryUnionResponse`, `MyConsultationHistoryResponse`, `MyInstantConsultationRequestHistoryResponse`, `ExpertConsultationHistoryUnionResponse`, `ExpertConsultationHistoryResponse`, `ExpertInstantConsultationRequestHistoryResponse`.
-- Documented conservative filter behavior: `status` filters only consultation rows; instant rows appear when `status` is omitted.
-- Locked the frontend/mobile history direction to a union response contract.
-- Added `kind = instant` member and expert DTO examples.
-- Documented `DeclinedByExpert` and `Expired` as active request-level history rows.
-- Documented fields omitted from `kind = instant`.
+- Synced useguide to implemented runtime behavior.
+- Removed stale wording that suggested implementation was paused.
+- Confirmed union history contract is active in production code path.
+- Documented exact status filter behavior: consultation rows only when `status` is provided.
+- Added request/response/error examples for create, pay, accept, reject, and history APIs.
+- Re-verified by tests:
+  - `rtk dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests`
+  - `rtk dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter "ConsultationPriceBugConditionTests|ConsultationPricePreservationTests|ExpertConsultationPriceResponseTests|ConsultationExpertAbsentIntegrationTests|ConsultationPropertyTests"`
 
 ### 2026-05-04
 
-- Documented three candidate frontend/mobile integration approaches for expert-rejected instant/emergency history with stronger wording.
-- Marked all candidate history contracts as planned and not implemented.
-- Removed the previous single-path framing from this guide.
+- Created baseline useguide for instant booking cancel history problem and candidate directions.

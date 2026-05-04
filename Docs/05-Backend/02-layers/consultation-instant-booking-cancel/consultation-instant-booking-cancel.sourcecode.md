@@ -230,6 +230,18 @@ Task<PagingResponse<ExpertConsultationHistoryUnionResponse>> GetExpertConsultati
 Task<MyConsultationResponse> ReportExpertAbsentAsync(...)
 ```
 
+### Implemented Filter And Sort Semantics
+
+- `query.status` is parsed as `ConsultationStatus`; invalid enum input raises `ArgumentException`.
+- `query.status` filters only consultation-backed rows.
+- Instant request-level rows are included only when `query.status` is omitted.
+- Instant request-level rows are fetched only when:
+    - `ConsultationId == null`
+    - `Status in { DeclinedByExpert, Expired }`
+- Final list is sorted descending by `HistorySortTime`:
+    - `kind = consultation` uses `StartTime`
+    - `kind = instant` uses `RespondedAt ?? RequestedAt`
+
 ## 5. Code Decision Status
 
 No open product decision remains for member/expert history.

@@ -10,6 +10,12 @@ verification_status: decision-recorded
 ---
 # Rủi Ro Hallucination: Lịch Sử Huỷ Instant Consultation
 
+## Open Risk Summary
+
+- No open hallucination risks for member/expert instant history in this topic.
+- H-001 and H-002 are closed and implemented in code.
+- The remaining follow-up is technical validation of OpenAPI polymorphic schema quality, not a product-direction decision.
+
 ## H-001: Terminal instant request không có `Consultation` thì có nên xuất hiện trong lịch sử consultation không?
 
 - trạng thái: `Closed`
@@ -310,12 +316,18 @@ Decision bổ sung ngày `2026-05-05` cho DTO `kind = instant`:
 - `RescuerCancelled` hiện chỉ tồn tại trong enum `ConsultationPingStatus`; chưa thấy production endpoint/service flow nào set trạng thái này. Không đưa vào `kind = instant` history cho tới khi có flow active/current trong code.
 - Status filter behavior cho `kind = instant` đã chốt theo hướng conservative: `status` chỉ filter `kind = consultation`; `kind = instant` chỉ xuất hiện khi không truyền `status`.
 
-Tác động implementation dự kiến:
+Tác động implementation đã áp dụng:
 
 - Member history và expert history cần query thêm `ConsultationPingRequest` terminal thuộc scope `kind = instant`, trước mắt gồm `DeclinedByExpert` và `Expired`.
 - Accepted instant/emergency request vẫn map từ linked `Consultation` và trả về `kind = consultation`.
 - Rejected/expired instant/emergency request phải map từ `ConsultationPingRequest`, không map từ fake consultation.
 - Mobile phải branch UI theo kind thay vì suy luận từ `consultationId`, `roomId`, hoặc `status`.
+
+## 9. 2026-05-05 Sync Note
+
+- Baseline docs were re-synced after implementation verification.
+- No new decision branch was introduced.
+- No additional user decision is required at this time for this module scope.
 
 ## H-003: History DTO có được dùng chung với `MyConsultationResponse` / `ExpertConsultationResponse` không?
 

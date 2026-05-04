@@ -18,8 +18,8 @@ verification_status: verified
 - current expert accept endpoint: `Available`
 - current expert reject endpoint: `Available`
 - current member/expert history inclusion for accepted instant requests: `Available`
-- current member/expert history inclusion for expert-rejected instant requests: `Target behavior: available as kind = instant`
-- current member/expert history inclusion for expired instant requests: `Target behavior: available as kind = instant`
+- current member/expert history inclusion for expert-rejected instant requests: `Available as kind = instant`
+- current member/expert history inclusion for expired instant requests: `Available as kind = instant`
 - selected direction: `Union history contract with kind = consultation | instant`
 - status filter decision: `status filters consultation rows only; instant rows appear only when status is omitted`
 - DTO boundary decision: `History usecase has its own typed union DTOs; expert absent keeps MyConsultationResponse`
@@ -133,11 +133,19 @@ Out of scope:
 
 ## Next Resume Step
 
-Next resume step: review Swagger/OpenAPI schema quality for the polymorphic history response if frontend tooling requires generated typed clients.
+Next resume step: validate generated Swagger/OpenAPI schema for polymorphic history response (`kind = consultation | instant`) and confirm mobile codegen compatibility.
 
 ## Change Log
 
 ### 2026-05-05
+
+- Synced baseline docs to code-verified state after implementation completion (removed stale `target/paused` wording from runtime contract narrative).
+- Re-verified implementation after sync:
+  - `rtk dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests` (5 passed)
+  - `rtk dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter "ConsultationPriceBugConditionTests|ConsultationPricePreservationTests|ExpertConsultationPriceResponseTests|ConsultationExpertAbsentIntegrationTests|ConsultationPropertyTests"` (31 passed)
+- Noted current dependency warnings from test run:
+  - `MailKit 3.2.0` advisory `GHSA-9j88-vvj5-vhgr`
+  - `MimeKit 3.2.0` advisories `GHSA-g7hc-96xr-gvvx`, `GHSA-gmc6-fwg3-75m5`
 
 - Implemented typed member/expert history union DTOs under `SnakeAid.Core/Responses/Consultation/History/`.
 - Updated member/expert history service contracts and API action response types.
