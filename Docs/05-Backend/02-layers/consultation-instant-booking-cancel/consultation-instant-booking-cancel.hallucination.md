@@ -252,7 +252,7 @@ Quyết định này ảnh hưởng trực tiếp tới:
 - cách mobile render history
 - cách backend bảo vệ các action chỉ hợp lệ với consultation thật
 
-Decision còn mở duy nhất trong file này là status filter mapping cho `kind = instant`.
+Status filter mapping cho `kind = instant` đã được chốt ở H-002.
 
 ## 8. Decision Record
 
@@ -279,7 +279,7 @@ Quyết định:
 Ghi chú contract:
 
 - Field contract chính cho DTO `kind = instant` đã được chốt trong decision bổ sung ngày `2026-05-05`.
-- Status filter mapping cho `kind = instant` vẫn để mở. Decision này có thể cần được mở lại khi phân tích admin endpoint/history contract.
+- Status filter mapping cho `kind = instant` đã được chốt trong H-002 cho member/expert history.
 
 Decision bổ sung ngày `2026-05-05` cho DTO `kind = instant`:
 
@@ -308,7 +308,7 @@ Decision bổ sung ngày `2026-05-05` cho DTO `kind = instant`:
 - `Expired` là terminal request-level flow không tạo `Consultation`; flow expire chỉ update `ConsultationPingRequest.Status = Expired`, set `RespondedAt`, và refund escrow nếu cần.
 - `PendingPayment` và `PendingExpertResponse` cũng chưa có `Consultation`, nhưng là active request states, không phải terminal history row trong scope này.
 - `RescuerCancelled` hiện chỉ tồn tại trong enum `ConsultationPingStatus`; chưa thấy production endpoint/service flow nào set trạng thái này. Không đưa vào `kind = instant` history cho tới khi có flow active/current trong code.
-- Status filter behavior cho `kind = instant` chưa chốt trong lượt này. Tạm giữ là open decision vì có thể liên quan đến admin history endpoint và filter contract tổng thể.
+- Status filter behavior cho `kind = instant` đã chốt theo hướng conservative: `status` chỉ filter `kind = consultation`; `kind = instant` chỉ xuất hiện khi không truyền `status`.
 
 Tác động implementation dự kiến:
 
@@ -319,15 +319,16 @@ Tác động implementation dự kiến:
 
 ## H-002: Status filter mapping cho `kind = instant` nên hoạt động như thế nào?
 
-- trạng thái: `Open`
+- trạng thái: `Closed`
 - ngày phát hiện: `2026-05-05`
+- ngày chốt: `2026-05-05`
 - phạm vi: member history, expert history, có thể mở rộng sang admin history
 - endpoint liên quan:
   - `GET /api/users/me/consultations`
   - `GET /api/experts/me/consultations`
   - admin history endpoint nếu áp dụng cùng union/filter model sau này
 
-## 1. Lý do còn mở
+## 1. Lý do decision
 
 Query history hiện có `status` filter theo `ConsultationStatus`.
 
@@ -368,6 +369,25 @@ Hai enum này không cùng nghĩa:
 - Mobile/admin có thể filter đúng request-level status.
 - Là thay đổi contract rộng hơn và cần cân nhắc chung với admin endpoint.
 
-## 4. Required user decision
+## 4. Decision Record
 
-Chưa chốt trong lượt này. Giữ open cho tới khi phân tích filter contract của member/expert history và admin history đủ rõ.
+Chọn Option A với biến thể conservative:
+
+- Nếu không truyền `status`, member/expert emergency history trả về cả:
+  - `kind = consultation` cho consultation thật
+  - `kind = instant` cho terminal request-level rows `DeclinedByExpert` và `Expired`
+- Nếu có truyền `status`, backend chỉ trả về `kind = consultation` rows khớp `ConsultationStatus`.
+- `kind = instant` không được map ngầm vào `status=Cancelled`, `status=Completed`, hoặc status nào khác.
+- Không thêm `requestStatus` filter trong change này.
+
+Lý do:
+
+- tránh trộn `ConsultationStatus` với `ConsultationPingStatus`
+- giữ backward-compatible behavior cho client đang dùng `status` để lọc consultation/session thật
+- không đoán admin/reporting semantics trước khi admin history union contract được thiết kế
+
+Implementation impact:
+
+- `ConsultationService.GetMyConsultationsAsync(...)` chỉ query terminal instant rows khi `statusFilter` không có giá trị.
+- `ConsultationService.GetExpertConsultationsAsync(...)` áp dụng cùng behavior.
+- Future filter theo request-level row nên dùng query riêng như `requestStatus` nếu frontend/mobile cần.

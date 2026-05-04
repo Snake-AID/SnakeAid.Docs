@@ -3,10 +3,10 @@ doc_role: implementation
 module: consultation-instant-booking-cancel
 kind: flow
 doc_type: introduction
-status: current
+status: implemented
 last_updated: 2026-05-05
 owners: [backend-team]
-verification_status: code-investigated
+verification_status: code-and-tests-verified
 ---
 
 # Consultation Instant Booking Cancel Introduction
@@ -40,11 +40,11 @@ Current instant/emergency flow:
 9. expiration sets `ConsultationPingRequest.Status = Expired`
 10. expiration does not create a `Consultation`
 
-Current history behavior:
+Implemented history behavior:
 
 - accepted instant/emergency requests appear in member/expert consultation history
-- expert-rejected instant/emergency requests do not appear in member/expert consultation history
-- expired instant/emergency requests do not appear in member/expert consultation history
+- expert-rejected instant/emergency requests appear in member/expert consultation history as `kind = instant`
+- expired instant/emergency requests appear in member/expert consultation history as `kind = instant`
 
 ## Root Cause Summary
 
@@ -81,11 +81,21 @@ Locked `kind = instant` behavior:
 - currently covers `DeclinedByExpert` and `Expired`
 - does not cover `RescuerCancelled` until a production flow sets that status
 
-## Remaining Open Decision
+## Status Filter Decision
 
-Only status filter mapping remains open.
+Status filter behavior is implemented conservatively.
 
-The unresolved question is how `status` filters should interact with `kind = instant`, especially when admin history/filter contracts are considered.
+When `status` is not supplied:
+
+- member/expert emergency history includes real consultation rows and terminal instant request rows
+
+When `status` is supplied:
+
+- `status` filters only `kind = consultation` rows by `ConsultationStatus`
+- `kind = instant` rows are not returned by the `status` filter
+- request-level filtering by `requestStatus` is not implemented in this change
+
+This avoids mapping `ConsultationStatus` values to `ConsultationPingStatus` values before a broader admin/filter contract exists.
 
 ## Delivered Artifacts
 
@@ -94,3 +104,7 @@ The unresolved question is how `status` filters should interact with `kind = ins
 - `consultation-instant-booking-cancel.hallucination.md`
 - `consultation-instant-booking-cancel.sourcecode.md`
 - `consultation-instant-booking-cancel.useguide.md`
+
+## Verification
+
+- `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests`

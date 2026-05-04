@@ -1,40 +1,41 @@
 ---
-doc_role: planning
+doc_role: usageguide
 module: consultation-instant-booking-cancel
 kind: flow
 doc_type: useguide
-status: planned
+status: implemented
 last_updated: 2026-05-05
 api_version: v1
 owners: [backend-team]
-verification_status: planned-not-implemented
+verification_status: code-and-tests-verified
 ---
 
 # Consultation Instant Booking Cancel Useguide
 
 ## 1. Overview
 
-This guide is for frontend/mobile integration planning.
+This guide is for frontend/mobile integration.
 
 Current verified backend behavior:
 
 - accepted instant/emergency requests can appear in member/expert consultation history
-- expert-rejected instant/emergency requests do not currently appear in member/expert consultation history
-- expired instant/emergency requests do not currently appear in member/expert consultation history
+- expert-rejected instant/emergency requests appear in member/expert consultation history as `kind = instant`
+- expired instant/emergency requests appear in member/expert consultation history as `kind = instant`
 
-Selected planned contract:
+Implemented contract:
 
 - history response items use `kind = consultation | instant`
 - `kind = consultation` represents a real `Consultation`
 - `kind = instant` represents a terminal instant/emergency request without `Consultation`
-- `kind = instant` is a separate DTO with flat fields
+- `kind = instant` uses flat request-level fields and omits consultation-scoped fields
 - `kind = instant` currently covers `DeclinedByExpert` and `Expired`
 
 Implementation status:
 
-- planned contract is locked
-- backend implementation is not done
-- status filter behavior for `kind = instant` is still open
+- backend implementation is done for member/expert history
+- `status` filters consultation rows only
+- `kind = instant` rows are returned only when `status` is omitted
+- request-level `requestStatus` filtering is not available yet
 
 ## 2. Authentication & Authorization
 
@@ -77,7 +78,7 @@ Current side effect:
 
 History effect:
 
-- accepted request remains `kind = consultation` in planned history contract
+- accepted request remains `kind = consultation` in history
 
 ### `POST /api/consultations/instant/{requestId}/reject`
 
@@ -94,7 +95,7 @@ Current side effect:
 - does not create a `Consultation`
 - returns a response where `consultationId` may be null
 
-Planned history effect:
+History effect:
 
 - rejected request appears as `kind = instant`
 - rejected request does not expose `consultationId` or `roomId`
@@ -113,10 +114,10 @@ Current verified behavior:
 
 - returns scheduled consultation rows
 - returns accepted instant/emergency consultation rows
-- does not return expert-rejected instant/emergency request rows
-- does not return expired instant/emergency request rows
+- returns expert-rejected instant/emergency request rows as `kind = instant`
+- returns expired instant/emergency request rows as `kind = instant`
 
-Planned behavior:
+Implemented behavior:
 
 - returns `kind = consultation` rows for real consultations
 - returns `kind = instant` rows for member-owned instant/emergency requests with:
@@ -127,7 +128,9 @@ Query params:
 
 - existing paging params continue to apply
 - existing `type` behavior should continue to include emergency rows when emergency history is requested
-- `status` filter behavior for `kind = instant` is not finalized
+- when `status` is omitted, `kind = instant` rows are included
+- when `status` is supplied, only `kind = consultation` rows matching `ConsultationStatus` are returned
+- no `requestStatus` query parameter exists yet
 
 Success response shape:
 
@@ -187,10 +190,10 @@ Current verified behavior:
 
 - returns scheduled consultation rows
 - returns accepted instant/emergency consultation rows
-- does not return expert-rejected instant/emergency request rows
-- does not return expired instant/emergency request rows
+- returns expert-rejected instant/emergency request rows as `kind = instant`
+- returns expired instant/emergency request rows as `kind = instant`
 
-Planned behavior:
+Implemented behavior:
 
 - returns `kind = consultation` rows for real consultations
 - returns `kind = instant` rows for assigned instant/emergency requests with:
@@ -201,7 +204,9 @@ Query params:
 
 - existing paging params continue to apply
 - existing `type` behavior should continue to include emergency rows when emergency history is requested
-- `status` filter behavior for `kind = instant` is not finalized
+- when `status` is omitted, `kind = instant` rows are included
+- when `status` is supplied, only `kind = consultation` rows matching `ConsultationStatus` are returned
+- no `requestStatus` query parameter exists yet
 
 Success response shape:
 
@@ -311,7 +316,7 @@ Expert shape:
 - `grossPrice`
 - `netPrice`
 
-Current planned `requestStatus` values:
+Current `requestStatus` values:
 
 - `DeclinedByExpert`
 - `Expired`
@@ -328,20 +333,22 @@ Current verified endpoints:
 - `GET /api/users/me/consultations`
 - `GET /api/experts/me/consultations`
 
-Planned response changes:
+Implemented response changes:
 
-- `GET /api/users/me/consultations` will return union rows after implementation
-- `GET /api/experts/me/consultations` will return union rows after implementation
+- `GET /api/users/me/consultations` returns union rows
+- `GET /api/experts/me/consultations` returns union rows
 
 ## 8. Changelog
 
 ### 2026-05-05
 
+- Implemented union history rows for member/expert instant terminal requests.
+- Documented conservative filter behavior: `status` filters only consultation rows; instant rows appear when `status` is omitted.
+- Verified with `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests`.
 - Locked the frontend/mobile history direction to a union response contract.
-- Added planned `kind = instant` member and expert DTO examples.
-- Documented `DeclinedByExpert` and `Expired` as planned request-level history rows.
+- Added `kind = instant` member and expert DTO examples.
+- Documented `DeclinedByExpert` and `Expired` as active request-level history rows.
 - Documented fields omitted from `kind = instant`.
-- Kept status filter behavior open.
 
 ### 2026-05-04
 

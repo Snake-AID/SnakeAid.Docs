@@ -3,25 +3,25 @@ doc_role: implementation
 module: consultation-instant-booking-cancel
 kind: flow
 doc_type: roadmap
-status: current
+status: implemented
 last_updated: 2026-05-05
 owners: [backend-team]
-verification_status: code-investigated
+verification_status: code-and-tests-verified
 ---
 
 # Consultation Instant Booking Cancel Roadmap
 
 ## Current Status Snapshot
 
-- module status: `Contract decision locked, implementation pending`
+- module status: `Implemented for member/expert history`
 - current instant request endpoint: `Available`
 - current expert accept endpoint: `Available`
 - current expert reject endpoint: `Available`
 - current member/expert history inclusion for accepted instant requests: `Available`
-- current member/expert history inclusion for expert-rejected instant requests: `Not implemented`
-- current member/expert history inclusion for expired instant requests: `Not implemented`
+- current member/expert history inclusion for expert-rejected instant requests: `Available as kind = instant`
+- current member/expert history inclusion for expired instant requests: `Available as kind = instant`
 - selected direction: `Union history contract with kind = consultation | instant`
-- remaining open decision: `Status filter mapping for kind = instant`
+- status filter decision: `status filters consultation rows only; instant rows appear only when status is omitted`
 
 ## Current Truth To Resume From
 
@@ -33,8 +33,8 @@ Code-verified state:
 - `EmergencyConsultationService.AcceptEmergencyRequestAsync(...)` creates the `Consultation` row.
 - `EmergencyConsultationService.RejectEmergencyRequestAsync(...)` does not create a `Consultation` row.
 - `ConsultationPaymentService.ExpireEmergencyRequestsAsync(...)` expires pending instant/emergency requests without creating a `Consultation` row.
-- `ConsultationService.GetMyConsultationsAsync(...)` returns emergency rows only when `ConsultationPingRequest.ConsultationId.HasValue` and `Status == AcceptedByExpert`.
-- `ConsultationService.GetExpertConsultationsAsync(...)` has the same accepted-only emergency history filter.
+- `ConsultationService.GetMyConsultationsAsync(...)` returns accepted emergency rows as `kind = consultation` and terminal `DeclinedByExpert`/`Expired` pings without `ConsultationId` as `kind = instant` when `status` is omitted.
+- `ConsultationService.GetExpertConsultationsAsync(...)` has the same implemented union behavior.
 - `RescuerCancelled` exists in `ConsultationPingStatus` but no production flow currently sets it.
 
 Decision-verified state:
@@ -75,7 +75,7 @@ Out of scope:
 - [x] define member history flat actor fields
 - [x] define expert history flat actor fields
 - [x] verify terminal request statuses without `Consultation`
-- [ ] close status filter mapping decision
+- [x] close status filter mapping decision
 
 ### Phase 2. Contract Design
 
@@ -84,45 +84,53 @@ Out of scope:
 - [x] define `kind = instant` timestamp fields: `requestedAt`, `respondedAt`
 - [x] exclude `consultationId`, `roomId`, `startTime`, `endTime`, `rescueMissionId`, `expiresAt`, and price fields from `kind = instant`
 - [x] document that `DeclinedByExpert` and `Expired` are request-level terminal history statuses
-- [ ] define final status filter mapping for mixed `kind = consultation | instant` rows
+- [x] define final status filter mapping for mixed `kind = consultation | instant` rows
 
 ### Phase 3. Service Implementation
 
-- [ ] introduce/adjust member history response model for union rows
-- [ ] introduce/adjust expert history response model for union rows
-- [ ] update `GetMyConsultationsAsync(...)` to query `DeclinedByExpert` and `Expired` pings for `kind = instant`
-- [ ] update `GetExpertConsultationsAsync(...)` to query `DeclinedByExpert` and `Expired` pings for `kind = instant`
-- [ ] preserve accepted emergency consultation behavior as `kind = consultation`
-- [ ] sort `kind = instant` rows by `respondedAt`
-- [ ] implement status filter behavior after H-002 is closed
+- [x] introduce/adjust member history response model for union rows
+- [x] introduce/adjust expert history response model for union rows
+- [x] update `GetMyConsultationsAsync(...)` to query `DeclinedByExpert` and `Expired` pings for `kind = instant`
+- [x] update `GetExpertConsultationsAsync(...)` to query `DeclinedByExpert` and `Expired` pings for `kind = instant`
+- [x] preserve accepted emergency consultation behavior as `kind = consultation`
+- [x] sort `kind = instant` rows by `respondedAt`
+- [x] implement status filter behavior after H-002 is closed
 
 ### Phase 4. Tests
 
-- [ ] member history includes `DeclinedByExpert` instant request as `kind = instant`
-- [ ] expert history includes `DeclinedByExpert` instant request as `kind = instant`
-- [ ] member history includes `Expired` instant request as `kind = instant`
-- [ ] expert history includes `Expired` instant request as `kind = instant`
-- [ ] accepted emergency consultation history still maps from linked `Consultation` as `kind = consultation`
-- [ ] `kind = instant` rows do not expose consultation-scoped action ids
-- [ ] sorting behavior uses `respondedAt` for terminal request rows
-- [ ] status filtering behavior matches the selected H-002 contract
+- [x] member history includes `DeclinedByExpert` instant request as `kind = instant`
+- [x] expert history includes `DeclinedByExpert` instant request as `kind = instant`
+- [x] member history includes `Expired` instant request as `kind = instant`
+- [x] expert history includes `Expired` instant request as `kind = instant`
+- [x] accepted emergency consultation history still maps from linked `Consultation` as `kind = consultation`
+- [x] `kind = instant` rows do not expose consultation-scoped action ids
+- [x] sorting behavior uses `respondedAt` for terminal request rows
+- [x] status filtering behavior matches the selected H-002 contract
 
 ### Phase 5. Docs Sync
 
 - [x] close H-001 strategy/DTO decisions in hallucination doc
-- [x] keep H-002 filter decision open in hallucination doc
-- [x] update introduction with locked union contract
+- [x] close H-002 filter decision in hallucination doc
+- [x] update introduction with implemented union contract
 - [x] update roadmap with selected direction and implementation checklist
-- [x] update sourcecode doc with planned union flow
-- [x] update useguide with planned frontend/mobile contract
+- [x] update sourcecode doc with implemented union flow
+- [x] update useguide with implemented frontend/mobile contract
 
 ## Next Resume Step
 
-Close H-002 by deciding how the `status` query filter should apply to `kind = instant` rows, then implement the union response DTOs and member/expert history query changes.
+Next resume step: decide whether a future `requestStatus` query parameter is needed for frontend/mobile filtering of request-level instant rows, especially before extending the same union model to admin history.
 
 ## Change Log
 
 ### 2026-05-05
+
+- Implemented member/expert emergency history union rows for terminal instant requests.
+- Added `kind`, `instantRequestId`, `requestStatus`, `requestedAt`, and `respondedAt` to member/expert history response models.
+- Made consultation-scoped fields nullable and JSON-ignored when null so `kind = instant` rows do not expose fake consultation identifiers.
+- Implemented `DeclinedByExpert` and `Expired` request-level rows for `GET /api/users/me/consultations` and `GET /api/experts/me/consultations`.
+- Closed H-002 with conservative filter behavior: `status` filters consultation rows only; instant rows appear when `status` is omitted.
+- Added integration coverage in `ConsultationInstantHistoryIntegrationTests`.
+- Verified with `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests`.
 
 - Locked H-001 to union response contract with `kind = consultation | instant`.
 - Documented `kind = instant` as a separate flat DTO.

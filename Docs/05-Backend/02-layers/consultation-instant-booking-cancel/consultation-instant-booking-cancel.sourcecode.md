@@ -3,10 +3,10 @@ doc_role: implementation
 module: consultation-instant-booking-cancel
 kind: flow
 doc_type: sourcecode
-status: current
+status: implemented
 last_updated: 2026-05-05
 owners: [backend-team]
-verification_status: code-investigated
+verification_status: code-and-tests-verified
 ---
 
 # Consultation Instant Booking Cancel Sourcecode
@@ -24,11 +24,11 @@ Active backend surface:
 - `MyConsultationResponse`
 - `ExpertConsultationResponse`
 
-Planned response surface:
+Implemented response surface:
 
-- member history union row: `kind = consultation | instant`
-- expert history union row: `kind = consultation | instant`
-- `kind = instant` DTO is separate from the current consultation response DTOs
+- member history response model includes union row fields: `kind = consultation | instant`
+- expert history response model includes union row fields: `kind = consultation | instant`
+- `kind = instant` is serialized without consultation-scoped fields when they are `null`
 
 ## 2. Current HTTP Surface
 
@@ -109,7 +109,7 @@ sequenceDiagram
     Payment->>Payment: refund escrow when needed
 ```
 
-### Current History Query Behavior
+### Previous History Query Behavior
 
 Current member history emergency branch:
 
@@ -125,17 +125,17 @@ Current expert history emergency branch:
 - requires `p.Status == AcceptedByExpert`
 - maps from linked `Consultation`
 
-Result:
+Previous result:
 
 - accepted instant/emergency requests appear in history
-- expert-rejected instant/emergency requests do not appear in history
-- expired instant/emergency requests do not appear in history
+- expert-rejected instant/emergency requests did not appear in history
+- expired instant/emergency requests did not appear in history
 
-## 4. Desired/Planned Code
+## 4. Implemented Code
 
-The selected implementation direction is a union response contract.
+The selected implementation direction is now implemented for member/expert history.
 
-### Planned Union Mapping
+### Implemented Union Mapping
 
 ```mermaid
 flowchart TD
@@ -171,10 +171,10 @@ Not currently covered:
 - `AcceptedByExpert`: has linked `Consultation`
 - `RescuerCancelled`: enum value exists, but no production flow currently sets it
 
-### Planned Member DTO Shape For `kind = instant`
+### Implemented Member DTO Shape For `kind = instant`
 
 ```csharp
-new MemberInstantHistoryResponse
+new MyConsultationResponse
 {
     Kind = "instant",
     InstantRequestId = ping.Id,
@@ -188,10 +188,10 @@ new MemberInstantHistoryResponse
 }
 ```
 
-### Planned Expert DTO Shape For `kind = instant`
+### Implemented Expert DTO Shape For `kind = instant`
 
 ```csharp
-new ExpertInstantHistoryResponse
+new ExpertConsultationResponse
 {
     Kind = "instant",
     InstantRequestId = ping.Id,
@@ -221,9 +221,13 @@ Do not expose these fields for request-level rows:
 
 ## 5. Open Code Decision
 
-Status filter mapping is still open.
+No open code decision remains for member/expert history.
 
-The implementation must not guess whether `status=Cancelled` includes `requestStatus=DeclinedByExpert`, or how `Expired` should be filtered, until H-002 is closed.
+H-002 is closed with conservative behavior:
+
+- `status` filters `kind = consultation` rows only.
+- `kind = instant` rows are returned only when `status` is omitted.
+- Future request-level filtering should use a separate contract such as `requestStatus`.
 
 ## 6. Test Focus
 
@@ -234,5 +238,11 @@ The implementation must not guess whether `status=Cancelled` includes `requestSt
 - accepted instant request behavior remains unchanged as `kind = consultation`
 - selected contract behavior is explicit and tested
 - paging and sorting handle `respondedAt` for `kind = instant`
-- status filtering follows H-002 after it is closed
-- consultation-scoped actions are hidden or unavailable for `kind = instant`
+- status filtering follows H-002
+- consultation-scoped ids are null for `kind = instant` and are JSON-ignored when null
+
+Verification command:
+
+```bash
+dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests
+```
