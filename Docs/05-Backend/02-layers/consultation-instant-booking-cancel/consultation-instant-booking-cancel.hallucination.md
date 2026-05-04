@@ -13,8 +13,10 @@ verification_status: code-investigated
 
 ## H-001: Should Expert-Rejected Instant Requests Appear In Consultation History?
 
-- status: `Open`
+- status: `Closed`
 - discovered: `2026-05-04`
+- closed: `2026-05-04`
+- chosen option: `Option 2B`
 
 ### Why This Requires A Decision
 
@@ -152,7 +154,20 @@ Best fit when:
 
 ### Option 2 Analysis
 
-Option 2 is the user-preferred direction under consideration.
+Option 2B is the locked product/contract direction.
+
+System behavior after Option 2B is implemented:
+
+- existing member/expert consultation history endpoints return a mixed timeline
+- accepted scheduled and emergency sessions remain `recordKind = "Consultation"`
+- expert-rejected instant/emergency requests appear as `recordKind = "EmergencyRequest"`
+- request-only rows use `consultationId = null`
+- request-only rows keep `emergencyRequestId = ConsultationPingRequest.Id`
+- request-only rows use `status = "Cancelled"` for unified history grouping
+- request-only rows use `requestStatus = "DeclinedByExpert"` for exact backend state
+- request-only rows have `roomId = null` because no consultation room was created
+- request-only rows do not support consultation detail, room join, message history, review, or consultation settlement actions
+- accepted emergency consultation behavior remains unchanged and still maps from linked `Consultation`
 
 #### Option 2A: Minimal Contract Change
 
@@ -256,20 +271,28 @@ Recommended shape if Option 2 is selected:
 - add `requestStatus` to the response for exact meaning
 - defer a `requestStatus` query parameter unless product needs direct filtering by ping lifecycle state
 
-### Recommendation
+### Decision Record
 
-Code evidence does not justify silently choosing between Option 2 and Option 3 because both are valid product contracts.
+- date: `2026-05-04`
+- chosen option: `Option 2B`
+- user decision: lock Option 2B
+- rationale: show expert-rejected instant/emergency requests inside existing member/expert consultation history while avoiding fake consultation ids and preserving exact request state.
 
-Recommended decision path:
+Implementation impact:
 
-1. choose Option 2B only if the product requirement is explicitly "show expert-rejected instant requests in the existing member/expert consultation history list."
-2. choose Option 3 if the product requirement is "show full instant request lifecycle history" or if mobile cannot safely absorb a nullable `consultationId` change.
-3. do not implement Option 2A because it either requires fake consultation ids or leaves the existing DTO contract misleading.
+- make history `consultationId` nullable for member/expert history response rows
+- add `recordKind`
+- add `requestStatus`
+- include `DeclinedByExpert` pings in member/expert emergency history
+- map declined pings without creating or faking a `Consultation`
+- apply `status=Cancelled` as the unified history status for declined request-only rows
 
-### Required User Decision
+Documentation impact:
 
-Confirm one of:
+- `consultation-instant-booking-cancel.roadmap.md` must continue from implementation, not decision discovery
+- `consultation-instant-booking-cancel.useguide.md` should present Option 2B as planned contract, not an open option
+- `consultation-instant-booking-cancel.sourcecode.md` should describe desired implementation under Option 2B
 
-- `Option 1`: keep current session-only history
-- `Option 2B`: mixed consultation/request history with nullable `consultationId`, `recordKind`, unified `status`, exact `requestStatus`, and `status=Cancelled` including `DeclinedByExpert`
-- `Option 3`: separate instant/emergency request history endpoint
+### Remaining Open Decisions
+
+None for H-001.

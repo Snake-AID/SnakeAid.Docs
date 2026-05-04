@@ -105,9 +105,9 @@ Result:
 - accepted instant/emergency requests appear in history
 - expert-rejected instant/emergency requests do not appear in history
 
-## 7. Desired/Planned Code For Option 2
+## 7. Desired/Planned Code For Locked Option 2B
 
-If Option 2B is chosen:
+Option 2B is chosen.
 
 - update history response DTOs to allow `ConsultationId` to be null
 - add `RecordKind`
@@ -115,6 +115,38 @@ If Option 2B is chosen:
 - include rejected pings in emergency history queries
 - map rejected pings as request-only rows
 - keep accepted pings mapped from linked `Consultation`
+
+### Planned Runtime Behavior
+
+Member history:
+
+- query accepted emergency pings exactly as today for real consultation rows
+- additionally query `DeclinedByExpert` pings for the current member where `ConsultationId == null`
+- map declined pings to `MyConsultationResponse` request-only rows
+- merge scheduled, accepted emergency, and declined emergency request rows before sorting/pagination
+
+Expert history:
+
+- query accepted emergency pings exactly as today for real consultation rows
+- additionally query `DeclinedByExpert` pings for the current expert where `ConsultationId == null`
+- map declined pings to `ExpertConsultationResponse` request-only rows
+- merge scheduled, accepted emergency, and declined emergency request rows before sorting/pagination
+
+Accepted emergency preservation:
+
+- accepted emergency rows stay `RecordKind = "Consultation"`
+- accepted emergency rows keep non-null `ConsultationId`
+- accepted emergency rows keep current `RoomId`, `StartTime`, `EndTime`, and pricing behavior
+
+Rejected emergency mapping:
+
+- rejected emergency rows become `RecordKind = "EmergencyRequest"`
+- rejected emergency rows set `ConsultationId = null`
+- rejected emergency rows set `EmergencyRequestId = ping.Id`
+- rejected emergency rows set `Status = "Cancelled"`
+- rejected emergency rows set `RequestStatus = "DeclinedByExpert"`
+- rejected emergency rows set `RoomId = null`
+- rejected emergency rows use `RespondedAt ?? RequestedAt` as timeline time
 
 Planned request-only mapping:
 

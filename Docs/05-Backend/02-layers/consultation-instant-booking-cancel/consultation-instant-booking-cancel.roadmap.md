@@ -19,7 +19,7 @@ verification_status: code-investigated
 - current expert reject endpoint: `Available`
 - current member/expert history inclusion for accepted instant requests: `Available`
 - current member/expert history inclusion for expert-rejected instant requests: `Not implemented`
-- proposed direction: `Under decision`
+- proposed direction: `Option 2B locked`
 
 ## Current Truth To Resume From
 
@@ -55,15 +55,26 @@ Out of scope:
 
 ### Phase 1. Decision Lock
 
-- [ ] decide whether rejected instant requests should appear in existing consultation history endpoints
-- [ ] decide response shape for request-only rows
-- [ ] decide status mapping and filtering behavior
+- [x] decide whether rejected instant requests should appear in existing consultation history endpoints
+- [x] decide response shape for request-only rows
+- [x] decide status mapping and filtering behavior
+
+Decision:
+
+- expert-rejected instant/emergency requests will appear in existing member/expert consultation history endpoints
+- rejected requests will be request-only rows, not fake consultations
+- chosen contract is Option 2B:
+  - `consultationId = null`
+  - `recordKind = "EmergencyRequest"`
+  - `status = "Cancelled"`
+  - `requestStatus = "DeclinedByExpert"`
+  - `roomId = null`
 
 ### Phase 2. Contract Design
 
-- [ ] make `consultationId` nullable or introduce a separate response model
-- [ ] add a discriminator such as `recordKind`
-- [ ] add exact request status such as `requestStatus`
+- [ ] make `consultationId` nullable in member/expert history response models
+- [ ] add `recordKind`
+- [ ] add exact request status as `requestStatus`
 - [ ] document nullability for `roomId`, `startTime`, and `endTime`
 
 ### Phase 3. Service Implementation
@@ -89,11 +100,12 @@ Out of scope:
 
 ## Next Resume Step
 
-Ask the user to choose H-001 direction:
+Implement Option 2B in the backend:
 
-- `Option 1`: keep current session-only history
-- `Option 2B`: mixed consultation/request history with nullable `consultationId`, `recordKind`, unified `status`, exact `requestStatus`, and `status=Cancelled` including `DeclinedByExpert`
-- `Option 3`: separate instant/emergency request history endpoint
+1. update member/expert history response DTOs for nullable `ConsultationId`, `RecordKind`, and `RequestStatus`
+2. update `ConsultationService.GetMyConsultationsAsync(...)` to merge `DeclinedByExpert` request-only rows
+3. update `ConsultationService.GetExpertConsultationsAsync(...)` with the same request-only mapping
+4. add tests for rejected request rows, accepted emergency preservation, sorting, and `status=Cancelled` filtering
 
 ## Change Log
 
@@ -103,3 +115,4 @@ Ask the user to choose H-001 direction:
 - Moved instant/emergency history analysis out of `consultation-scheduled-booking-cancel`.
 - Recorded current root cause and proposed implementation impact for request-only history rows.
 - Expanded H-001 option analysis with a decision matrix, code evidence, Option 2A risks, Option 2B filter behavior, and an explicit Option 1/2B/3 decision path.
+- Locked H-001 to Option 2B and updated the next resume step from decision selection to backend implementation.

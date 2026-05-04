@@ -21,10 +21,12 @@ Current verified backend behavior:
 - accepted instant/emergency requests can appear in member/expert consultation history
 - expert-rejected instant/emergency requests do not currently appear in member/expert consultation history
 
-Planned behavior under consideration:
+Locked planned behavior:
 
 - include expert-rejected instant/emergency requests in existing history endpoints as request-level rows
 - do not fabricate a consultation id for rows that do not have a `Consultation`
+- expose request-only rows with `recordKind = "EmergencyRequest"`
+- expose exact request state through `requestStatus`
 
 ## 2. Authentication & Authorization
 
@@ -98,6 +100,40 @@ This contract is not implemented yet.
 
 Request-only rows should be distinguishable from real consultation rows.
 
+### System Behavior After Option 2B Is Implemented
+
+History endpoints return a single timeline with two row kinds.
+
+`recordKind = "Consultation"`:
+
+- represents a real `Consultation` row
+- has a non-null `consultationId`
+- may have a `roomId`
+- can be used for supported consultation actions such as detail, message history, room join when still active, review when eligible, and other consultation-scoped flows
+- applies to scheduled consultations and accepted emergency consultations
+
+`recordKind = "EmergencyRequest"`:
+
+- represents a rejected instant/emergency request, not a consultation session
+- has `consultationId = null`
+- has `emergencyRequestId`
+- has `roomId = null`
+- uses `status = "Cancelled"` for the existing history status grouping
+- uses `requestStatus = "DeclinedByExpert"` for the exact backend request state
+- cannot be used for consultation-scoped actions
+
+Sorting behavior:
+
+- real consultation rows sort by their existing consultation start time
+- request-only rows sort by `respondedAt` when available
+- request-only rows fall back to `requestedAt` when `respondedAt` is not available
+
+Filtering behavior:
+
+- no `status` filter returns both consultation rows and rejected request-only rows
+- `status=Cancelled` includes request-only rows with `requestStatus = "DeclinedByExpert"`
+- other consultation status filters apply only to real consultation rows unless future requirements add more request lifecycle mappings
+
 Planned user history row example:
 
 ```json
@@ -145,7 +181,10 @@ Planned expert history row example:
 - `consultationId = null` means no `Consultation` was created.
 - `roomId = null` means no call room was created.
 - `requestStatus = "DeclinedByExpert"` is the exact backend request status.
-- `status = "Cancelled"` is a proposed unified display status and still needs final approval.
+- `status = "Cancelled"` is the locked unified display status for expert-rejected instant/emergency request rows.
+- `emergencyRequestId` is the stable id for request-only rows.
+- `startTime` and `endTime` on request-only rows are timeline timestamps, not consultation session timestamps.
+- frontend/mobile must branch by `recordKind` before showing actions.
 
 ## 7. Verified Endpoint List
 
@@ -163,3 +202,4 @@ Current verified endpoints:
 
 - Created planned frontend/mobile contract for showing expert-rejected instant/emergency requests in existing member/expert history endpoints.
 - Marked request-only history rows as planned and not implemented.
+- Locked Option 2B behavior: mixed history rows, nullable `consultationId`, `recordKind`, `requestStatus`, and `status=Cancelled` mapping for `DeclinedByExpert`.

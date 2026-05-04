@@ -55,11 +55,25 @@ Expert-rejected instant/emergency requests remain request records only:
 - `ConsultationId = null`
 - `Status = DeclinedByExpert`
 
-## Implementation Direction Under Consideration
+## Locked Implementation Direction
 
-The preferred direction under analysis is to include expert-rejected instant/emergency requests in the existing member/expert history endpoints as request-level rows.
+Option 2B is locked.
+
+The backend should include expert-rejected instant/emergency requests in the existing member/expert history endpoints as request-level rows.
 
 This requires an explicit response contract because rejected rows do not have a real consultation id or room id.
+
+Expected system behavior after implementation:
+
+- accepted scheduled and emergency rows continue to represent real consultation sessions
+- expert-rejected instant/emergency rows appear in the same history list as request-level rows
+- request-level rows are marked with `recordKind = "EmergencyRequest"`
+- request-level rows return `consultationId = null`
+- request-level rows return `emergencyRequestId`
+- request-level rows return `status = "Cancelled"` for history grouping
+- request-level rows return `requestStatus = "DeclinedByExpert"` for exact backend state
+- request-level rows return `roomId = null`
+- clients must not use request-level rows for room join, consultation detail, message history, review, or settlement actions
 
 ## Delivered Artifacts
 
