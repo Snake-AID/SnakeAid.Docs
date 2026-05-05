@@ -4,7 +4,7 @@ module: consultation-instant-booking-cancel
 kind: flow
 doc_type: roadmap
 status: implemented
-last_updated: 2026-05-05
+last_updated: 2026-05-06
 owners: [backend-team]
 verification_status: verified
 ---
@@ -23,6 +23,7 @@ verification_status: verified
 - selected direction: `Union history contract with kind = consultation | instant`
 - status filter decision: `status filters consultation rows only; instant rows appear only when status is omitted`
 - DTO boundary decision: `History usecase has its own typed union DTOs; expert absent keeps MyConsultationResponse`
+- admin endpoint compatibility with union format: `Not compatible (consultation-centric AdminConsultationResponse)`
 
 ## Current Truth To Resume From
 
@@ -69,7 +70,7 @@ Out of scope:
 - scheduled booking cancellation behavior
 - scheduled booking refund policy
 - scheduled booking push notification copy
-- admin consultation history implementation until explicitly picked up
+- full admin union-contract redesign until explicitly picked up
 
 ## Implementation Checklist
 
@@ -131,11 +132,37 @@ Out of scope:
 - [x] update sourcecode doc with target union flow
 - [x] update useguide with target frontend/mobile contract
 
+### Phase 6. Admin Compatibility Assessment (requested 2026-05-06)
+
+- [x] verify route contracts for `GET /api/admin/consultations` and `GET /api/admin/consultations/{consultationId}`
+- [x] verify service return types and DTO shape for admin consultation APIs
+- [x] verify emergency query predicates for request-level terminal statuses
+- [x] verify behavior against admin unit/integration tests
+- [x] update all baseline docs with compatibility result and follow-up decision points
+
+Evidence summary:
+
+- Controller contract: `ApiResponse<PagingResponse<AdminConsultationResponse>>` and `ApiResponse<AdminConsultationResponse>`.
+- Admin history query includes emergency requests only with `ConsultationId.HasValue` and `Status == AcceptedByExpert`.
+- Terminal request-only rows (`DeclinedByExpert`, `Expired` without linked consultation) are not represented as independent union rows.
+- Verification: `AdminConsultationsControllerTests` + `AdminConsultationHistoryIntegrationTests` passed.
+
 ## Next Resume Step
 
-Next resume step: validate generated Swagger/OpenAPI schema for polymorphic history response (`kind = consultation | instant`) and confirm mobile codegen compatibility.
+Next resume step: decide whether admin endpoints should remain consultation-centric or adopt a typed union contract for terminal request-only rows, then implement/update tests and admin docs accordingly.
 
 ## Change Log
+
+### 2026-05-06
+
+- Per request, checked compatibility of:
+  - `GET /api/admin/consultations`
+  - `GET /api/admin/consultations/{consultationId}`
+- Confirmed both endpoints are not compatible with member/expert history union format (`kind = consultation | instant`).
+- Recorded evidence from controller signatures, service query predicates, and DTO shape.
+- Re-verified admin behavior by tests:
+  - `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter "AdminConsultationsControllerTests|AdminConsultationHistoryIntegrationTests"` (17 passed)
+- Opened follow-up decision point for potential admin union alignment.
 
 ### 2026-05-05
 

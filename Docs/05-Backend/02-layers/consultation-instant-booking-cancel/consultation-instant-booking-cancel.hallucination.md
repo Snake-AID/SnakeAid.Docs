@@ -4,7 +4,7 @@ module: consultation-instant-booking-cancel
 kind: flow
 doc_type: hallucination
 status: current
-last_updated: 2026-05-05
+last_updated: 2026-05-06
 owners: [backend-team]
 verification_status: decision-recorded
 ---
@@ -12,9 +12,58 @@ verification_status: decision-recorded
 
 ## Open Risk Summary
 
-- No open hallucination risks for member/expert instant history in this topic.
-- H-001 and H-002 are closed and implemented in code.
-- The remaining follow-up is technical validation of OpenAPI polymorphic schema quality, not a product-direction decision.
+- One open risk exists for admin flow contract direction.
+- H-001 and H-002 remain closed and implemented for member/expert history.
+- New open risk H-004 tracks whether admin endpoints should align to union timeline contract.
+
+## H-004: Admin consultation endpoints có cần align với union format (`kind = consultation | instant`) không?
+
+- trạng thái: `Open`
+- ngày phát hiện: `2026-05-06`
+- phạm vi: admin consultation history endpoints
+- endpoint liên quan:
+  - `GET /api/admin/consultations`
+  - `GET /api/admin/consultations/{consultationId}`
+
+### Vì sao cần quyết định
+
+Member/expert history đã dùng typed union contract để biểu diễn cả consultation row và terminal instant request row.
+
+Admin endpoints hiện dùng `AdminConsultationResponse` consultation-centric, không có discriminator `kind`, và không trả terminal request-only row như item độc lập.
+
+Nếu không chốt rõ định hướng, tài liệu và frontend/admin portal có thể kỳ vọng sai về dữ liệu row-level cho `DeclinedByExpert`/`Expired` khi không có linked `Consultation`.
+
+### Ảnh hưởng nếu đoán sai
+
+- Admin UI có thể render sai timeline khi mong đợi request-level row như member/expert.
+- Contract drift giữa admin docs và code thực tế.
+- Team có thể phát sinh fix chắp vá (thêm field nullable) thay vì chọn contract rõ ràng.
+
+### Phương án
+
+1. Giữ nguyên consultation-centric contract cho admin (không union).
+  - Ưu điểm: ít thay đổi code và API hiện tại.
+  - Nhược điểm: khác mô hình member/expert, không có row request-only kiểu union.
+
+2. Chuyển admin list sang typed union tương tự member/expert (`kind = consultation | instant`).
+  - Ưu điểm: nhất quán tư duy history timeline.
+  - Nhược điểm: thay đổi contract admin, cần update admin portal và OpenAPI/codegen.
+
+3. Giữ endpoint hiện tại nhưng thêm endpoint admin request-level riêng (không đổi contract cũ).
+  - Ưu điểm: không break endpoint cũ, tách trách nhiệm rõ.
+  - Nhược điểm: tăng số endpoint và logic tổng hợp dữ liệu phía client/admin portal.
+
+### Khuyến nghị hiện tại
+
+Chưa đủ business evidence để tự chốt. Cần quyết định từ user/product owner theo nhu cầu admin UI thực tế.
+
+### Required User Decision
+
+Chọn một trong ba hướng cho admin flow:
+
+- A: giữ consultation-centric contract
+- B: migrate admin sang union contract
+- C: giữ contract cũ và bổ sung endpoint request-level riêng
 
 ## H-001: Terminal instant request không có `Consultation` thì có nên xuất hiện trong lịch sử consultation không?
 

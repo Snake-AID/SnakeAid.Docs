@@ -4,7 +4,7 @@ module: consultation-instant-booking-cancel
 kind: flow
 doc_type: sourcecode
 status: implemented
-last_updated: 2026-05-05
+last_updated: 2026-05-06
 owners: [backend-team]
 verification_status: verified
 ---
@@ -45,8 +45,31 @@ Current verified endpoints:
 - `POST /api/consultations/instant/{requestId}/payments`
 - `GET /api/users/me/consultations`
 - `GET /api/experts/me/consultations`
+- `GET /api/admin/consultations`
+- `GET /api/admin/consultations/{consultationId}`
 
 ## 3. Observed Current Code
+
+### Admin Endpoint Contract Surface (Observed)
+
+- `GET /api/admin/consultations`
+    - controller response type: `ApiResponse<PagingResponse<AdminConsultationResponse>>`
+    - service: `GetAllConsultationsForAdminAsync(AdminConsultationsQueryRequest)`
+- `GET /api/admin/consultations/{consultationId}`
+    - controller response type: `ApiResponse<AdminConsultationResponse>`
+    - service: `GetConsultationByIdForAdminAsync(Guid consultationId)`
+
+Observed emergency inclusion rules in admin list:
+
+- include only `ConsultationPingRequest` where:
+    - `ConsultationId.HasValue`
+    - `Status == AcceptedByExpert`
+- terminal request-only rows (`DeclinedByExpert`, `Expired` without linked consultation) are not materialized as independent rows.
+
+Observed admin detail behavior:
+
+- requires `consultationId` to exist in `Consultation` table.
+- emergency request fields are mapped as optional fields into consultation-centric `AdminConsultationResponse`.
 
 ### Instant Request Creation
 
@@ -150,6 +173,21 @@ flowchart TD
     C --> E[Expose consultationId, roomId, startTime, endTime, consultation status]
     D --> F[Expose instantRequestId, requestStatus, requestedAt, respondedAt, flat actor fields]
 ```
+
+### Admin Compatibility Assessment Against Union Format
+
+Member/expert endpoints implement typed union timeline.
+
+Admin endpoints currently do not:
+
+- no `kind` discriminator in admin DTO
+- no union base/derived DTO hierarchy in admin responses
+- no request-only terminal row emission as timeline items
+- detail endpoint cannot represent request-only rows because it is keyed by `Consultation.Id`
+
+Conclusion:
+
+- `GET /api/admin/consultations` and `GET /api/admin/consultations/{consultationId}` are not compatible with the current member/expert union timeline contract.
 
 ### `kind = consultation`
 
@@ -271,10 +309,12 @@ H-002 is closed with conservative behavior:
 - `kind = instant` DTOs do not define consultation-scoped fields
 - `MyConsultationResponse` remains unchanged for expert absent
 - serialization test proves derived history DTO fields appear in JSON
+- admin endpoint tests verify consultation-centric contract and mapping behavior
 
 Verification commands:
 
 ```bash
 dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests
 dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter "ConsultationPriceBugConditionTests|ConsultationPricePreservationTests|ExpertConsultationPriceResponseTests|ConsultationExpertAbsentIntegrationTests|ConsultationPropertyTests"
+dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter "AdminConsultationsControllerTests|AdminConsultationHistoryIntegrationTests"
 ```

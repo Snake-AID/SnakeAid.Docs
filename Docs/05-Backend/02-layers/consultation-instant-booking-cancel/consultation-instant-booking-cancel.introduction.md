@@ -4,7 +4,7 @@ module: consultation-instant-booking-cancel
 kind: flow
 doc_type: introduction
 status: implemented
-last_updated: 2026-05-05
+last_updated: 2026-05-06
 owners: [backend-team]
 verification_status: verified
 ---
@@ -127,6 +127,32 @@ This avoids mapping `ConsultationStatus` values to `ConsultationPingStatus` valu
 - `consultation-instant-booking-cancel.sourcecode.md`
 - `consultation-instant-booking-cancel.useguide.md`
 
+## Admin Endpoint Compatibility Check (2026-05-06)
+
+Requested verification:
+
+- `GET /api/admin/consultations`
+- `GET /api/admin/consultations/{consultationId}`
+
+Compatibility result with current history union format (`kind = consultation | instant`):
+
+- `Not compatible`
+
+Code-verified reasons:
+
+1. Admin list endpoint returns `PagingResponse<AdminConsultationResponse>`, not a union contract.
+2. Admin detail endpoint returns `AdminConsultationResponse` by a required `consultationId` from `Consultation` table.
+3. Admin list emergency query only reads accepted requests with linked consultation:
+  - `ConsultationId.HasValue`
+  - `Status == AcceptedByExpert`
+4. Terminal request-only rows (`DeclinedByExpert`, `Expired` without linked consultation) are not emitted as independent history items.
+5. Admin response has no discriminator (`kind`) and no request-row shape split similar to member/expert history union.
+
+Scope note:
+
+- Admin response includes some emergency request fields (`EmergencyRequestId`, `EmergencyRequestStatus`, `RequestedAt`, `RespondedAt`, `ExpiresAt`) as nullable detail fields on a consultation-centric DTO.
+- This is an enriched single DTO model, not a typed union timeline contract.
+
 ## Verification
 
 - `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests`
@@ -136,3 +162,7 @@ Latest re-verification on `2026-05-05`:
 
 - `rtk dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter ConsultationInstantHistoryIntegrationTests` -> passed (`5` tests)
 - `rtk dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter "ConsultationPriceBugConditionTests|ConsultationPricePreservationTests|ExpertConsultationPriceResponseTests|ConsultationExpertAbsentIntegrationTests|ConsultationPropertyTests"` -> passed (`31` tests)
+
+Admin compatibility verification on `2026-05-06`:
+
+- `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter "AdminConsultationsControllerTests|AdminConsultationHistoryIntegrationTests"` -> passed (`17` tests)

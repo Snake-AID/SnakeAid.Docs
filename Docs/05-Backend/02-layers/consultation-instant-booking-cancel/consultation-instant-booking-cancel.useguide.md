@@ -4,7 +4,7 @@ module: consultation-instant-booking-cancel
 kind: flow
 doc_type: useguide
 status: implemented
-last_updated: 2026-05-05
+last_updated: 2026-05-06
 api_version: v1
 owners: [backend-team]
 verification_status: verified
@@ -383,9 +383,119 @@ Important client notes:
 
 ## Admin Business + Admin APIs
 
-No admin API contract change is introduced by this module.
+### Compatibility Check Scope
 
-Admin consultation history is managed in a separate admin-focused documentation/topic.
+Checked endpoints:
+
+- `GET /api/admin/consultations`
+- `GET /api/admin/consultations/{consultationId}`
+
+Compatibility result with member/expert union format (`kind = consultation | instant`):
+
+- `Not compatible`
+
+### Why Not Compatible
+
+1. Both endpoints return `AdminConsultationResponse` (single consultation-centric DTO), not union rows.
+2. No discriminator field such as `kind` exists in admin response.
+3. Admin list endpoint maps emergency rows from requests only when request is accepted and linked to `Consultation`.
+4. Admin detail endpoint is keyed by `consultationId`, so request-only terminal events without `Consultation` cannot be addressed directly.
+
+### GET /api/admin/consultations
+
+List admin consultation history (scheduled + emergency consultation rows).
+
+Auth:
+
+- `Admin`
+
+Query params:
+
+- `pageNumber`, `pageSize`
+- `type`: `Scheduled` or `Emergency`
+- `status`: `ConsultationStatus` enum string
+
+Success response shape (200):
+
+```json
+{
+  "data": {
+    "items": [
+      {
+        "consultationId": "33333333-3333-3333-3333-333333333333",
+        "type": "Emergency",
+        "status": "Completed",
+        "userId": "55555555-5555-5555-5555-555555555555",
+        "userName": "Member A",
+        "expertId": "22222222-2222-2222-2222-222222222222",
+        "expertName": "Expert A",
+        "roomId": "consultation-33333333-3333-3333-3333-333333333333",
+        "startTime": "2026-05-05T10:01:00Z",
+        "endTime": "2026-05-05T10:25:00Z",
+        "price": 5000,
+        "emergencyRequestId": "11111111-1111-1111-1111-111111111111",
+        "emergencyRequestStatus": "AcceptedByExpert",
+        "requestedAt": "2026-05-05T10:00:00Z",
+        "respondedAt": "2026-05-05T10:01:00Z",
+        "expiresAt": "2026-05-05T10:02:00Z"
+      }
+    ],
+    "meta": {
+      "currentPage": 1,
+      "pageSize": 10,
+      "totalItems": 1,
+      "totalPages": 1
+    }
+  }
+}
+```
+
+Important note:
+
+- `DeclinedByExpert` and `Expired` request-only rows (without `Consultation`) are not returned as independent timeline items.
+
+### GET /api/admin/consultations/{consultationId}
+
+Get admin detail by consultation id.
+
+Auth:
+
+- `Admin`
+
+Path params:
+
+- `consultationId` (guid)
+
+Success response shape (200):
+
+```json
+{
+  "data": {
+    "consultationId": "33333333-3333-3333-3333-333333333333",
+    "type": "Emergency",
+    "status": "Completed",
+    "userId": "55555555-5555-5555-5555-555555555555",
+    "expertId": "22222222-2222-2222-2222-222222222222",
+    "roomId": "consultation-33333333-3333-3333-3333-333333333333",
+    "startTime": "2026-05-05T10:01:00Z",
+    "endTime": "2026-05-05T10:25:00Z",
+    "price": 5000,
+    "emergencyRequestId": "11111111-1111-1111-1111-111111111111",
+    "emergencyRequestStatus": "AcceptedByExpert",
+    "requestedAt": "2026-05-05T10:00:00Z",
+    "respondedAt": "2026-05-05T10:01:00Z",
+    "expiresAt": "2026-05-05T10:02:00Z"
+  }
+}
+```
+
+Common errors:
+
+- `404`: consultation not found
+
+Black-box note:
+
+- Endpoint requires a real consultation id, so request-only terminal event ids cannot be queried here.
 
 ## Shared Data Models
 
@@ -451,6 +561,16 @@ Implemented endpoints in this module scope:
 - `GET /api/experts/me/consultations`
 
 ## Changelog
+
+### 2026-05-06
+
+- Added admin compatibility assessment for:
+  - `GET /api/admin/consultations`
+  - `GET /api/admin/consultations/{consultationId}`
+- Confirmed admin flow is consultation-centric and not compatible with member/expert union format (`kind = consultation | instant`).
+- Added concrete admin endpoint contracts and examples for integration clarity.
+- Verified related tests passed:
+  - `dotnet test SnakeAid.Tests\SnakeAid.Tests.csproj --no-restore --filter "AdminConsultationsControllerTests|AdminConsultationHistoryIntegrationTests"`
 
 ### 2026-05-05
 
