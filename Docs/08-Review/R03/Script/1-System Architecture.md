@@ -1,19 +1,13 @@
 # Script thuyết trình - Slide 1: System Architecture
 
-Phần đầu tiên, em xin giới thiệu tổng thể kiến trúc của SnakeAid.
+Phần đầu tiên, em xin giới thiệu tổng thể kiến trúc hệ thống của SnakeAid. Kiến trúc của tụi em được thiết kế theo hướng phân tách các lớp rõ ràng để đảm bảo hiệu năng và khả năng mở rộng.
 
-Ở lớp ngoài cùng, hệ thống có hai kênh client chính.
+**Ở lớp Client ngoài cùng** , hệ thống giao tiếp qua hai kênh chính. **Mobile App xây dựng bằng Flutter** phục vụ cho Member, Rescuer và Expert với tính cơ động cao. Còn **Web App dùng Next.js** dành cho Operator và Admin để thao tác điều phối, quản trị. Toàn bộ lưu lượng truy cập từ các client này đều được định tuyến và bảo vệ thông qua **Cloudflare Tunnel** trước khi đi vào mạng nội bộ.
 
-Mobile Flutter phục vụ các vai trò sử dụng linh hoạt như Member, Rescuer và Expert khi cần hỗ trợ từ xa.
+**Tiến vào lớp Trung tâm (Core Backend)** được đặt trên một Self-hosted Linux Server. Tụi em sử dụng **.NET kết hợp Entity Framework** làm trái tim của hệ thống để xử lý các nghiệp vụ phức tạp. Đặc biệt, để đáp ứng tính năng thời gian thực (Real-time), hệ thống sử dụng **SignalR** để đảm nhiệm việc streaming liên tục các message hệ thống giữa Backend và các Client. Song song đó, **RabbitMQ** được triển khai như một Message Queue chuyên dụng cho luồng Push Notification. Việc tách riêng hàng đợi này đảm bảo toàn bộ thông báo gửi đến người dùng, chuyên gia hay đội cứu hộ đều được xử lý trọn vẹn, không bị bỏ sót bất kỳ tin nào ngay cả khi hệ thống chịu tải cao
 
-Web Next.js phù hợp hơn cho các tác vụ vận hành và quản trị như Operator và Admin.
+**Về luồng xử lý Trí tuệ nhân tạo (AI)** , tụi em xây dựng một pipeline hoàn chỉnh: Bắt đầu từ model nền tảng  **YOLO của Ultralytics** , dữ liệu được gán nhãn qua  **Roboflow** , đem đi Fine-tuning trên  **Google Colab** , sau đó lưu trữ tại  **Hugging Face** . Cuối cùng, model được kéo về khối **AI Inference chạy bằng FastAPI và ONNX** để phục vụ việc nhận diện loài rắn tốc độ cao cho hệ thống.
 
-Toàn bộ lưu lượng từ client sẽ đi qua Cloudflare Tunnel trước khi vào backend, vừa hỗ trợ routing vừa bảo vệ hạ tầng self-hosted phía sau.
+**Để hoàn thiện hệ sinh thái** , backend kết nối với một loạt các dịch vụ bên thứ ba (Third-party services) thông qua các API: cơ sở dữ liệu  **Supabase PostgreSQL** , lưu trữ ảnh  **Cloudinary** , thanh toán  **PayOS** , hạ tầng gọi video  **LiveKit** , gửi email  **Resend** , định vị bản đồ  **LocationIQ** , và gửi thông báo qua  **Firebase Cloud Messaging** . Đặc biệt, toàn bộ biến môi trường và khóa bảo mật của các dịch vụ này được quản lý tập trung và an toàn thông qua  **Doppler** .
 
-Ở trung tâm là backend .NET kết hợp Entity Framework để xử lý các flow chính như emergency, rescue, consultation và thanh toán.
-
-Song song với đó là khối AI Inference dùng FastAPI và ONNX để nhận diện loài rắn và hỗ trợ đánh giá ban đầu.
-
-Hệ thống cũng tích hợp Supabase PostgreSQL, Cloudinary, PayOS, LiveKit, Resend, LocationIQ và Firebase Cloud Messaging.
-
-Về triển khai, các service chạy trên Docker trong môi trường self-hosted Linux Server, có Jenkins cho CI/CD, Portainer cho quản lý container và lớp monitoring để hỗ trợ vận hành ổn định.
+**Cuối cùng, ở lớp Triển khai và Vận hành (DevOps)**, tất cả các service nội bộ đều được đóng gói bằng **Docker** và giao tiếp nội bộ qua Docker Network. Tụi em sử dụng **Jenkins** để tự động hóa CI/CD, dùng **Portainer** để hỗ trợ ZeroDowntime ở cuối pipeline Jenkins. Song song đó là cụm công cụ **Observability & Monitoring** giúp team liên tục giám sát sức khỏe của toàn bộ hạ tầng
