@@ -1,23 +1,17 @@
 # Script thuyết trình - Slide 3: Operator & Admin Features
 
-Phần cuối cùng là hai vai trò vận hành và quản trị, gồm Operator và Admin.
+Phần cuối cùng trong lớp nghiệp vụ, em xin đi vào hai vai trò đứng sau đảm bảo hệ thống vận hành trơn tru: Operator và Admin.
 
-Với Operator, trọng tâm là nhóm chức năng điều phối trung tâm của hệ thống.
+**(Chỉ vào phần Operator)**
 
-Trước hết là theo dõi hàng chờ yêu cầu, bao gồm cả ca SOS và yêu cầu bắt rắn.
+Với  **Operator** , đây chính là "trạm kiểm soát" trung tâm. Trách nhiệm sống còn của họ là  **theo dõi hàng chờ yêu cầu** , đặc biệt là các ca cấp cứu SOS. Ngay khi có tín hiệu, Operator sẽ **xác minh tình huống và phân công Rescuer** phù hợp nhất. Điểm nhấn ở đây là Operator không chỉ ấn nút giao việc rồi để đó, mà họ sẽ liên tục sử dụng **bản đồ định vị thời gian thực (Map-based tracking)** để giám sát toàn trình tiến độ ứng cứu của lực lượng hiện trường. Bên cạnh đó, thông qua việc  **điều phối và thông báo ca trực (Workshift)** , Operator đảm bảo hệ thống luôn có đủ nguồn lực sẵn sàng 24/7, không để bất kỳ ca cấp cứu nào bị bỏ sót.
 
-Từ đó, Operator thực hiện bước xác minh và phân loại mức độ ưu tiên, rồi gán Rescuer phù hợp cho từng trường hợp.
+**(Chỉ vào phần Admin)**
 
-Sau khi đã phân công, Operator tiếp tục theo dõi tiến độ nhiệm vụ theo thời gian thực.
+Chuyển sang  **Admin** , đây là vai trò nắm giữ quyền quản trị toàn diện hệ sinh thái. Đầu tiên, họ đóng vai trò là chốt chặn an toàn thông qua việc **phê duyệt đăng ký và cấp quyền** cho các chuyên gia và lực lượng cứu hộ.
 
-Bên cạnh đó, phần thông báo vận hành và điều phối ca trực cho thấy Operator không chỉ xử lý từng ca riêng lẻ, mà còn phải bảo đảm nguồn lực luôn sẵn sàng và thông tin vận hành được truyền đi đúng lúc.
+Tiếp theo, Admin duy trì "bộ não" dữ liệu của nền tảng bằng cách **quản lý các danh mục cốt lõi** như: thư viện nhận diện loài rắn, mạng lưới cơ sở điều trị, và các  **cấu hình vận hành động** . Để hệ thống không chỉ dừng ở việc "chữa cháy" mà còn giúp cộng đồng phòng ngừa, Admin sẽ trực tiếp kiểm duyệt  **kho nội dung bài học và cảnh báo an toàn** .
 
-Với Admin, phạm vi trách nhiệm rộng hơn và mang tính nền tảng cho toàn bộ hệ thống.
+Cuối cùng, một nền tảng dịch vụ thì không thể thiếu mảng  **quản lý dòng tiền, giao dịch và phân chia hoa hồng** . Admin sẽ kết hợp dữ liệu tài chính này cùng với các **báo cáo thống kê, truy vết hệ thống** và **đánh giá lại lịch sử nhận diện của AI** để liên tục tối ưu hóa nền tảng.
 
-Trước hết là quản lý người dùng, phân quyền và xác minh chuyên môn, để kiểm soát ai được tham gia nền tảng với vai trò nào.
-
-Tiếp theo là quản lý dữ liệu loài rắn, cơ sở điều trị, cùng các cấu hình vận hành và cơ chế quản lý yêu cầu, tức là những thành phần ảnh hưởng trực tiếp tới độ đúng của dữ liệu và độ ổn định của quy trình nghiệp vụ.
-
-Ngoài ra, Admin còn phụ trách nội dung, thông báo và kho kiến thức của hệ thống; đồng thời quản lý tài chính, giao dịch, hoa hồng, thống kê, kiểm tra truy vết và quản trị AI.
-
-Điều này cho thấy Admin không chỉ cấu hình hệ thống ở giai đoạn ban đầu, mà còn chịu trách nhiệm duy trì tính nhất quán, an toàn và khả năng mở rộng của nền tảng về lâu dài.
+Nhìn chung, nếu Member, Rescuer và Expert là bề nổi tương tác trực tiếp với sự cố, thì Operator và Admin chính là bộ khung vững chắc giúp duy trì tính nhất quán, minh bạch và an toàn cho toàn bộ dự án Snake AID.
